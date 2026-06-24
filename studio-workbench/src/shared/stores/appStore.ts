@@ -65,6 +65,7 @@ import {
   buildWorkbenchStoreNames,
   currentMonthOrderQuery,
   emptySelectionStats,
+  mapOrder,
   mapStudio,
   todayKey,
 } from './appStoreTransforms'
@@ -80,6 +81,7 @@ import {
   findOrderInCaches,
   rememberOrderForOperations as rememberOrderForOperationCaches,
   rescheduleOrderAction,
+  type StaffOrderConfirmPaymentInput,
   type StaffOrderCreateInput,
   type StaffOrderRescheduleInput,
   updateOrderStatusAction,
@@ -490,6 +492,15 @@ export const appStore = reactive({
     return rescheduleOrderAction(this, orderId, input)
   },
 
+  async confirmOrderPayment(input: StaffOrderConfirmPaymentInput) {
+    const dto = await backendApi.confirmOrderPayment(input)
+    const next = mapOrder(dto, this.stores)
+    this.orders = this.orders.map(order => (order.id === next.id ? next : order))
+    this.ledgerOrders = this.ledgerOrders.map(order => (order.id === next.id ? next : order))
+    this.reportOrders = this.reportOrders.map(order => (order.id === next.id ? next : order))
+    return next
+  },
+
   async updateProduct(data: ProductConfig) {
     return updateProductFacade(this, data)
   },
@@ -590,4 +601,3 @@ export const appDerived = {
     }
   }),
 }
-

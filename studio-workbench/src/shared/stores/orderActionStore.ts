@@ -47,6 +47,12 @@ export type StaffOrderRescheduleInput = {
   remark?: string
 }
 
+export type StaffOrderConfirmPaymentInput = {
+  id: BackendId
+  amountCent: number
+  remark: string
+}
+
 type OrderActionContext = {
   demoMode: boolean
   stores: StoreInfo[]

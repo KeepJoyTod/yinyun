@@ -8,6 +8,50 @@ const test = require('node:test');
 const repoRoot = path.resolve(__dirname, '../..');
 const scriptPath = path.join(repoRoot, 'tools/get-yingyue-delivery-status.ps1');
 
+function writeFinalPassEvidenceFixture(evidenceRoot) {
+  const stamp = '20991231-235959';
+  const markdownPath = path.join(evidenceRoot, `photo-pickup-real-oss-acceptance-${stamp}.md`);
+  const summaryPath = path.join(evidenceRoot, `photo-pickup-real-oss-acceptance-${stamp}.json`);
+
+  fs.writeFileSync(markdownPath, [
+    '# Photo Pickup Real OSS Acceptance',
+    '',
+    'This is a test fixture for the delivery status contract test.',
+    'It represents an already accepted real OSS evidence bundle.',
+    '',
+  ].join('\n'));
+
+  fs.writeFileSync(summaryPath, JSON.stringify({
+    generatedAt: '2099-12-31 23:59:59',
+    baseUrl: 'https://api.evanshine.me',
+    evidencePath: markdownPath,
+    summaryJsonPath: summaryPath,
+    commandConclusion: 'PASS',
+    finalConclusion: 'PASS',
+    manualAcceptanceConfirmed: false,
+    preflightRan: true,
+    localAcceptanceRan: true,
+    manualChecks: {
+      h5Pickup: true,
+      wechatMiniapp: true,
+      douyinMiniapp: true,
+      adminAudit: true,
+    },
+    inputs: {
+      phone: '13900001111',
+      accessCode: 'PREVIEW-20260608',
+      albumId: '990202606080001',
+      assetId: '1781018145736000012',
+      bareOssUrl: 'https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg',
+      objectKey: 'photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg',
+      thumbnailObjectKey: '',
+      operator: '',
+    },
+  }, null, 2));
+
+  return { markdownPath, summaryPath };
+}
+
 test('project delivery status script aggregates platform readiness and pickup release gate', () => {
   assert.ok(fs.existsSync(scriptPath), 'delivery status script should exist');
   const script = fs.readFileSync(scriptPath, 'utf8');
@@ -71,12 +115,16 @@ test('project delivery status script returns machine-readable blocked JSON for e
 });
 
 test('project delivery status script reads platform readiness and pickup release status correctly', () => {
+  const evidenceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'yy-delivery-ready-evidence-'));
+  writeFinalPassEvidenceFixture(evidenceRoot);
   const result = spawnSync('powershell', [
     '-NoProfile',
     '-ExecutionPolicy',
     'Bypass',
     '-File',
     scriptPath,
+    '-EvidenceRoot',
+    evidenceRoot,
     '-SkipNetwork',
     '-SkipGithub',
     '-AsJson',

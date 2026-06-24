@@ -23,12 +23,19 @@ import org.dromara.yy.domain.vo.YyOrderVo;
 import org.dromara.yy.domain.vo.YyPhotoAlbumVo;
 import org.dromara.yy.service.IYyOrderService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 /**
- * 预约订单
+ * 预约订单控制器。
  */
 @Validated
 @RequiredArgsConstructor
@@ -38,18 +45,12 @@ public class YyOrderController extends BaseController {
 
     private final IYyOrderService yyOrderService;
 
-    /**
-     * 查询预约订单列表
-     */
     @SaCheckPermission("yy:order:list")
     @GetMapping("/list")
     public TableDataInfo<YyOrderVo> list(YyOrderBo bo, PageQuery pageQuery) {
         return yyOrderService.queryPageList(bo, pageQuery);
     }
 
-    /**
-     * 导出预约订单列表
-     */
     @SaCheckPermission("yy:order:export")
     @Log(title = "预约订单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
@@ -58,44 +59,32 @@ public class YyOrderController extends BaseController {
         ExcelUtil.exportExcel(list, "预约订单", YyOrderVo.class, response);
     }
 
-    /**
-     * 获取预约订单详细信息
-     */
     @SaCheckPermission("yy:order:query")
     @GetMapping("/{id}")
     public R<YyOrderVo> getInfo(@NotNull(message = "主键不能为空") @PathVariable Long id) {
         return R.ok(yyOrderService.queryById(id));
     }
 
-    /**
-     * 幂等修复订单取片相册占位
-     */
     @SaCheckPermission("yy:photoAlbum:add")
     @Log(title = "订单取片相册占位", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
+    @RepeatSubmit
     @PostMapping("/{id}/photo-album-placeholder")
     public R<YyPhotoAlbumVo> repairPhotoAlbumPlaceholder(@NotNull(message = "主键不能为空") @PathVariable Long id) {
         return R.ok(yyOrderService.repairPhotoAlbumPlaceholder(id));
     }
 
-    /**
-     * 工作台订单状态流转
-     */
     @SaCheckPermission("yy:order:edit")
     @Log(title = "预约订单状态流转", businessType = BusinessType.UPDATE)
-    @RepeatSubmit()
+    @RepeatSubmit
     @PostMapping("/{id}/transition")
     public R<YyOrderVo> transition(@NotNull(message = "主键不能为空") @PathVariable Long id,
                                    @Validated @RequestBody YyOrderTransitionBo bo) {
         return R.ok(yyOrderService.transitionStatus(id, bo.getExpectedStatus(), bo.getTargetStatus(), bo.getRemark()));
     }
 
-    /**
-     * 工作台订单改期
-     */
     @SaCheckPermission("yy:order:edit")
     @Log(title = "预约订单改期", businessType = BusinessType.UPDATE)
-    @RepeatSubmit()
+    @RepeatSubmit
     @PostMapping("/{id}/reschedule")
     public R<YyOrderVo> reschedule(@NotNull(message = "主键不能为空") @PathVariable Long id,
                                    @Validated @RequestBody YyOrderRescheduleBo bo) {
@@ -111,42 +100,30 @@ public class YyOrderController extends BaseController {
         ));
     }
 
-    /**
-     * 店员工作台新增预约。
-     */
     @SaCheckPermission("yy:order:add")
     @Log(title = "店员新增预约", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
+    @RepeatSubmit
     @PostMapping("/staff-booking")
     public R<YyOrderVo> staffBooking(@Validated @RequestBody YyStaffBookingCreateBo bo) {
         return R.ok(yyOrderService.createStaffBooking(bo));
     }
 
-    /**
-     * 新增预约订单
-     */
     @SaCheckPermission("yy:order:add")
     @Log(title = "预约订单", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping()
+    @RepeatSubmit
+    @PostMapping
     public R<Void> add(@Validated(AddGroup.class) @RequestBody YyOrderBo bo) {
         return toAjax(yyOrderService.insertByBo(bo));
     }
 
-    /**
-     * 修改预约订单
-     */
     @SaCheckPermission("yy:order:edit")
     @Log(title = "预约订单", businessType = BusinessType.UPDATE)
-    @RepeatSubmit()
-    @PutMapping()
+    @RepeatSubmit
+    @PutMapping
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody YyOrderBo bo) {
         return toAjax(yyOrderService.updateByBo(bo));
     }
 
-    /**
-     * 删除预约订单
-     */
     @SaCheckPermission("yy:order:remove")
     @Log(title = "预约订单", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")

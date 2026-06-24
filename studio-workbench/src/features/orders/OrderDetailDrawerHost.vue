@@ -13,6 +13,7 @@
       :cancel-reason="context.cancelReason"
       :cancel-reason-options="context.cancelReasonOptions"
       :cancel-saving="context.cancelSaving"
+      :confirm-payment-saving="context.confirmPaymentSaving"
       :can-advance="context.canAdvance"
       :can-confirm-album="context.canConfirmAlbum"
       :can-deliver-album="context.canDeliverAlbum"
@@ -46,6 +47,7 @@
       :reschedule-saving="context.rescheduleSaving"
       :reschedule-slot-options="context.rescheduleSlotOptions"
       :reschedule-time="context.rescheduleTime"
+      :show-confirm-payment="context.showConfirmPayment"
       :show-back-to-slot="context.showBackToSlot"
       :slot-time-label="context.slotTimeLabel"
       :source-context="context.sourceContext"
@@ -72,6 +74,7 @@
       @refresh-logs="emit('refreshLogs')"
       @refresh-operation-logs="emit('refreshOperationLogs')"
       @submit-cancel="emit('submitCancel')"
+      @submit-confirm-payment="emit('submitConfirmPayment')"
       @submit-reschedule="emit('submitReschedule')"
       @update-cancel-reason="emit('updateCancelReason', $event)"
       @update-reschedule-date="emit('updateRescheduleDate', $event)"
@@ -143,6 +146,8 @@ export type OrderDetailDrawerHostContext = {
   cancelReasonOptions: string[]
   cancelSaving: boolean
   cancelDisabled: boolean
+  showConfirmPayment: boolean
+  confirmPaymentSaving: boolean
   album: Album | null
   photoStage: OrderPhotoDeliveryStage
   photoStageClass: string
@@ -184,6 +189,7 @@ const emit = defineEmits<{
   updateCancelReason: [value: string]
   applyCancelReason: [reason: string]
   submitCancel: []
+  submitConfirmPayment: []
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

@@ -33,6 +33,7 @@
     @update-cancel-reason="emit('update-cancel-reason', $event)"
     @apply-cancel-reason="emit('apply-cancel-reason', $event)"
     @submit-cancel="emit('submit-cancel')"
+    @submit-confirm-payment="emit('submit-confirm-payment')"
     @open-album="emit('open-album', $event)"
     @notify-album="emit('notify-album')"
     @confirm-album="emit('confirm-album')"
@@ -113,6 +114,7 @@ const emit = defineEmits<{
   'update-cancel-reason': [value: string]
   'apply-cancel-reason': [reason: string]
   'submit-cancel': []
+  'submit-confirm-payment': []
   'open-album': [albumId: string]
   'notify-album': []
   'confirm-album': []

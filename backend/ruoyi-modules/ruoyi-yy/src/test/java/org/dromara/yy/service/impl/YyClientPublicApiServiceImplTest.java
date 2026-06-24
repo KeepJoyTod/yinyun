@@ -184,15 +184,89 @@ class YyClientPublicApiServiceImplTest {
     void payCustomerOrderShouldReturnPlaceholderWithoutMarkingPaid() {
         String token = boundPhoneToken(TEST_PHONE);
         YyOrder order = localCustomerOrder(9001L);
+        order.setOrderNo("YY-CUST-9001");
+        order.setTotalAmountCent(39900L);
         when(orderMapper.selectById(9001L)).thenReturn(order);
 
         Map<String, Object> result = service.payCustomerOrder("Bearer " + token, 9001L);
 
         assertEquals(false, result.get("paymentReady"));
         assertEquals("", result.get("timeStamp"));
+        assertEquals("", result.get("nonceStr"));
+        assertEquals("", result.get("package"));
+        assertEquals("", result.get("signType"));
         assertEquals("", result.get("paySign"));
+        assertEquals("在线支付暂未接入，订单已创建，请到店或联系门店确认。", result.get("message"));
         assertEquals("9001", result.get("orderId"));
+        assertEquals("YY-CUST-9001", result.get("orderNo"));
+        assertEquals(39900L, result.get("amount"));
+        assertEquals("WECHAT_MINI_APP", result.get("provider"));
+        assertEquals("", result.get("outTradeNo"));
+        assertEquals("", result.get("paymentRecordId"));
+        assertEquals("UNPAID", result.get("payStatus"));
         assertEquals("UNPAID", order.getPayStatus());
+        verify(orderMapper, never()).updateById(any(YyOrder.class));
+    }
+
+    @Test
+    void payCustomerOrderShouldRejectDouyinLifeOrder() {
+        String token = boundPhoneToken(TEST_PHONE);
+        YyOrder order = localCustomerOrder(9005L);
+        order.setChannelType("DOUYIN_LIFE");
+        order.setSource("DOUYIN_LIFE");
+        when(orderMapper.selectById(9005L)).thenReturn(order);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> service.payCustomerOrder("Bearer " + token, 9005L));
+
+        assertEquals("抖音来客订单不走本地支付闭环", exception.getMessage());
+        verify(orderMapper, never()).updateById(any(YyOrder.class));
+    }
+
+    @Test
+    void payCustomerOrderShouldRejectCancelledOrder() {
+        String token = boundPhoneToken(TEST_PHONE);
+        YyOrder order = localCustomerOrder(9006L);
+        order.setStatus("CANCELLED");
+        when(orderMapper.selectById(9006L)).thenReturn(order);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> service.payCustomerOrder("Bearer " + token, 9006L));
+
+        assertEquals("当前订单状态不可支付", exception.getMessage());
+        verify(orderMapper, never()).updateById(any(YyOrder.class));
+    }
+
+    @Test
+    void payCustomerOrderShouldRejectRefundedOrder() {
+        String token = boundPhoneToken(TEST_PHONE);
+        YyOrder order = localCustomerOrder(9007L);
+        order.setRefundStatus("REFUNDED");
+        when(orderMapper.selectById(9007L)).thenReturn(order);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> service.payCustomerOrder("Bearer " + token, 9007L));
+
+        assertEquals("当前订单状态不可支付", exception.getMessage());
+        verify(orderMapper, never()).updateById(any(YyOrder.class));
+    }
+
+    @Test
+    void payCustomerOrderShouldReturnPaidNoopWhenOrderAlreadyPaid() {
+        String token = boundPhoneToken(TEST_PHONE);
+        YyOrder order = localCustomerOrder(9008L);
+        order.setOrderNo("YY-CUST-9008");
+        order.setTotalAmountCent(39900L);
+        order.setPayStatus("PAID");
+        when(orderMapper.selectById(9008L)).thenReturn(order);
+
+        Map<String, Object> result = service.payCustomerOrder("Bearer " + token, 9008L);
+
+        assertEquals(false, result.get("paymentReady"));
+        assertEquals("订单已支付", result.get("message"));
+        assertEquals("PAID", result.get("payStatus"));
+        assertEquals("", result.get("outTradeNo"));
+        assertEquals("", result.get("paymentRecordId"));
         verify(orderMapper, never()).updateById(any(YyOrder.class));
     }
 
@@ -355,11 +429,16 @@ class YyClientPublicApiServiceImplTest {
     private YyOrder localCustomerOrder(Long id) {
         YyOrder order = new YyOrder();
         order.setId(id);
+        order.setTenantId("000000");
+        order.setOrderNo("YY-CUST-" + id);
+        order.setStoreId(900001L);
         order.setCustomerPhone(TEST_PHONE);
         order.setChannelType("CLIENT_WEB");
         order.setSource("CLIENT_PUBLIC");
         order.setStatus("PENDING");
         order.setPayStatus("UNPAID");
+        order.setRefundStatus("");
+        order.setTotalAmountCent(39900L);
         return order;
     }
 

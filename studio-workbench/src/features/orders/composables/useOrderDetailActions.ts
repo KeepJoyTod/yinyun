@@ -2,6 +2,7 @@ import type { Router } from 'vue-router'
 import { watch, type Ref } from 'vue'
 import { appStore, type Album, type BookingOrder } from '../../../shared/stores/appStore'
 import { buildOrderChannelDiagnosticText, getNextOrderAction, isInventoryConflictMessage } from '../orderOperations'
+import { canConfirmStorePayment } from '../orderPaymentRules'
 import type { AlbumActionAvailability, AlbumActionKey } from '../../albums/photoMgmtOperations'
 
 type RescheduleDraft = {
@@ -28,6 +29,7 @@ export function useOrderDetailActions(options: {
   cancelReason: Ref<string>
   cancellingOrderId: Ref<string>
   updatingOrderId: Ref<string>
+  confirmingPaymentOrderId: Ref<string>
   reschedulingOrderId: Ref<string>
   rescheduleConflict: Ref<string>
   rescheduleDraft: RescheduleDraft
@@ -333,6 +335,34 @@ export function useOrderDetailActions(options: {
     }
   }
 
+  const confirmSelectedOrderPayment = async () => {
+    const order = options.selectedOrder.value
+    if (!order || options.confirmingPaymentOrderId.value) return
+    if (!canConfirmStorePayment(order)) {
+      options.notifyOrderAction('error', '当前订单不可确认收款')
+      return
+    }
+    appStore.rememberOrderForOperations(order)
+    options.confirmingPaymentOrderId.value = order.id
+    try {
+      const next = await appStore.confirmOrderPayment({
+        id: order.id,
+        amountCent: Math.round(Number(order.amount || 0) * 100),
+        remark: '门店确认收款（非第三方平台支付）',
+      })
+      options.selectedOrder.value = next
+      await appStore.refreshOrderOperationalScope(next)
+      await options.loadSlotScopedOrdersFromQuery()
+      await loadOrderOperationLogs()
+      options.notifyOrderAction('success', '门店确认收款已同步到后端，不是第三方平台支付')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '确认收款失败'
+      options.notifyOrderAction('error', `确认收款失败：${message}`)
+    } finally {
+      options.confirmingPaymentOrderId.value = ''
+    }
+  }
+
   const rescheduleSelectedOrder = async () => {
     const order = options.selectedOrder.value
     if (!order || options.reschedulingOrderId.value) return
@@ -389,7 +419,9 @@ export function useOrderDetailActions(options: {
     copyOrderChannelDiagnostic,
     refreshOrderDetailAfterAdvance,
     advanceOrder,
+    canConfirmPayment: canConfirmStorePayment,
     cancelSelectedOrder,
+    confirmSelectedOrderPayment,
     rescheduleSelectedOrder,
   }
 }

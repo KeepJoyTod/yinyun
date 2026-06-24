@@ -42,11 +42,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -56,13 +51,43 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
+
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.amountToCent;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.certificateId;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.certificateCode;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.computeLifeSpiSignature;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.extractChallenge;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.extractLogId;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.firstNonNull;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.firstNotBlank;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.firstText;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.firstTextArray;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.generatedVerifyToken;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.hasChallengeValue;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.headerValue;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.limitText;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.looksLikeOrderId;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.numericDigest;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.parseAmount;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.parseJsonObjectText;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.parseLong;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.parseOptionalInt;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.parsePositiveInt;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.redactSensitivePayload;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.splitCsv;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.stableUuid;
+import static org.dromara.yy.channel.douyin.DouyinLifePayloadSupport.toJson;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.isInboundOrderSyncEvent;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.isInboundOrderSyncPayload;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.isRefundLocalStatus;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.mapLocalStatus;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.mapPayStatus;
+import static org.dromara.yy.channel.douyin.DouyinLifeOrderSyncPolicy.shouldSyncLocalOrder;
 
 /**
  * 抖音生活服务/团购订单适配器。
@@ -2285,256 +2310,22 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
     }
 
     private Map<String, Object> genericSpiSuccess(String apiName, String payload) {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("error_code", 0);
-        data.put("description", "success");
-        data.put("result", 1);
-        try {
-            JsonNode root = StringUtils.isBlank(payload) ? null : OBJECT_MAPPER.readTree(payload);
-            if (apiName.contains("order-create") || apiName.contains("order_create")) {
-                appendReservationOrderCreateData(data, root, payload);
-            }
-            if (apiName.contains("order-query") || apiName.contains("order_query")) {
-                data.put("order_id", firstNotBlank(firstText(root, "order_id", "orderId"), ""));
-                data.put("third_order_id", firstNotBlank(firstText(root, "third_order_id", "thirdOrderId"), ""));
-                data.put("order_status", firstNotBlank(firstText(root, "order_status", "orderStatus", "status"), "UNKNOWN"));
-            }
-            if (apiName.contains("stock-query") || apiName.contains("stock_query")) {
-                appendStockQueryData(data, root);
-            }
-        } catch (Exception ignored) {
-            // 回调落库优先，未知字段不阻塞平台重试。
-        }
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("data", data);
-        return response;
+        return DouyinLifeSpiResponseAssembler.genericSuccess(apiName, payload, this::resolveStockForSpi);
     }
 
     private Map<String, Object> refundApplySpiResponse(String payload) {
-        String mode = firstNotBlank(
-            prop("yy.douyin.life.refund-apply-mode", "DOUYIN_LIFE_REFUND_APPLY_MODE"),
-            prop("yy.douyin.life.refund-mode", "DOUYIN_LIFE_REFUND_MODE"),
-            "processing"
-        ).trim().toLowerCase(Locale.ROOT);
-
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("error_code", 0);
-        switch (mode) {
-            case "agree", "allow", "allowed", "success" -> {
-                data.put("description", "success");
-                data.put("result", 1);
-            }
-            case "reject", "refuse", "deny", "denied" -> appendRefundRejectData(data, payload);
-            default -> {
-                data.put("description", "退款申请已接收，等待服务商审核回调");
-                data.put("result", 0);
-            }
-        }
-
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("data", data);
-        return response;
-    }
-
-    private void appendRefundRejectData(Map<String, Object> data, String payload) {
-        String reason = firstNotBlank(
-            prop("yy.douyin.life.refund-reject-reason", "DOUYIN_LIFE_REFUND_REJECT_REASON"),
-            "服务商侧已发码或已核销，暂不支持退款"
+        return DouyinLifeSpiResponseAssembler.refundApplyResponse(
+            payload,
+            () -> firstNotBlank(
+                prop("yy.douyin.life.refund-apply-mode", "DOUYIN_LIFE_REFUND_APPLY_MODE"),
+                prop("yy.douyin.life.refund-mode", "DOUYIN_LIFE_REFUND_MODE"),
+                "processing"
+            ),
+            () -> firstNotBlank(
+                prop("yy.douyin.life.refund-reject-reason", "DOUYIN_LIFE_REFUND_REJECT_REASON"),
+                "服务商侧已发码或已核销，暂不支持退款"
+            )
         );
-        data.put("description", reason);
-        data.put("result", 2);
-        data.put("reason", reason);
-
-        try {
-            JsonNode root = StringUtils.isBlank(payload) ? null : OBJECT_MAPPER.readTree(payload);
-            List<Map<String, Object>> certificates = buildRefundRejectCertificates(root);
-            if (!certificates.isEmpty()) {
-                data.put("certificate", certificates);
-                data.put("certificates", certificates);
-                List<String> codes = certificates.stream()
-                    .map(item -> String.valueOf(item.get("code")))
-                    .filter(StringUtils::isNotBlank)
-                    .toList();
-                if (!codes.isEmpty()) {
-                    data.put("codes", codes);
-                }
-                List<String> vouchers = certificates.stream()
-                    .map(item -> String.valueOf(item.get("voucher")))
-                    .filter(StringUtils::isNotBlank)
-                    .toList();
-                if (!vouchers.isEmpty()) {
-                    data.put("vouchers", vouchers);
-                }
-            }
-        } catch (Exception ignored) {
-            // 拒绝原因优先返回，券码补充失败时不阻塞记录日志。
-        }
-    }
-
-    private List<Map<String, Object>> buildRefundRejectCertificates(JsonNode root) {
-        if (root == null || root.isNull()) {
-            return List.of();
-        }
-        String orderId = firstText(root, "order_id", "orderId");
-        List<JsonNode> sourceCertificates = refundCertificateNodes(root);
-        if (sourceCertificates.isEmpty()) {
-            String certificateId = firstText(root, "certificate_id", "certificateId");
-            if (StringUtils.isBlank(certificateId)) {
-                return List.of();
-            }
-            sourceCertificates = List.of(root);
-        }
-
-        List<Map<String, Object>> result = new ArrayList<>();
-        int index = 1;
-        for (JsonNode source : sourceCertificates) {
-            String certificateId = firstText(source, "certificate_id", "certificateId");
-            if (StringUtils.isBlank(certificateId)) {
-                index++;
-                continue;
-            }
-            String code = firstNotBlank(
-                firstText(source, "code"),
-                certificateCode(firstNotBlank(orderId, "refund"), certificateId, index)
-            );
-            Map<String, Object> certificate = new LinkedHashMap<>();
-            certificate.put("certificate_id", certificateId);
-            certificate.put("code", code);
-            String voucher = firstText(source, "voucher");
-            if (StringUtils.isNotBlank(voucher)) {
-                certificate.put("voucher", voucher);
-            }
-            result.add(certificate);
-            index++;
-        }
-        return result;
-    }
-
-    private List<JsonNode> refundCertificateNodes(JsonNode root) {
-        for (String fieldName : List.of("certificates", "certificate", "certificateList")) {
-            JsonNode node = root.get(fieldName);
-            if (node != null && node.isArray()) {
-                List<JsonNode> result = new ArrayList<>();
-                for (JsonNode item : node) {
-                    result.add(item);
-                }
-                return result;
-            }
-        }
-        return List.of();
-    }
-
-    private void appendReservationOrderCreateData(Map<String, Object> data, JsonNode root, String payload) {
-        String bookId = firstNotBlank(
-            firstText(root, "book_id", "bookId"),
-            firstText(root, "order_id", "orderId"),
-            numericDigest("book|" + firstNotBlank(payload, ""), 18)
-        );
-        String outBookId = firstNotBlank(
-            firstText(root, "out_book_id", "outBookId"),
-            "YYB-" + bookId
-        );
-        data.put("book_id", bookId);
-        data.put("out_book_id", outBookId);
-
-        Map<String, Object> confirmInfo = new LinkedHashMap<>();
-        confirmInfo.put("confirm_mode", parsePositiveInt(firstText(root, "confirm_mode", "confirmMode"), 1, 9));
-        confirmInfo.put("confirm_result", parsePositiveInt(firstText(root, "confirm_result", "confirmResult"), 1, 9));
-        confirmInfo.put("fulfil_type", parsePositiveInt(firstText(root, "fulfil_type", "fulfilType"), 1, 9));
-        confirmInfo.put("hotel_confirm_number", outBookId);
-        data.put("confirm_info", confirmInfo);
-    }
-
-    private void appendStockQueryData(Map<String, Object> data, JsonNode root) {
-        int stock = resolveStockForSpi(root);
-        data.put("stock", stock);
-        data.put("available_stock", stock);
-        data.put("available", stock > 0);
-
-        List<String> dates = resolveStockQueryDates(root);
-        List<JsonNode> skuNodes = stockQuerySkuNodes(root);
-        List<Map<String, Object>> skuInfoList = new ArrayList<>();
-        List<Map<String, Object>> flatStockList = new ArrayList<>();
-        String poiId = firstText(root, "poi_id", "poiId");
-        String startTime = firstNotBlank(firstText(root, "start_time", "startTime"), "10:00");
-        String endTime = firstNotBlank(firstText(root, "end_time", "endTime"), "10:30");
-
-        for (JsonNode skuNode : skuNodes) {
-            String skuId = firstText(skuNode, "sku_id", "skuId");
-            String skuOutId = firstText(skuNode, "sku_out_id", "skuOutId", "third_sku_id", "thirdSkuId");
-            Map<String, Object> skuInfo = new LinkedHashMap<>();
-            putObject(skuInfo, "sku_id", skuId);
-            putObject(skuInfo, "sku_out_id", skuOutId);
-            List<Map<String, Object>> stockItems = new ArrayList<>();
-            for (String date : dates) {
-                Map<String, Object> stockItem = buildStockQueryItem(poiId, skuId, skuOutId, date, startTime, endTime, stock);
-                stockItems.add(stockItem);
-                flatStockList.add(stockItem);
-            }
-            skuInfo.put("stock_info_list", stockItems);
-            skuInfo.put("stock_list", stockItems);
-            skuInfoList.add(skuInfo);
-        }
-
-        if (!skuInfoList.isEmpty()) {
-            data.put("sku_info_list", skuInfoList);
-        }
-        if (!flatStockList.isEmpty()) {
-            data.put("stock_info_list", flatStockList);
-            data.put("stock_list", flatStockList);
-            data.put("reception_stock_list", flatStockList);
-        }
-    }
-
-    private List<JsonNode> stockQuerySkuNodes(JsonNode root) {
-        if (root != null && root.has("sku_info_list") && root.get("sku_info_list").isArray()) {
-            List<JsonNode> nodes = new ArrayList<>();
-            for (JsonNode item : root.get("sku_info_list")) {
-                nodes.add(item);
-            }
-            return nodes;
-        }
-        return root == null ? Collections.emptyList() : List.of(root);
-    }
-
-    private List<String> resolveStockQueryDates(JsonNode root) {
-        String date = firstText(root, "date", "biz_date", "bizDate", "booking_date", "bookingDate");
-        if (StringUtils.isNotBlank(date)) {
-            return List.of(date);
-        }
-        String startDate = firstText(root, "start_date", "startDate");
-        String endDate = firstText(root, "end_date", "endDate");
-        try {
-            LocalDate start = StringUtils.isBlank(startDate) ? LocalDate.now() : LocalDate.parse(startDate);
-            LocalDate end = StringUtils.isBlank(endDate) ? start : LocalDate.parse(endDate);
-            if (end.isBefore(start)) {
-                end = start;
-            }
-            List<String> dates = new ArrayList<>();
-            LocalDate cursor = start;
-            while (!cursor.isAfter(end) && dates.size() < 31) {
-                dates.add(cursor.toString());
-                cursor = cursor.plusDays(1);
-            }
-            return dates;
-        } catch (Exception ignored) {
-            return List.of(LocalDate.now().toString());
-        }
-    }
-
-    private Map<String, Object> buildStockQueryItem(String poiId, String skuId, String skuOutId, String date, String startTime, String endTime, int stock) {
-        Map<String, Object> item = new LinkedHashMap<>();
-        putObject(item, "poi_id", poiId);
-        putObject(item, "sku_id", skuId);
-        putObject(item, "sku_out_id", skuOutId);
-        item.put("date", date);
-        item.put("start_time", startTime);
-        item.put("end_time", endTime);
-        item.put("time_range", List.of(startTime, endTime));
-        item.put("stock", stock);
-        item.put("available_stock", stock);
-        item.put("available", stock > 0);
-        return item;
     }
 
     private int resolveStockForSpi(JsonNode root) {
@@ -2624,250 +2415,15 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
     }
 
     private Map<String, Object> genericSpiFailure(String message) {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("error_code", 9999);
-        data.put("description", message);
-        data.put("result", 2);
-        data.put("fail_reason", "SIGNATURE_INVALID");
-        data.put("fail_reason_desc", message);
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("data", data);
-        return response;
+        return DouyinLifeSpiResponseAssembler.genericFailure(message);
     }
 
     private Map<String, Object> tripartiteCodeFailure(int errorCode, String message) {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("error_code", errorCode);
-        data.put("description", message);
-        data.put("result", 2);
-        data.put("fail_reason", "SYSTEM_ERROR");
-        data.put("fail_reason_desc", message);
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("data", data);
-        return response;
+        return DouyinLifeSpiResponseAssembler.tripartiteCodeFailure(errorCode, message);
     }
 
     private Long nextLongId() {
         return identifierGenerator.nextId(null).longValue();
-    }
-
-    private static String redactSensitivePayload(String payload) {
-        if (StringUtils.isBlank(payload)) {
-            return "";
-        }
-        try {
-            JsonNode root = OBJECT_MAPPER.readTree(payload);
-            redactSensitiveNode(root);
-            return OBJECT_MAPPER.writeValueAsString(root);
-        } catch (Exception ignored) {
-            return payload.replaceAll(
-                "(?i)(\"(?:client_secret|client_access_token|access_token|refresh_token|open_id|openid|mobile|phone|encrypt_mobile|receiver_phone)\"\\s*:\\s*\")[^\"]+(\")",
-                "$1***$2"
-            );
-        }
-    }
-
-    private static String toJson(Object value) {
-        if (value == null) {
-            return "";
-        }
-        try {
-            return OBJECT_MAPPER.writeValueAsString(value);
-        } catch (Exception ignored) {
-            return String.valueOf(value);
-        }
-    }
-
-    private static String limitText(String value, int maxLength) {
-        if (StringUtils.isBlank(value) || value.length() <= maxLength) {
-            return StringUtils.isBlank(value) ? "" : value;
-        }
-        return value.substring(0, maxLength);
-    }
-
-    private static void redactSensitiveNode(JsonNode node) {
-        if (node == null || node.isNull()) {
-            return;
-        }
-        if (node instanceof ObjectNode objectNode) {
-            List<String> fieldNames = new ArrayList<>();
-            objectNode.fieldNames().forEachRemaining(fieldNames::add);
-            for (String fieldName : fieldNames) {
-                JsonNode value = objectNode.get(fieldName);
-                if (isSensitiveField(fieldName)) {
-                    objectNode.put(fieldName, "***");
-                } else {
-                    redactSensitiveNode(value);
-                }
-            }
-            return;
-        }
-        if (node instanceof ArrayNode arrayNode) {
-            arrayNode.forEach(DouyinLifeChannelAdapter::redactSensitiveNode);
-        }
-    }
-
-    private static boolean isSensitiveField(String fieldName) {
-        if (StringUtils.isBlank(fieldName)) {
-            return false;
-        }
-        String normalized = fieldName.replace("_", "").replace("-", "").toLowerCase(Locale.ROOT);
-        return normalized.endsWith("token")
-            || normalized.equals("clientsecret")
-            || normalized.equals("openid")
-            || normalized.equals("mobile")
-            || normalized.equals("phone")
-            || normalized.equals("encryptmobile")
-            || normalized.equals("receiverphone")
-            || normalized.equals("customerphone")
-            || normalized.equals("customermobile")
-            || normalized.equals("buyerphone");
-    }
-
-    private static BigDecimal parseAmount(String value) {
-        if (StringUtils.isBlank(value)) {
-            return BigDecimal.ZERO;
-        }
-        try {
-            return new BigDecimal(value);
-        } catch (Exception ignored) {
-            return BigDecimal.ZERO;
-        }
-    }
-
-    private static Long amountToCent(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return 0L;
-        }
-        return amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValue();
-    }
-
-    private static int parsePositiveInt(String value, int defaultValue, int maxValue) {
-        if (StringUtils.isBlank(value)) {
-            return defaultValue;
-        }
-        try {
-            int parsed = Integer.parseInt(value);
-            if (parsed < 1) {
-                return defaultValue;
-            }
-            return Math.min(parsed, maxValue);
-        } catch (Exception ignored) {
-            return defaultValue;
-        }
-    }
-
-    private static Integer parseOptionalInt(String value) {
-        if (StringUtils.isBlank(value)) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    private static List<String> splitCsv(String value) {
-        if (StringUtils.isBlank(value)) {
-            return List.of();
-        }
-        List<String> values = new ArrayList<>();
-        for (String item : value.split(",")) {
-            if (StringUtils.isNotBlank(item)) {
-                values.add(item.trim());
-            }
-        }
-        return values;
-    }
-
-    private static Object extractChallenge(String payload) {
-        if (StringUtils.isBlank(payload)) {
-            return null;
-        }
-        try {
-            JsonNode root = OBJECT_MAPPER.readTree(payload);
-            JsonNode challenge = firstValueNode(root, "CHALLENGE", "challenge");
-            if (challenge == null) {
-                challenge = firstValueNode(parseJsonObjectText(firstText(root, "content", "Content", "data", "Data")), "CHALLENGE", "challenge");
-            }
-            return jsonScalarValue(challenge);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    private static boolean hasChallengeValue(Object value) {
-        return value != null && (!(value instanceof CharSequence text) || StringUtils.isNotBlank(text));
-    }
-
-    private static JsonNode parseJsonObjectText(String value) {
-        if (StringUtils.isBlank(value)) {
-            return null;
-        }
-        try {
-            JsonNode node = OBJECT_MAPPER.readTree(value);
-            return node != null && node.isObject() ? node : null;
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    private static JsonNode firstValueNode(JsonNode node, String... fieldNames) {
-        if (node == null || node.isNull()) {
-            return null;
-        }
-        if (node.isObject()) {
-            for (String fieldName : fieldNames) {
-                JsonNode value = node.get(fieldName);
-                if (value != null && value.isValueNode() && !value.isNull()) {
-                    return value;
-                }
-            }
-            for (JsonNode child : node) {
-                JsonNode value = firstValueNode(child, fieldNames);
-                if (value != null) {
-                    return value;
-                }
-            }
-        }
-        if (node.isArray()) {
-            for (JsonNode item : node) {
-                JsonNode value = firstValueNode(item, fieldNames);
-                if (value != null) {
-                    return value;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static Object jsonScalarValue(JsonNode node) {
-        if (node == null || node.isNull()) {
-            return null;
-        }
-        if (node.isTextual()) {
-            return node.asText();
-        }
-        if (node.isNumber()) {
-            return node.numberValue();
-        }
-        if (node.isBoolean()) {
-            return node.asBoolean();
-        }
-        return node.asText();
-    }
-
-    private static String headerValue(Map<String, String> headers, String expectedName) {
-        if (headers == null || headers.isEmpty() || StringUtils.isBlank(expectedName)) {
-            return "";
-        }
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if (entry.getKey() != null && expectedName.equalsIgnoreCase(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return "";
     }
 
     private SpiSignatureCheck verifySpiSignature(String payload, Map<String, String> headers, String rawQuery, LifeConfig config) {
@@ -2891,306 +2447,9 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
         return SpiSignatureCheck.ok();
     }
 
-    private static String computeLifeSpiSignature(String clientSecret, String rawQuery, String payload) {
-        String signSource = buildLifeSpiSignSource(clientSecret, rawQuery, payload);
-        return sha256HexLower(signSource);
-    }
-
-    private static String buildLifeSpiSignSource(String clientSecret, String rawQuery, String payload) {
-        List<String> parts = new ArrayList<>();
-        parts.add(firstNotBlank(clientSecret, ""));
-        Map<String, List<String>> query = parseRawQuery(rawQuery);
-        List<String> keys = new ArrayList<>(query.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            if ("sign".equalsIgnoreCase(key)) {
-                continue;
-            }
-            List<String> values = new ArrayList<>(query.getOrDefault(key, List.of("")));
-            if (values.isEmpty()) {
-                values.add("");
-            }
-            Collections.sort(values);
-            for (String value : values) {
-                parts.add(key + "=" + firstNotBlank(value, ""));
-            }
-        }
-        if (StringUtils.isNotBlank(payload)) {
-            parts.add("http_body=" + payload);
-        }
-        return String.join("&", parts);
-    }
-
-    private static Map<String, List<String>> parseRawQuery(String rawQuery) {
-        Map<String, List<String>> result = new LinkedHashMap<>();
-        if (StringUtils.isBlank(rawQuery)) {
-            return result;
-        }
-        String decoded = URLDecoder.decode(rawQuery, StandardCharsets.UTF_8);
-        for (String pair : decoded.split("&")) {
-            if (StringUtils.isBlank(pair)) {
-                continue;
-            }
-            int index = pair.indexOf('=');
-            String key = index >= 0 ? pair.substring(0, index) : pair;
-            String value = index >= 0 ? pair.substring(index + 1) : "";
-            result.computeIfAbsent(key, ignored -> new ArrayList<>()).add(value);
-        }
-        return result;
-    }
-
-    private static String certificateId(String orderId, String skuId, int index) {
-        return numericDigest("cert|" + orderId + "|" + skuId + "|" + index, 18);
-    }
-
-    private static String certificateCode(String orderId, String skuId, int index) {
-        return numericDigest("code|" + orderId + "|" + skuId + "|" + index, 12);
-    }
-
-    private static String generatedVerifyToken(String accountId, String poiId, String orderId, List<String> codes) {
-        String seed = String.join(":", CHANNEL_TYPE, firstNotBlank(accountId), firstNotBlank(poiId),
-            firstNotBlank(orderId), String.join(",", codes == null ? List.of() : codes));
-        return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
-    }
-
-    private static String stableUuid(String seed) {
-        return UUID.nameUUIDFromBytes(firstNotBlank(seed, CHANNEL_TYPE).getBytes(StandardCharsets.UTF_8)).toString();
-    }
-
-    private static String numericDigest(String value, int length) {
-        String hex = sha256Hex(value);
-        StringBuilder digits = new StringBuilder(length);
-        for (int i = 0; digits.length() < length && i < hex.length(); i++) {
-            int digit = Character.digit(hex.charAt(i), 16);
-            if (digit >= 0) {
-                digits.append(digit % 10);
-            }
-        }
-        while (digits.length() < length) {
-            digits.append('0');
-        }
-        return digits.toString();
-    }
-
-    private static String sha256Hex(String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8))).toUpperCase(Locale.ROOT);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException("SHA-256 不可用", ex);
-        }
-    }
-
-    private static String sha256HexLower(String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8))).toLowerCase(Locale.ROOT);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException("SHA-256 不可用", ex);
-        }
-    }
-
-    private static String mapLocalStatus(String eventStatus) {
-        if (StringUtils.isBlank(eventStatus)) {
-            return "UNKNOWN";
-        }
-        String normalizedStatus = eventStatus.trim().toUpperCase(Locale.ROOT).replace('-', '_');
-        return switch (normalizedStatus) {
-            case "1", "101", "201", "PAY_SUCCESS", "PAID", "PAYED",
-                "WAIT_USE", "UNUSED", "TO_USE", "TO_BE_USED", "WAIT_SERVICE", "WAITING_SERVICE", "待服务" -> "PENDING";
-            case "2", "202", "ACCEPTED", "CONFIRMED",
-                "RESERVED", "BOOKED", "BOOKING_SUCCESS", "RESERVE_SUCCESS", "ACCEPT_SUCCESS", "CONFIRM_SUCCESS", "已确认" -> "CONFIRMED";
-            case "3", "203", "IMPLEMENT_CONFIRMED", "SERVING",
-                "IN_SERVICE", "SERVICE_START", "SERVICE_STARTED", "SERVICE_PROCESSING", "FULFIL_PROCESSING", "服务中", "拍摄中" -> "SERVING";
-            case "4", "204", "USER_CONFIRMED", "COMPLETED", "FINISHED",
-                "DONE", "FINISH", "SERVICE_FINISHED", "SERVICE_COMPLETED",
-                "VERIFY", "VERIFY_SUCCESS", "VERIFIED", "USED", "CERTIFICATE_USED", "FULFIL_SUCCESS", "FULFILLED", "已完成", "选片中" -> "COMPLETED";
-            case "5", "205", "CANCELLED", "CANCELED", "CANCEL", "CANCEL_SUCCESS", "ORDER_CANCELLED", "已取消" -> "CANCELLED";
-            case "REFUND", "REFUND_SUCCESS", "REFUND_FINISHED", "REFUNDED" -> "REFUNDED";
-            case "PARTIAL_REFUND", "PARTIAL_REFUND_SUCCESS", "PARTIAL_REFUNDED" -> "PARTIAL_REFUNDED";
-            default -> eventStatus;
-        };
-    }
-
-    private static String mapPayStatus(String localStatus) {
-        return switch (firstNotBlank(localStatus, "")) {
-            case "PENDING", "CONFIRMED", "SERVING", "COMPLETED" -> "PAID";
-            case "CANCELLED" -> "CLOSED";
-            case "REFUNDED" -> "REFUNDED";
-            case "PARTIAL_REFUNDED" -> "PARTIAL_REFUNDED";
-            default -> "UNKNOWN";
-        };
-    }
-
-    private static boolean shouldSyncLocalOrder(String localStatus) {
-        return switch (localStatus) {
-            case "PENDING", "CONFIRMED", "SERVING", "COMPLETED", "CANCELLED", "REFUNDED", "PARTIAL_REFUNDED" -> true;
-            default -> false;
-        };
-    }
-
-    private static boolean isRefundLocalStatus(String localStatus) {
-        return "REFUNDED".equals(localStatus) || "PARTIAL_REFUNDED".equals(localStatus);
-    }
-
-    private static boolean isInboundOrderSyncEvent(String normalizedApiKey) {
-        if (StringUtils.isBlank(normalizedApiKey)) {
-            return false;
-        }
-        return normalizedApiKey.contains("order-create")
-            || normalizedApiKey.contains("pay-notify")
-            || normalizedApiKey.contains("refund-notify")
-            || normalizedApiKey.contains("refund-notice");
-    }
-
-    private static boolean isInboundOrderSyncPayload(String payload) {
-        if (StringUtils.isBlank(payload)) {
-            return false;
-        }
-        try {
-            JsonNode root = OBJECT_MAPPER.readTree(payload);
-            String externalOrderId = firstText(root, "order_id", "orderId", "out_order_no", "outOrderNo", "book_id", "bookId");
-            String eventStatus = firstNotBlank(
-                firstText(root, "order_status", "orderStatus", "status", "status_code", "state", "event_status", "action"),
-                firstText(parseJsonObjectText(firstText(root, "content", "Content", "data", "Data")),
-                    "order_status", "orderStatus", "status", "status_code", "state", "event_status", "action")
-            );
-            if (StringUtils.isBlank(externalOrderId)) {
-                externalOrderId = firstText(parseJsonObjectText(firstText(root, "content", "Content", "data", "Data")),
-                    "order_id", "orderId", "out_order_no", "outOrderNo", "book_id", "bookId");
-            }
-            return StringUtils.isNotBlank(externalOrderId) && shouldSyncLocalOrder(mapLocalStatus(eventStatus));
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    private static Long parseLong(String value) {
-        if (StringUtils.isBlank(value)) {
-            return null;
-        }
-        try {
-            return Long.valueOf(value);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    private static Long firstNonNull(Long... values) {
-        if (values == null) {
-            return null;
-        }
-        for (Long value : values) {
-            if (value != null) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    private static boolean looksLikeOrderId(String externalOrderId) {
-        return StringUtils.isNotBlank(externalOrderId) && externalOrderId.chars().allMatch(Character::isDigit);
-    }
-
-    private static String firstText(JsonNode node, String... fieldNames) {
-        if (node == null || node.isNull()) {
-            return null;
-        }
-        if (node.isTextual()) {
-            JsonNode parsed = parseJsonObjectText(node.asText());
-            return parsed == null ? null : firstText(parsed, fieldNames);
-        }
-        if (node.isObject()) {
-            for (String fieldName : fieldNames) {
-                JsonNode value = node.get(fieldName);
-                if (value != null && value.isValueNode()) {
-                    return value.asText();
-                }
-            }
-            for (JsonNode child : node) {
-                String value = firstText(child, fieldNames);
-                if (value != null) {
-                    return value;
-                }
-            }
-        }
-        if (node.isArray()) {
-            for (JsonNode item : node) {
-                String value = firstText(item, fieldNames);
-                if (value != null) {
-                    return value;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static List<String> firstTextArray(JsonNode node, String... fieldNames) {
-        if (node == null || node.isNull()) {
-            return Collections.emptyList();
-        }
-        if (node.isTextual()) {
-            JsonNode parsed = parseJsonObjectText(node.asText());
-            return parsed == null ? Collections.emptyList() : firstTextArray(parsed, fieldNames);
-        }
-        if (node.isObject()) {
-            for (String fieldName : fieldNames) {
-                JsonNode value = node.get(fieldName);
-                if (value != null && value.isArray()) {
-                    List<String> values = new ArrayList<>();
-                    for (JsonNode item : value) {
-                        if (item != null && item.isValueNode()) {
-                            values.add(item.asText());
-                        }
-                    }
-                    if (!values.isEmpty()) {
-                        return values;
-                    }
-                }
-            }
-            for (JsonNode child : node) {
-                List<String> values = firstTextArray(child, fieldNames);
-                if (!values.isEmpty()) {
-                    return values;
-                }
-            }
-        }
-        if (node.isArray()) {
-            for (JsonNode item : node) {
-                List<String> values = firstTextArray(item, fieldNames);
-                if (!values.isEmpty()) {
-                    return values;
-                }
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    private String extractLogId(String rawResponse) {
-        if (StringUtils.isBlank(rawResponse)) {
-            return "";
-        }
-        try {
-            JsonNode root = OBJECT_MAPPER.readTree(rawResponse);
-            String logId = firstText(root, "logid", "log_id");
-            return logId == null ? "" : logId;
-        } catch (Exception ignored) {
-            return "";
-        }
-    }
-
     private String prop(String propertyKey, String envKey) {
         String propertyValue = environment.getProperty(propertyKey);
         return StringUtils.isNotBlank(propertyValue) ? propertyValue : System.getenv(envKey);
-    }
-
-    private static String firstNotBlank(String... values) {
-        for (String value : values) {
-            if (StringUtils.isNotBlank(value)) {
-                return value;
-            }
-        }
-        return "";
     }
 
     private record LifeConfig(String clientKey, String clientSecret, String accountId, Long storeId) {

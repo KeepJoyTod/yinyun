@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { createCustomerOrder, payCustomerOrder } from '@/api/customer';
+import { createCustomerOrder } from '@/api/customer';
 import { getProductDetail, getStoreSlots } from '@/api/home';
+import { runCustomerOrderPaymentFlow } from '@/pages/customer/orders/customerPaymentFlow';
 import { useCustomerAuth } from '@/composables/useCustomerAuth';
-import type { CustomerPaymentParams } from '@/types/clientPhoto';
 import type { ProductDetailData, ProductSkuItem, PublicTimeSlot } from '@/types/home';
-import { resolveCustomerPaymentAction } from '@/utils/customer-payment-placeholder.mjs';
 import { referenceAssets } from '@/utils/referenceAssets';
 
 const productId = ref('');
@@ -139,20 +138,6 @@ function selectSlot(slot: PublicTimeSlot) {
   selectedSlot.value = slotLabel(slot);
 }
 
-function requestPayment(params: CustomerPaymentParams) {
-  return new Promise<boolean>((resolve, reject) => {
-    if (!uni.requestPayment || !params?.timeStamp) {
-      resolve(false);
-      return;
-    }
-    (uni.requestPayment as any)({
-      ...params,
-      success: () => resolve(true),
-      fail: (err: unknown) => reject(err),
-    });
-  });
-}
-
 async function submitOrder() {
   if (!isLoggedIn.value) {
     requireCustomerLogin(`/pages/product/detail/index?productId=${encodeURIComponent(productId.value)}`);
@@ -174,23 +159,12 @@ async function submitOrder() {
       appointmentDate: selectedDate.value,
       timeSlot: selectedSlot.value,
     });
-    const payParams = await payCustomerOrder(order.orderId);
-    const paymentAction = resolveCustomerPaymentAction(payParams);
-    if (!paymentAction.shouldRequestPayment) {
-      uni.showToast({ title: paymentAction.toastMessage, icon: 'none' });
-      uni.switchTab({ url: '/pages/customer/orders/index' });
-      return;
-    }
-    try {
-      const paymentStarted = await requestPayment(payParams);
-      uni.showToast({
-        title: paymentStarted ? '已发起支付' : paymentAction.fallbackMessage,
-        icon: paymentStarted ? 'success' : 'none',
-      });
-    } catch {
-      uni.showToast({ title: '订单已创建，可稍后在订单页支付', icon: 'none' });
-    }
-    uni.switchTab({ url: '/pages/customer/orders/index' });
+    const paymentResult = await runCustomerOrderPaymentFlow(order.orderId);
+    uni.showToast({
+      title: paymentResult.toastMessage,
+      icon: paymentResult.status === 'success' ? 'success' : 'none',
+    });
+    uni.switchTab({ url: '/pages/customer/orders/index?refresh=1&fromPayment=1' });
   } catch {
     // 请求层已经展示错误 toast。
   } finally {

@@ -42,3 +42,22 @@ test('payment placeholder also blocks requestPayment when timeStamp is empty', a
   assert.equal(action.toastMessage, '订单已创建，请到店确认');
   assert.equal(action.fallbackMessage, '订单已创建，请到店确认');
 });
+
+test('payment placeholder allows requestPayment when paymentReady is true and timeStamp exists', async () => {
+  const { resolveCustomerPaymentAction } = await paymentPlaceholderModule;
+
+  const action = resolveCustomerPaymentAction({
+    orderId: '9003',
+    paymentReady: true,
+    message: '',
+    timeStamp: '1719200000',
+    nonceStr: 'nonce',
+    package: 'prepay_id=1',
+    signType: 'RSA',
+    paySign: 'sign',
+  });
+
+  assert.equal(action.shouldRequestPayment, true);
+  assert.equal(action.toastMessage, '');
+  assert.equal(action.fallbackMessage, '订单已创建，请到店确认');
+});

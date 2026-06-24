@@ -58,6 +58,7 @@ import type {
   OrderExportQuery,
   OrderDto,
   OrderListQuery,
+  OrderPaymentConfirmPayload,
   OrderReschedulePayload,
   OrderStatusPayload,
   ProductDto,
@@ -107,6 +108,7 @@ export type {
   OrderExportQuery,
   OrderDto,
   OrderListQuery,
+  OrderPaymentConfirmPayload,
   OrderReschedulePayload,
   OrderStatusPayload,
   OrderStatusStatDto,
@@ -461,6 +463,20 @@ export const backendApi = {
       remark: payload.remark || '工作台订单改期',
     }
     const response = await apiRequest<YyOrderVo>(`/yy/order/${payload.id}/reschedule`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+    const next = mapYyOrder(response, cachedProducts, resolveOrderPresentation(response))
+    cachedOrders = cachedOrders.map(order => (order.id === payload.id ? next : order))
+    cachedLedgerOrders = cachedLedgerOrders.map(order => (order.id === payload.id ? next : order))
+    return next
+  },
+  async confirmOrderPayment(payload: OrderPaymentConfirmPayload) {
+    const body = {
+      amountCent: payload.amountCent,
+      remark: payload.remark,
+    }
+    const response = await apiRequest<YyOrderVo>(`/yy/order/${payload.id}/payment/confirm`, {
       method: 'POST',
       body: JSON.stringify(body),
     })

@@ -193,6 +193,10 @@ export function payCustomerOrder(orderId: string) {
       orderId,
       orderNo: fallbackOrder().orderNo,
       amount: fallbackOrder().amount,
+      provider: 'WECHAT_MINI_APP',
+      outTradeNo: '',
+      payStatus: 'UNPAID',
+      paymentRecordId: '',
     };
   });
 }

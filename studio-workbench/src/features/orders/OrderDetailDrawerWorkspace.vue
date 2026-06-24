@@ -63,6 +63,8 @@
           :cancel-reason-options="cancelReasonOptions"
           :cancel-saving="cancelling"
           :cancel-disabled="order.status === '已取消' || order.status === '已退单'"
+          :show-confirm-payment="order.payment === '待支付' && order.status !== '已取消' && order.status !== '已退单' && !order.refundStatus && order.source !== '抖音来客' && order.channelType !== 'DOUYIN_LIFE'"
+          :confirm-payment-saving="false"
           @update-reschedule-date="$emit('updateRescheduleDate', $event)"
           @update-reschedule-time="$emit('updateRescheduleTime', $event)"
           @update-reschedule-duration-minutes="$emit('updateRescheduleDurationMinutes', $event)"
@@ -73,6 +75,7 @@
           @update-cancel-reason="$emit('updateCancelReason', $event)"
           @apply-cancel-reason="$emit('applyCancelReason', $event)"
           @submit-cancel="$emit('submitCancel')"
+          @submit-confirm-payment="$emit('submitConfirmPayment')"
         />
 
         <OrderAlbumSection
@@ -204,6 +207,7 @@ defineEmits<{
   updateCancelReason: [value: string]
   applyCancelReason: [reason: string]
   submitCancel: []
+  submitConfirmPayment: []
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

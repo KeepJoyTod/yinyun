@@ -37,3 +37,32 @@ test('customer orders page delegates presentation, action, and style concerns to
 
   assert.ok(lineCount('src/pages/customer/orders/index.vue') <= 800, 'customer orders page should stay under temporary 800-line ceiling');
 });
+
+test('customer order payment flow is owned by a shared module across detail and orders pages', () => {
+  const detailSource = read('src/pages/product/detail/index.vue');
+  const ordersPageSource = read('src/pages/customer/orders/index.vue');
+  const paymentFlowSource = read('src/pages/customer/orders/customerPaymentFlow.ts');
+
+  assert.match(detailSource, /runCustomerOrderPaymentFlow/);
+  assert.match(ordersPageSource, /runCustomerOrderPaymentFlow/);
+  assert.match(paymentFlowSource, /payCustomerOrder/);
+  assert.match(paymentFlowSource, /resolveCustomerPaymentAction/);
+  assert.match(paymentFlowSource, /uni\.requestPayment/);
+  assert.match(paymentFlowSource, /status: 'success'/);
+  assert.match(paymentFlowSource, /status: 'fallback'/);
+  assert.match(paymentFlowSource, /status: 'failed'/);
+});
+
+test('product detail payment keeps redirecting customers back to the orders page for follow-up payment', () => {
+  const detailSource = read('src/pages/product/detail/index.vue');
+
+  assert.match(detailSource, /runCustomerOrderPaymentFlow\(order\.orderId\)/);
+  assert.match(detailSource, /uni\.switchTab\(\{ url: '\/pages\/customer\/orders\/index\?refresh=1&fromPayment=1' \}\)/);
+});
+
+test('orders page payment reloads the list after the shared payment flow returns', () => {
+  const ordersPageSource = read('src/pages/customer/orders/index.vue');
+
+  assert.match(ordersPageSource, /const paymentResult = await runCustomerOrderPaymentFlow\(order\.orderId\)/);
+  assert.match(ordersPageSource, /await loadOrders\(\)/);
+});

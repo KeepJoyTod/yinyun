@@ -65,6 +65,12 @@ export type OrderReschedulePayload = {
   remark?: string
 }
 
+export type OrderPaymentConfirmPayload = {
+  id: BackendId
+  amountCent: number
+  remark: string
+}
+
 export type BookingInventoryUpdatePayload = {
   id: BackendId
   storeId: BackendId

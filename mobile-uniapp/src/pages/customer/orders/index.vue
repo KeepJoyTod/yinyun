@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
+import { onLoad, onShow } from '@dcloudio/uni-app';
 import {
   cancelCustomerOrder,
   listCustomerOrders,
-  payCustomerOrder,
   rescheduleCustomerOrder,
 } from '@/api/customer';
 import YyBottomSheet from '@/components/YyBottomSheet.vue';
 import { useCustomerAuth } from '@/composables/useCustomerAuth';
 import type { CustomerOrder } from '@/types/clientPhoto';
-import { resolveCustomerPaymentAction } from '@/utils/customer-payment-placeholder.mjs';
 import { referenceAssets } from '@/utils/referenceAssets';
+import { runCustomerOrderPaymentFlow } from './customerPaymentFlow';
 import {
   ORDER_STATUS_FILTER_KEY,
   actionsFor,
@@ -45,6 +44,7 @@ const rescheduleSlot = ref('');
 const afterSaleReason = ref('');
 const detailOrder = ref<CustomerOrder | null>(null);
 const cancelConfirmOrder = ref<CustomerOrder | null>(null);
+const forceRefreshOnShow = ref(false);
 
 const activeTab = computed(() => findActiveTab(activeKey.value));
 const cancelConfirmLoading = computed(() => (
@@ -141,29 +141,12 @@ function openAfterSale(order: CustomerOrder, mode: 'reschedule' | 'cancel') {
 async function payOrder(order: CustomerOrder) {
   actionLoadingId.value = `pay-${order.orderId}`;
   try {
-    const params = await payCustomerOrder(order.orderId);
-    const paymentAction = resolveCustomerPaymentAction(params);
-    if (!paymentAction.shouldRequestPayment) {
-      uni.showToast({ title: paymentAction.toastMessage, icon: 'none' });
-      await loadOrders();
-      return;
-    }
-    if (!uni.requestPayment) {
-      uni.showToast({ title: '当前环境暂不支持在线支付', icon: 'none' });
-      await loadOrders();
-      return;
-    }
-    await new Promise<void>((resolve, reject) => {
-      (uni.requestPayment as any)({
-        ...params,
-        success: () => resolve(),
-        fail: (err: unknown) => reject(err),
-      });
+    const paymentResult = await runCustomerOrderPaymentFlow(order.orderId);
+    uni.showToast({
+      title: paymentResult.toastMessage,
+      icon: paymentResult.status === 'success' ? 'success' : 'none',
     });
-    uni.showToast({ title: '已发起支付', icon: 'success' });
     await loadOrders();
-  } catch {
-    uni.showToast({ title: '可稍后重新支付', icon: 'none' });
   } finally {
     actionLoadingId.value = '';
   }
@@ -236,8 +219,17 @@ function runAction(order: CustomerOrder, key: string) {
   }
 }
 
+onLoad((query) => {
+  if (String(query?.refresh || '') === '1' || String(query?.fromPayment || '') === '1') {
+    forceRefreshOnShow.value = true;
+  }
+});
+
 onShow(() => {
   readPresetStatus();
+  if (forceRefreshOnShow.value) {
+    forceRefreshOnShow.value = false;
+  }
   void loadOrders();
 });
 </script>

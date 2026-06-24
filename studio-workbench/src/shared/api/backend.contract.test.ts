@@ -140,6 +140,17 @@ describe('studio backend api contract', () => {
     expect(backendSource).toContain('slotEndTime')
   })
 
+  it('uses the dedicated staff order payment confirm endpoint and keeps caches in sync', () => {
+    expect(backendTypesContractSource).toContain('export type OrderPaymentConfirmPayload')
+    expect(backendTypesContractSource).toContain('amountCent: number')
+    expect(backendTypesContractSource).toContain('remark: string')
+    expect(backendSource).toContain('async confirmOrderPayment(payload: OrderPaymentConfirmPayload)')
+    expect(backendSource).toContain('`/yy/order/${payload.id}/payment/confirm`')
+    expect(backendSource).toContain('amountCent: payload.amountCent')
+    expect(backendSource).toContain('remark: payload.remark')
+    expect(backendSource).toContain('cachedLedgerOrders = cachedLedgerOrders.map(order => (order.id === payload.id ? next : order))')
+  })
+
   it('creates staff manual bookings through the dedicated inventory-aware endpoint', () => {
     expect(backendTypesContractSource).toContain('serviceGroupId: BackendId')
     expect(backendTypesContractSource).toContain('customerId?: BackendId | null')
@@ -294,4 +305,3 @@ describe('studio backend api contract', () => {
     expect(backendContractSource).toContain('async updateMicroFormSubmissionFollow')
   })
 })
-
