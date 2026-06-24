@@ -188,6 +188,18 @@
               </dd>
             </div>
             <div>
+              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Landing URL</dt>
+              <dd class="mt-1 break-all font-mono text-[10.5px] leading-relaxed text-amber-dark">
+                {{ selectedMapping.landingUrl || '未配置 landingUrl' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Landing Path</dt>
+              <dd class="mt-1 break-all font-mono text-[10.5px] leading-relaxed text-amber-dark">
+                {{ selectedMapping.landingPath || '未配置 landingPath' }}
+              </dd>
+            </div>
+            <div>
               <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Remark</dt>
               <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedMapping.remark || '无备注' }}</dd>
             </div>

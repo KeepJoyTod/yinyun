@@ -4,9 +4,9 @@
       <div class="flex max-h-[80vh] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-amber-topbar-border bg-[#FBF8F2] shadow-2xl">
         <div class="flex items-start justify-between gap-4 border-b border-amber-topbar-border px-7 py-5">
           <div>
-            <span class="text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">商品配置</span>
+            <span class="text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">产品配置</span>
             <h2 class="mt-1 text-[18px] font-semibold text-amber-dark">{{ mode === 'add' ? '新增商品' : '编辑商品' }}</h2>
-            <p class="mt-2 text-[11px] leading-relaxed text-amber-text-muted">保存后同步到预约、选片加购和工作台商品目录。</p>
+            <p class="mt-2 text-[11px] leading-relaxed text-amber-text-muted">保存后用于预约、选片加购和商品展示。</p>
           </div>
           <button class="yy-action border border-amber-topbar-border px-3 py-2 text-[10px] text-amber-dark hover:bg-black/5" type="button" @click="$emit('close')">
             关闭
