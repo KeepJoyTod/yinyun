@@ -1,0 +1,19 @@
+{
+  "status": "READY",
+  "evidenceRoot": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence",
+  "latestSummaryJsonPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\photo-pickup-real-oss-acceptance-20260611-230639.json",
+  "commandConclusion": "PASS",
+  "finalConclusion": "PASS",
+  "preflightRan": true,
+  "localAcceptanceRan": true,
+  "manualChecks": {
+    "h5Pickup": true,
+    "wechatMiniapp": true,
+    "douyinMiniapp": true,
+    "adminAudit": true
+  },
+  "missing": [],
+  "nextCommands": [
+    ".\\tools\\verify-photo-pickup-release-gate.ps1"
+  ]
+}

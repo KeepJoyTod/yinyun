@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-06-16",
+  "source": "brand.yuyue123.cn reference system",
+  "privacy": {
+    "passwordStored": false,
+    "phonePolicy": "masked",
+    "writeActionsPerformed": false
+  },
+  "stores": [
+    {
+      "name": "淄博万象汇店",
+      "monthlyOrders": 2,
+      "pendingOrders": 1
+    },
+    {
+      "name": "威海智慧谷店",
+      "monthlyOrders": 31,
+      "pendingOrders": 3
+    },
+    {
+      "name": "滨州万达店",
+      "monthlyOrders": 84,
+      "pendingOrders": 6
+    },
+    {
+      "name": "滨州吾悦店",
+      "monthlyOrders": 64,
+      "pendingOrders": 13
+    }
+  ],
+  "employeeSummary": {
+    "count": 13,
+    "roles": ["创建者", "品牌管理员", "店长", "店员"],
+    "multiStoreBinding": true
+  },
+  "dashboardToday": {
+    "date": "2026-06-16",
+    "actualIncome": "￥0",
+    "expectedIncome": "￥645",
+    "serviceOrders": 6,
+    "pendingService": 6,
+    "inService": 0,
+    "completed": 0,
+    "cancelled": 1
+  },
+  "appointmentOrderFields": [
+    "客户",
+    "产品",
+    "销售额/待收款/已结清",
+    "状态",
+    "门店",
+    "备注",
+    "到店时间",
+    "下单时间"
+  ],
+  "appointmentStatusTabs": [
+    "全部有效订单",
+    "待服务",
+    "服务中",
+    "已完成",
+    "待支付",
+    "已取消",
+    "已退单"
+  ],
+  "mappingNotes": [
+    "员工需要支持多门店绑定，不能只按单 storeId 建模。",
+    "预约订单页需要保留下单来源、下单时间、到店时间、状态分组和待收款/已结清信息。",
+    "首页经营概况需要同时显示收入、服务订单状态、今日时段工位容量。"
+  ]
+}

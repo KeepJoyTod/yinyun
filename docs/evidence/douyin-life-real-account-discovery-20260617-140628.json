@@ -1,0 +1,645 @@
+{
+  "generated_at": "2026-06-17 14:06:21",
+  "mode": "READ_ONLY_DISCOVERY",
+  "success": true,
+  "safety": {
+    "db_writes": false,
+    "inventory_writes": false,
+    "order_creates": false,
+    "business_write_endpoints_called": false,
+    "raw_private_payload_saved": false,
+    "redaction": "tokens, secrets, open_id, phone, and raw order payload are not emitted"
+  },
+  "remote": {
+    "host": "103.24.216.8",
+    "env_file": "/opt/yingyue/backend/.env.production"
+  },
+  "window": {
+    "start_time": "2026-06-16 14:06:22",
+    "end_time": "2026-06-17 14:06:22",
+    "max_pages": 3,
+    "page_size": 50,
+    "use_test_data_header": false
+  },
+  "env": {
+    "account_id": "7228763224957519924",
+    "poi_id": "7407304729216157722",
+    "client_key_present": true,
+    "client_key_length": 16,
+    "client_secret_present": true,
+    "client_secret_length": 32,
+    "sku_id_present": false,
+    "sku_out_id_present": false
+  },
+  "token": {
+    "name": "client_token",
+    "http_status": 200,
+    "err_no": "",
+    "message": "success",
+    "logid": "202606171406215639A8EC98887F903163",
+    "success": true
+  },
+  "order_discovery": {
+    "raw_order_rows_detected": 7,
+    "deduped_order_count": 7,
+    "status_counts": [
+      {
+        "status": "201",
+        "count": 5
+      },
+      {
+        "status": "1",
+        "count": 2
+      }
+    ],
+    "pay_status_counts": [],
+    "certificate_status_counts": [
+      {
+        "certificate_status": "100",
+        "count": 5
+      },
+      {
+        "certificate_status": "301",
+        "count": 1
+      },
+      {
+        "certificate_status": "401",
+        "count": 1
+      }
+    ],
+    "poi_summary": [
+      {
+        "poi_id": "7342410951733282851",
+        "order_count": 4,
+        "product_ids": [
+          "1772297209231363",
+          "1834803890491392",
+          "1765136728900670"
+        ],
+        "sku_ids": [
+          "1772297209231363",
+          "1834803890491392",
+          "1765136728900670"
+        ],
+        "product_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印",
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取",
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "sku_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印",
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取",
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ]
+      },
+      {
+        "poi_id": "7228779175929186363",
+        "order_count": 3,
+        "product_ids": [
+          "1768121210918952",
+          "1867489036547136",
+          "1765136728900670"
+        ],
+        "sku_ids": [
+          "1768121210918952",
+          "1867489036547136",
+          "1765136728900670"
+        ],
+        "product_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台",
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台",
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "sku_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台",
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台",
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ]
+      }
+    ],
+    "product_sku_summary": [
+      {
+        "product_id": "1765136728900670",
+        "sku_id": "1765136728900670",
+        "order_count": 2,
+        "poi_ids": [
+          "7342410951733282851",
+          "7228779175929186363"
+        ],
+        "product_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "sku_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ]
+      },
+      {
+        "product_id": "1772297209231363",
+        "sku_id": "1772297209231363",
+        "order_count": 2,
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "product_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ],
+        "sku_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ]
+      },
+      {
+        "product_id": "1768121210918952",
+        "sku_id": "1768121210918952",
+        "order_count": 1,
+        "poi_ids": [
+          "7228779175929186363"
+        ],
+        "product_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "sku_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ]
+      },
+      {
+        "product_id": "1834803890491392",
+        "sku_id": "1834803890491392",
+        "order_count": 1,
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "product_names": [
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取"
+        ],
+        "sku_names": [
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取"
+        ]
+      },
+      {
+        "product_id": "1867489036547136",
+        "sku_id": "1867489036547136",
+        "order_count": 1,
+        "poi_ids": [
+          "7228779175929186363"
+        ],
+        "product_names": [
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "sku_names": [
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ]
+      }
+    ],
+    "sample_orders": [
+      {
+        "order_hash": "5e38eda762991c45",
+        "order_id_masked": "1111***4500",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "primary_poi_id": "7342410951733282851",
+        "product_ids": [
+          "1834803890491392"
+        ],
+        "primary_product_id": "1834803890491392",
+        "sku_ids": [
+          "1834803890491392"
+        ],
+        "primary_sku_id": "1834803890491392",
+        "product_names": [
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取"
+        ],
+        "sku_names": [
+          "【大学开学必备】精致证件照｜三色三版打印｜适用校园卡四六级教资公考、入职晋升｜提供服装化妆|立等可取"
+        ],
+        "order_status": "201",
+        "pay_status": "",
+        "certificate_statuses": [
+          "100"
+        ],
+        "amount_fields": {
+          "pay_amount": "10180",
+          "origin_amount": "10900"
+        },
+        "time_fields": {
+          "create_order_time": "1781602193",
+          "pay_time": "1781602197",
+          "update_order_time": "1781602204"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "2c51456849579f1f",
+        "order_id_masked": "1111***7156",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "primary_poi_id": "7342410951733282851",
+        "product_ids": [
+          "1772297209231363"
+        ],
+        "primary_product_id": "1772297209231363",
+        "sku_ids": [
+          "1772297209231363"
+        ],
+        "primary_sku_id": "1772297209231363",
+        "product_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ],
+        "sku_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ],
+        "order_status": "1",
+        "pay_status": "",
+        "certificate_statuses": [
+          "301"
+        ],
+        "amount_fields": {
+          "pay_amount": "6420",
+          "origin_amount": "7500"
+        },
+        "time_fields": {
+          "create_order_time": "1781606703",
+          "pay_time": "1781606713",
+          "update_order_time": "1781656558"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "ee7351a3a8f909f0",
+        "order_id_masked": "1110***5307",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "primary_poi_id": "7342410951733282851",
+        "product_ids": [
+          "1765136728900670"
+        ],
+        "primary_product_id": "1765136728900670",
+        "sku_ids": [
+          "1765136728900670"
+        ],
+        "primary_sku_id": "1765136728900670",
+        "product_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "sku_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "order_status": "201",
+        "pay_status": "",
+        "certificate_statuses": [
+          "100"
+        ],
+        "amount_fields": {
+          "pay_amount": "7000",
+          "origin_amount": "7900"
+        },
+        "time_fields": {
+          "create_order_time": "1781610914",
+          "pay_time": "1781610919",
+          "update_order_time": "1781610925"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "ad7dc63222c79a86",
+        "order_id_masked": "1110***7156",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7342410951733282851"
+        ],
+        "primary_poi_id": "7342410951733282851",
+        "product_ids": [
+          "1772297209231363"
+        ],
+        "primary_product_id": "1772297209231363",
+        "sku_ids": [
+          "1772297209231363"
+        ],
+        "primary_sku_id": "1772297209231363",
+        "product_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ],
+        "sku_names": [
+          "儿童证件照｜适用入园、入学、钢琴美术书法舞蹈竞赛考级等｜提供服装化妆｜精修+打印"
+        ],
+        "order_status": "1",
+        "pay_status": "",
+        "certificate_statuses": [
+          "401"
+        ],
+        "amount_fields": {
+          "pay_amount": "6300",
+          "origin_amount": "7500"
+        },
+        "time_fields": {
+          "create_order_time": "1781656517",
+          "pay_time": "1781656526",
+          "update_order_time": "1781666433"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "51b56e482a7b15e3",
+        "order_id_masked": "1110***2377",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7228779175929186363"
+        ],
+        "primary_poi_id": "7228779175929186363",
+        "product_ids": [
+          "1768121210918952"
+        ],
+        "primary_product_id": "1768121210918952",
+        "sku_ids": [
+          "1768121210918952"
+        ],
+        "primary_sku_id": "1768121210918952",
+        "product_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "sku_names": [
+          "【2026马年孕妈单人照】孕妇照｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "order_status": "201",
+        "pay_status": "",
+        "certificate_statuses": [
+          "100"
+        ],
+        "amount_fields": {
+          "pay_amount": "25098",
+          "origin_amount": "25900"
+        },
+        "time_fields": {
+          "create_order_time": "1781666175",
+          "pay_time": "1781666180",
+          "update_order_time": "1781666186"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "b24a4d9d97dc60d6",
+        "order_id_masked": "1110***2377",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7228779175929186363"
+        ],
+        "primary_poi_id": "7228779175929186363",
+        "product_ids": [
+          "1867489036547136"
+        ],
+        "primary_product_id": "1867489036547136",
+        "sku_ids": [
+          "1867489036547136"
+        ],
+        "primary_sku_id": "1867489036547136",
+        "product_names": [
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "sku_names": [
+          "【孕妈准爸合影】孕妇照双人｜幸孕照｜风格任选｜服装妆造｜精修四张｜送摆台"
+        ],
+        "order_status": "201",
+        "pay_status": "",
+        "certificate_statuses": [
+          "100"
+        ],
+        "amount_fields": {
+          "pay_amount": "32298",
+          "origin_amount": "32900"
+        },
+        "time_fields": {
+          "create_order_time": "1781666197",
+          "pay_time": "1781666203",
+          "update_order_time": "1781666208"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      },
+      {
+        "order_hash": "d59d5f30980a2242",
+        "order_id_masked": "1110***5173",
+        "out_order_no_masked": "",
+        "poi_ids": [
+          "7228779175929186363"
+        ],
+        "primary_poi_id": "7228779175929186363",
+        "product_ids": [
+          "1765136728900670"
+        ],
+        "primary_product_id": "1765136728900670",
+        "sku_ids": [
+          "1765136728900670"
+        ],
+        "primary_sku_id": "1765136728900670",
+        "product_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "sku_names": [
+          "【毕业工作季】成人精致证件照｜大学入学工作简历驾照通用｜含装造｜现场精修立等可取"
+        ],
+        "order_status": "201",
+        "pay_status": "",
+        "certificate_statuses": [
+          "100"
+        ],
+        "amount_fields": {
+          "pay_amount": "7300",
+          "origin_amount": "7900"
+        },
+        "time_fields": {
+          "create_order_time": "1781667681",
+          "pay_time": "1781667708",
+          "update_order_time": "1781667709"
+        },
+        "buyer_reserve_info_count": 0,
+        "reserve_candidate_count": 0,
+        "reserve_candidate_samples": [],
+        "reserve_keys": [
+          "buyer_reserve_info"
+        ],
+        "phone_present": true,
+        "open_id_present": true
+      }
+    ],
+    "field_completeness": {
+      "orders_with_poi": 7,
+      "orders_with_product_id": 7,
+      "orders_with_sku_id": 7,
+      "orders_with_phone_present_flag": 7,
+      "orders_with_open_id_present_flag": 7,
+      "orders_with_non_empty_buyer_reserve_info": 0,
+      "orders_with_reserve_time_candidates": 0
+    },
+    "reserve_key_counts": [
+      {
+        "reserve_key": "buyer_reserve_info",
+        "count": 7
+      }
+    ],
+    "api_calls": [
+      {
+        "name": "life_order_query",
+        "http_status": 200,
+        "err_no": "",
+        "message": "",
+        "logid": "2026061714062287B8A0ECCBD58CA0D546",
+        "page_num": 1,
+        "page_size": 50,
+        "orders_detected": 7
+      }
+    ]
+  },
+  "poi_discovery": {
+    "enabled": true,
+    "observed_poi_count": 3,
+    "api_calls": [
+      {
+        "name": "shop_poi_query",
+        "http_status": 200,
+        "err_no": "",
+        "message": "success",
+        "logid": "20260617140623171FB180905129A593EB",
+        "param_keys": [
+          "account_id",
+          "poi_id"
+        ],
+        "poi_id": "7407304729216157722",
+        "matched": true,
+        "poi_name": "一悦照相馆(滨州店)",
+        "address": "通山街天兴城2-134商铺（恰尔呐牛排对面）"
+      },
+      {
+        "name": "shop_poi_query",
+        "http_status": 200,
+        "err_no": "",
+        "message": "success",
+        "logid": "20260617140623760F328FC426148BB01A",
+        "param_keys": [
+          "account_id",
+          "poi_id"
+        ],
+        "poi_id": "7342410951733282851",
+        "matched": true,
+        "poi_name": "一悦照相馆(滨州万达店)",
+        "address": "彭李街道黄河十二路繁华里商业街森林花语北门向东100米134商户"
+      },
+      {
+        "name": "shop_poi_query",
+        "http_status": 200,
+        "err_no": "",
+        "message": "success",
+        "logid": "2026061714062422BEDBBA22D9A5A5285F",
+        "param_keys": [
+          "account_id",
+          "poi_id"
+        ],
+        "poi_id": "7228779175929186363",
+        "matched": true,
+        "poi_name": "一悦照相馆(滨州吾悦店)",
+        "address": "渤海十八路长江三路交汇处吾悦金街二楼s-235号"
+      }
+    ]
+  },
+  "time_stock_discovery": {
+    "enabled": true,
+    "observed_poi_count": 3,
+    "api_calls": [
+      {
+        "name": "life_time_stock_get",
+        "http_status": 200,
+        "err_no": "",
+        "message": "",
+        "logid": "202606171406258241EBFF60F896A4DF72",
+        "poi_id": "7407304729216157722",
+        "date_samples": [],
+        "time_samples": [],
+        "room_or_sku_samples": [
+          "1833219768687673"
+        ],
+        "stock_value_samples": []
+      },
+      {
+        "name": "life_time_stock_get",
+        "http_status": 200,
+        "err_no": "",
+        "message": "",
+        "logid": "2026061714062527BAB05800D989433752",
+        "poi_id": "7342410951733282851",
+        "date_samples": [],
+        "time_samples": [],
+        "room_or_sku_samples": [],
+        "stock_value_samples": []
+      },
+      {
+        "name": "life_time_stock_get",
+        "http_status": 200,
+        "err_no": "",
+        "message": "",
+        "logid": "20260617140626203114E57F9BFF809D8B",
+        "poi_id": "7228779175929186363",
+        "date_samples": [],
+        "time_samples": [],
+        "room_or_sku_samples": [
+          "1804981296454668"
+        ],
+        "stock_value_samples": [
+          "1",
+          "2"
+        ]
+      }
+    ]
+  },
+  "readiness": {
+    "can_prepare_yy_product_candidates": true,
+    "can_prepare_channel_product_mapping_candidates": true,
+    "can_sync_orders_after_review": true,
+    "can_build_booking_slot_inventory_from_this_order_query": false,
+    "blocking_note_for_booking_slots": "Do not write yy_booking_slot_inventory unless real reserve slot fields are present."
+  }
+}

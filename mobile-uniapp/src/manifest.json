@@ -1,0 +1,36 @@
+{
+  "name": "影约云取片",
+  "appid": "__UNI__YINGYUEPHOTO",
+  "description": "影约云客户取片 H5 / 微信小程序 / 抖音小程序",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "vueVersion": "3",
+  "h5": {
+    "title": "影约云取片",
+    "router": {
+      "mode": "hash",
+      "base": "./"
+    }
+  },
+  "mp-weixin": {
+    "appid": "wx2a1a34748f56a6c6",
+    "setting": {
+      "urlCheck": true,
+      "es6": true,
+      "minified": true,
+      "postcss": true
+    },
+    "usingComponents": true
+  },
+  "mp-toutiao": {
+    "appid": "tta3c8d5753dac3aae01",
+    "setting": {
+      "urlCheck": true,
+      "es6": true,
+      "minified": true,
+      "postcss": true
+    },
+    "usingComponents": true
+  }
+}

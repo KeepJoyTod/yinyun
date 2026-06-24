@@ -1,0 +1,177 @@
+name: Deploy Studio HK2
+
+on:
+  push:
+    branches:
+      - yingyue-closed-loop-optimization-20260603
+    paths:
+      - studio-workbench/**
+      - .github/workflows/studio-deploy-hk2.yml
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy
+        required: true
+        default: yingyue-closed-loop-optimization-20260603
+      release_id:
+        description: Release marker used in Vite assets path
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-hk2-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HK2_HOST: 103.24.216.8
+      HK2_USER: root
+      API_BASE_URL: https://api.evanshine.me
+      SITE_DIR: /var/www/studio.evanshine.me
+      RELEASES_DIR: /opt/yingyue/releases
+      BACKUPS_DIR: /opt/yingyue/backups
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
+
+      - name: Resolve release id
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_id="${{ inputs.release_id }}"
+          if [ -z "${release_id}" ]; then
+            short_sha="$(git rev-parse --short HEAD)"
+            release_id="prod-${short_sha}-studio-workbench-$(date +%Y%m%d-%H%M%S)"
+          fi
+          echo "release_id=${release_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio-workbench/package-lock.json
+
+      - name: Install studio-workbench deps
+        working-directory: studio-workbench
+        run: npm ci
+
+      - name: Build studio-workbench
+        working-directory: studio-workbench
+        env:
+          VITE_STUDIO_DEMO: "false"
+          VITE_API_BASE_URL: ${{ env.API_BASE_URL }}
+          VITE_STUDIO_RELEASE_ID: ${{ steps.meta.outputs.release_id }}
+        run: npm run build
+
+      - name: Package release
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="${{ steps.meta.outputs.release_id }}"
+          package="studio-workbench-${release}.zip"
+          cd studio-workbench/dist
+          grep -q "$release" index.html
+          printf '%s' "$release" > release.txt
+          zip -qr "../../${package}" .
+          cd ../..
+          sha256sum "${package}" | tee "${package}.sha256"
+          echo "PACKAGE_NAME=${package}" >> "$GITHUB_ENV"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-workbench-${{ steps.meta.outputs.release_id }}
+          path: |
+            ${{ env.PACKAGE_NAME }}
+            ${{ env.PACKAGE_NAME }}.sha256
+
+      - name: Install sshpass
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Upload package to HK2
+        env:
+          HK2_PASSWORD: ${{ secrets.HK2_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HK2_PASSWORD"
+          remote_zip="${RELEASES_DIR}/${PACKAGE_NAME}"
+          sshpass -p "$HK2_PASSWORD" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$PACKAGE_NAME" "${HK2_USER}@${HK2_HOST}:${remote_zip}"
+
+      - name: Deploy on HK2
+        env:
+          HK2_PASSWORD: ${{ secrets.HK2_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HK2_PASSWORD"
+          RELEASE_ID="${{ steps.meta.outputs.release_id }}"
+          PACKAGE_NAME="${PACKAGE_NAME}"
+          SITE_DIR="${SITE_DIR}"
+          RELEASES_DIR="${RELEASES_DIR}"
+          BACKUPS_DIR="${BACKUPS_DIR}"
+          sshpass -p "$HK2_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${HK2_USER}@${HK2_HOST}" \
+            "export RELEASE_ID='${RELEASE_ID}' PACKAGE_NAME='${PACKAGE_NAME}' SITE_DIR='${SITE_DIR}' RELEASES_DIR='${RELEASES_DIR}' BACKUPS_DIR='${BACKUPS_DIR}'; bash -s" <<'EOF'
+          set -euo pipefail
+          release="$RELEASE_ID"
+          package_name="$PACKAGE_NAME"
+          site="$SITE_DIR"
+          releases_dir="$RELEASES_DIR"
+          backups_dir="$BACKUPS_DIR"
+          remote_zip="$releases_dir/$package_name"
+          release_dir="$releases_dir/studio-workbench-$release"
+          backup="$backups_dir/$(date +%Y%m%d-%H%M%S)-pre-studio-workbench-$release"
+
+          rm -rf "$release_dir"
+          mkdir -p "$release_dir" "$backup"
+          unzip -oq "$remote_zip" -d "$release_dir"
+          test -f "$release_dir/index.html"
+          test -f "$release_dir/release.txt"
+          grep -q "$release" "$release_dir/index.html"
+          test "$(tr -d '\r\n' < "$release_dir/release.txt")" = "$release"
+          cp -a "$site"/. "$backup"/
+          find "$site" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+          cp -a "$release_dir"/. "$site"/
+          printf '%s' "$release" > "$site/release.txt"
+          marker_count=$(find "$site/assets/$release" -type f | wc -l)
+          asset_count=$(find "$site/assets" -type f | wc -l)
+          nginx -t >/tmp/nginx-test.log 2>&1
+          systemctl reload nginx
+
+          echo "release=$release"
+          echo "release_dir=$release_dir"
+          echo "backup=$backup"
+          echo "marker_count=$marker_count"
+          echo "asset_count=$asset_count"
+          cat /tmp/nginx-test.log
+          EOF
+
+      - name: Smoke public routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="${{ steps.meta.outputs.release_id }}"
+          test "$(curl -fsSL "https://studio.evanshine.me/release.txt")" = "$release"
+          for url in \
+            "https://studio.evanshine.me/order/appointment?cb=${release}" \
+            "https://studio.evanshine.me/service/photos?cb=${release}" \
+            "https://studio.evanshine.me/dashboard/today?cb=${release}"
+          do
+            content="$(curl -fsSL "$url")"
+            grep -q "$release" <<<"$content"
+            echo "ok $url"
+          done
+          curl -fsSI "https://api.evanshine.me/auth/code" >/tmp/api-head.txt
+          cat /tmp/api-head.txt

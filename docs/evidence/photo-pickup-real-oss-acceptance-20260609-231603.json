@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-06-09 23:16:03",
+  "baseUrl": "https://api.evanshine.me",
+  "evidencePath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\photo-pickup-real-oss-acceptance-20260609-231603.md",
+  "summaryJsonPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\photo-pickup-real-oss-acceptance-20260609-231603.json",
+  "commandConclusion": "PENDING",
+  "finalConclusion": "PENDING",
+  "manualAcceptanceConfirmed": false,
+  "preflightRan": false,
+  "localAcceptanceRan": false,
+  "manualChecks": {
+    "h5Pickup": false,
+    "wechatMiniapp": false,
+    "douyinMiniapp": false,
+    "adminAudit": false
+  },
+  "inputs": {
+    "phone": "13900001111",
+    "accessCode": "PREVIEW-20260608",
+    "albumId": "990202606080001",
+    "assetId": "1781018145736000012",
+    "bareOssUrl": "https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg",
+    "objectKey": "photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg",
+    "thumbnailObjectKey": "",
+    "operator": ""
+  }
+}

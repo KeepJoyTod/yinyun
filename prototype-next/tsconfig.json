@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2022"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "prisma.config.ts",
+    "playwright.config.ts",
+    "vitest.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "output",
+    "docs",
+    "plus-ui",
+    "ruoyi-app-plus-public",
+    "ruoyi-plus-uniapp-docs",
+    "ruoyi-plus-uniapp-jwqdjs",
+    "ruoyi-plus-uniapp-workflow",
+    "RuoYi-Vue-Plus-5.X",
+    "RuoYi-master",
+    "ruoyi-ai-main",
+    "cal-com-main",
+    "pretix-master",
+    "medusa-develop",
+    "ruoyi-vue-pro-2026.05-jdk17-21-",
+    "ruoyi-vue-pro-master",
+    "saleor-main",
+    "barber-booking-app-0.14_server_side"
+  ]
+}

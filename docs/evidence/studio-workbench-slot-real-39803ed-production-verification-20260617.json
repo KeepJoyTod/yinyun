@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-06-17 11:29:54 +08:00",
+  "commit": "39803ed",
+  "releasePath": "/opt/yingyue/releases/slot-real-39803ed-20260617-111831",
+  "frontendMarker": "prod-39803ed-slot-real-20260617",
+  "server": "103.24.216.8",
+  "loginOk": true,
+  "tokenLength": 423,
+  "bootstrap": {
+    "code": 200,
+    "username": "store-admin",
+    "storeCount": 5,
+    "menuCount": 1
+  },
+  "routes": {
+    "/": { "statusCode": 200, "markerFound": true },
+    "/login": { "statusCode": 200, "markerFound": true },
+    "/dashboard/today": { "statusCode": 200, "markerFound": true },
+    "/schedule": { "statusCode": 200, "markerFound": true },
+    "/order/appointment": { "statusCode": 200, "markerFound": true }
+  },
+  "api": {
+    "todaySlotTotal": 63,
+    "todayOrderTotal": 3,
+    "jianyueTodaySourceTotal": 1,
+    "douyinLifeMonthSourceTotal": 1099
+  },
+  "todaySlots": [
+    {
+      "date": "2026-06-17",
+      "storeId": "900000000000000100",
+      "startTime": "10:30",
+      "endTime": "11:00",
+      "capacity": 1,
+      "paidCount": 1,
+      "conflictCount": 0,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-06-17",
+      "storeId": "900000000000000100",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "capacity": 1,
+      "paidCount": 1,
+      "conflictCount": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "todayOrders": [
+    {
+      "orderNo": "JY-12152033",
+      "channelType": "JIANYUE",
+      "storeId": "900000000000000100",
+      "slot": "10:30-11:00",
+      "status": "PENDING",
+      "payStatus": "PAID",
+      "inventoryStatus": "CONFIRMED"
+    },
+    {
+      "orderNo": "JY-12152059",
+      "channelType": "JIANYUE",
+      "storeId": "900000000000000100",
+      "slot": "11:00-11:30",
+      "status": "SERVING",
+      "payStatus": "PAID",
+      "inventoryStatus": "CONFIRMED"
+    },
+    {
+      "orderNo": "JY-12152139",
+      "channelType": "JIANYUE",
+      "storeId": "900000000000000100",
+      "slot": "11:00-11:30",
+      "status": "SERVING",
+      "payStatus": "PAID",
+      "inventoryStatus": "CONFLICT"
+    }
+  ],
+  "browserSmoke": {
+    "tool": "Playwright with system Chrome executable",
+    "summaryPath": "output/playwright/studio-prod-39803ed-ui-smoke-20260617.json",
+    "screenshots": {
+      "dashboard": "output/playwright/studio-dashboard-prod-39803ed-20260617.png",
+      "today": "output/playwright/studio-today-prod-39803ed-20260617.png",
+      "orders": "output/playwright/studio-orders-prod-39803ed-20260617.png"
+    },
+    "signals": {
+      "dashboard": {
+        "hasCapacityText": true,
+        "hasConflictText": true,
+        "hasTodayText": true
+      },
+      "today": {
+        "hasCapacityText": true,
+        "hasConflictText": true,
+        "hasTodayText": true
+      },
+      "orders": {
+        "hasCapacityText": true,
+        "hasConflictText": true,
+        "hasTodayText": true,
+        "containsKnownOrder": true
+      }
+    }
+  },
+  "notes": [
+    "No password, bearer token, customer name, phone, or raw external payload is included.",
+    "The production inventory response uses paidCount; frontend maps paidCount to confirmedCount.",
+    "Douyin Life historical orders without real slot fields are intentionally not converted into appointment slots."
+  ]
+}

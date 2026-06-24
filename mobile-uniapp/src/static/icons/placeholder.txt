@@ -1,0 +1,15 @@
+# Icons Placeholder
+
+This directory contains tab bar icon files.
+
+Expected files:
+- home.png
+- home-active.png
+- appointment.png
+- appointment-active.png
+- orders.png
+- orders-active.png
+- albums.png
+- albums-active.png
+- my.png
+- my-active.png

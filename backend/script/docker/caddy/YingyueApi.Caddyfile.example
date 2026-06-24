@@ -1,0 +1,24 @@
+api.evanshine.me {
+    encode zstd gzip
+
+    request_body {
+        max_size 50MB
+    }
+
+    @actuator path_regexp actuator ^(/[^/]*)?/actuator.*(/.*)?$
+    respond @actuator 403
+
+    handle_path /prod-api/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    handle /client/photo/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    handle /api/douyin/life/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    respond "not found" 404
+}

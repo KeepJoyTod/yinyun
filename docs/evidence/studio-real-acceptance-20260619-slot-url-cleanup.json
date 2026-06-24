@@ -1,0 +1,65 @@
+{
+  "time": "2026-06-19T16:38:51+08:00",
+  "release": "prod-54c20d4-slot-url-cleanup-20260619-163400",
+  "overall": "PASS",
+  "checks": [
+    {
+      "name": "dashboard-slot-to-orders-url-clean",
+      "status": "PASS",
+      "result": {
+        "finalUrl": "https://studio.evanshine.me/order/appointment?quick=all&time=arrival&start=2026-06-19&end=2026-06-19&storeId=900000000000000100&dm=%E6%BB%A8%E5%B7%9E%E4%B8%87%E8%BE%BE%E5%BA%97&astore=%E6%BB%A8%E5%B7%9E%E4%B8%87%E8%BE%BE%E5%BA%97&slotStart=13:30&slotEnd=14:00",
+        "containsQ": false
+      }
+    },
+    {
+      "name": "slot-scoped-search-clean",
+      "status": "PASS",
+      "result": {
+        "searchValue": "",
+        "hasSearchTag": false
+      }
+    },
+    {
+      "name": "slot-scoped-order-row-present",
+      "status": "PASS",
+      "result": {
+        "slotRange": "13:30-14:00",
+        "orderId": "JY-12118454"
+      }
+    },
+    {
+      "name": "order-detail-openable",
+      "status": "PASS",
+      "result": {
+        "orderId": "JY-12118454",
+        "detailHeadingCount": 1
+      }
+    },
+    {
+      "name": "direct-stale-url-cleanup",
+      "status": "PASS",
+      "result": {
+        "finalUrl": "https://studio.evanshine.me/order/appointment?quick=all&time=arrival&start=2026-06-19&end=2026-06-19&slotStart=13:30&slotEnd=14:00&cb=prod-54c20d4-slot-url-cleanup-20260619-163400&dm=%E6%BB%A8%E5%B7%9E%E4%B8%87%E8%BE%BE%E5%BA%97&astore=%E6%BB%A8%E5%B7%9E%E4%B8%87%E8%BE%BE%E5%BA%97&storeId=900000000000000100",
+        "containsQ": false,
+        "searchValue": "",
+        "hasSearchTag": false
+      }
+    },
+    {
+      "name": "targeted-tests",
+      "status": "PASS",
+      "result": {
+        "command": "npm --prefix studio-workbench run test -- src/features/orders/orderOperations.test.ts src/features/orders/OrdersView.contract.test.ts src/features/dashboard/DashboardView.contract.test.ts",
+        "files": 3,
+        "tests": 128
+      }
+    },
+    {
+      "name": "build",
+      "status": "PASS",
+      "result": {
+        "command": "npm --prefix studio-workbench run build"
+      }
+    }
+  ]
+}

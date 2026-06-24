@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-label="Studio portrait sample">
+  <rect width="480" height="640" fill="#222d38"/>
+  <circle cx="240" cy="222" r="96" fill="#0f1720"/>
+  <circle cx="240" cy="236" r="62" fill="#ddb99f"/>
+  <path d="M121 640c46-160 193-178 238 0" fill="#f6f1e9"/>
+  <path d="M174 204c18-63 106-82 139 0-34-24-96-28-139 0z" fill="#101820"/>
+  <circle cx="390" cy="118" r="78" fill="#ffffff" opacity=".15"/>
+  <rect x="62" y="62" width="356" height="516" rx="30" fill="none" stroke="#ffffff" stroke-opacity=".22" stroke-width="8"/>
+</svg>

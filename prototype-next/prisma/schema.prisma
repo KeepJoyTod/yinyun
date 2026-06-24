@@ -1,0 +1,618 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+  VIEWER
+}
+
+enum ProductType {
+  SERVICE
+  GROUP_DEAL
+  ADDITIONAL
+  PRINT
+  DOUYIN
+  MEITUAN
+}
+
+enum OrderSource {
+  WALK_IN
+  ONLINE
+  DOUYIN
+  MEITUAN
+  PHONE
+}
+
+enum ChannelType {
+  DOUYIN
+  MEITUAN
+}
+
+enum ChannelAccountStatus {
+  NOT_AUTHORIZED
+  AUTHORIZED
+  EXPIRED
+  DISABLED
+}
+
+enum ChannelOrderSyncStatus {
+  UNLINKED
+  LINKED
+  FAILED
+  IGNORED
+}
+
+enum ChannelSyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+enum BookingMethod {
+  ONLINE
+  STORE
+  PHONE
+}
+
+enum OrderStatus {
+  PENDING_CONFIRM
+  WAITING_SERVICE
+  IN_SERVICE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum NotificationChannel {
+  SMS
+  WECHAT
+}
+
+enum NotificationStatus {
+  DRY_RUN
+  SENT
+  FAILED
+}
+
+enum RedemptionStatus {
+  PENDING
+  REDEEMED
+  CANCELLED
+}
+
+enum PhotoAlbumStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stores        Store[]
+  users         User[]
+  staff         Staff[]
+  customers     Customer[]
+  serviceGroups ServiceGroup[]
+  products      Product[]
+  slots         AppointmentSlot[]
+  orders        Order[]
+  auditLogs     AuditLog[]
+  notificationTemplates NotificationTemplate[]
+  notificationLogs      NotificationLog[]
+  customerReviews       CustomerReview[]
+  benefitRedemptions    BenefitRedemption[]
+  photoAlbums           PhotoAlbum[]
+  photoAssets           PhotoAsset[]
+  photoSelections       PhotoSelection[]
+  channelPlugins        ChannelPlugin[]
+  channelAccounts       ChannelAccount[]
+  channelProductMappings ChannelProductMapping[]
+  channelOrderMappings  ChannelOrderMapping[]
+  channelSyncLogs       ChannelSyncLog[]
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  brandId   String
+  name      String
+  phone     String?
+  address   String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brand         Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  serviceGroups ServiceGroup[]
+  staff         Staff[]
+  slots         AppointmentSlot[]
+  orders        Order[]
+  channelAccounts ChannelAccount[]
+
+  @@index([brandId])
+}
+
+model User {
+  id           String     @id @default(cuid())
+  brandId      String
+  name         String
+  phone        String     @unique
+  passwordHash String
+  role         UserRole   @default(VIEWER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  brandId   String
+  storeId   String?
+  name      String
+  phone     String?
+  position  String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brand  Brand   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  store  Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  orders Order[]
+
+  @@index([brandId])
+  @@index([storeId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  brandId   String
+  name      String
+  phone     String
+  remark    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brand  Brand   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  orders Order[]
+  reviews CustomerReview[]
+  redemptions BenefitRedemption[]
+  photoAlbums PhotoAlbum[]
+  photoSelections PhotoSelection[]
+
+  @@unique([brandId, phone])
+  @@index([brandId])
+}
+
+model ServiceGroup {
+  id              String   @id @default(cuid())
+  brandId         String
+  storeId         String?
+  name            String
+  description     String?
+  slotMinutes     Int      @default(30)
+  capacityPerSlot Int      @default(1)
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  brand    Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  store    Store?            @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  products Product[]
+  slots    AppointmentSlot[]
+  orders   Order[]
+
+  @@index([brandId])
+  @@index([storeId])
+}
+
+model Product {
+  id             String      @id @default(cuid())
+  brandId        String
+  serviceGroupId String?
+  type           ProductType
+  name           String
+  nickname       String?
+  externalCode   String?
+  selectionUnitPriceCents Int?
+  albumProductName String?
+  priceCents     Int
+  durationMin    Int         @default(30)
+  enabled        Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  brand        Brand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  serviceGroup ServiceGroup? @relation(fields: [serviceGroupId], references: [id], onDelete: SetNull)
+  orderItems    OrderItem[]
+  channelProductMappings ChannelProductMapping[]
+
+  @@index([brandId])
+  @@index([serviceGroupId])
+}
+
+model AppointmentSlot {
+  id             String   @id @default(cuid())
+  brandId        String
+  storeId        String
+  serviceGroupId String
+  startsAt       DateTime
+  endsAt         DateTime
+  capacity       Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  store        Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  serviceGroup ServiceGroup @relation(fields: [serviceGroupId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@unique([storeId, serviceGroupId, startsAt])
+  @@index([brandId])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNo        String        @unique
+  brandId        String
+  storeId        String
+  serviceGroupId String?
+  slotId         String?
+  customerId     String
+  staffId        String?
+  source         OrderSource   @default(ONLINE)
+  bookingMethod  BookingMethod @default(ONLINE)
+  status         OrderStatus   @default(PENDING_CONFIRM)
+  paymentStatus  PaymentStatus @default(UNPAID)
+  totalCents     Int
+  remark         String?
+  scheduledAt    DateTime
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  brand        Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  store        Store            @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  serviceGroup ServiceGroup?    @relation(fields: [serviceGroupId], references: [id], onDelete: SetNull)
+  slot         AppointmentSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  customer     Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  staff        Staff?           @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+  payments     Payment[]
+  reviews      CustomerReview[]
+  redemptions  BenefitRedemption[]
+  photoAlbums  PhotoAlbum[]
+  channelOrderMappings ChannelOrderMapping[]
+
+  @@index([brandId, status])
+  @@index([storeId])
+  @@index([customerId])
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  productId  String
+  name       String
+  quantity   Int    @default(1)
+  priceCents Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String
+  amountCents Int
+  status      PaymentStatus @default(UNPAID)
+  channel     String?
+  tradeNo     String?
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  brandId   String
+  actor     String
+  action    String
+  target    String
+  detail    Json?
+  createdAt DateTime @default(now())
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId, createdAt])
+}
+
+model NotificationTemplate {
+  id        String                @id @default(cuid())
+  brandId   String
+  channel   NotificationChannel
+  key       String
+  name      String
+  content   String
+  enabled   Boolean               @default(true)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  logs  NotificationLog[]
+
+  @@unique([brandId, key])
+  @@index([brandId])
+}
+
+model NotificationLog {
+  id          String              @id @default(cuid())
+  brandId     String
+  templateId  String?
+  channel     NotificationChannel
+  recipient   String
+  status      NotificationStatus
+  content     String
+  provider    String
+  result      String?
+  sentAt      DateTime?
+  createdAt   DateTime            @default(now())
+
+  brand     Brand                @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  template  NotificationTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([brandId, createdAt])
+}
+
+model CustomerReview {
+  id         String   @id @default(cuid())
+  brandId    String
+  customerId String?
+  orderId    String?
+  rating     Int
+  content    String?
+  createdAt  DateTime @default(now())
+
+  brand    Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  order    Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([brandId, createdAt])
+  @@index([customerId])
+  @@index([orderId])
+}
+
+model BenefitRedemption {
+  id         String           @id @default(cuid())
+  brandId    String
+  customerId String?
+  orderId    String?
+  channel    String
+  code       String
+  status     RedemptionStatus @default(PENDING)
+  amountCents Int
+  redeemedAt DateTime?
+  createdAt  DateTime         @default(now())
+
+  brand    Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  order    Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([brandId, createdAt])
+  @@index([customerId])
+  @@index([orderId])
+}
+
+model ChannelPlugin {
+  id          String      @id @default(cuid())
+  brandId     String
+  channelType ChannelType
+  name        String
+  enabled     Boolean     @default(false)
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  brand           Brand                   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  accounts        ChannelAccount[]
+  productMappings ChannelProductMapping[]
+  orderMappings   ChannelOrderMapping[]
+  syncLogs        ChannelSyncLog[]
+
+  @@unique([brandId, channelType])
+  @@index([brandId])
+  @@map("yy_channel_plugin")
+}
+
+model ChannelAccount {
+  id                    String               @id @default(cuid())
+  brandId               String
+  pluginId              String?
+  storeId               String?
+  channelType           ChannelType
+  accountName           String
+  appKey                String?
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+  expiresAt             DateTime?
+  status                ChannelAccountStatus @default(NOT_AUTHORIZED)
+  lastAuthorizedAt      DateTime?
+  lastSyncAt            DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  brand      Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  plugin     ChannelPlugin? @relation(fields: [pluginId], references: [id], onDelete: SetNull)
+  store      Store?         @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  orderMappings ChannelOrderMapping[]
+  syncLogs      ChannelSyncLog[]
+
+  @@index([brandId, channelType])
+  @@index([pluginId])
+  @@index([storeId])
+  @@map("yy_channel_account")
+}
+
+model ChannelProductMapping {
+  id                String      @id @default(cuid())
+  brandId           String
+  pluginId          String?
+  productId         String
+  channelType       ChannelType
+  externalProductId String
+  externalSkuId     String?
+  externalName      String
+  enabled           Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  brand   Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  plugin  ChannelPlugin? @relation(fields: [pluginId], references: [id], onDelete: SetNull)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([brandId, channelType, externalProductId, externalSkuId])
+  @@index([brandId, channelType])
+  @@index([productId])
+  @@map("yy_channel_product_mapping")
+}
+
+model ChannelOrderMapping {
+  id              String                 @id @default(cuid())
+  brandId         String
+  pluginId        String?
+  accountId       String?
+  orderId         String?
+  channelType     ChannelType
+  externalOrderId String
+  externalStatus  String
+  syncStatus      ChannelOrderSyncStatus @default(UNLINKED)
+  customerName    String?
+  customerPhone   String?
+  productName     String?
+  amountCents     Int?
+  scheduledAt     DateTime?
+  rawPayload      Json?
+  lastSyncedAt    DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  brand   Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  plugin  ChannelPlugin?  @relation(fields: [pluginId], references: [id], onDelete: SetNull)
+  account ChannelAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  order   Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@unique([brandId, channelType, externalOrderId])
+  @@index([brandId, channelType])
+  @@index([orderId])
+  @@map("yy_channel_order_mapping")
+}
+
+model ChannelSyncLog {
+  id           String            @id @default(cuid())
+  brandId      String
+  pluginId     String?
+  accountId    String?
+  channelType  ChannelType
+  apiName      String
+  requestId    String?
+  success      Boolean           @default(false)
+  syncStatus   ChannelSyncStatus @default(PENDING)
+  errorMessage String?
+  durationMs   Int?
+  createdAt    DateTime          @default(now())
+
+  brand   Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  plugin  ChannelPlugin?  @relation(fields: [pluginId], references: [id], onDelete: SetNull)
+  account ChannelAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([brandId, channelType, createdAt])
+  @@index([pluginId])
+  @@index([accountId])
+  @@map("yy_channel_sync_log")
+}
+
+model PhotoAlbum {
+  id             String           @id @default(cuid())
+  brandId        String
+  customerId     String?
+  orderId        String?
+  title          String
+  description    String?
+  status         PhotoAlbumStatus @default(DRAFT)
+  maxSelectCount Int              @default(6)
+  shareToken     String           @unique @default(cuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  brand      Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  customer   Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  order      Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  assets     PhotoAsset[]
+  selections PhotoSelection[]
+
+  @@index([brandId, createdAt])
+  @@index([customerId])
+  @@index([orderId])
+}
+
+model PhotoAsset {
+  id        String   @id @default(cuid())
+  brandId   String
+  albumId   String
+  fileName  String
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  brand      Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  album      PhotoAlbum       @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  selections PhotoSelection[]
+
+  @@index([brandId])
+  @@index([albumId, sortOrder])
+}
+
+model PhotoSelection {
+  id         String   @id @default(cuid())
+  brandId    String
+  albumId    String
+  assetId    String
+  customerId String?
+  note       String?
+  selectedAt DateTime @default(now())
+
+  brand    Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  album    PhotoAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  asset    PhotoAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  customer Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@unique([albumId, assetId])
+  @@index([brandId, selectedAt])
+  @@index([customerId])
+}

@@ -1,0 +1,325 @@
+{
+  "status": "PASS",
+  "packageDir": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\dist\\yingyue-api-deploy",
+  "checkedAt": "2026-06-12 16:16:46 +08:00",
+  "failureCount": 0,
+  "stage": "verifyPackage",
+  "message": "deploy package verification passed",
+  "checks": [
+    {
+      "name": "file:backend/ruoyi-admin.jar",
+      "status": "PASS",
+      "detail": "162837730 bytes"
+    },
+    {
+      "name": "file:backend/.env.production.example",
+      "status": "PASS",
+      "detail": "2403 bytes"
+    },
+    {
+      "name": "file:deploy/yingyue-admin.service.example",
+      "status": "PASS",
+      "detail": "365 bytes"
+    },
+    {
+      "name": "file:conf/nginx/yingyue-api.nginx.example.conf",
+      "status": "PASS",
+      "detail": "1654 bytes"
+    },
+    {
+      "name": "file:conf/caddy/YingyueApi.Caddyfile.example",
+      "status": "PASS",
+      "detail": "433 bytes"
+    },
+    {
+      "name": "file:DEPLOY_PACKAGE_README.md",
+      "status": "PASS",
+      "detail": "6963 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_ry_vue_5.X.sql",
+      "status": "PASS",
+      "detail": "92375 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_ry_job.sql",
+      "status": "PASS",
+      "detail": "46160 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_ry_workflow.sql",
+      "status": "PASS",
+      "detail": "34822 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_cloud.sql",
+      "status": "PASS",
+      "detail": "34142 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_cloud_codegen.sql",
+      "status": "PASS",
+      "detail": "5123 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_channel_life_migration_20260606.sql",
+      "status": "PASS",
+      "detail": "2233 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_ops_crud_migration_20260606.sql",
+      "status": "PASS",
+      "detail": "25717 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_photo_private_oss_migration_20260606.sql",
+      "status": "PASS",
+      "detail": "3506 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_photo_asset_object_key_guard_20260607.sql",
+      "status": "PASS",
+      "detail": "1343 bytes"
+    },
+    {
+      "name": "file:sql/postgres/postgres_yy_order_payment_migration_20260611.sql",
+      "status": "PASS",
+      "detail": "6228 bytes"
+    },
+    {
+      "name": "file:tools/yingyue-production-preflight.ps1",
+      "status": "PASS",
+      "detail": "7845 bytes"
+    },
+    {
+      "name": "file:tools/yingyue-platform-readiness.ps1",
+      "status": "PASS",
+      "detail": "10982 bytes"
+    },
+    {
+      "name": "file:tools/yingyue-douyin-album-audit.ps1",
+      "status": "PASS",
+      "detail": "5176 bytes"
+    },
+    {
+      "name": "file:tools/verify-photo-pickup-access-audit.ps1",
+      "status": "PASS",
+      "detail": "7689 bytes"
+    },
+    {
+      "name": "file:tools/print-miniapp-acceptance-handoff.ps1",
+      "status": "PASS",
+      "detail": "5561 bytes"
+    },
+    {
+      "name": "file:tools/photo-pickup-smoke.ps1",
+      "status": "PASS",
+      "detail": "18695 bytes"
+    },
+    {
+      "name": "file:tools/photo-pickup-local-acceptance.ps1",
+      "status": "PASS",
+      "detail": "5102 bytes"
+    },
+    {
+      "name": "file:tools/new-photo-pickup-real-oss-evidence.ps1",
+      "status": "PASS",
+      "detail": "29732 bytes"
+    },
+    {
+      "name": "file:tools/get-yingyue-delivery-status.ps1",
+      "status": "PASS",
+      "detail": "11006 bytes"
+    },
+    {
+      "name": "file:tools/verify-photo-pickup-real-oss-summary.ps1",
+      "status": "PASS",
+      "detail": "6256 bytes"
+    },
+    {
+      "name": "file:tools/verify-latest-photo-pickup-real-oss-summary.ps1",
+      "status": "PASS",
+      "detail": "1167 bytes"
+    },
+    {
+      "name": "file:tools/verify-photo-pickup-release-gate.ps1",
+      "status": "PASS",
+      "detail": "8949 bytes"
+    },
+    {
+      "name": "file:tools/get-photo-pickup-release-status.ps1",
+      "status": "PASS",
+      "detail": "13711 bytes"
+    },
+    {
+      "name": "file:tools/verify-yingyue-deploy-package.ps1",
+      "status": "PASS",
+      "detail": "15447 bytes"
+    },
+    {
+      "name": "file:docs/photo-pickup-smoke.md",
+      "status": "PASS",
+      "detail": "11640 bytes"
+    },
+    {
+      "name": "file:docs/photo-pickup-final-verification-runbook.md",
+      "status": "PASS",
+      "detail": "17642 bytes"
+    },
+    {
+      "name": "file:docs/yingyue-project-detection-runbook.md",
+      "status": "PASS",
+      "detail": "20626 bytes"
+    },
+    {
+      "name": "file:docs/evidence/miniapp-acceptance-handoff-20260611.md",
+      "status": "PASS",
+      "detail": "2857 bytes"
+    },
+    {
+      "name": "readme:project-delivery-status",
+      "status": "PASS",
+      "detail": "get-yingyue-delivery-status\\.ps1"
+    },
+    {
+      "name": "readme:project-delivery-status-json",
+      "status": "PASS",
+      "detail": "yingyue-delivery-status\\.json"
+    },
+    {
+      "name": "readme:project-delivery-external-acceptance",
+      "status": "PASS",
+      "detail": "READY_FOR_EXTERNAL_ACCEPTANCE"
+    },
+    {
+      "name": "readme:miniapp-acceptance-handoff",
+      "status": "PASS",
+      "detail": "print-miniapp-acceptance-handoff\\.ps1"
+    },
+    {
+      "name": "readme:release-status",
+      "status": "PASS",
+      "detail": "get-photo-pickup-release-status\\.ps1"
+    },
+    {
+      "name": "readme:release-status-json",
+      "status": "PASS",
+      "detail": "-AsJson"
+    },
+    {
+      "name": "readme:release-status-artifact",
+      "status": "PASS",
+      "detail": "-OutputJsonPath"
+    },
+    {
+      "name": "readme:release-status-preflight-flag",
+      "status": "PASS",
+      "detail": "preflightRan"
+    },
+    {
+      "name": "readme:release-status-local-acceptance-flag",
+      "status": "PASS",
+      "detail": "localAcceptanceRan"
+    },
+    {
+      "name": "readme:release-status-evidence-integrity",
+      "status": "PASS",
+      "detail": "evidence Markdown exists"
+    },
+    {
+      "name": "readme:release-status-summary-path-integrity",
+      "status": "PASS",
+      "detail": "summaryJsonPath matches the checked summary"
+    },
+    {
+      "name": "readme:release-status-bare-oss-integrity",
+      "status": "PASS",
+      "detail": "sanitized bare OSS URL"
+    },
+    {
+      "name": "readme:release-status-aliyun-oss-url",
+      "status": "PASS",
+      "detail": "HTTPS Aliyun OSS bare object URL"
+    },
+    {
+      "name": "readme:real-oss-required-inputs",
+      "status": "PASS",
+      "detail": "new-photo-pickup-real-oss-evidence\\.ps1 -PrintRequiredInputs"
+    },
+    {
+      "name": "readme:real-oss-auto-resolve-command",
+      "status": "PASS",
+      "detail": "-AutoResolve -RunPreflight -RunLocalAcceptance"
+    },
+    {
+      "name": "readme:real-oss-auto-evidence-command",
+      "status": "PASS",
+      "detail": "-RunPreflight -RunLocalAcceptance"
+    },
+    {
+      "name": "readme:real-oss-final-pass-command",
+      "status": "PASS",
+      "detail": "-ConfirmH5Pickup -ConfirmWechatMiniapp -ConfirmDouyinMiniapp -ConfirmAdminAudit"
+    },
+    {
+      "name": "readme:real-oss-placeholder-fields",
+      "status": "PASS",
+      "detail": "-Phone \"<phone>\" -AccessCode \"<pickup-code>\" -AlbumId \"<album-id>\" -AssetId \"<asset-id>\""
+    },
+    {
+      "name": "readme:release-gate",
+      "status": "PASS",
+      "detail": "verify-photo-pickup-release-gate\\.ps1"
+    },
+    {
+      "name": "readme:release-gate-json",
+      "status": "PASS",
+      "detail": "verify-photo-pickup-release-gate\\.ps1 -AsJson"
+    },
+    {
+      "name": "readme:evidence-root",
+      "status": "PASS",
+      "detail": "-EvidenceRoot"
+    },
+    {
+      "name": "readme:deploy-package-verifier",
+      "status": "PASS",
+      "detail": "verify-yingyue-deploy-package\\.ps1"
+    },
+    {
+      "name": "readme:deploy-package-verifier-json",
+      "status": "PASS",
+      "detail": "verify-yingyue-deploy-package\\.ps1 -PackageDir \\. -AsJson"
+    },
+    {
+      "name": "readme:deploy-package-verifier-artifact",
+      "status": "PASS",
+      "detail": "verify-yingyue-deploy-package\\.ps1 -PackageDir \\. -OutputJsonPath docs/evidence/yingyue-deploy-package-status\\.json"
+    },
+    {
+      "name": "readme:deploy-package-release-gate-self-check",
+      "status": "PASS",
+      "detail": "release-gate-json:self-check"
+    },
+    {
+      "name": "readme:no-secret-files-in-package",
+      "status": "PASS",
+      "detail": "secret-files:denylist"
+    },
+    {
+      "name": "readme:no-secret-warning",
+      "status": "PASS",
+      "detail": "Do not upload real `\\.env\\.production` or cloud AccessKey files back into Git\\."
+    },
+    {
+      "name": "release-gate-json:self-check",
+      "status": "PASS",
+      "detail": "status=BLOCKED exit=1 stage=releaseStatus"
+    },
+    {
+      "name": "secret-files:denylist",
+      "status": "PASS",
+      "detail": "no forbidden secret filenames found; env.production.example allowed"
+    }
+  ]
+}

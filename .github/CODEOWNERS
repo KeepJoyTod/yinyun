@@ -1,0 +1,38 @@
+# Default owner for review routing.
+* @dengzhekun
+
+# Studio workbench UI and booking pages.
+/studio-workbench/ @dengzhekun
+/studio-workbench/src/features/schedule/ @dengzhekun
+/studio-workbench/src/features/orders/ @dengzhekun
+/studio-workbench/src/features/dashboard/ @dengzhekun
+/studio-workbench/src/features/service/ @dengzhekun
+/studio-workbench/src/features/merchant/ @dengzhekun
+/studio-workbench/src/features/products/ @dengzhekun
+/studio-workbench/src/shared/components/schedule/ @dengzhekun
+
+# Client-facing surfaces.
+/mobile-uniapp/ @dengzhekun
+/client-web/ @dengzhekun
+
+# Backend booking and channel integration.
+/backend/ruoyi-modules/ruoyi-yy/ @dengzhekun
+/backend/script/sql/postgres/ @dengzhekun
+
+# Douyin Life integration maps and docs.
+/docs/jianyue-booking-* @dengzhekun
+/docs/*douyin* @dengzhekun
+/tools/*douyin* @dengzhekun
+/tools/invoke-hk2.ps1 @dengzhekun
+
+# Architecture, contracts, maps, and collaboration rules.
+/AGENTS.md @dengzhekun
+/CONTRIBUTING.md @dengzhekun
+/docs/architecture/ @dengzhekun
+/docs/contracts/ @dengzhekun
+/docs/flows/ @dengzhekun
+/docs/github-multi-computer-workflow.md @dengzhekun
+/docs/github-upload-checklist.md @dengzhekun
+
+# GitHub governance.
+/.github/ @dengzhekun

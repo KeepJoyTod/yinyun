@@ -1,0 +1,24 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": [
+    "src/shared/stores/albumsStore.ts",
+    "src/shared/stores/channelStore.ts",
+    "src/shared/stores/customersStore.ts",
+    "src/shared/stores/operationLogStore.ts",
+    "src/shared/stores/ordersStore.ts",
+    "src/shared/stores/productStore.ts",
+    "src/shared/stores/settingsStore.ts",
+    "src/shared/stores/storeIndex.ts"
+  ]
+}

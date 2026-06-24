@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="photo placeholder">
+  <rect width="640" height="420" fill="#f1f5f9"/>
+  <rect x="72" y="72" width="496" height="276" rx="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="4"/>
+  <circle cx="200" cy="164" r="42" fill="#94a3b8"/>
+  <path d="M122 318l132-118 86 76 58-48 120 90H122z" fill="#64748b"/>
+  <text x="320" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#475569">Photo Preview</text>
+</svg>

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Local project maps
+    url: https://github.com/dengzhekun/yingyue-cloud/tree/yingyue-closed-loop-optimization-20260603/docs
+    about: Check docs/jianyue-booking-* maps before opening vague implementation work.

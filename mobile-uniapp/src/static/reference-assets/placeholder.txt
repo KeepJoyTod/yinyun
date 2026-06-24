@@ -1,0 +1,27 @@
+# Reference Assets Placeholder
+
+This directory contains reference asset files for the mobile-uniapp project.
+
+The actual image files should be placed here for development and testing.
+
+Expected files:
+- home-hero-01.jpg
+- home-hero-02.jpg
+- home-mosaic-large.jpg
+- home-mosaic-square-01.jpg
+- home-mosaic-square-02.jpg
+- home-mosaic-square-03.jpg
+- home-mosaic-square-04.jpg
+- home-mosaic-wide-01.jpg
+- home-mosaic-wide-02.jpg
+- seasonal-hot-01.jpg
+- seasonal-hot-02.jpg
+- section-strip-01.jpg
+- section-strip-02.jpg
+- brand-slogan-strip.jpg
+- category-portrait-01.jpg
+- fallback-gallery-thumb.png
+- reference-loading.gif
+- sample-couple-generated.png
+- sample-family-generated.png
+- sample-id-generated.png

@@ -1,0 +1,60 @@
+{
+  "status": "READY_FOR_MANUAL_CHECK",
+  "generatedAt": "2026-06-16 10:40:00 +08:00",
+  "baseUrl": "https://studio.evanshine.me",
+  "outputPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-103959.md",
+  "summaryJsonPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-103959.json",
+  "probeHttp": true,
+  "routes": [
+    "/",
+    "/login",
+    "/order/appointment",
+    "/dashboard/today",
+    "/settings/logs",
+    "/order/verification"
+  ],
+  "probes": [
+    {
+      "route": "/",
+      "url": "https://studio.evanshine.me/",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/login",
+      "url": "https://studio.evanshine.me/login",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/order/appointment",
+      "url": "https://studio.evanshine.me/order/appointment",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/dashboard/today",
+      "url": "https://studio.evanshine.me/dashboard/today",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/settings/logs",
+      "url": "https://studio.evanshine.me/settings/logs",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/order/verification",
+      "url": "https://studio.evanshine.me/order/verification",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    }
+  ]
+}

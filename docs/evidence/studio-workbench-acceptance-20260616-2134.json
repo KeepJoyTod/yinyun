@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "generatedAt": "2026-06-16 21:32:42 +08:00",
+  "baseUrl": "https://studio.evanshine.me",
+  "outputPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-2134.md",
+  "summaryJsonPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-2134.json",
+  "probeHttp": true,
+  "routes": [
+    "/",
+    "/login",
+    "/order/appointment",
+    "/dashboard/today",
+    "/merchant/store",
+    "/schedule"
+  ],
+  "deployment": {
+    "commit": "a2ded19",
+    "server": "103.24.216.8",
+    "siteDir": "/var/www/studio.evanshine.me",
+    "backupDir": "/opt/yingyue/backups/studio-workbench-jianyue-a2ded19-20260616-212643-pre",
+    "remotePackage": "/opt/yingyue/releases/studio-workbench-jianyue-a2ded19-20260616-212643.zip",
+    "releaseDir": "/opt/yingyue/releases/studio-workbench-jianyue-a2ded19-20260616-212643",
+    "nginxTest": "successful",
+    "nginxReload": "successful",
+    "browserSmoke": {
+      "url": "https://studio.evanshine.me/login",
+      "releaseAsset": "prod-a2ded19-studio-jianyue-20260616",
+      "captchaVisible": false,
+      "loginVisible": true
+    }
+  },
+  "probes": [
+    {
+      "route": "/",
+      "url": "https://studio.evanshine.me/",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/login",
+      "url": "https://studio.evanshine.me/login",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/order/appointment",
+      "url": "https://studio.evanshine.me/order/appointment",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/dashboard/today",
+      "url": "https://studio.evanshine.me/dashboard/today",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/merchant/store",
+      "url": "https://studio.evanshine.me/merchant/store",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/schedule",
+      "url": "https://studio.evanshine.me/schedule",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    }
+  ]
+}

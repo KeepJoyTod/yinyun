@@ -1,0 +1,49 @@
+# env / secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+!mobile-uniapp/.env.api
+secret.txt
+secrets.txt
+*.secret
+*.secrets
+
+# dependencies
+node_modules/
+
+# frontend builds
+dist/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+output/
+prototype-next/next-env.d.ts
+
+# java builds
+target/
+.flattened-pom.xml
+logs/
+*.log
+*.log.gz
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# local archives
+*.zip
+*.7z
+*.rar
+
+# local data exports that can contain customer PII
+**/postgres_jianyue_orders_import_*.sql
+**/jianyue-orders-normalized-*.json
+
+# local AI workflow cache
+.headroom/

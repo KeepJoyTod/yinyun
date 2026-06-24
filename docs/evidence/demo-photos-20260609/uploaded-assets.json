@@ -1,0 +1,42 @@
+[
+  {
+    "key": "photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg",
+    "url": "https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-01-retouch-cover.jpg",
+    "size": 70314,
+    "md5": "f26bc24e35fb9843daf5dc22f90fbdbc",
+    "etag": "F26BC24E35FB9843DAF5DC22F90FBDBC",
+    "status": 200,
+    "localPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\demo-photos-20260609\\yingyue-demo-01-retouch-cover.jpg",
+    "originalName": "yingyue-demo-01-retouch-cover.jpg"
+  },
+  {
+    "key": "photo-pickup-demo/990202606080001/20260609231447-02-studio-portrait.jpg",
+    "url": "https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-02-studio-portrait.jpg",
+    "size": 68855,
+    "md5": "c09798859131daabcd3fb3359b3f750f",
+    "etag": "C09798859131DAABCD3FB3359B3F750F",
+    "status": 200,
+    "localPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\demo-photos-20260609\\yingyue-demo-02-studio-portrait.jpg",
+    "originalName": "yingyue-demo-02-studio-portrait.jpg"
+  },
+  {
+    "key": "photo-pickup-demo/990202606080001/20260609231447-03-selected-proof.jpg",
+    "url": "https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-03-selected-proof.jpg",
+    "size": 66509,
+    "md5": "c1f640a9132592b2fde0b0458238b7fc",
+    "etag": "C1F640A9132592B2FDE0B0458238B7FC",
+    "status": 200,
+    "localPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\demo-photos-20260609\\yingyue-demo-03-selected-proof.jpg",
+    "originalName": "yingyue-demo-03-selected-proof.jpg"
+  },
+  {
+    "key": "photo-pickup-demo/990202606080001/20260609231447-04-final-print.jpg",
+    "url": "https://evanshine-photo-bj-prod.oss-cn-beijing.aliyuncs.com/photo-pickup-demo/990202606080001/20260609231447-04-final-print.jpg",
+    "size": 64085,
+    "md5": "3a6419280287fb7a782c0562b859b978",
+    "etag": "3A6419280287FB7A782C0562B859B978",
+    "status": 200,
+    "localPath": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\demo-photos-20260609\\yingyue-demo-04-final-print.jpg",
+    "originalName": "yingyue-demo-04-final-print.jpg"
+  }
+]

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-label="ID photo sample alternate">
+  <rect width="480" height="640" fill="#eef4f5"/>
+  <rect x="52" y="46" width="376" height="548" rx="20" fill="#ffffff"/>
+  <circle cx="240" cy="220" r="72" fill="#eac6ad"/>
+  <path d="M174 188c23-66 109-75 135-7-42-18-84-18-135 7z" fill="#1e2730"/>
+  <path d="M101 594c37-140 241-140 278 0" fill="#24435c"/>
+  <rect x="146" y="496" width="188" height="17" rx="8.5" fill="#d8e4e7"/>
+  <rect x="174" y="528" width="132" height="13" rx="6.5" fill="#e4edef"/>
+</svg>

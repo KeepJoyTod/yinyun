@@ -1,0 +1,20 @@
+{
+    "status":  "FAIL",
+    "generatedAt":  "2026-06-16 01:37:34 +08:00",
+    "baseUrl":  "https://studio.evanshine.me",
+    "outputPath":  "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-013734.md",
+    "summaryJsonPath":  "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-013734.json",
+    "probeHttp":  true,
+    "routes":  [
+                   "/,/login,/order/appointment,/dashboard/today,/settings/logs,/order/verification"
+               ],
+    "probes":  [
+                   {
+                       "route":  "/,/login,/order/appointment,/dashboard/today,/settings/logs,/order/verification",
+                       "url":  "https://studio.evanshine.me/,/login,/order/appointment,/dashboard/today,/settings/logs,/order/verification",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   }
+               ]
+}

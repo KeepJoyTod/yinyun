@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.yy.mapper.YyChannelEventInboxMapper">
+
+    <select id="claimPendingEvents" resultType="org.dromara.yy.domain.YyChannelEventInbox">
+        update yy_channel_event_inbox
+        set process_status = 'PROCESSING',
+            update_time = now(),
+            remark = 'worker claimed'
+        where id in (
+            select id
+            from yy_channel_event_inbox
+            where channel_type = #{channelType}
+              and del_flag = '0'
+              and signature_valid = '1'
+              and process_status in ('PENDING', 'RECEIVED', 'RETRY', 'FAILED')
+              and (next_retry_time is null or next_retry_time &lt;= now())
+            order by create_time asc nulls first, id asc
+            limit #{limit}
+            for update skip locked
+        )
+        returning *
+    </select>
+
+</mapper>

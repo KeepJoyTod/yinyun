@@ -1,0 +1,184 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "影约云",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/store/list/index",
+      "style": {
+        "navigationBarTitleText": "预约",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/my/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/customer/orders/index",
+      "style": {
+        "navigationBarTitleText": "订单",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/products/index",
+      "style": {
+        "navigationBarTitleText": "商品列表",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/store/products/index",
+      "style": {
+        "navigationBarTitleText": "门店商品",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/product/detail/index",
+      "style": {
+        "navigationBarTitleText": "商品详情",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/pickup/login/index",
+      "style": {
+        "navigationBarTitleText": "客户取片",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/douyin/order/index",
+      "style": {
+        "navigationBarTitleText": "抖音下单",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/order/query/index",
+      "style": {
+        "navigationBarTitleText": "订单查询",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/pickup/albums/index",
+      "style": {
+        "navigationBarTitleText": "我的相册",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/pickup/detail/index",
+      "style": {
+        "navigationBarTitleText": "照片目录",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/pickup/preview/index",
+      "style": {
+        "navigationBarTitleText": "照片预览",
+        "navigationBarBackgroundColor": "#111416",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/pickup/result/index",
+      "style": {
+        "navigationBarTitleText": "取片结果",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/help/shooting-notice/index",
+      "style": {
+        "navigationBarTitleText": "拍摄须知",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/help/contact-service/index",
+      "style": {
+        "navigationBarTitleText": "联系客服",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/webview/index",
+      "style": {
+        "navigationBarTitleText": "外部页面",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "影约云",
+    "navigationBarBackgroundColor": "#f5f9ff",
+    "backgroundColor": "#f5f9ff"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#2563eb",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/store/list/index",
+        "text": "预约",
+        "iconPath": "static/icons/appointment.png",
+        "selectedIconPath": "static/icons/appointment-active.png"
+      },
+      {
+        "pagePath": "pages/customer/orders/index",
+        "text": "订单",
+        "iconPath": "static/icons/orders.png",
+        "selectedIconPath": "static/icons/orders-active.png"
+      },
+      {
+        "pagePath": "pages/pickup/albums/index",
+        "text": "底片",
+        "iconPath": "static/icons/albums.png",
+        "selectedIconPath": "static/icons/albums-active.png"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的",
+        "iconPath": "static/icons/my.png",
+        "selectedIconPath": "static/icons/my-active.png"
+      }
+    ]
+  }
+}

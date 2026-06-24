@@ -1,0 +1,38 @@
+# 朋友交接项目差距审计
+
+日期：2026-06-09
+
+## 结论
+
+朋友项目提供参考，不改变影约云正式路线。正式项目仍以 `admin-ui`、`mobile-uniapp`、Spring Boot 后端和私有 OSS 为唯一生产基线。
+
+| 参考项目 | 路径 | 可借鉴 | 不迁移 |
+| --- | --- | --- | --- |
+| `photoshop-master` | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | 相册管理、在线选片、预约档期、订单状态 UI | Vue/Vite/Tailwind/Radix 整套后台、独立 Java 后端 |
+| `yuyue-main` | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | 手机号授权、预约确认、订单列表/详情、底片页 | Taro 替换 uni-app、独立 server、独立账号/订单体系 |
+
+## 差距清单
+
+| 优先级 | 能力 | 主项目现状 | 参考源 | 下一步 |
+| --- | --- | --- | --- | --- |
+| P0 | 客户取片基础链路 | 已有手机号 + 取片码、相册、详情、预览、下载保护态 | 主项目已有 | 继续验证真实图、真机保存、生产 OSS stream |
+| P0 | 后台上传闭环 | 已有 OSS 上传后创建底片、失败重试建底片 | `photoshop-master` 相册管理 | 继续增强上传结果、排障字段、操作反馈 |
+| P0 | 地图/交接文档 | 已生成桌面地图和本仓库审计 | 两个朋友项目 | 后续每轮优化同步更新地图 |
+| P1 | 微信/抖音手机号授权 | 已预留平台适配，未接真实授权 | `yuyue-main` auth/phone | 接平台授权后仍保留取片码兜底 |
+| P1 | 订单与相册关联展示 | 抖音订单可自动建相册占位，后台排障还不集中 | `yuyue-main` orders/booking | 增加后台从订单查相册、照片数、访问失败 |
+| P1 | 预约/档期可视化 | 抖音库存和预约接口已有，页面仍偏联调 | `photoshop-master` schedule | 做预约库存/时段运营面板 |
+| P2 | 客户在线选片确认 | 当前是看图/下载，未做选片确认 | `photoshop-master` selection、`yuyue-main` negatives | 增加选择、确认、后台查看选片结果 |
+| P2 | 财务/结算看板 | 非当前闭环重点 | `photoshop-master` finance | 抖音退款/核销稳定后再做 |
+
+## 明确不做
+
+- 不把 `yuyue-main` 的 Taro 作为正式微信/抖音小程序源码。
+- 不把朋友项目的 Java server 接入生产账本。
+- 不把长期 OSS 直链暴露给客户。
+- 不把抖音生活服务 SPI 放到小程序端或平台云里。
+
+## 下一轮推荐
+
+1. 先优化生产预检脚本，区分本地 demo 账号和公网预览账号。
+2. 再继续客户取片 UI 真机/截图验收。
+3. 然后做后台“订单 -> 相册 -> 照片 -> 访问审计”排障入口。

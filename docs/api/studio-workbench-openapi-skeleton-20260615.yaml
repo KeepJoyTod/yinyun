@@ -1,0 +1,418 @@
+openapi: 3.0.3
+info:
+  title: Yingyue Studio Workbench API Skeleton
+  version: "2026-06-15"
+  description: >
+    Contract-first API skeleton for studio-workbench. This file contains both
+    implemented endpoints and future skeleton endpoints. A skeleton entry does
+    not mean production support is complete.
+servers:
+  - url: https://api.evanshine.me
+    description: production API
+tags:
+  - name: Orders
+  - name: Photos
+  - name: Channels
+  - name: Reports
+  - name: Collaboration
+  - name: Marketing
+  - name: Members
+  - name: Reviews
+  - name: Payments
+paths:
+  /yy/order/list:
+    get:
+      tags: [Orders]
+      summary: List local unified orders
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_order
+      parameters:
+        - $ref: "#/components/parameters/PageNum"
+        - $ref: "#/components/parameters/PageSize"
+        - name: channelType
+          in: query
+          schema: { type: string }
+        - name: orderStatus
+          in: query
+          schema: { type: string }
+        - name: storeId
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: RuoYi table response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDataInfo"
+  /yy/order/export:
+    post:
+      tags: [Orders]
+      summary: Export local unified orders
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_order
+      responses:
+        "200":
+          description: Excel stream
+  /yy/order/{id}/transition:
+    post:
+      tags: [Orders]
+      summary: Transition local order status
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_order
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderTransitionRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/order/{id}/reschedule:
+    post:
+      tags: [Orders]
+      summary: Reschedule local order and booking inventory
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_order + yy_booking_slot_inventory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRescheduleRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/photoAccessLog/list:
+    get:
+      tags: [Photos]
+      summary: List photo pickup access logs
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_photo_access_log
+      parameters:
+        - $ref: "#/components/parameters/PageNum"
+        - $ref: "#/components/parameters/PageSize"
+        - name: albumId
+          in: query
+          schema: { type: string }
+        - name: assetId
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { type: string, enum: [VERIFY, ALBUM_DETAIL, PREVIEW, DOWNLOAD, STREAM] }
+      responses:
+        "200":
+          description: RuoYi table response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDataInfo"
+  /yy/reportSnapshot/list:
+    get:
+      tags: [Reports]
+      summary: List report snapshots
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_report_snapshot
+      parameters:
+        - $ref: "#/components/parameters/PageNum"
+        - $ref: "#/components/parameters/PageSize"
+        - name: reportType
+          in: query
+          schema: { type: string }
+        - name: storeId
+          in: query
+          schema: { type: string }
+        - name: snapshotDate
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: RuoYi table response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDataInfo"
+  /yy/channel/{channelType}/acceptance-cases:
+    get:
+      tags: [Channels]
+      summary: List platform acceptance cases and recent logid
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_channel_sync_log
+      parameters:
+        - $ref: "#/components/parameters/ChannelType"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/channel/{channelType}/sync-health:
+    get:
+      tags: [Channels]
+      summary: Channel sync health
+      x-yingyue-status: IMPLEMENTED
+      x-yingyue-ledger: yy_channel_sync_log + yy_channel_event_inbox
+      parameters:
+        - $ref: "#/components/parameters/ChannelType"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/channel/{channelType}/confirm:
+    post:
+      tags: [Channels]
+      summary: Confirm or reject a channel order
+      x-yingyue-status: EXTERNAL_BLOCKED
+      x-yingyue-logid-source: OpenAPI response extra.logid or logid
+      parameters:
+        - $ref: "#/components/parameters/ChannelType"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelOrderQuery"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/channel/{channelType}/verify:
+    post:
+      tags: [Channels]
+      summary: Verify a channel order certificate
+      x-yingyue-status: EXTERNAL_BLOCKED
+      x-yingyue-logid-source: OpenAPI response extra.logid or logid
+      parameters:
+        - $ref: "#/components/parameters/ChannelType"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelOrderQuery"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/workOrder/list:
+    get:
+      tags: [Collaboration]
+      summary: List formal work orders
+      x-yingyue-status: SKELETON_READY
+      x-yingyue-ledger: yy_work_order
+      responses:
+        "200":
+          description: RuoYi table response
+  /yy/workOrder/{id}:
+    get:
+      tags: [Collaboration]
+      summary: Get formal work order detail
+      x-yingyue-status: SKELETON_READY
+      x-yingyue-ledger: yy_work_order
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/workOrder/{id}/transition:
+    post:
+      tags: [Collaboration]
+      summary: Transition a formal work order
+      x-yingyue-status: SKELETON_READY
+      x-yingyue-ledger: yy_work_order + yy_work_order_event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkOrderTransitionRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/workOrder/{id}/events:
+    get:
+      tags: [Collaboration]
+      summary: List formal work order audit events
+      x-yingyue-status: SKELETON_READY
+      x-yingyue-ledger: yy_work_order_event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /yy/couponTemplate/list:
+    get:
+      tags: [Marketing]
+      summary: List coupon templates
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_coupon_template
+      responses:
+        "200":
+          description: RuoYi table response
+  /yy/couponInstance/list:
+    get:
+      tags: [Marketing]
+      summary: List coupon instances
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_coupon_instance
+      responses:
+        "200":
+          description: RuoYi table response
+  /yy/memberAccount/list:
+    get:
+      tags: [Members]
+      summary: List member accounts
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_member_account
+      responses:
+        "200":
+          description: RuoYi table response
+  /yy/memberLedger/list:
+    get:
+      tags: [Members]
+      summary: List member ledger entries
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_member_ledger
+      responses:
+        "200":
+          description: RuoYi table response
+  /yy/customerReview/list:
+    get:
+      tags: [Reviews]
+      summary: List customer reviews
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_customer_review
+      responses:
+        "200":
+          description: RuoYi table response
+  /client/pay/douyin/prepay:
+    post:
+      tags: [Payments]
+      summary: Create Douyin miniapp preorder
+      x-yingyue-status: EXTERNAL_BLOCKED
+      x-yingyue-ledger: yy_order + yy_payment_record
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /api/douyin/miniapp/pay/notify:
+    post:
+      tags: [Payments]
+      summary: Douyin miniapp payment notify
+      x-yingyue-status: EXTERNAL_BLOCKED
+      x-yingyue-ledger: yy_payment_record + yy_order
+      responses:
+        "200":
+          description: Raw platform-compatible notify response
+  /client/pay/wechat/prepay:
+    post:
+      tags: [Payments]
+      summary: Create WeChat prepaid order
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_payment_record
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+  /api/wechat/pay/notify:
+    post:
+      tags: [Payments]
+      summary: WeChat payment notify
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_payment_record + yy_order
+      responses:
+        "200":
+          description: Raw platform-compatible notify response
+  /client/pay/status:
+    get:
+      tags: [Payments]
+      summary: Query payment status
+      x-yingyue-status: SKELETON
+      x-yingyue-ledger: yy_payment_record
+      parameters:
+        - name: paymentId
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          $ref: "#/components/responses/Rok"
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+      description: Keep snowflake IDs as strings in frontends.
+    ChannelType:
+      name: channelType
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [DOUYIN_LIFE, MEITUAN, DOUYIN_MINI_APP, WECHAT, CLIENT_WEB]
+    PageNum:
+      name: pageNum
+      in: query
+      schema: { type: integer, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, default: 10 }
+  responses:
+    Rok:
+      description: RuoYi R response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/R"
+  schemas:
+    R:
+      type: object
+      properties:
+        code: { type: integer, example: 200 }
+        msg: { type: string }
+        data: { nullable: true }
+    TableDataInfo:
+      type: object
+      properties:
+        code: { type: integer, example: 200 }
+        msg: { type: string }
+        total: { type: integer }
+        rows:
+          type: array
+          items: { type: object }
+    OrderTransitionRequest:
+      type: object
+      properties:
+        expectedStatus: { type: string }
+        targetStatus: { type: string }
+        remark: { type: string }
+    OrderRescheduleRequest:
+      type: object
+      properties:
+        expectedStatus: { type: string }
+        arrivalTime: { type: string }
+        serviceGroupId: { type: string }
+        slotDate: { type: string, format: date }
+        slotStartTime: { type: string }
+        slotEndTime: { type: string }
+        remark: { type: string }
+    ChannelOrderQuery:
+      type: object
+      properties:
+        externalOrderId: { type: string }
+        bookId: { type: string }
+        certificate: { type: string }
+        verifyToken: { type: string }
+        phoneLast4: { type: string }
+        rawPayload:
+          type: object
+          additionalProperties: true
+    WorkOrderTransitionRequest:
+      type: object
+      required: [expectedStatus, targetStatus]
+      properties:
+        expectedStatus: { type: string }
+        targetStatus: { type: string }
+        remark: { type: string }

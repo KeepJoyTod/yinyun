@@ -1,0 +1,51 @@
+name: UI 对标简约网
+description: Track JianYue-style UI/interaction alignment work.
+title: "[ui-jianyue] "
+labels: ["ui", "jianyue-reference"]
+body:
+  - type: textarea
+    id: reference
+    attributes:
+      label: 参考证据
+      description: Screenshot path, route, or observed JianYue behavior. Do not paste credentials.
+      placeholder: "Example: 上午/下午/晚上分组，时段卡显示 订单：x 工位：x/y，满员右上角显示 满。"
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: 当前问题
+      description: What in studio-workbench differs from the reference?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: 页面
+      options:
+        - 首页经营概况
+        - 今日预约
+        - 预约订单
+        - 新增服务订单
+        - 门店/商品/映射
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 必守规则
+      value: |
+        - 时段格点击只做筛选/查看，不直接创建订单。
+        - 新增订单必须有明确入口。
+        - 历史 DOUYIN_LIFE 无真实时段时不能伪造进时段格。
+        - 页面不能出现横向鼠标滚轮陷阱。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收
+      description: Include desktop/mobile viewport expectations and focused test/browser smoke.
+    validations:
+      required: true

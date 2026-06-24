@@ -1,0 +1,60 @@
+{
+  "status": "READY_FOR_MANUAL_CHECK",
+  "generatedAt": "2026-06-16 15:28:46 +08:00",
+  "baseUrl": "https://studio.evanshine.me",
+  "outputPath": "docs\\evidence\\studio-workbench-acceptance-20260616-polish.md",
+  "summaryJsonPath": "docs\\evidence\\studio-workbench-acceptance-20260616-polish.json",
+  "probeHttp": true,
+  "routes": [
+    "/",
+    "/login",
+    "/order/appointment",
+    "/dashboard/today",
+    "/service/photos",
+    "/settings/logs"
+  ],
+  "probes": [
+    {
+      "route": "/",
+      "url": "https://studio.evanshine.me/",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/login",
+      "url": "https://studio.evanshine.me/login",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/order/appointment",
+      "url": "https://studio.evanshine.me/order/appointment",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/dashboard/today",
+      "url": "https://studio.evanshine.me/dashboard/today",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/service/photos",
+      "url": "https://studio.evanshine.me/service/photos",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    },
+    {
+      "route": "/settings/logs",
+      "url": "https://studio.evanshine.me/settings/logs",
+      "status": "PASS",
+      "statusCode": 200,
+      "detail": "OK"
+    }
+  ]
+}

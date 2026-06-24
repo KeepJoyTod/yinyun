@@ -1,0 +1,50 @@
+name: 抖音来客接口/同步
+description: Track DOUYIN_LIFE OpenAPI, SPI, sync, mapping, or logid work.
+title: "[douyin-life] "
+labels: ["douyin-life", "integration"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: 类型
+      options:
+        - OpenAPI 主动调用
+        - SPI/Webhook 回调
+        - POI/SKU 映射
+        - 订单同步/回填
+        - 库存/时段
+        - 核销/退款
+        - logid 验收
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: State the concrete platform capability or data outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: known
+    attributes:
+      label: 已知上下文
+      description: Mention related map entries, account/POI/SKU ids only when they are non-secret operational identifiers. Do not paste AppSecret/token/password.
+    validations:
+      required: true
+  - type: textarea
+    id: data_rules
+    attributes:
+      label: 数据规则
+      value: |
+        - yy_order 是唯一订单/预约账本。
+        - yy_booking_slot_inventory 是排期容量账本。
+        - DOUYIN_LIFE 不等于 DOUYIN_MINI_APP。
+        - 未唯一命中 POI/SKU 映射时标记 NEED_MAPPING，不猜门店。
+        - 所有 SPI/OpenAPI 需要记录 logid 或 request id。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 验证证据
+      description: Command output summary, masked payload evidence, sync log id, or platform logid.

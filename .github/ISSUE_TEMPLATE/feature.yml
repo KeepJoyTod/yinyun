@@ -1,0 +1,39 @@
+name: Feature
+description: Request a scoped product or engineering feature.
+title: "[feature] "
+labels: ["feature", "needs-design"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: What user/business outcome should this deliver?
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 真实场景
+      description: Who uses it, where, and under what data conditions?
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: 边界
+      description: What must not change? Mention ledgers, routes, data sources, and deployment limits.
+      placeholder: "Example: yy_order remains the single order ledger; no fake slot data for historical DOUYIN_LIFE orders."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 可验收结果
+      description: List page/API/test signals that prove this is done.
+    validations:
+      required: true
+  - type: input
+    id: docs
+    attributes:
+      label: 相关地图/计划
+      placeholder: "docs/jianyue-booking-document-index-20260617.md"

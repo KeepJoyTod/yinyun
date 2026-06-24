@@ -1,0 +1,6 @@
+node_modules/
+dist/
+unpackage/
+*.log
+*-debug.png
+*-fixed.png

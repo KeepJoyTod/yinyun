@@ -1,0 +1,157 @@
+name: Studio CI
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - yingyue-closed-loop-optimization-20260603
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  branch-name:
+    name: Branch Name
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Validate task branch name
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="${{ github.head_ref }}"
+          if [[ "$branch" =~ ^(feat|fix|refactor|docs|hotfix)/[a-z0-9]+-[a-z0-9-]+-[0-9]{8}$ ]]; then
+            echo "valid branch: $branch"
+            exit 0
+          fi
+          echo "Invalid branch name: $branch"
+          echo "Expected: feat|fix|refactor|docs|hotfix/<owner>-<topic>-<yyyymmdd>"
+          exit 1
+
+  guardrails:
+    name: Guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reject tracked credential files
+        shell: python
+        run: |
+          import re
+          import subprocess
+          import sys
+
+          forbidden = re.compile(r"(^|/)(\.env|\.env\.local|\.env\.prod|\.env\.production|APPSecret\.txt|APPID\.txt|香港2\.txt|.*password.*\.txt)$", re.I)
+          tracked = subprocess.check_output(["git", "ls-files", "-z"]).decode("utf-8").split("\0")
+          hits = [path for path in tracked if forbidden.search(path.replace("\\", "/"))]
+          if hits:
+              print("Forbidden credential-like tracked files:")
+              print("\n".join(hits))
+              sys.exit(1)
+
+      - name: Scan obvious secret assignments
+        shell: python
+        run: |
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          tracked = subprocess.check_output(["git", "ls-files", "-z"]).decode("utf-8").split("\0")
+          secret_patterns = [
+              re.compile(r"(?<![A-Za-z0-9_])ghp_[A-Za-z0-9_]{20,}"),
+              re.compile(r"(?<![A-Za-z0-9_])sk-[A-Za-z0-9_-]{30,}"),
+              re.compile(r"(^|[^A-Za-z0-9_])(CLIENT_SECRET|APP_SECRET|DOUYIN_LIFE_CLIENT_SECRET|JIANYUE_PASSWORD)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=!-]{8,}", re.I),
+          ]
+          allowed_markers = ("replace-with", "example", "present=", "length=", "masked", "redacted", "<secret>", "<password>")
+          ignored_parts = {".git", "node_modules"}
+          ignored_prefixes = ("docs/evidence/",)
+          hits = []
+          for raw_path in tracked:
+              if not raw_path:
+                  continue
+              path = raw_path.replace("\\", "/")
+              if any(part in path.split("/") for part in ignored_parts):
+                  continue
+              if path.startswith(ignored_prefixes):
+                  continue
+              try:
+                  text = Path(raw_path).read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              for line_no, line in enumerate(text.splitlines(), 1):
+                  lowered = line.lower()
+                  if any(marker in lowered for marker in allowed_markers):
+                      continue
+                  if any(pattern.search(line) for pattern in secret_patterns):
+                      hits.append(f"{path}:{line_no}:{line[:160]}")
+          if hits:
+              print("Potential secret assignment found:")
+              print("\n".join(hits))
+              sys.exit(1)
+
+      - name: Validate GitHub YAML files
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby -e 'require "yaml"; Dir[".github/**/*.yml"].each { |path| YAML.load_file(path); puts "valid yaml: #{path}" }'
+
+  studio-workbench:
+    name: Studio Workbench
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio-workbench
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio-workbench/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: File size guard
+        run: npm run check:file-size
+
+      - name: Contract tests
+        run: npm run test -- src/features/orders/OrdersView.contract.test.ts src/features/dashboard/DashboardView.contract.test.ts src/features/schedule/ScheduleView.contract.test.ts
+
+      - name: Full test suite
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  backend-yy:
+    name: Backend YY Compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Compile YY module
+        working-directory: backend
+        run: mvn -pl ruoyi-modules/ruoyi-yy -am -DskipTests compile
+
+      - name: Douyin Life adapter targeted tests
+        working-directory: backend
+        run: mvn -pl ruoyi-modules/ruoyi-yy -am "-Dtest=DouyinLifeChannelAdapterTest" "-DskipTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" test

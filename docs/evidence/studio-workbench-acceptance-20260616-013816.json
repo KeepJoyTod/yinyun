@@ -1,0 +1,60 @@
+{
+    "status":  "FAIL",
+    "generatedAt":  "2026-06-16 01:38:16 +08:00",
+    "baseUrl":  "https://studio.evanshine.me",
+    "outputPath":  "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-013816.md",
+    "summaryJsonPath":  "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence\\studio-workbench-acceptance-20260616-013816.json",
+    "probeHttp":  true,
+    "routes":  [
+                   "/",
+                   "/login",
+                   "/order/appointment",
+                   "/dashboard/today",
+                   "/settings/logs",
+                   "/order/verification"
+               ],
+    "probes":  [
+                   {
+                       "route":  "/",
+                       "url":  "https://studio.evanshine.me/",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   },
+                   {
+                       "route":  "/login",
+                       "url":  "https://studio.evanshine.me/login",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   },
+                   {
+                       "route":  "/order/appointment",
+                       "url":  "https://studio.evanshine.me/order/appointment",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   },
+                   {
+                       "route":  "/dashboard/today",
+                       "url":  "https://studio.evanshine.me/dashboard/today",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   },
+                   {
+                       "route":  "/settings/logs",
+                       "url":  "https://studio.evanshine.me/settings/logs",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   },
+                   {
+                       "route":  "/order/verification",
+                       "url":  "https://studio.evanshine.me/order/verification",
+                       "status":  "FAIL",
+                       "statusCode":  0,
+                       "detail":  "无法连接到远程服务器"
+                   }
+               ]
+}

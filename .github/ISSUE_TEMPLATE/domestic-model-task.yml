@@ -1,0 +1,65 @@
+name: 国产模型任务包
+description: A constrained implementation task for another coding model.
+title: "[agent-task] "
+labels: ["agent-task", "needs-review"]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: 任务目标
+      description: One narrow outcome. Avoid broad "finish the project" tasks.
+    validations:
+      required: true
+  - type: textarea
+    id: allowed_files
+    attributes:
+      label: 允许修改文件
+      description: Exact file paths or folders. Anything else requires review before editing.
+      placeholder: |
+        studio-workbench/src/features/schedule/ScheduleView.vue
+        studio-workbench/src/shared/components/schedule/JianyueSlotGrid.vue
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: 禁止事项
+      value: |
+        - 不新增第二套订单/预约/支付账本。
+        - 不伪造历史 DOUYIN_LIFE 订单时段。
+        - 不提交密钥、token、账号密码、服务器密码文件。
+        - 不改无关路由或 featureRegistry。
+        - 不做生产部署。
+    validations:
+      required: true
+  - type: textarea
+    id: required_docs
+    attributes:
+      label: 必读文档
+      value: |
+        - docs/jianyue-booking-document-index-20260617.md
+        - docs/jianyue-booking-data-ledger-map-20260617.md
+        - docs/jianyue-booking-status-machine-map-20260617.md
+        - docs/jianyue-booking-interaction-flow-map-20260617.md
+        - docs/jianyue-booking-acceptance-test-map-20260617.md
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: 必须运行的验证
+      description: Exact commands and expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: 交付格式
+      value: |
+        - 改动文件列表
+        - 关键实现说明
+        - 运行的验证命令和结果
+        - 截图/证据路径
+        - 剩余风险
+    validations:
+      required: true

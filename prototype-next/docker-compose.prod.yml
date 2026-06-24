@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: camera-studio-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    volumes:
+      - camera_studio_pg:/var/lib/postgresql/data
+      - camera_studio_backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: camera-studio-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    expose:
+      - "3000"
+    volumes:
+      - camera_studio_uploads:/app/public/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health | grep '\"ok\":true'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: sh -c "npx prisma migrate deploy && npm run start"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: camera-studio-caddy
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - camera_studio_caddy_data:/data
+      - camera_studio_caddy_config:/config
+
+volumes:
+  camera_studio_pg:
+  camera_studio_uploads:
+  camera_studio_backups:
+  camera_studio_caddy_data:
+  camera_studio_caddy_config:

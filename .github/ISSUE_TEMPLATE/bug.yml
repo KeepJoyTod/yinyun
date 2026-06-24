@@ -1,0 +1,48 @@
+name: Bug
+description: Report a reproducible defect in the workbench, backend, sync, or deployment.
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: result
+    attributes:
+      label: 结论
+      description: One sentence describing the broken behavior.
+      placeholder: "Example: 今日预约点击空时段会直接打开新增订单，不符合当前交互规则。"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: Include route, account role, filters, and exact action.
+      placeholder: |
+        1. Open /schedule
+        2. Select store ...
+        3. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: State the expected behavior from the maps/contracts.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: Include screenshot path, browser console error, API response summary, or log id when available.
+    validations:
+      required: true
+  - type: input
+    id: map
+    attributes:
+      label: 相关地图/文档
+      placeholder: "docs/jianyue-booking-interaction-flow-map-20260617.md"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 验证证据
+      description: Commands, screenshots, logs, or query output. Do not paste secrets or full phone numbers.

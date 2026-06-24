@@ -1,0 +1,6 @@
+{
+  "status": "SUPERSEDED",
+  "reason": "The interrupted run left this artifact empty. Use the timestamped evidence files instead.",
+  "beforeManualSync": "docs/evidence/douyin-life-sync-diagnosis-20260617-143414.json",
+  "afterManualSync": "docs/evidence/douyin-life-sync-diagnosis-20260617-143837-after-manual-sync.json"
+}

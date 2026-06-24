@@ -1,0 +1,80 @@
+{
+  "time": "2026-06-19T16:56:00+08:00",
+  "release": "prod-1e068e8-order-drawer-photo-route-20260619-164951",
+  "overall": "PASS",
+  "checks": [
+    {
+      "name": "order-drawer-photo-route",
+      "status": "PASS",
+      "result": {
+        "orderId": "JY-12118454",
+        "finalUrl": "https://studio.evanshine.me/service/photos"
+      }
+    },
+    {
+      "name": "photo-management-page",
+      "status": "PASS",
+      "result": {
+        "url": "https://studio.evanshine.me/service/photos",
+        "signals": [
+          "客片管理",
+          "上传底片",
+          "待上传"
+        ]
+      }
+    },
+    {
+      "name": "merchant-micro-pages",
+      "status": "PASS",
+      "result": {
+        "url": "https://studio.evanshine.me/merchant/micro-pages?cb=prod-1e068e8-order-drawer-photo-route-20260619-164951",
+        "signals": [
+          "微页面管理",
+          "已发布",
+          "草稿"
+        ]
+      }
+    },
+    {
+      "name": "merchant-decoration",
+      "status": "PASS",
+      "result": {
+        "url": "https://studio.evanshine.me/merchant/decoration?cb=prod-1e068e8-order-drawer-photo-route-20260619-164951",
+        "signals": [
+          "店铺装修",
+          "租户默认装修",
+          "当前为草稿预览"
+        ]
+      }
+    },
+    {
+      "name": "product-card-management",
+      "status": "PASS",
+      "result": {
+        "url": "https://studio.evanshine.me/product/card-management?cb=prod-1e068e8-order-drawer-photo-route-20260619-164951",
+        "signals": [
+          "商品卡管理",
+          "卡项产品",
+          "当前筛选条件下没有卡项数据"
+        ]
+      }
+    },
+    {
+      "name": "product-card-catalog",
+      "status": "PASS",
+      "result": {
+        "url": "https://studio.evanshine.me/product/card-catalog?cb=prod-1e068e8-order-drawer-photo-route-20260619-164951",
+        "signals": [
+          "批量上架"
+        ]
+      }
+    },
+    {
+      "name": "console-errors",
+      "status": "PASS",
+      "result": {
+        "count": 0
+      }
+    }
+  ]
+}

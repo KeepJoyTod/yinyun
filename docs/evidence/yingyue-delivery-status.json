@@ -1,0 +1,82 @@
+{
+  "status": "READY_FOR_EXTERNAL_ACCEPTANCE",
+  "checkedAt": "2026-06-16 21:55:55 +08:00",
+  "repoRoot": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo",
+  "baseUrl": "https://api.evanshine.me",
+  "evidenceRoot": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\docs\\evidence",
+  "failureCount": 0,
+  "warningCount": 1,
+  "checks": [
+    {
+      "name": "git-working-tree",
+      "status": "PASS",
+      "detail": "clean",
+      "next": ""
+    },
+    {
+      "name": "admin-ui-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\admin-ui\\dist\\index.html",
+      "next": ""
+    },
+    {
+      "name": "client-web-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\client-web\\dist\\index.html",
+      "next": ""
+    },
+    {
+      "name": "studio-workbench-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\studio-workbench\\dist\\index.html",
+      "next": ""
+    },
+    {
+      "name": "mobile-h5-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\mobile-uniapp\\dist\\build\\h5\\index.html",
+      "next": ""
+    },
+    {
+      "name": "wechat-miniapp-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\mobile-uniapp\\dist\\build\\mp-weixin\\project.config.json",
+      "next": ""
+    },
+    {
+      "name": "douyin-miniapp-dist",
+      "status": "PASS",
+      "detail": "D:\\OtherProject\\CameraApp\\yingyue-cloud-repo\\mobile-uniapp\\dist\\build\\mp-toutiao\\project.config.json",
+      "next": ""
+    },
+    {
+      "name": "platform-readiness",
+      "status": "PASS",
+      "detail": "api domain, webhook challenge, miniapp dists and AppIDs passed",
+      "next": ""
+    },
+    {
+      "name": "photo-pickup-release",
+      "status": "PASS",
+      "detail": "final real OSS evidence is READY",
+      "next": ""
+    },
+    {
+      "name": "douyin-life-acceptance",
+      "status": "WARN",
+      "detail": "evidence=douyin-life-acceptance-status-20260616-reference.json; status=PENDING_EXTERNAL_ACCEPTANCE; pending=三方码发券 SPI:PENDING; 预约创单/支付回调:PENDING; 接单 OpenAPI:PENDING; 整单核销 OpenAPI:PENDING",
+      "next": ".\\tools\\get-douyin-life-acceptance-status.ps1 -Mode SshDocker -SshPasswordFile \"<香港2密码文件>\""
+    }
+  ],
+  "externalBlockers": [
+    "抖音来客真实验收需要平台侧能力和真实触发：发券 SPI logid、创单/支付回调、接单 logid、核销 logid。 Run .\\tools\\get-douyin-life-acceptance-status.ps1 for the latest PASS/PENDING table."
+  ],
+  "nextCommands": [
+    ".\\tools\\get-yingyue-delivery-status.ps1 -AsJson",
+    ".\\tools\\get-douyin-life-acceptance-status.ps1 -Mode SshDocker -SshPasswordFile \"<香港2密码文件>\"",
+    ".\\tools\\print-miniapp-acceptance-handoff.ps1",
+    ".\\tools\\get-photo-pickup-release-status.ps1",
+    ".\\tools\\new-photo-pickup-real-oss-evidence.ps1 -PrintRequiredInputs",
+    ".\\tools\\verify-photo-pickup-release-gate.ps1 -AsJson"
+  ]
+}
