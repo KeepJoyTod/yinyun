@@ -43,6 +43,13 @@ describe('product card catalog contract', () => {
     expect(catalogSource).toContain('DerivedProductItem')
   })
 
+  it('keeps album and group-buy catalog categories aligned with module defaults', () => {
+    expect(operationsSource).toContain("GROUP_BUY: '团单产品'")
+    expect(operationsSource).toContain("ALBUM: '入册产品'")
+    expect(operationsSource).toContain("if (moduleKey === 'product-group') return 'GROUP_BUY'")
+    expect(operationsSource).toContain("if (moduleKey === 'product-album') return 'ALBUM'")
+  })
+
   it('supports batch publish and individual toggle operations', () => {
     expect(catalogSource).toContain('batchPublishFiltered')
     expect(catalogSource).toContain('toggleActive')
@@ -53,5 +60,12 @@ describe('product card catalog contract', () => {
     expect(catalogSource).toContain('ProductCardActionModal')
     expect(catalogSource).toContain('handleActionSubmit')
     expect(catalogSource).toContain('openActionModal')
+  })
+
+  it('adds album-specific readiness and fulfillment configuration hooks', () => {
+    expect(catalogSource).toContain('AlbumProductReadinessPanel')
+    expect(catalogSource).toContain('AlbumProductFulfillmentModal')
+    expect(catalogSource).toContain('buildAlbumProductReadiness')
+    expect(catalogSource).toContain('collaborationStore.saveProductConfig')
   })
 })

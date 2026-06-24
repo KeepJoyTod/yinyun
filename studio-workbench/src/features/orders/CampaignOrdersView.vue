@@ -143,64 +143,70 @@
         </div>
       </div>
 
-      <aside class="border border-amber-topbar-border bg-amber-content-bg">
-        <div class="border-b border-amber-topbar-border px-5 py-4">
-          <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Campaign Detail</span>
-          <h3 class="mt-1 text-[15px] font-sans font-medium text-amber-dark">活动跟进详情</h3>
-        </div>
+      <div class="flex flex-col gap-5">
+        <CampaignOrderLinkPanel :summary="bridgeSummary" />
 
-        <div v-if="selectedItem" class="p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="text-[12px] font-semibold text-amber-dark">{{ selectedItem.campaignName }}</div>
-              <div class="mt-1 text-[10px] text-amber-text-muted">{{ selectedItem.order.id }} · {{ selectedItem.order.source }}</div>
-            </div>
-            <span class="border border-amber-topbar-border bg-[#FBF8F2] px-2 py-0.5 text-[10px] text-amber-text-muted">
-              {{ selectedItem.channelCode }}
-            </span>
+        <aside class="border border-amber-topbar-border bg-amber-content-bg">
+          <div class="border-b border-amber-topbar-border px-5 py-4">
+            <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Campaign Detail</span>
+            <h3 class="mt-1 text-[15px] font-sans font-medium text-amber-dark">活动跟进详情</h3>
           </div>
 
-          <dl class="mt-5 space-y-4">
-            <div>
-              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Customer</dt>
-              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-dark">
-                {{ selectedItem.order.customer || '缺客户姓名' }} · {{ selectedItem.order.phone || '缺手机号' }}
-              </dd>
+          <div v-if="selectedItem" class="p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-[12px] font-semibold text-amber-dark">{{ selectedItem.campaignName }}</div>
+                <div class="mt-1 text-[10px] text-amber-text-muted">{{ selectedItem.order.id }} · {{ selectedItem.order.source }}</div>
+              </div>
+              <span class="border border-amber-topbar-border bg-[#FBF8F2] px-2 py-0.5 text-[10px] text-amber-text-muted">
+                {{ selectedItem.channelCode }}
+              </span>
             </div>
-            <div>
-              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Progress</dt>
-              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.progressHint }}</dd>
-            </div>
-            <div>
-              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">下一步</dt>
-              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.nextAction }}</dd>
-            </div>
-            <div>
-              <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Appointment</dt>
-              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-dark">{{ selectedItem.appointmentLabel }}</dd>
-            </div>
-          </dl>
 
-          <button
-            class="yy-action mt-6 w-full border border-amber-dark bg-amber-dark px-4 py-2 text-[11px] text-[#F4EFE6] hover:bg-black"
-            type="button"
-            @click="openOrder(selectedItem.order)"
-          >
-            到统一订单页处理
-          </button>
+            <dl class="mt-5 space-y-4">
+              <div>
+                <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Customer</dt>
+                <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-dark">
+                  {{ selectedItem.order.customer || '缺客户姓名' }} · {{ selectedItem.order.phone || '缺手机号' }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Progress</dt>
+                <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.progressHint }}</dd>
+              </div>
+              <div>
+                <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">下一步</dt>
+                <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.nextAction }}</dd>
+              </div>
+              <div>
+                <dt class="text-[10px] font-mono uppercase tracking-[0.16em] text-amber-text-muted">Appointment</dt>
+                <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-dark">{{ selectedItem.appointmentLabel }}</dd>
+              </div>
+            </dl>
 
-          <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
-            <div class="text-[11px] font-semibold text-amber-dark">数据边界</div>
-            <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              活动订单视图只读取统一订单数据，不建立第二套订单账本；优惠券、活动清单和参与记录后续在营销模块接真实表。
-            </p>
+            <button
+              class="yy-action mt-6 w-full border border-amber-dark bg-amber-dark px-4 py-2 text-[11px] text-[#F4EFE6] hover:bg-black"
+              type="button"
+              @click="openOrder(selectedItem.order)"
+            >
+              到统一订单页处理
+            </button>
+
+            <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
+              <div class="text-[11px] font-semibold text-amber-dark">数据边界</div>
+              <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+                活动订单视图只读取统一订单数据，不建立第二套订单账本；优惠券、活动清单和参与记录后续在营销模块接真实表。
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div v-else class="px-5 py-10 text-center text-[11px] leading-relaxed text-amber-text-muted">
-          选择一条活动订单后，可以查看客户、活动来源、当前进度和下一步处理建议。
-        </div>
-      </aside>
+          <div v-else class="px-5 py-10 text-center text-[11px] leading-relaxed text-amber-text-muted">
+            选择一条活动订单后，可以查看客户、活动来源、当前进度和下一步处理建议。
+          </div>
+        </aside>
+
+        <PromotionTrialPanel :order="selectedItem?.order ?? null" :customer="selectedCustomer" />
+      </div>
     </section>
   </div>
 </template>
@@ -209,6 +215,9 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { appStore, type BookingOrder } from '../../shared/stores/appStore'
+import CampaignOrderLinkPanel from '../marketing/components/CampaignOrderLinkPanel.vue'
+import PromotionTrialPanel from '../marketing/components/PromotionTrialPanel.vue'
+import { buildCampaignOrderBridgeSummary } from '../marketing/campaignOrderBridge'
 import {
   getOrderOperationalDate,
   hasCustomerContact,
@@ -343,6 +352,9 @@ const quickFilters = computed(() => [
   { key: 'today' as const, label: '今日处理', count: todayOrders.value.length },
   { key: 'follow' as const, label: '待跟进', count: followUpOrders.value.length },
 ])
+
+const bridgeSummary = computed(() => buildCampaignOrderBridgeSummary(scopedCampaignOrders.value.map(item => item.order)))
+const selectedCustomer = computed(() => appStore.customers.find(customer => customer.mobile === selectedItem.value?.order.phone) ?? null)
 
 const cards = computed(() => {
   const amount = scopedCampaignOrders.value.reduce((sum, item) => sum + item.order.amount, 0)

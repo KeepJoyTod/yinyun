@@ -124,6 +124,14 @@ describe('appStore runtime contract', () => {
     expect(appStoreSource).toContain('return createOrderAction(this, input)')
   })
 
+  it('routes staff payment confirmation through the order action owner and keeps cache replacement centralized', () => {
+    expect(appStoreSource).toContain('async confirmOrderPayment(input: StaffOrderConfirmPaymentInput)')
+    expect(appStoreSource).toContain('return confirmOrderPaymentAction(this, input)')
+    expect(orderActionStoreSource).toContain('export async function confirmOrderPaymentAction')
+    expect(orderActionStoreSource).toContain('replaceOrderInCaches(ctx, next)')
+    expect(orderActionStoreSource).toContain('backendApi.confirmOrderPayment(input)')
+  })
+
   it('refreshes only order operational scope after staff booking instead of full core data', () => {
     const block = workbenchOperationalStoreSource.slice(
       workbenchOperationalStoreSource.indexOf('export async function refreshOrderOperationalScopeAction'),
@@ -136,6 +144,7 @@ describe('appStore runtime contract', () => {
     expect(block).toContain('loadTodayOrdersAction(ctx)')
     expect(block).toContain('loadAllOrdersAction(ctx)')
     expect(block).toContain('ctx.loadOperationLogs()')
+    expect(block).toContain('ctx.loadChannelSyncLogs()')
   })
 
   it('uploads product card cover images through real OSS instead of local object URLs', () => {
@@ -195,6 +204,7 @@ describe('appStore runtime contract', () => {
     expect(workbenchOperationalStoreSource).toContain('loadTodayOrdersAction(ctx)')
     expect(workbenchOperationalStoreSource).toContain('loadAllOrdersAction(ctx)')
     expect(workbenchOperationalStoreSource).toContain('ctx.loadOperationLogs()')
+    expect(workbenchOperationalStoreSource).toContain('ctx.loadChannelSyncLogs()')
     const updateBlock = orderActionStoreSource.slice(
       orderActionStoreSource.indexOf('export async function updateOrderStatusAction'),
       orderActionStoreSource.indexOf('export async function rescheduleOrderAction'),

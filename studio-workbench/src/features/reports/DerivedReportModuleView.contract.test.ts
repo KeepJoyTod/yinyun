@@ -21,7 +21,7 @@ describe('derived report module pages contract', () => {
     expect(routerSource).toContain('DerivedReportModuleView.vue')
     for (const key of featureKeys) {
       expect(getWorkbenchFeature(key)?.component).toBe('derived-report-module')
-      expect(getWorkbenchFeature(key)?.status).toBe('ready')
+      expect(getWorkbenchFeature(key)?.status).toBe(key === 'report-reviews' ? 'partial' : 'derived')
       expect(getWorkbenchFeature(key)?.permission).toBeTruthy()
     }
   })

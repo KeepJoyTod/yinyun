@@ -4,9 +4,9 @@
       <div class="flex items-end justify-between gap-5 max-[760px]:flex-col max-[760px]:items-start">
         <div>
           <span class="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">Stage Statistics</span>
-          <h2 class="mt-1 font-sans text-[18px] font-medium text-amber-dark">环节统计</h2>
+          <h2 class="mt-1 font-sans text-[18px] font-medium text-amber-dark">岗位统计</h2>
           <p class="mt-2 max-w-[850px] text-[10.5px] leading-relaxed text-amber-text-muted">
-            基于派生工单池生成只读统计视图，按拍摄、上传、客户选片和精修交付查看数量、阻塞、超时和平均进度。
+            统计视图直接聚合真实工单主链，按七个岗位观察总量、阻塞、超时和平均进度，用于门店今日协作排队与瓶颈定位。
           </p>
         </div>
         <button
@@ -32,11 +32,27 @@
 
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
       <div class="border border-amber-topbar-border bg-amber-content-bg">
-        <div class="border-b border-amber-topbar-border px-5 py-4">
-          <h3 class="font-sans text-[15px] text-amber-dark">环节分布</h3>
-          <p class="mt-1 text-[10.5px] text-amber-text-muted">越靠前的环节代表当前员工需要先处理的制作瓶颈。</p>
+        <div class="flex items-center justify-between gap-4 border-b border-amber-topbar-border px-5 py-4 max-[860px]:flex-col max-[860px]:items-start">
+          <div>
+            <h3 class="font-sans text-[15px] text-amber-dark">岗位分布</h3>
+            <p class="mt-1 text-[10.5px] text-amber-text-muted">越靠前的岗位越代表当前门店需要优先处理的协作瓶颈。</p>
+          </div>
+          <div class="flex items-center gap-3 text-[10.5px] text-amber-text-muted">
+            <span>{{ storeLabel }}</span>
+            <button class="yy-action border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-dark hover:bg-white" type="button" @click="reload">
+              刷新
+            </button>
+          </div>
         </div>
-        <div class="divide-y divide-amber-topbar-border/60">
+
+        <div v-if="error" class="border-b border-amber-topbar-border bg-[#FFF4E8] px-5 py-4 text-[10.5px] text-[#8C3E2C]">
+          {{ error }}
+        </div>
+
+        <div v-if="loading" class="px-6 py-14 text-center text-[11px] text-amber-text-muted">
+          正在加载真实工单统计...
+        </div>
+        <div v-else class="divide-y divide-amber-topbar-border/60">
           <article v-for="stat in stageStats" :key="stat.stage" class="p-5">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -83,7 +99,8 @@
           <div v-if="focusStage" class="border border-amber-topbar-border bg-[#FBF8F2] p-4">
             <div class="text-[11px] font-semibold text-amber-dark">{{ focusStage.stageLabel }} 是当前瓶颈</div>
             <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              当前环节共有 {{ focusStage.total }} 个工单，其中 {{ focusStage.blocked }} 个阻塞、{{ focusStage.overdue }} 个超时。建议先进入工单管理处理高优先项。
+              当前岗位共有 {{ focusStage.total }} 个工单，其中 {{ focusStage.blocked }} 个阻塞、{{ focusStage.overdue }} 个超时。
+              建议优先进入工单管理处理高优先项。
             </p>
           </div>
           <button
@@ -96,7 +113,7 @@
           <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
             <div class="text-[11px] font-semibold text-amber-dark">统计边界</div>
             <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              环节统计只读，不写订单、不创建预约；后续接真实 `yy_work_order_event` 后再统计平均耗时和员工产能。
+              当前页只读真实工单统计，不写订单、不创建预约；平均进度和超时来自前端岗位 SLA 适配层，后续补齐事件链后可继续细化为耗时统计。
             </p>
           </div>
         </div>
@@ -106,20 +123,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { appStore } from '../../shared/stores/appStore'
-import { buildWorkOrders } from './workOrders'
-import type { WorkExecutionStage } from './workExecution'
+import type { CollaborationStageCode } from '../../shared/api/backend'
 import { buildWorkOrderStageStats } from './workOrderStats'
+import { useCollaborationWorkOrders } from './useCollaborationWorkOrders'
 
 const router = useRouter()
 
-const workOrders = computed(() => buildWorkOrders({
-  orders: appStore.orders,
-  albums: appStore.albums,
-  selectionLinks: appStore.selectionLinks,
-}))
+const {
+  storeFilter,
+  concreteStoreOptions,
+  ensureWorkbenchStores,
+  normalizeStoreFilter,
+  workOrders,
+  loading,
+  error,
+  reload,
+} = useCollaborationWorkOrders()
 
 const stageStats = computed(() => buildWorkOrderStageStats(workOrders.value))
 const focusStage = computed(() =>
@@ -130,17 +151,29 @@ const focusStage = computed(() =>
   })[0],
 )
 
+const storeLabel = computed(() =>
+  concreteStoreOptions.value.find(store => String(store.backendId) === storeFilter.value)?.name ?? '当前门店',
+)
+
 const summaryCards = computed(() => [
-  { label: '工单总数', value: String(workOrders.value.length), hint: '当前派生工单池里的全部工作。', scope: 'TOTAL' },
-  { label: '阻塞总数', value: String(workOrders.value.filter(item => item.status === '阻塞').length), hint: '需要先排除资料、支付或链接问题。', scope: 'BLOCK' },
-  { label: '超时总数', value: String(workOrders.value.filter(item => item.execution.overdue).length), hint: '已经超过要求时间的工单。', scope: 'SLA' },
-  { label: '平均进度', value: `${Math.round(workOrders.value.reduce((sum, item) => sum + item.execution.progress, 0) / Math.max(1, workOrders.value.length))}%`, hint: '按当前环节进度粗略估算。', scope: '均值' },
+  { label: '工单总数', value: String(workOrders.value.length), hint: '当前门店真实工单主链里的全部任务。', scope: 'TOTAL' },
+  { label: '阻塞总数', value: String(workOrders.value.filter(item => item.statusCode === 'BLOCKED').length), hint: '由真实工单状态明确标记为阻塞。', scope: 'BLOCK' },
+  { label: '超时总数', value: String(workOrders.value.filter(item => item.execution.overdue).length), hint: '按岗位 SLA 推算后已超时的工单。', scope: 'SLA' },
+  { label: '平均进度', value: `${Math.round(workOrders.value.reduce((sum, item) => sum + item.execution.progress, 0) / Math.max(1, workOrders.value.length))}%`, hint: '按真实工单当前岗位进度估算。', scope: 'AVG' },
 ])
 
-const stageClass = (stage: WorkExecutionStage) => {
-  if (stage === 'SHOOT') return 'bg-[#1A1814] text-[#F4EFE6]'
-  if (stage === 'UPLOAD') return 'bg-[#F0E9DD] text-amber-dark'
-  if (stage === 'SELECTION') return 'bg-[#F6EBDD] text-[#8C5A2C]'
-  return 'bg-[#EBF4ED] text-[#2D7A4D]'
+const stageClass = (stage: CollaborationStageCode) => {
+  if (stage === 'RECEPTION') return 'bg-[#1A1814] text-[#F4EFE6]'
+  if (stage === 'MAKEUP') return 'bg-[#F7E8E1] text-[#8C5A2C]'
+  if (stage === 'PHOTOGRAPHY') return 'bg-[#F0E9DD] text-amber-dark'
+  if (stage === 'RETOUCH') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+  if (stage === 'REVIEW') return 'bg-[#EEF2FF] text-[#3650A3]'
+  if (stage === 'SELECTION_REVIEW') return 'bg-[#F6EBDD] text-[#8C5A2C]'
+  return 'bg-[#E9F2F7] text-[#2B617B]'
 }
+
+onMounted(async () => {
+  await ensureWorkbenchStores()
+  storeFilter.value = normalizeStoreFilter()
+})
 </script>

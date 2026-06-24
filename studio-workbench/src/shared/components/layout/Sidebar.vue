@@ -151,6 +151,9 @@ const groupIconMap = {
   marketing: Megaphone,
   report: BarChart3,
   settings: Settings,
+  platform: Settings,
+  account: UsersRound,
+  finance: BarChart3,
 } as const
 const getGroupIcon = (key: string) => groupIconMap[key as keyof typeof groupIconMap] || PanelLeft
 const normalizeDisplayName = (value?: string | null) => String(value ?? '').trim()

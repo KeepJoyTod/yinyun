@@ -67,6 +67,7 @@ describe('orders page contract', () => {
     expect(orderDetailActionsSource).toContain('const refreshOrderDetailAfterAdvance = async () =>')
     expect(orderDetailActionsSource).toContain('await options.loadSlotScopedOrdersFromQuery()')
     expect(orderDetailActionsSource).toContain('await loadOrderOperationLogs()')
+    expect(orderDetailActionsSource).toContain('appStore.loadChannelSyncLogs()')
     expect(orderDetailActionsSource).toContain('if (shouldRefresh) await refreshOrderDetailAfterAdvance()')
     expect(orderDetailActionsSource).not.toContain('if (shouldRefresh) void refreshOrderDetailAfterAdvance()')
   })

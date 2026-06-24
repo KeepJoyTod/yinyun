@@ -217,6 +217,7 @@ export const createAlbumsApi = ({ getCachedOrders }: AlbumsApiOptions) => ({
           album,
           oss,
           currentFileName,
+          file.size,
           nextSort,
           currentOssId,
         )

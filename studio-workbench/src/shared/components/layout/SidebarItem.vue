@@ -10,21 +10,21 @@
   >
     <span
       v-if="isActive"
-      class="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-amber-accent"
+      class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-amber-accent"
     ></span>
-    <div class="relative flex items-center justify-center w-4 h-4">
+    <div class="relative flex h-4 w-4 items-center justify-center">
       <img
         :src="iconUrl"
-        class="w-full h-full transition-opacity invert brightness-200"
+        class="h-full w-full transition-opacity invert brightness-200"
         :class="isActive ? 'opacity-100' : 'opacity-65 group-hover:opacity-100'"
       />
       <span
         v-if="hasDot"
-        class="absolute -top-[1px] -right-[1px] w-[5px] h-[5px] bg-amber-accent rounded-full border border-amber-dark"
+        class="absolute -right-[1px] -top-[1px] h-[5px] w-[5px] rounded-full border border-amber-dark bg-amber-accent"
       ></span>
     </div>
     <span class="min-w-0 flex-1 truncate tracking-normal">{{ label }}</span>
-    <span v-if="status === 'building'" class="font-mono text-[9.5px] text-[#F4EFE6]/40">建设中</span>
+    <span v-if="statusBadgeLabel" class="font-mono text-[9.5px] text-[#F4EFE6]/40">{{ statusBadgeLabel }}</span>
     <span v-else-if="pendingCount && pendingCount > 0" class="min-w-5 border border-amber-accent/40 px-1.5 py-[1px] text-center font-mono text-[9.5px] font-semibold text-amber-accent">
       {{ formattedPendingCount }}
     </span>
@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { workbenchStatusMeta, type WorkbenchFeatureRuntimeStatus } from '../../../app/router/featureRegistry'
 
 const props = defineProps<{
   to: string
@@ -42,15 +43,17 @@ const props = defineProps<{
   label: string
   hasDot?: boolean
   badge?: string
-  status?: 'ready' | 'building' | 'hidden'
+  status?: WorkbenchFeatureRuntimeStatus
   pendingCount?: number
 }>()
 
 const route = useRoute()
 const isActive = computed(() => route.path === props.to)
 const formattedPendingCount = computed(() => (props.pendingCount && props.pendingCount > 99 ? '99+' : String(props.pendingCount ?? 0)))
-
-const iconUrl = computed(() => {
-  return new URL(`../../../assets/icons/${props.icon}.svg`, import.meta.url).href
+const statusBadgeLabel = computed(() => {
+  if (!props.status || props.status === 'ready' || props.status === 'hidden') return ''
+  return workbenchStatusMeta[props.status]?.navLabel || workbenchStatusMeta[props.status]?.label || ''
 })
+
+const iconUrl = computed(() => new URL(`../../../assets/icons/${props.icon}.svg`, import.meta.url).href)
 </script>

@@ -6,8 +6,8 @@
           <span class="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">Work Orders</span>
           <h2 class="mt-1 font-sans text-[18px] font-medium text-amber-dark">工单管理</h2>
           <p class="mt-2 max-w-[850px] text-[10.5px] leading-relaxed text-amber-text-muted">
-            由统一订单、相册和选片数据派生门店执行工单，按拍摄、上传、客户选片和精修交付处理，不建立第二套工单账本。
-            缺资料、待支付等阻塞项会提示打开订单处理。
+            当前页面直接读取真实 <code>yy_work_order</code>，按接待、化妆、摄影、修图、审片、看片、取件七个岗位视角组织门店协作处理，
+            不再使用前端派生工单替代真实状态流转。
           </p>
         </div>
         <button
@@ -51,11 +51,8 @@
         <div class="flex items-center justify-between gap-4 border-b border-amber-topbar-border px-5 py-4 max-[900px]:flex-col max-[900px]:items-start">
           <div class="flex flex-wrap items-center gap-3 max-[560px]:w-full">
             <select v-model="stageFilter" class="h-8 border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none max-[560px]:w-full">
-              <option value="all">全部环节</option>
-              <option value="SHOOT">拍摄</option>
-              <option value="UPLOAD">上传</option>
-              <option value="SELECTION">客户选片</option>
-              <option value="DELIVERY">精修交付</option>
+              <option value="all">全部岗位</option>
+              <option v-for="stage in collaborationWorkOrderStageOptions" :key="stage.code" :value="stage.code">{{ stage.label }}</option>
             </select>
             <select v-model="storeFilter" class="h-8 border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none max-[560px]:w-full">
               <option v-if="!concreteStoreOptions.length" value="">暂无可用门店</option>
@@ -68,14 +65,26 @@
               type="search"
             />
           </div>
-          <div class="text-[10.5px] text-amber-text-muted">展示 {{ filteredWorkOrders.length }} 条工单</div>
+          <div class="flex items-center gap-3 text-[10.5px] text-amber-text-muted">
+            <span>展示 {{ filteredWorkOrders.length }} 条工单</span>
+            <button class="yy-action border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-dark hover:bg-white" type="button" @click="reload">
+              刷新
+            </button>
+          </div>
         </div>
 
-        <div v-if="filteredWorkOrders.length" class="overflow-x-auto">
+        <div v-if="error" class="border-b border-amber-topbar-border bg-[#FFF4E8] px-5 py-4 text-[10.5px] text-[#8C3E2C]">
+          {{ error }}
+        </div>
+
+        <div v-if="loading" class="px-6 py-14 text-center text-[11px] text-amber-text-muted">
+          正在加载真实工单...
+        </div>
+        <div v-else-if="filteredWorkOrders.length" class="overflow-x-auto">
           <table class="w-full min-w-[1060px] border-collapse">
             <thead>
               <tr class="border-b border-amber-topbar-border bg-amber-bg/10 text-left">
-                <th class="px-5 py-3 text-[11px] text-amber-text-muted">工单 / 环节</th>
+                <th class="px-5 py-3 text-[11px] text-amber-text-muted">工单 / 岗位</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">客户 / 订单</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">门店 / 服务</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">负责人</th>
@@ -109,7 +118,7 @@
                 </td>
                 <td class="px-5 py-4 text-[10.5px] text-amber-dark">{{ item.assignee }}</td>
                 <td class="px-5 py-4">
-                  <span class="px-2 py-1 text-[10px]" :class="workStatusClass(item.status)">{{ item.status }}</span>
+                  <span class="px-2 py-1 text-[10px]" :class="workStatusClass(item.statusCode)">{{ item.status }}</span>
                   <div v-if="item.blockReason" class="mt-2 text-[10px] text-[#B8543B]">{{ item.blockReason }}</div>
                 </td>
                 <td class="px-5 py-4 font-mono text-[10.5px]" :class="item.execution.overdue ? 'text-[#B8543B]' : 'text-amber-dark'">
@@ -131,8 +140,8 @@
         </div>
 
         <div v-else class="px-6 py-14 text-center">
-          <div class="font-sans text-[15px] text-amber-dark">当前筛选下没有工单</div>
-          <p class="mt-2 text-[11px] text-amber-text-muted">{{ storeFilter ? '可以切换环节、门店或搜索条件查看其他执行任务。' : '当前账号暂无可用门店，请先检查员工门店权限。' }}</p>
+          <div class="font-sans text-[15px] text-amber-dark">当前筛选下没有真实工单</div>
+          <p class="mt-2 text-[11px] text-amber-text-muted">{{ storeFilter ? '可以切换岗位、门店或搜索条件查看其他任务。' : '当前账号暂无可用门店，请先检查员工门店权限。' }}</p>
         </div>
       </div>
 
@@ -192,7 +201,7 @@
           <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
             <div class="text-[11px] font-semibold text-amber-dark">数据边界</div>
             <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              工单只作为员工处理视图，真实订单状态仍写回 yy_order；照片、选片和交付继续由客片与在线选片模块维护。
+              当前页以真实 <code>yy_work_order</code> 为主账本，按钮优先走工单状态流转；订单、相册和选片只作为上下文展示，不再反向伪造工单状态。
             </p>
           </div>
         </div>
@@ -207,42 +216,45 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { appStore } from '../../shared/stores/appStore'
-import { buildWorkOrders, type WorkOrder, type WorkOrderPriority, type WorkOrderStatus } from './workOrders'
-import type { WorkExecutionStage } from './workExecution'
+import type { CollaborationStageCode } from '../../shared/api/backend'
+import { useCollaborationWorkOrders } from './useCollaborationWorkOrders'
+import {
+  collaborationWorkOrderStageOptions,
+  type CollaborationWorkOrderItem,
+  type CollaborationWorkOrderPriority,
+  type CollaborationWorkOrderStatusCode,
+} from './workOrderRuntime'
 
 type QuickFilter = 'all' | 'blocked' | 'overdue' | 'active'
-type StageFilter = 'all' | WorkExecutionStage
+type StageFilter = 'all' | CollaborationStageCode
 
 const router = useRouter()
 const activeFilter = ref<QuickFilter>('all')
 const stageFilter = ref<StageFilter>('all')
-const storeFilter = ref('')
 const searchQuery = ref('')
-const selectedWorkOrder = ref<WorkOrder | null>(null)
+const selectedWorkOrder = ref<CollaborationWorkOrderItem | null>(null)
 const actionLoadingId = ref('')
 
-const workOrders = computed(() => buildWorkOrders({
-  orders: appStore.orders,
-  albums: appStore.albums,
-  selectionLinks: appStore.selectionLinks,
-}))
+const {
+  storeFilter,
+  concreteStoreOptions,
+  ensureWorkbenchStores,
+  normalizeStoreFilter,
+  workOrders,
+  loading,
+  error,
+  reload,
+  transitionWorkOrder,
+} = useCollaborationWorkOrders()
 
-const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
+const scopedWorkOrders = computed(() => {
+  if (!storeFilter.value) return []
+  return workOrders.value.filter(item => String(item.order.storeBackendId) === storeFilter.value)
+})
 
-const normalizeStoreFilter = (preferred = storeFilter.value) => {
-  const matched = concreteStoreOptions.value.find(store => store.name === preferred || String(store.backendId) === preferred)
-  return matched?.backendId ? String(matched.backendId) : String(concreteStoreOptions.value[0]?.backendId ?? '')
-}
-
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
+const blockedWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.statusCode === 'BLOCKED'))
+const overdueWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.execution.overdue))
+const activeWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.statusCode === 'IN_PROGRESS'))
 
 const quickFilters = computed(() => [
   { key: 'all' as const, label: '全部工单', count: scopedWorkOrders.value.length },
@@ -251,21 +263,12 @@ const quickFilters = computed(() => [
   { key: 'active' as const, label: '进行中', count: activeWorkOrders.value.length },
 ])
 
-const scopedWorkOrders = computed(() => {
-  if (!storeFilter.value) return []
-  return workOrders.value.filter(item => String(item.order.storeBackendId) === storeFilter.value)
-})
-
-const blockedWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.status === '阻塞'))
-const overdueWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.execution.overdue))
-const activeWorkOrders = computed(() => scopedWorkOrders.value.filter(item => item.status === '进行中'))
-
 const filteredWorkOrders = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return scopedWorkOrders.value.filter(item => {
-    if (activeFilter.value === 'blocked' && item.status !== '阻塞') return false
+    if (activeFilter.value === 'blocked' && item.statusCode !== 'BLOCKED') return false
     if (activeFilter.value === 'overdue' && !item.execution.overdue) return false
-    if (activeFilter.value === 'active' && item.status !== '进行中') return false
+    if (activeFilter.value === 'active' && item.statusCode !== 'IN_PROGRESS') return false
     if (stageFilter.value !== 'all' && item.stage !== stageFilter.value) return false
     if (!query) return true
     const haystack = `${item.workOrderNo} ${item.order.id} ${item.order.customer} ${item.order.phone} ${item.order.store} ${item.order.service} ${item.assignee}`.toLowerCase()
@@ -274,45 +277,45 @@ const filteredWorkOrders = computed(() => {
 })
 
 const summaryCards = computed(() => [
-  { label: '工单总数', value: String(scopedWorkOrders.value.length), hint: '由当前订单执行环节派生，不另建账本。', scope: 'TOTAL' },
-  { label: '阻塞工单', value: String(blockedWorkOrders.value.length), hint: '缺资料、待支付或缺选片链接，需要先排障。', scope: 'BLOCK' },
-  { label: '超时工单', value: String(overdueWorkOrders.value.length), hint: '要求时间已过，应排在处理队列前面。', scope: 'SLA' },
-  { label: '进行中', value: String(activeWorkOrders.value.length), hint: '正在拍摄、精修或交付中的任务。', scope: 'ACTIVE' },
+  { label: '工单总数', value: String(scopedWorkOrders.value.length), hint: '当前门店真实工单主链下的全部任务。', scope: 'TOTAL' },
+  { label: '阻塞工单', value: String(blockedWorkOrders.value.length), hint: '由真实工单状态标记为阻塞的处理项。', scope: 'BLOCK' },
+  { label: '超时工单', value: String(overdueWorkOrders.value.length), hint: '按岗位 SLA 推算后已超时的协作工单。', scope: 'SLA' },
+  { label: '进行中', value: String(activeWorkOrders.value.length), hint: '已经进入执行中的真实工单。', scope: 'ACTIVE' },
 ])
 
-const openPrimary = async (item: WorkOrder) => {
-  if (item.blockReason || item.actionMode !== 'ORDER') {
-    router.push(item.actionPath)
-    return
-  }
-  if (item.stage !== 'SHOOT' || item.order.status === '拍摄中') {
+const openPrimary = async (item: CollaborationWorkOrderItem) => {
+  if (!item.canTransition) {
     router.push(item.actionPath)
     return
   }
   actionLoadingId.value = item.id
   try {
-    await appStore.updateOrderStatus(item.order.id, '拍摄中')
+    await transitionWorkOrder(item)
   } finally {
     actionLoadingId.value = ''
   }
 }
 
-const stageClass = (stage: WorkExecutionStage) => {
-  if (stage === 'SHOOT') return 'bg-[#1A1814] text-[#F4EFE6]'
-  if (stage === 'UPLOAD') return 'bg-[#F0E9DD] text-amber-dark'
-  if (stage === 'SELECTION') return 'bg-[#F6EBDD] text-[#8C5A2C]'
-  return 'bg-[#EBF4ED] text-[#2D7A4D]'
+const stageClass = (stage: CollaborationStageCode) => {
+  if (stage === 'RECEPTION') return 'bg-[#1A1814] text-[#F4EFE6]'
+  if (stage === 'MAKEUP') return 'bg-[#F7E8E1] text-[#8C5A2C]'
+  if (stage === 'PHOTOGRAPHY') return 'bg-[#F0E9DD] text-amber-dark'
+  if (stage === 'RETOUCH') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+  if (stage === 'REVIEW') return 'bg-[#EEF2FF] text-[#3650A3]'
+  if (stage === 'SELECTION_REVIEW') return 'bg-[#F6EBDD] text-[#8C5A2C]'
+  return 'bg-[#E9F2F7] text-[#2B617B]'
 }
 
-const priorityClass = (priority: WorkOrderPriority) => {
-  if (priority === 'HIGH') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
+const priorityClass = (priority: CollaborationWorkOrderPriority) => {
+  if (priority === 'URGENT' || priority === 'HIGH') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
   if (priority === 'MEDIUM') return 'bg-[#F6EBDD] text-[#8C5A2C]'
   return 'border border-amber-topbar-border bg-white text-amber-text-muted'
 }
 
-const workStatusClass = (status: WorkOrderStatus) => {
-  if (status === '阻塞') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
-  if (status === '进行中') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+const workStatusClass = (status: CollaborationWorkOrderStatusCode) => {
+  if (status === 'BLOCKED') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
+  if (status === 'IN_PROGRESS') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+  if (status === 'COMPLETED') return 'bg-[#E9F2F7] text-[#2B617B]'
   return 'border border-amber-topbar-border bg-[#FBF8F2] text-amber-text-muted'
 }
 
@@ -322,13 +325,6 @@ watch(
     if (!items.some(item => item.id === selectedWorkOrder.value?.id)) selectedWorkOrder.value = items[0] ?? null
   },
   { immediate: true },
-)
-
-watch(
-  () => concreteStoreOptions.value.map(store => `${store.backendId}:${store.name}`).join('|'),
-  () => {
-    storeFilter.value = normalizeStoreFilter()
-  },
 )
 
 onMounted(async () => {

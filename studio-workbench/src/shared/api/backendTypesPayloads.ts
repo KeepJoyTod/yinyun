@@ -3,6 +3,7 @@ import type { BackendId } from './backendId'
 export type ProductPayload = {
   storeId?: BackendId | null
   productCode: string
+  bizCategory?: string
   name: string
   coverUrl: string | null
   spec: string
@@ -142,6 +143,13 @@ export type OrderListQuery = {
 
 export type OrderExportQuery = OrderListQuery
 
+export type DashboardExportQuery = {
+  beginDate: string
+  endDate: string
+  storeId?: BackendId
+  channelType?: string
+}
+
 export type WorkOrderDto = {
   id: BackendId
   storeId: BackendId | null
@@ -230,4 +238,44 @@ export type ReportSnapshotQuery = {
   reportType?: string
   storeId?: BackendId
   snapshotDate?: string
+}
+
+export type ResourceListQuery = {
+  pageNum?: number
+  pageSize?: number
+  keyword?: string
+  beginUploadTime?: string
+  endUploadTime?: string
+  storeId?: BackendId
+  albumId?: BackendId
+  orderId?: BackendId
+  productId?: BackendId
+  uploaderId?: BackendId
+  uploaderKeyword?: string
+  assetType?: string
+  rating?: number
+  tagIds?: BackendId[]
+  visible?: boolean
+}
+
+export type ResourceBatchUpdatePayload = {
+  assetIds: BackendId[]
+  assetType?: string
+  rating?: number
+  visible?: boolean
+  tagIdsToAdd?: BackendId[]
+  tagIdsToRemove?: BackendId[]
+}
+
+export type ResourceTagListQuery = {
+  pageNum?: number
+  pageSize?: number
+  keyword?: string
+  storeId?: BackendId
+}
+
+export type ResourceTagPayload = {
+  id?: BackendId
+  storeId?: BackendId | null
+  tagName: string
 }

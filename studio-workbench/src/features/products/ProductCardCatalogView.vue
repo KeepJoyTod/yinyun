@@ -20,7 +20,7 @@
             type="button"
             @click="openAddModal"
           >
-            {{ module.addLabel || '新增产品' }}
+            {{ module.addLabel || '新增商品' }}
           </button>
         </div>
       </div>
@@ -55,13 +55,13 @@
           <input
             v-model.trim="nicknameQuery"
             class="h-10 border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none"
-            placeholder="产品昵称搜索"
+            placeholder="商品昵称搜索"
             type="search"
           />
           <input
             v-model.trim="nameQuery"
             class="h-10 border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none"
-            :placeholder="`产品名称 / 编号 / 规格搜索`"
+            placeholder="商品名称 / 编号 / 规格搜索"
             type="search"
           />
           <button class="yy-action h-10 border border-amber-topbar-border px-4 text-[11px] text-amber-dark hover:bg-black/5" type="button" @click="resetFilters">
@@ -78,7 +78,7 @@
           批量上架
         </button>
         <button class="yy-action h-10 border border-amber-dark bg-amber-dark px-4 text-[11px] font-medium text-[#F4EFE6] hover:bg-black" type="button" @click="openAddModal">
-          新增产品
+          新增商品
         </button>
         <div class="ml-auto text-[10.5px] text-amber-text-muted">显示 {{ filteredItems.length }} / {{ items.length }} 个商品</div>
       </div>
@@ -126,6 +126,12 @@
             <div class="text-[10px] uppercase tracking-[0.16em] text-amber-text-muted">上架配置</div>
             <p class="mt-2 text-[11px] leading-relaxed text-amber-text-muted">{{ item.product?.shelfConfig || '未配置上架入口，建议补齐预约页、门店页和选片加购区说明。' }}</p>
           </div>
+
+          <AlbumProductReadinessPanel
+            v-if="isAlbumModule && item.product"
+            :readiness="albumReadiness(item.product)"
+            @configure="openFulfillmentModal(item.product)"
+          />
 
           <div class="grid gap-3 md:grid-cols-2">
             <button class="yy-action border border-amber-topbar-border px-4 py-3 text-[11px] font-medium text-amber-dark hover:bg-black/5" type="button" @click="openEditModal(item)">
@@ -178,17 +184,31 @@
       @edit-product="openEditModalFromProduct"
       @submit="handleActionSubmit"
     />
+
+    <AlbumProductFulfillmentModal
+      :show="fulfillmentState.show"
+      :product-name="fulfillmentState.product?.name"
+      :initial-draft="fulfillmentState.draft"
+      :submitting="submitting"
+      @close="closeFulfillmentModal"
+      @submit="handleFulfillmentSubmit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import SelectionConfigModal from './components/SelectionConfigModal.vue'
-import ProductCardActionModal, { type ProductCardActionKey, type ProductCardActionUpdatePayload } from './components/ProductCardActionModal.vue'
+import type { ProductCollaborationConfigDto, ProductCollaborationConfigPayload } from '../../shared/api/backend'
 import NoticeBar from '../../shared/components/NoticeBar.vue'
 import { useNotice } from '../../shared/composables/useNotice'
+import { collaborationStore } from '../../shared/stores/collaborationStore'
 import { appDerived, appStore, type ProductConfig } from '../../shared/stores/appStore'
+import { buildAlbumProductConfigDraft, buildAlbumProductReadiness } from './albumProductReadiness'
+import AlbumProductFulfillmentModal from './components/AlbumProductFulfillmentModal.vue'
+import AlbumProductReadinessPanel from './components/AlbumProductReadinessPanel.vue'
+import ProductCardActionModal, { type ProductCardActionKey, type ProductCardActionUpdatePayload } from './components/ProductCardActionModal.vue'
+import SelectionConfigModal from './components/SelectionConfigModal.vue'
 import { buildDerivedProductItems, getDerivedProductModule, type DerivedProductItem } from './derivedProductModules'
 import {
   bizCategoryLabel,
@@ -207,39 +227,41 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const { notice, pushNotice } = useNotice()
 const module = computed(() => getDerivedProductModule(String(route.meta.featureKey || route.name || 'product-addon')))
+const isAlbumModule = computed(() => module.value.key === 'product-album')
 const productSpecOptions = computed(() => appDerived.productSpecOptions.value)
 const items = computed(() => buildDerivedProductItems(module.value, appStore.products, appStore.channelProductMappings))
-const storeOptions = computed(() => Array.from(new Set(appStore.stores.map(store => store.name))))
+const storeOptions = computed(() => Array.from(new Set(appStore.stores.map(store => store.name).filter(Boolean))))
 const concreteStoreOptions = computed(() => storeOptions.value.filter(Boolean))
-const normalizeStoreFilter = (preferred = storeFilter.value) => {
-  return normalizeConcreteStoreFilter(preferred, concreteStoreOptions.value)
-}
 const nicknameQuery = ref('')
 const nameQuery = ref('')
 const storeFilter = ref('')
 const statusFilter = ref<CatalogFilter>('all')
 const submitting = ref(false)
-const { notice, pushNotice } = useNotice()
+const albumConfigsLoaded = ref(false)
+const normalizeStoreFilter = (preferred = storeFilter.value) => normalizeConcreteStoreFilter(preferred, concreteStoreOptions.value)
 
 watchEffect(() => {
   if (!storeFilter.value && concreteStoreOptions.value.length) {
     storeFilter.value = normalizeStoreFilter()
   }
 })
-
 const modalState = ref({
   show: false,
   mode: 'add' as 'add' | 'edit',
   data: null as ProductConfig | null,
 })
-
 const actionState = ref({
   show: false,
   action: 'publish' as ProductCardActionKey,
   product: null as ProductConfig | null,
 })
-
+const fulfillmentState = ref({
+  show: false,
+  product: null as ProductConfig | null,
+  draft: null as ProductCollaborationConfigPayload | null,
+})
 const linkableProducts = computed(() =>
   appStore.products.map(product => ({
     id: product.id,
@@ -247,17 +269,38 @@ const linkableProducts = computed(() =>
     category: String(product.bizCategory || 'SERVICE').toUpperCase(),
   })),
 )
-
-const scopedItems = computed(() => items.value.filter(item => storeFilter.value && item.storeName === storeFilter.value))
-
+const scopedItems = computed(() =>
+  items.value.filter(item => !storeFilter.value || item.storeName === storeFilter.value),
+)
 const filteredItems = computed(() => filterCatalogItems(scopedItems.value, {
   storeFilter: storeFilter.value,
   statusFilter: statusFilter.value,
   nicknameQuery: nicknameQuery.value,
   nameQuery: nameQuery.value,
 }))
-
 const cards = computed(() => buildCatalogSummaryCards(module.value.title, scopedItems.value))
+const defaultBizCategory = computed(() => defaultBizCategoryForModule(module.value.key))
+const albumConfigMap = computed<Record<string, ProductCollaborationConfigDto>>(() =>
+  Object.fromEntries(collaborationStore.productConfigs.map(item => [String(item.productId), item])),
+)
+
+const ensureAlbumConfigs = async () => {
+  if (!isAlbumModule.value || albumConfigsLoaded.value) return
+  try {
+    await collaborationStore.loadProductConfigs()
+    albumConfigsLoaded.value = true
+  } catch (error) {
+    pushNotice('error', error instanceof Error ? error.message : '加载入册履约配置失败')
+  }
+}
+
+onMounted(() => {
+  void ensureAlbumConfigs()
+})
+
+watch(isAlbumModule, value => {
+  if (value) void ensureAlbumConfigs()
+})
 
 const resetFilters = () => {
   nicknameQuery.value = ''
@@ -269,11 +312,12 @@ const resetFilters = () => {
 const productMetricValue = (item: DerivedProductItem) => metricValue(module.value, item)
 const productQuantityValue = (item: DerivedProductItem) => quantityValue(module.value, item)
 
+const albumReadiness = (product: ProductConfig) =>
+  buildAlbumProductReadiness(product, product.backendId ? albumConfigMap.value[String(product.backendId)] : undefined)
+
 const openServiceView = () => {
   router.push('/product/service')
 }
-
-const defaultBizCategory = computed(() => defaultBizCategoryForModule(module.value.key))
 
 const openAddModal = () => {
   modalState.value = {
@@ -310,6 +354,18 @@ const openActionModal = (item: DerivedProductItem, action: ProductCardActionKey)
   }
 }
 
+const openFulfillmentModal = (product: ProductConfig) => {
+  if (!product.backendId) {
+    pushNotice('error', '请先保存入册商品，再配置履约流程')
+    return
+  }
+  fulfillmentState.value = {
+    show: true,
+    product: { ...product },
+    draft: buildAlbumProductConfigDraft(product, albumConfigMap.value[String(product.backendId)] ?? null),
+  }
+}
+
 const closeModal = () => {
   if (submitting.value) return
   modalState.value.show = false
@@ -318,6 +374,11 @@ const closeModal = () => {
 const closeActionModal = () => {
   if (submitting.value) return
   actionState.value.show = false
+}
+
+const closeFulfillmentModal = () => {
+  if (submitting.value) return
+  fulfillmentState.value.show = false
 }
 
 const handleModalSubmit = async ({ values, imageFiles }: ModalSubmitPayload) => {
@@ -335,7 +396,7 @@ const handleModalSubmit = async ({ values, imageFiles }: ModalSubmitPayload) => 
         mutuallyExclusiveRule: '',
         linkedProductIds: [],
         linkedProductNames: [],
-        shelfConfig: '',
+        shelfConfig: values.storeNames.length ? `${values.storeNames.join('、')} / ${buildDefaultProductCardConfig(module.value, defaultBizCategory.value).shelfConfig || ''}` : buildDefaultProductCardConfig(module.value, defaultBizCategory.value).shelfConfig,
         orderLimitRule: '',
       })
       pushNotice('success', `已创建${module.value.title}：${values.name}`)
@@ -381,8 +442,32 @@ const handleActionSubmit = async (payload: ProductCardActionUpdatePayload) => {
   }
 }
 
+const handleFulfillmentSubmit = async (payload: ProductCollaborationConfigPayload) => {
+  const product = fulfillmentState.value.product
+  if (!product?.backendId) {
+    pushNotice('error', '缺少商品主键，无法保存履约配置')
+    return
+  }
+  submitting.value = true
+  try {
+    await collaborationStore.saveProductConfig(product.backendId, {
+      ...payload,
+      productId: product.backendId,
+    })
+    fulfillmentState.value.show = false
+    albumConfigsLoaded.value = true
+    pushNotice('success', `${product.name} 履约配置已保存`)
+  } catch (error) {
+    pushNotice('error', error instanceof Error ? error.message : '保存履约配置失败')
+  } finally {
+    submitting.value = false
+  }
+}
+
 const batchPublishFiltered = async () => {
-  const targets = filteredItems.value.map(item => item.product).filter((product): product is ProductConfig => Boolean(product && !product.active))
+  const targets = filteredItems.value
+    .map(item => item.product)
+    .filter((product): product is ProductConfig => Boolean(product && !product.active))
   if (!targets.length) {
     pushNotice('error', '当前筛选下没有可批量上架的商品')
     return
@@ -407,7 +492,3 @@ const toggleActive = async (item: DerivedProductItem) => {
   }
 }
 </script>
-
-<style scoped>
-/* fade transition styles moved to NoticeBar component */
-</style>

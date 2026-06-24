@@ -1,0 +1,464 @@
+- generic [ref=e96]:
+  - generic [ref=e99]:
+    - generic [ref=e100]:
+      - link:
+        - /url: https://www.yuyue123.cn
+        - img [ref=e101] [cursor=pointer]
+    - menubar [ref=e103]:
+      - generic [ref=e104]:
+        - link "首页" [ref=e105] [cursor=pointer]:
+          - /url: "#/home/dashboard"
+          - menuitem "首页" [ref=e106]:
+            - img [ref=e107]
+            - generic [ref=e109]: 首页
+        - menuitem "商户 " [ref=e110]:
+          - generic [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - generic [ref=e114]: 商户
+            - generic [ref=e115]: 
+        - menuitem "商品 " [expanded] [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e118]
+            - generic [ref=e120]: 商品
+            - generic [ref=e121]: 
+          - menu [ref=e773]:
+            - link "服务产品" [ref=e774] [cursor=pointer]:
+              - /url: "#/product/service"
+              - menuitem "服务产品" [ref=e775]:
+                - generic [ref=e776]: 服务产品
+            - link "附加产品" [ref=e777] [cursor=pointer]:
+              - /url: "#/product/additional"
+              - menuitem "附加产品" [ref=e778]:
+                - generic [ref=e779]: 附加产品
+            - link "团单产品" [ref=e780] [cursor=pointer]:
+              - /url: "#/product/group"
+              - menuitem "团单产品" [ref=e781]:
+                - generic [ref=e782]: 团单产品
+            - link "冲印产品" [ref=e783] [cursor=pointer]:
+              - /url: "#/product/print"
+              - menuitem "冲印产品" [ref=e784]:
+                - generic [ref=e785]: 冲印产品
+            - link "入册产品" [ref=e786] [cursor=pointer]:
+              - /url: "#/product/album"
+              - menuitem "入册产品" [ref=e787]:
+                - generic [ref=e788]: 入册产品
+            - link "卡项产品" [ref=e789] [cursor=pointer]:
+              - /url: "#/product/card/manage"
+              - menuitem "卡项产品" [ref=e790]:
+                - generic [ref=e791]: 卡项产品
+            - link "抖音产品 new" [ref=e792] [cursor=pointer]:
+              - /url: "#/product/douyin"
+              - menuitem "抖音产品 new" [ref=e793]:
+                - generic [ref=e794]:
+                  - text: 抖音产品
+                  - generic [ref=e795]: new
+            - link "美团产品 new" [ref=e796] [cursor=pointer]:
+              - /url: "#/product/meituan"
+              - menuitem "美团产品 new" [ref=e797]:
+                - generic [ref=e798]:
+                  - text: 美团产品
+                  - generic [ref=e799]: new
+        - menuitem "订单 new " [ref=e122]:
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e124]
+            - generic [ref=e126]:
+              - text: 订单
+              - generic [ref=e127]: new
+            - generic [ref=e128]: 
+        - menuitem "服务 " [ref=e129]:
+          - generic [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e133]: 服务
+            - generic [ref=e134]: 
+        - menuitem "内部协作 " [ref=e135]:
+          - generic [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e139]: 内部协作
+            - generic [ref=e140]: 
+        - menuitem "资源 " [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - img [ref=e143]
+            - generic [ref=e145]: 资源
+            - generic [ref=e146]: 
+        - menuitem "会员 " [ref=e147]:
+          - generic [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+            - generic [ref=e151]: 会员
+            - generic [ref=e152]: 
+        - link "工具" [ref=e153] [cursor=pointer]:
+          - /url: "#/tools/center"
+          - menuitem "工具" [ref=e154]:
+            - img [ref=e155]
+            - generic [ref=e157]: 工具
+        - menuitem "相册 " [ref=e158]:
+          - generic [ref=e159] [cursor=pointer]:
+            - img [ref=e160]
+            - generic [ref=e162]: 相册
+            - generic [ref=e163]: 
+        - menuitem "营销 " [ref=e164]:
+          - generic [ref=e165] [cursor=pointer]:
+            - img [ref=e166]
+            - generic [ref=e168]: 营销
+            - generic [ref=e169]: 
+        - menuitem "统计 new " [ref=e170]:
+          - generic [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+            - generic [ref=e174]:
+              - text: 统计
+              - generic [ref=e175]: new
+            - generic [ref=e176]: 
+        - menuitem "设置 " [ref=e177]:
+          - generic [ref=e178] [cursor=pointer]:
+            - img [ref=e179]
+            - generic [ref=e181]: 设置
+            - generic [ref=e182]: 
+    - link "应用商城" [ref=e183] [cursor=pointer]:
+      - /url: "#/appstore"
+      - img [ref=e184]
+      - text: 应用商城
+  - generic [ref=e188]:
+    - menubar [ref=e189]:
+      - img [ref=e191] [cursor=pointer]
+      - generic [ref=e195]: 一悦照相馆
+      - generic [ref=e196]:
+        - img [ref=e198] [cursor=pointer]
+        - button "赵丽瑗 " [ref=e204] [cursor=pointer]:
+          - text: 赵丽瑗
+          - generic [ref=e205]: 
+        - button "费用 " [ref=e207] [cursor=pointer]:
+          - text: 费用
+          - generic [ref=e208]: 
+    - generic [ref=e209]:
+      - generic [ref=e800]:
+        - generic [ref=e802]:
+          - generic [ref=e803]:
+            - generic [ref=e804]:
+              - generic [ref=e805]: 选择门店
+              - generic [ref=e808]:
+                - textbox "==请选择==" [ref=e809] [cursor=pointer]
+                - generic [ref=e811] [cursor=pointer]: 
+            - generic [ref=e812]:
+              - generic [ref=e813]: 产品分类
+              - generic [ref=e816]:
+                - textbox "请选择产品" [ref=e817] [cursor=pointer]: ==请选择==
+                - generic [ref=e819] [cursor=pointer]: 
+            - generic [ref=e820]:
+              - generic [ref=e821]: 产品渠道
+              - generic [ref=e824]:
+                - textbox "请选择" [ref=e825] [cursor=pointer]: ==请选择==
+                - generic [ref=e827] [cursor=pointer]: 
+            - generic [ref=e828]:
+              - generic [ref=e829]: 产品昵称
+              - textbox "请输入产品昵称搜索" [ref=e832]
+            - generic [ref=e833]:
+              - generic [ref=e834]: 产品名称
+              - generic [ref=e835]:
+                - textbox "请输入产品名称搜索" [ref=e837]
+                - button " 搜索" [ref=e838] [cursor=pointer]:
+                  - generic [ref=e839]: 
+                  - text: 搜索
+                - button "产品分类管理" [ref=e840] [cursor=pointer]:
+                  - generic [ref=e841]:
+                    - img [ref=e842]
+                    - text: 产品分类管理
+                - button "批量上架" [ref=e844] [cursor=pointer]:
+                  - generic [ref=e845]:
+                    - img [ref=e846]
+                    - text: 批量上架
+                - button " 调整排序" [ref=e848] [cursor=pointer]:
+                  - generic [ref=e849]: 
+                  - text: 调整排序
+                - button " 新增产品" [ref=e850] [cursor=pointer]:
+                  - generic [ref=e851]: 
+                  - text: 新增产品
+                - img [ref=e854]
+          - generic [ref=e856]:
+            - generic [ref=e858] [cursor=pointer]:
+              - text: 展开筛选
+              - generic [ref=e859]: 
+            - text:    
+        - generic [ref=e860]:
+          - generic [ref=e862]:
+            - generic [ref=e863] [cursor=pointer]:
+              - img [ref=e865]
+              - generic [ref=e866]:
+                - heading "证件照-快照-49元" [level=3] [ref=e867]
+                - heading [level=6]
+                - generic [ref=e868]:
+                  - generic [ref=e869]: "价格: 49"
+                  - generic [ref=e870]: "消耗工位: 0位"
+                  - img [ref=e872]
+            - generic [ref=e874]:
+              - generic [ref=e875]:
+                - text: 门店：
+                - generic [ref=e876]: 滨州吾悦店
+                - generic [ref=e877]: 滨州万达店
+                - generic [ref=e878]: 威海智慧谷店
+                - generic [ref=e879]: 淄博万象汇店
+              - generic [ref=e880]:
+                - text: 分类：
+                - generic [ref=e881]: 当季火爆
+          - generic [ref=e883]:
+            - generic [ref=e884] [cursor=pointer]:
+              - img [ref=e886]
+              - generic [ref=e887]:
+                - heading "证件照-快照-30元" [level=3] [ref=e888]
+                - heading [level=6]
+                - generic [ref=e889]:
+                  - generic [ref=e890]: "价格: 30"
+                  - generic [ref=e891]: "消耗工位: 0位"
+                  - generic [ref=e892]:
+                    - img [ref=e893]
+                    - img [ref=e895]
+            - generic [ref=e897]:
+              - generic [ref=e898]:
+                - text: 门店：
+                - generic [ref=e899]: 滨州吾悦店
+                - generic [ref=e900]: 滨州万达店
+                - generic [ref=e901]: 威海智慧谷店
+                - generic [ref=e902]: 淄博万象汇店
+              - generic [ref=e903]:
+                - text: 分类：
+                - generic [ref=e904]: 当季火爆
+          - generic [ref=e906]:
+            - generic [ref=e907] [cursor=pointer]:
+              - img [ref=e909]
+              - generic [ref=e910]:
+                - heading "团购预约-定金20到店退（威海店）" [level=3] [ref=e911]
+                - heading "定金到店原路退回" [level=6] [ref=e912]
+                - generic [ref=e913]:
+                  - generic [ref=e914]: "价格: 0 - 589"
+                  - generic [ref=e915]: "消耗工位: 0 - 3位"
+                  - generic [ref=e916]:
+                    - img [ref=e917]
+                    - img [ref=e919]
+                    - img [ref=e921]
+            - generic [ref=e923]:
+              - generic [ref=e924]:
+                - text: 门店：
+                - generic [ref=e925]: 威海智慧谷店
+              - generic [ref=e926]:
+                - text: 分类：
+                - generic [ref=e927]: 现场预约专区
+          - generic [ref=e929]:
+            - generic [ref=e930] [cursor=pointer]:
+              - img [ref=e932]
+              - generic [ref=e933]:
+                - heading "毕业季！学士服" [level=3] [ref=e934]
+                - heading [level=6]
+                - generic [ref=e935]:
+                  - generic [ref=e936]: "价格: 1"
+                  - generic [ref=e937]: "消耗工位: 1位"
+                  - generic [ref=e938]:
+                    - img [ref=e939]
+                    - img [ref=e941]
+                    - img [ref=e943]
+            - generic [ref=e945]:
+              - generic [ref=e946]: 门店：
+              - generic [ref=e947]:
+                - text: 分类：
+                - generic [ref=e948]: 当季火爆
+          - generic [ref=e950]:
+            - generic [ref=e951] [cursor=pointer]:
+              - img [ref=e953]
+              - generic [ref=e954]:
+                - heading "母亲纪念照" [level=3] [ref=e955]
+                - heading [level=6]
+                - generic [ref=e956]:
+                  - generic [ref=e957]: "价格: 0 - 479"
+                  - generic [ref=e958]: "消耗工位: 0 - 2位"
+                  - generic [ref=e959]:
+                    - img [ref=e960]
+                    - img [ref=e962]
+                    - img [ref=e964]
+            - generic [ref=e966]:
+              - generic [ref=e967]:
+                - text: 门店：
+                - generic [ref=e968]: 滨州吾悦店
+                - generic [ref=e969]: 滨州万达店
+                - generic [ref=e970]: 威海智慧谷店
+                - generic [ref=e971]: 淄博万象汇店
+              - generic [ref=e972]:
+                - text: 分类：
+                - generic [ref=e973]: 父母照片
+          - generic [ref=e975]:
+            - generic [ref=e976] [cursor=pointer]:
+              - img [ref=e978]
+              - generic [ref=e979]:
+                - heading "VIP客户预约通道" [level=3] [ref=e980]
+                - heading [level=6]
+                - generic [ref=e981]:
+                  - generic [ref=e982]: "价格: 0"
+                  - generic [ref=e983]: "消耗工位: 0 - 4位"
+                  - generic [ref=e984]:
+                    - img [ref=e985]
+                    - img [ref=e987]
+                    - img [ref=e989]
+            - generic [ref=e991]:
+              - generic [ref=e992]:
+                - text: 门店：
+                - generic [ref=e993]: 滨州吾悦店
+                - generic [ref=e994]: 滨州万达店
+                - generic [ref=e995]: 威海智慧谷店
+                - generic [ref=e996]: 淄博万象汇店
+              - generic [ref=e997]:
+                - text: 分类：
+                - generic [ref=e998]: 现场预约专区
+          - generic [ref=e1000]:
+            - generic [ref=e1001] [cursor=pointer]:
+              - img [ref=e1003]
+              - generic [ref=e1004]:
+                - heading "教育报考类证件" [level=3] [ref=e1005]
+                - heading [level=6]
+                - generic [ref=e1006]:
+                  - generic [ref=e1007]: "价格: 79"
+                  - generic [ref=e1008]: "消耗工位: 1位"
+                  - generic [ref=e1009]:
+                    - img [ref=e1010]
+                    - img [ref=e1012]
+                    - img [ref=e1014]
+            - generic [ref=e1016]:
+              - generic [ref=e1017]:
+                - text: 门店：
+                - generic [ref=e1018]: 滨州吾悦店
+                - generic [ref=e1019]: 滨州万达店
+                - generic [ref=e1020]: 威海智慧谷店
+                - generic [ref=e1021]: 淄博万象汇店
+              - generic [ref=e1022]:
+                - text: 分类：
+                - generic [ref=e1023]: 功能证件类
+          - generic [ref=e1025]:
+            - generic [ref=e1026] [cursor=pointer]:
+              - img [ref=e1028]
+              - generic [ref=e1029]:
+                - heading "法规类证件" [level=3] [ref=e1030]
+                - heading [level=6]
+                - generic [ref=e1031]:
+                  - generic [ref=e1032]: "价格: 79"
+                  - generic [ref=e1033]: "消耗工位: 1位"
+                  - generic [ref=e1034]:
+                    - img [ref=e1035]
+                    - img [ref=e1037]
+                    - img [ref=e1039]
+            - generic [ref=e1041]:
+              - generic [ref=e1042]:
+                - text: 门店：
+                - generic [ref=e1043]: 滨州吾悦店
+                - generic [ref=e1044]: 滨州万达店
+                - generic [ref=e1045]: 威海智慧谷店
+                - generic [ref=e1046]: 淄博万象汇店
+              - generic [ref=e1047]:
+                - text: 分类：
+                - generic [ref=e1048]: 功能证件类
+          - generic [ref=e1050]:
+            - generic [ref=e1051] [cursor=pointer]:
+              - img [ref=e1053]
+              - generic [ref=e1054]:
+                - heading "美式证件照" [level=3] [ref=e1055]
+                - heading [level=6]
+                - generic [ref=e1056]:
+                  - generic [ref=e1057]: "价格: 79"
+                  - generic [ref=e1058]: "消耗工位: 1位"
+                  - generic [ref=e1059]:
+                    - img [ref=e1060]
+                    - img [ref=e1062]
+                    - img [ref=e1064]
+            - generic [ref=e1066]:
+              - generic [ref=e1067]:
+                - text: 门店：
+                - generic [ref=e1068]: 滨州吾悦店
+                - generic [ref=e1069]: 滨州万达店
+                - generic [ref=e1070]: 威海智慧谷店
+                - generic [ref=e1071]: 淄博万象汇店
+              - generic [ref=e1072]:
+                - text: 分类：
+                - generic [ref=e1073]: 风格证件类
+          - generic [ref=e1075]:
+            - generic [ref=e1076] [cursor=pointer]:
+              - img [ref=e1078]
+              - generic [ref=e1079]:
+                - heading "韩式人生照" [level=3] [ref=e1080]
+                - heading [level=6]
+                - generic [ref=e1081]:
+                  - generic [ref=e1082]: "价格: 99"
+                  - generic [ref=e1083]: "消耗工位: 2位"
+                  - generic [ref=e1084]:
+                    - img [ref=e1085]
+                    - img [ref=e1087]
+                    - img [ref=e1089]
+            - generic [ref=e1091]:
+              - generic [ref=e1092]:
+                - text: 门店：
+                - generic [ref=e1093]: 滨州吾悦店
+                - generic [ref=e1094]: 滨州万达店
+                - generic [ref=e1095]: 威海智慧谷店
+                - generic [ref=e1096]: 淄博万象汇店
+              - generic [ref=e1097]:
+                - text: 分类：
+                - generic [ref=e1098]: 风格证件类
+          - generic [ref=e1100]:
+            - generic [ref=e1101] [cursor=pointer]:
+              - img [ref=e1103]
+              - generic [ref=e1104]:
+                - heading "情侣写真" [level=3] [ref=e1105]
+                - heading [level=6]
+                - generic [ref=e1106]:
+                  - generic [ref=e1107]: "价格: 0 - 1029"
+                  - generic [ref=e1108]: "消耗工位: 0 - 4位"
+                  - generic [ref=e1109]:
+                    - img [ref=e1110]
+                    - img [ref=e1112]
+                    - img [ref=e1114]
+            - generic [ref=e1116]:
+              - generic [ref=e1117]:
+                - text: 门店：
+                - generic [ref=e1118]: 滨州吾悦店
+                - generic [ref=e1119]: 滨州万达店
+                - generic [ref=e1120]: 威海智慧谷店
+                - generic [ref=e1121]: 淄博万象汇店
+              - generic [ref=e1122]:
+                - text: 分类：
+                - generic [ref=e1123]: 情侣写真
+          - generic [ref=e1125]:
+            - generic [ref=e1126] [cursor=pointer]:
+              - img [ref=e1128]
+              - generic [ref=e1129]:
+                - heading "全家福" [level=3] [ref=e1130]
+                - heading [level=6]
+                - generic [ref=e1131]:
+                  - generic [ref=e1132]: "价格: 0 - 1119"
+                  - generic [ref=e1133]: "消耗工位: 0 - 4位"
+                  - generic [ref=e1134]:
+                    - img [ref=e1135]
+                    - img [ref=e1137]
+                    - img [ref=e1139]
+            - generic [ref=e1141]:
+              - generic [ref=e1142]:
+                - text: 门店：
+                - generic [ref=e1143]: 滨州吾悦店
+                - generic [ref=e1144]: 滨州万达店
+                - generic [ref=e1145]: 威海智慧谷店
+                - generic [ref=e1146]: 淄博万象汇店
+              - generic [ref=e1147]:
+                - text: 分类：
+                - generic [ref=e1148]: 全家福
+        - generic [ref=e1149]:
+          - generic [ref=e1150]: 共 33 条
+          - generic [ref=e1153]:
+            - textbox "请选择" [ref=e1154] [cursor=pointer]: 12条/页
+            - generic [ref=e1156] [cursor=pointer]: 
+          - button "" [disabled] [ref=e1157]:
+            - generic [ref=e1158]: 
+          - list [ref=e1159]:
+            - listitem [ref=e1160]: "1"
+            - listitem [ref=e1161] [cursor=pointer]: "2"
+            - listitem [ref=e1162] [cursor=pointer]: "3"
+          - button "" [ref=e1163] [cursor=pointer]:
+            - generic [ref=e1164]: 
+          - generic [ref=e1165]:
+            - text: 前往
+            - spinbutton [ref=e1167]: "1"
+            - text: 页
+        - generic: 
+        - text: 
+      - text:  

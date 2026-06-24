@@ -4,8 +4,11 @@ import type {
   ChannelProductMappingDto,
   ChannelSyncLogDto,
   CustomerDto,
+  DashboardConversionDto,
   DashboardScheduleGridDto,
   DashboardFinanceDto,
+  DashboardProductRankingDto,
+  DashboardProductRankingRowDto,
   DouyinLifeOrderSyncResult,
   EmployeeDto,
   MicroFormSubmissionDto,
@@ -14,7 +17,11 @@ import type {
   OperationLogDto,
   PhotoAccessLog,
   ReportSnapshot,
+  RetouchProviderDto,
+  RetouchTaskDto,
+  CollaborationPolicyDto,
   ServiceGroupDto,
+  ServiceLicenseBindingDto,
   WorkOrderDto,
   WorkOrderEventDto,
 } from './backendTypes'
@@ -263,6 +270,65 @@ export const mapDashboardFinanceRow = (row: Record<string, any>): DashboardFinan
   canceledOrderCount: Number(row.canceledOrderCount ?? 0),
 })
 
+export const mapDashboardOrderStatusStatRow = (row: Record<string, any>) => ({
+  status: String(row.status ?? ''),
+  label: String(row.label ?? ''),
+  count: Number(row.count ?? 0),
+  amountCents: Number(row.amountCent ?? row.amountCents ?? 0),
+})
+
+export const mapDashboardTrendStatRow = (row: Record<string, any>) => ({
+  day: String(row.day ?? ''),
+  bookedCount: Number(row.bookedCount ?? 0),
+  arrivedCount: Number(row.arrivedCount ?? 0),
+  amountCents: Number(row.amountCent ?? row.amountCents ?? 0),
+})
+
+export const mapDashboardTodaySlotRow = (row: Record<string, any>) => ({
+  bookingId: normalizeBackendId(row.bookingId ?? row.orderId),
+  storeId: normalizeBackendId(row.storeId),
+  storeName: String(row.storeName ?? ''),
+  studioId: normalizeBackendId(row.studioId ?? row.storeId),
+  studioName: String(row.studioName ?? ''),
+  startAt: String(row.startAt ?? ''),
+  endAt: String(row.endAt ?? ''),
+  bookingStatus: String(row.bookingStatus ?? ''),
+  orderId: normalizeBackendId(row.orderId ?? row.bookingId),
+  orderNo: String(row.orderNo ?? ''),
+  customerName: String(row.customerName ?? ''),
+  customerPhone: String(row.customerPhone ?? ''),
+  serviceName: String(row.serviceName ?? ''),
+  orderStatus: String(row.orderStatus ?? ''),
+})
+
+export const mapDashboardProductRankingRow = (row: Record<string, any>): DashboardProductRankingRowDto => ({
+  rank: Number(row.rank ?? 0),
+  productName: String(row.productName ?? ''),
+  orderCount: Number(row.orderCount ?? 0),
+  amountCents: Number(row.amountCent ?? row.amountCents ?? 0),
+})
+
+export const mapDashboardProductRanking = (row: Record<string, any>): DashboardProductRankingDto => ({
+  byOrderCount: Array.isArray(row.byOrderCount)
+    ? row.byOrderCount.map((item: Record<string, any>) => mapDashboardProductRankingRow(item))
+    : [],
+  byAmount: Array.isArray(row.byAmount)
+    ? row.byAmount.map((item: Record<string, any>) => mapDashboardProductRankingRow(item))
+    : [],
+})
+
+export const mapDashboardConversionRow = (row: Record<string, any>): DashboardConversionDto => ({
+  date: String(row.date ?? ''),
+  storeId: optionalBackendId(row.storeId) ?? null,
+  bookedCount: Number(row.bookedCount ?? 0),
+  paidCount: Number(row.paidCount ?? 0),
+  arrivedCount: Number(row.arrivedCount ?? 0),
+  completedCount: Number(row.completedCount ?? 0),
+  paidRate: Number(row.paidRate ?? 0),
+  arrivedRate: Number(row.arrivedRate ?? 0),
+  completedRate: Number(row.completedRate ?? 0),
+})
+
 export const mapScheduleGridRow = (row: Record<string, any>): DashboardScheduleGridDto => {
   const source = row.slotsByDate && typeof row.slotsByDate === 'object'
     ? row.slotsByDate as Record<string, any[]>
@@ -303,3 +369,82 @@ export const mapScheduleGridRow = (row: Record<string, any>): DashboardScheduleG
   }
 }
 
+export const mapRetouchTaskRow = (row: Record<string, any>): RetouchTaskDto => ({
+  id: normalizeBackendId(row.id),
+  tenantId: String(row.tenantId ?? ''),
+  storeId: optionalBackendId(row.storeId) ?? null,
+  storeName: String(row.storeName ?? ''),
+  orderId: optionalBackendId(row.orderId) ?? null,
+  orderNo: String(row.orderNo ?? ''),
+  albumId: optionalBackendId(row.albumId) ?? null,
+  albumName: String(row.albumName ?? ''),
+  providerId: optionalBackendId(row.providerId) ?? null,
+  providerName: String(row.providerName ?? ''),
+  taskNo: String(row.taskNo ?? ''),
+  status: String(row.status ?? 'WAIT_ASSIGN'),
+  acceptanceStatus: String(row.acceptanceStatus ?? 'PENDING'),
+  quoteAmountCent: Number(row.quoteAmountCent ?? 0),
+  dueTime: String(row.dueTime ?? ''),
+  submittedTime: String(row.submittedTime ?? ''),
+  completedTime: String(row.completedTime ?? ''),
+  sourceStage: String(row.sourceStage ?? ''),
+  customerName: String(row.customerName ?? ''),
+  serviceName: String(row.serviceName ?? ''),
+  blockReason: String(row.blockReason ?? ''),
+  remark: String(row.remark ?? ''),
+  createTime: String(row.createTime ?? ''),
+  updateTime: String(row.updateTime ?? ''),
+})
+
+export const mapRetouchProviderRow = (row: Record<string, any>): RetouchProviderDto => ({
+  id: normalizeBackendId(row.id),
+  tenantId: String(row.tenantId ?? ''),
+  providerCode: String(row.providerCode ?? ''),
+  providerName: String(row.providerName ?? ''),
+  contactName: String(row.contactName ?? ''),
+  contactPhone: String(row.contactPhone ?? ''),
+  supportedStoreIds: String(row.supportedStoreIds ?? ''),
+  serviceScope: String(row.serviceScope ?? ''),
+  quoteMode: String(row.quoteMode ?? 'PER_PHOTO'),
+  settlementMode: String(row.settlementMode ?? 'MONTHLY'),
+  applicationStatus: String(row.applicationStatus ?? 'PENDING'),
+  status: String(row.status ?? 'ACTIVE'),
+  ratingScore: Number(row.ratingScore ?? 0),
+  slaHours: Number(row.slaHours ?? 0),
+  remark: String(row.remark ?? ''),
+  createTime: String(row.createTime ?? ''),
+  updateTime: String(row.updateTime ?? ''),
+})
+
+export const mapCollaborationPolicyRow = (row: Record<string, any>): CollaborationPolicyDto => ({
+  id: optionalBackendId(row.id),
+  tenantId: String(row.tenantId ?? ''),
+  policyCode: String(row.policyCode ?? 'DEFAULT'),
+  reviewFlowEnabled: String(row.reviewFlowEnabled ?? '1'),
+  productInfoMaskMode: String(row.productInfoMaskMode ?? 'MASK_PHOTO_ONLY'),
+  enabledStoreIds: String(row.enabledStoreIds ?? ''),
+  fallbackAction: String(row.fallbackAction ?? 'RETURN_TO_STORE'),
+  transferEnabled: String(row.transferEnabled ?? '1'),
+  autoDispatchMode: String(row.autoDispatchMode ?? 'STORE_ONLY'),
+  genderMakeupEnabled: String(row.genderMakeupEnabled ?? '0'),
+  femaleMakeupRatio: Number(row.femaleMakeupRatio ?? 1.5),
+  remark: String(row.remark ?? ''),
+  createTime: String(row.createTime ?? ''),
+  updateTime: String(row.updateTime ?? ''),
+})
+
+export const mapServiceLicenseBindingRow = (row: Record<string, any>): ServiceLicenseBindingDto => ({
+  id: normalizeBackendId(row.id),
+  tenantId: String(row.tenantId ?? ''),
+  licenseKey: String(row.licenseKey ?? ''),
+  planName: String(row.planName ?? ''),
+  status: String(row.status ?? 'ACTIVE'),
+  expireTime: String(row.expireTime ?? ''),
+  boundStoreIds: String(row.boundStoreIds ?? ''),
+  seatCount: Number(row.seatCount ?? 0),
+  activatedTime: String(row.activatedTime ?? ''),
+  renewAction: String(row.renewAction ?? 'RENEW'),
+  remark: String(row.remark ?? ''),
+  createTime: String(row.createTime ?? ''),
+  updateTime: String(row.updateTime ?? ''),
+})

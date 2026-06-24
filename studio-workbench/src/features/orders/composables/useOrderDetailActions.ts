@@ -128,7 +128,7 @@ export function useOrderDetailActions(options: {
 
   const loadOrderOperationLogs = async () => {
     if (appStore.demoMode) {
-      options.operationLogsNotice.value = '演示模式不读取后台操作日志；操作记录使用本地基础时间线。'
+      options.operationLogsNotice.value = '演示模式不读取后台操作日志和渠道同步日志；操作记录使用本地基础时间线。'
       return
     }
     if (options.operationLogsLoading.value) {
@@ -140,11 +140,14 @@ export function useOrderDetailActions(options: {
     try {
       do {
         options.operationLogsReloadQueued.value = false
-        await appStore.loadOperationLogs()
+        await Promise.all([
+          appStore.loadOperationLogs(),
+          appStore.loadChannelSyncLogs(),
+        ])
         options.operationLogsNotice.value = ''
       } while (options.operationLogsReloadQueued.value)
     } catch {
-      options.operationLogsNotice.value = '操作日志读取失败，已保留基础时间线；不影响确认、改期和取消。'
+      options.operationLogsNotice.value = '操作日志或渠道同步日志读取失败，已保留基础时间线；不影响确认、改期和取消。'
     } finally {
       options.operationLogsLoading.value = false
     }

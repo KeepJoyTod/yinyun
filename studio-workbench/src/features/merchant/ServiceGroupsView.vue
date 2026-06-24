@@ -14,38 +14,15 @@
 
       <NoticeBar :notice="notice" />
 
-      <div class="yy-filter-bar">
-        <div class="relative">
-          <select v-model="storeFilter" class="h-9 w-[146px] appearance-none border border-amber-topbar-border bg-[#FBF8F2] px-3 pr-8 text-[12px] text-amber-dark outline-none">
-            <option v-if="!concreteStoreOptions.length" value="">暂无可用门店</option>
-            <option v-for="store in concreteStoreOptions" :key="store.backendId" :value="String(store.backendId)">
-              {{ store.name }}
-            </option>
-          </select>
-          <ChevronDown :size="13" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-amber-text-muted" />
-        </div>
-        <input v-model="searchQuery" class="h-9 w-[150px] border border-amber-topbar-border bg-[#FBF8F2] px-3 text-[12px] text-amber-dark outline-none" placeholder="服务组名称" type="text" />
-        <div class="relative">
-          <select v-model="activeFilter" class="h-9 w-[120px] appearance-none border border-amber-topbar-border bg-[#FBF8F2] px-3 pr-8 text-[12px] text-amber-dark outline-none">
-            <option value="all">全部状态</option>
-            <option value="active">启用</option>
-            <option value="inactive">停用</option>
-            <option value="low-capacity">低容量</option>
-          </select>
-          <ChevronDown :size="13" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-amber-text-muted" />
-        </div>
-        <button class="yy-action bg-amber-dark px-4 py-2 text-[12px] text-[#F4EFE6]" type="button">搜索</button>
-        <button class="yy-action border border-amber-topbar-border px-4 py-2 text-[12px] text-amber-text-muted" type="button" @click="resetFilters">重置</button>
-        <button
-          class="yy-action ml-auto inline-flex items-center gap-2 border border-amber-topbar-border px-3 py-2 text-[12px] text-amber-text-muted disabled:opacity-50 max-[720px]:ml-0"
-          :disabled="loading"
-          type="button"
-          @click="reload"
-        >
-          <RefreshCcw :size="13" :class="{ 'animate-spin': loading }" />
-          {{ loading ? '刷新中...' : '刷新' }}
-        </button>
-      </div>
+      <MerchantConfigScopeBar
+        v-model:active-filter="activeFilter"
+        v-model:search-query="searchQuery"
+        v-model:store-filter="storeFilter"
+        :concrete-store-options="concreteStoreOptions"
+        :loading="loading"
+        @reload="reload"
+        @reset="resetFilters"
+      />
 
       <ServiceGroupsTable
         :groups="filteredGroups"
@@ -102,18 +79,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  ChevronDown,
-  Plus,
-  RefreshCcw,
-} from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import ServiceGroupDeleteDialog from './components/ServiceGroupDeleteDialog.vue'
 import ServiceGroupFormDialog from './components/ServiceGroupFormDialog.vue'
 import ServiceGroupScheduleDrawer from './components/ServiceGroupScheduleDrawer.vue'
 import ServiceGroupsTable from './components/ServiceGroupsTable.vue'
 import MerchantModuleChrome from './components/MerchantModuleChrome.vue'
+import MerchantConfigScopeBar from './modules/config/components/MerchantConfigScopeBar.vue'
+import { useMerchantConfigState } from './modules/config/composables/useMerchantConfigState'
 import NoticeBar from '../../shared/components/NoticeBar.vue'
 import { useNotice } from '../../shared/composables/useNotice'
 import { appStore, type ServiceGroupInfo } from '../../shared/stores/appStore'
@@ -127,21 +102,29 @@ import {
   resolveWeekdayLabel,
   type ScheduleRuleFormDraft,
   type ServiceGroupFormDraft,
-  type ServiceGroupStatusFilter,
 } from './serviceGroupOperations'
 
 const router = useRouter()
 const route = useRoute()
+const { notice, pushNotice } = useNotice()
 
-const loading = ref(false)
+const {
+  loading,
+  searchQuery,
+  storeFilter,
+  activeFilter,
+  groups,
+  concreteStoreOptions,
+  reload,
+  resetFilters,
+} = useMerchantConfigState({
+  initialStoreId: String(route.query.storeId ?? ''),
+  pushError: message => pushNotice('error', message),
+})
+
 const saving = ref(false)
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
-const { notice, pushNotice } = useNotice()
-const searchQuery = ref('')
-const storeFilter = ref('')
-const activeFilter = ref<ServiceGroupStatusFilter>('all')
-const groups = ref<ServiceGroupInfo[]>([])
 const deleteTarget = ref<ServiceGroupInfo | null>(null)
 const rowActionState = ref<{ id: string; action: 'toggle' | 'delete' } | null>(null)
 
@@ -169,13 +152,6 @@ const formErrors = reactive<Record<string, string>>({
   storeBackendId: '',
 })
 
-const validateForm = () => {
-  formErrors.name = form.name.trim() ? '' : '服务组名称不能为空'
-  formErrors.code = form.code.trim() ? '' : '服务组编码不能为空'
-  formErrors.storeBackendId = form.storeBackendId ? '' : '请选择门店'
-  return !formErrors.name && !formErrors.code && !formErrors.storeBackendId
-}
-
 const scheduleRuleForm = reactive<ScheduleRuleFormDraft>({
   id: '',
   weekday: 1,
@@ -196,26 +172,6 @@ const weekdayOptions = [
   { value: 7, label: '周日' },
 ]
 
-const isRowBusy = (backendId: string) => rowActionState.value?.id === backendId
-
-const isDeleteBusy = computed(() =>
-  rowActionState.value?.action === 'delete' && rowActionState.value?.id === deleteTarget.value?.backendId,
-)
-
-const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
-const normalizeStoreFilter = (preferred = storeFilter.value) => {
-  const matched = concreteStoreOptions.value.find(store => String(store.backendId) === preferred)
-  return String(matched?.backendId ?? concreteStoreOptions.value[0]?.backendId ?? '')
-}
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
-
 const filteredGroups = computed(() => filterServiceGroups({
   groups: groups.value,
   storeFilter: storeFilter.value,
@@ -223,35 +179,23 @@ const filteredGroups = computed(() => filterServiceGroups({
   searchQuery: searchQuery.value,
 }))
 
+const isRowBusy = (backendId: string) => rowActionState.value?.id === backendId
+const isDeleteBusy = computed(() =>
+  rowActionState.value?.action === 'delete' && rowActionState.value?.id === deleteTarget.value?.backendId,
+)
 const inventoryConflicts = computed(() => inventoryOverview.value.filter(item => Number(item.conflictCount ?? 0) > 0))
 const inventorySummaryCards = computed(() => buildInventorySummaryCards(inventoryOverview.value, formatDateKey(0)))
 
-const reload = async () => {
-  loading.value = true
-  try {
-    await ensureWorkbenchStores()
-    storeFilter.value = normalizeStoreFilter()
-    if (!storeFilter.value) {
-      groups.value = []
-      return
-    }
-    groups.value = [...await appStore.loadServiceGroups()]
-  } catch (error) {
-    pushNotice('error', error instanceof Error ? error.message : '服务组加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const resetFilters = () => {
-  storeFilter.value = normalizeStoreFilter()
-  searchQuery.value = ''
-  activeFilter.value = 'all'
+const validateForm = () => {
+  formErrors.name = form.name.trim() ? '' : '服务组名称不能为空'
+  formErrors.code = form.code.trim() ? '' : '服务组编码不能为空'
+  formErrors.storeBackendId = form.storeBackendId ? '' : '请选择门店'
+  return !formErrors.name && !formErrors.code && !formErrors.storeBackendId
 }
 
 const resetForm = () => {
   editingId.value = null
-  form.storeBackendId = storeFilter.value || normalizeStoreFilter(String(route.query.storeId ?? ''))
+  form.storeBackendId = storeFilter.value || String(concreteStoreOptions.value[0]?.backendId ?? '')
   form.code = ''
   form.name = ''
   form.capacity = 3
@@ -489,8 +433,5 @@ const goInventoryDeepLink = () => {
   })
 }
 
-onMounted(async () => {
-  storeFilter.value = String(route.query.storeId ?? '')
-  await reload()
-})
+void reload()
 </script>

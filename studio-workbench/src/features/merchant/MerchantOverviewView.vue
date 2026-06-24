@@ -17,19 +17,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-4 border-t border-amber-topbar-border max-[980px]:grid-cols-2 max-[560px]:grid-cols-1">
-        <article
-          v-for="metric in overviewMetrics"
-          :key="metric.label"
-          class="min-h-[104px] border-r border-b border-amber-topbar-border px-5 py-5 last:border-r-0 max-[980px]:even:border-r-0 max-[560px]:border-r-0"
-        >
-          <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">{{ metric.eyebrow }}</div>
-          <div class="mt-3 text-[28px] font-semibold leading-none" :class="metric.danger ? 'text-[#B8543B]' : 'text-amber-dark'">
-            {{ metric.value }}
-          </div>
-          <div class="mt-2 text-[12px] text-amber-dark">{{ metric.label }}</div>
-        </article>
-      </div>
+      <MerchantOverviewMetricsPanel :metrics="overviewMetrics" />
     </section>
 
     <div class="grid grid-cols-[minmax(0,1.45fr)_minmax(320px,0.95fr)] gap-5 max-[1020px]:grid-cols-1">
@@ -40,7 +28,7 @@
             <h3 class="mt-2 text-[17px] font-semibold leading-none text-amber-dark">门店经营概况</h3>
           </div>
           <RouterLink class="yy-action text-[12px] font-medium text-amber-text-muted hover:text-amber-dark" :to="storeRoute">
-            门店资料 ↗
+            门店资料 ->
           </RouterLink>
         </div>
 
@@ -81,7 +69,7 @@
             <div class="flex h-9 w-9 shrink-0 items-center justify-center bg-[#EAE4D8] text-[13px] font-semibold text-amber-dark">{{ item.store.name.slice(0, 1) }}</div>
             <div class="min-w-0 flex-1">
               <div class="truncate text-[13px] font-medium text-amber-dark">{{ item.store.name }}</div>
-              <div class="mt-0.5 truncate text-[11px] text-amber-text-muted">商品 {{ item.mappingCount }} · 可投放 {{ item.readyCount }} · POI {{ item.poiIds.length }}</div>
+              <div class="mt-0.5 truncate text-[11px] text-amber-text-muted">商品 {{ item.mappingCount }} 路 可投放 {{ item.readyCount }} 路 POI {{ item.poiIds.length }}</div>
             </div>
             <span
               class="shrink-0 px-2 py-1 text-[11px]"
@@ -97,101 +85,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
-import { appStore } from '../../shared/stores/appStore'
 import MerchantModuleChrome from './components/MerchantModuleChrome.vue'
-import { buildDouyinStoreBindings } from '../stores/storeDouyinBindings'
+import MerchantOverviewMetricsPanel from './modules/core/components/MerchantOverviewMetricsPanel.vue'
+import { useMerchantCoreState } from './modules/core/composables/useMerchantCoreState'
 
-const today = new Date()
-const pad2 = (n: number) => String(n).padStart(2, '0')
-const todayKey = `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`
-const toCount = (value: string) => Number(value.replace(/,/g, '')) || 0
-
-const selectedStoreId = ref('')
-const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
-const normalizeStoreFilter = (preferred = selectedStoreId.value) => {
-  const matched = concreteStoreOptions.value.find(store => store.name === preferred || String(store.backendId) === preferred)
-  return String(matched?.backendId ?? concreteStoreOptions.value[0]?.backendId ?? '')
-}
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
-
-const selectedStore = computed(() => concreteStoreOptions.value.find(store => String(store.backendId) === selectedStoreId.value) ?? null)
-const storeRoute = computed(() => ({
-  path: '/merchant/store',
-  query: { storeId: selectedStoreId.value || undefined },
-}))
-const storeRows = computed(() => selectedStore.value ? [selectedStore.value] : [])
-const scopedOrders = computed(() => appStore.orders.filter(order => String(order.storeBackendId) === selectedStoreId.value))
-const scopedScheduleItems = computed(() => appStore.scheduleItems.filter(item => item.storeId === selectedStoreId.value))
-const scopedBookingInventory = computed(() => appStore.bookingInventory.filter(slot => slot.storeBackendId === selectedStoreId.value))
-const openStoreCount = computed(() => storeRows.value.filter(store => store.status.includes('营业') || store.status.includes('预约')).length)
-const pendingOrders = computed(() => scopedOrders.value.filter(order => ['待确认', '已确认', '拍摄中'].includes(order.status)).length)
-const todayBookings = computed(() => scopedScheduleItems.value.filter(item => item.startAt.startsWith(todayKey)).length)
-const fullSlots = computed(() => scopedBookingInventory.value.filter(slot => slot.capacity > 0 && slot.confirmedCount >= slot.capacity).length)
-const douyinStoreBindings = computed(() => buildDouyinStoreBindings(storeRows.value, appStore.channelProductMappings))
-const readyDouyinStoreCount = computed(() => douyinStoreBindings.value.filter(item => item.readyCount > 0).length)
-
-const overviewMetrics = computed(() => [
-  { eyebrow: '门店', value: String(storeRows.value.length), label: '当前门店' },
-  { eyebrow: '营业', value: String(openStoreCount.value), label: '营业门店' },
-  { eyebrow: '今日', value: String(todayBookings.value), label: '今日预约' },
-  { eyebrow: '待服', value: String(pendingOrders.value), label: '待服务订单', danger: true },
-  { eyebrow: '满员', value: String(fullSlots.value), label: '满员时段', danger: fullSlots.value > 0 },
-  { eyebrow: '来客', value: String(readyDouyinStoreCount.value), label: '来客可投放门店' },
-  { eyebrow: '本月', value: String(storeRows.value.reduce((sum, store) => sum + toCount(store.monthlyOrders), 0)), label: '本月订单' },
-  { eyebrow: '填充', value: `${Math.min(100, Math.round((todayBookings.value / Math.max(scopedBookingInventory.value.length, 1)) * 100))}%`, label: '今日排期填充' },
-])
-
-const storeTodayOrders = (storeBackendId: string) =>
-  scopedScheduleItems.value.filter(item => item.storeId === storeBackendId && item.startAt.startsWith(todayKey)).length
-
-const storeFillRate = (storeBackendId: string) => {
-  const slots = scopedBookingInventory.value.filter(slot => slot.storeBackendId === storeBackendId && slot.date === todayKey)
-  const capacity = slots.reduce((sum, slot) => sum + slot.capacity, 0)
-  const confirmed = slots.reduce((sum, slot) => sum + slot.confirmedCount, 0)
-  return capacity > 0 ? Math.min(100, Math.round((confirmed / capacity) * 100)) : 0
-}
-
-const statusClass = (status: string) => {
-  if (status.includes('停') || status.includes('关闭')) return 'bg-[var(--color-status-neutral-bg)] text-[var(--color-status-neutral)]'
-  if (status.includes('满')) return 'bg-[var(--color-status-danger-bg)] text-[var(--color-status-danger)]'
-  return 'bg-[var(--color-status-done-bg)] text-[var(--color-status-done)]'
-}
-
-const reloadMerchantContext = async () => {
-  await ensureWorkbenchStores()
-  selectedStoreId.value = normalizeStoreFilter()
-  if (!selectedStoreId.value) return
-  await Promise.all([
-    appStore.refreshCoreData(),
-    appStore.loadSchedule(todayKey, selectedStore.value?.name ?? '', selectedStoreId.value),
-    appStore.loadBookingInventory({ date: todayKey, storeBackendId: selectedStoreId.value }),
-    appStore.loadChannelProductMappings('DOUYIN_LIFE'),
-  ])
-}
-
-watch(
-  () => concreteStoreOptions.value.map(store => `${store.backendId}:${store.name}`).join('|'),
-  () => {
-    selectedStoreId.value = normalizeStoreFilter()
-  },
-)
-
-watch(selectedStoreId, () => {
-  void reloadMerchantContext()
-})
-
-onMounted(async () => {
-  await ensureWorkbenchStores()
-  selectedStoreId.value = normalizeStoreFilter()
-  if (appStore.bookingInventory.length === 0) void reloadMerchantContext()
-})
+const {
+  selectedStoreId,
+  concreteStoreOptions,
+  storeRoute,
+  storeRows,
+  douyinStoreBindings,
+  overviewMetrics,
+  reloadMerchantContext,
+  storeTodayOrders,
+  storeFillRate,
+  statusClass,
+} = useMerchantCoreState()
 </script>

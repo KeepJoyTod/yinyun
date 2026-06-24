@@ -47,6 +47,7 @@
 | 服务组、承接容量 | `/merchant/service-groups` | `src/features/merchant/ServiceGroupsView.vue` | `/yy/serviceGroup/list`, `/yy/serviceGroup` | backend contract | 服务组表单字段改页面和 `ServiceGroupPayload` |
 | 服务产品、套餐配置 | `/product/service`, 旧 `/config` | `src/features/products/ProductConfigView.vue`, `SelectionConfigModal.vue` | `/yy/product/list`, `/yy/product` | `ProductConfigView.contract.test.ts` | 产品字段改 `ProductConfigView.vue` 与 `productPayload()` |
 | 附加产品、团单产品、冲印产品 | `/product/addon`, `/product/group`, `/product/print` | `src/features/products/DerivedProductModuleView.vue`, `derivedProductModules.ts` | 从 `yy_product` 派生 | `derivedProductModules.test.ts`, `DerivedProductModuleView.contract.test.ts` | 不建第二账本；正式细分字段见预实现方案 |
+| 入册产品、可编辑商品目录 | `/product/album`, `/product/card-catalog` | `src/features/products/ProductCardCatalogView.vue`, `productCardCatalogOperations.ts`, `derivedProductModules.ts` | `yy_product` 单账本 + `bizCategory=ALBUM`/`GROUP_BUY` 兼容映射 | `ProductCardCatalogView.contract.test.ts`, `derivedProductModules.test.ts`, `appStoreTransforms.test.ts` | 复用统一商品目录 owner，支持新增、编辑、批量上架、门店过滤，不再新开第二套入册产品台账 |
 | 抖音产品、抖音商品映射 | `/product/douyin` | `src/features/products/DouyinProductsView.vue`, `douyinProductReadiness.ts` | `/yy/channelProductMapping/list?channelType=DOUYIN_LIFE` | `DouyinProductsView.contract.test.ts`, `douyinProductReadiness.test.ts` | 映射就绪规则改 `douyinProductReadiness.ts` |
 | 渠道核销、抖音验收 logid、复制排障包 | `/order/verification` | `src/features/orders/ChannelVerificationView.vue`, `src/features/orders/channelVerificationOperations.ts` | `/yy/channel/DOUYIN_LIFE/acceptance-cases`, `/yy/channel/DOUYIN_LIFE/sync-health`, `/yy/channelSyncLog/list` | `ChannelVerificationView.contract.test.ts`, `channelVerificationOperations.test.ts` | 验收状态、logid 精确匹配、接口候选匹配和排障包文本改 `channelVerificationOperations.ts`；页面只处理加载、选中、复制和展示 |
 | 美团产品 | `/product/meituan` | `DerivedProductModuleView.vue`, `derivedProductModules.ts` | `/yy/channelProductMapping/list?channelType=MEITUAN` | `derivedProductModules.test.ts` | 未授权时只显示真实空态，不写假 SKU |
@@ -72,7 +73,7 @@
 | 文件资源、样片作品 | `/resource/files`, `/resource/samples` | `DerivedResourceModuleView.vue`, `derivedResourceModules.ts` | `yy_photo_album`, `yy_photo_asset` | `derivedResourceModules.test.ts` | 样片公开发布前必须有授权/审核方案 |
 | 客户档案 | `/member/customers` | `src/features/member/CustomersView.vue` | `/yy/customer/list`, `/yy/customer/{id}/orders` | `CustomersView.contract.test.ts` | 客户编辑字段改 `CustomerPayload` 和页面 |
 | 会员账户、客户标签、消费记录 | `/member/accounts`, `/member/tags`, `/member/consumption` | `DerivedMemberModuleView.vue`, `derivedMemberModules.ts` | `yy_customer`, `yy_order` | `derivedMemberModules.test.ts` | 不创建积分/余额/标签第二账本 |
-| 营销中心、优惠券、活动 | `/marketing/*` | `DerivedMarketingModuleView.vue`, `derivedMarketingModules.ts` | `yy_order`, `yy_customer` | `derivedMarketingModules.test.ts` | 不伪造券发放、领取、核销 |
+| 营销中心、优惠券、活动 | `/marketing/*` | `MarketingCenterView.vue`, `MarketingCouponsView.vue`, `MarketingCampaignsView.vue`, `MarketingParticipationsView.vue`, `promotionPricingFacade.ts`, `campaignOrderBridge.ts` | `yy_order`, `yy_customer`, `yy_coupon_*`, `yy_campaign*`, `yy_promotion_*` | `MarketingModuleViews.contract.test.ts`, `marketingScaffoldData.test.ts`, `promotionPricingFacade.test.ts` | 先落营销域脚手架与固定优先级试算，不伪造真实计费或第二订单账本 |
 | 报表、日报、月报、评价 | `/report/*` | `DerivedReportModuleView.vue`, `derivedReportModules.ts`, `src/shared/stores/appStore.ts` | 订单、员工、相册、客户派生；快照可读 `/yy/reportSnapshot/list` | `derivedReportModules.test.ts`, `DerivedReportModuleView.contract.test.ts`, `appStore.contract.test.ts` | `/report/reviews` 没有评价表/API 时必须真实空态；快照已接 `appStore.reportSnapshots` 和 `buildSnapshotAwareReportItems()`，无快照时继续标明派生来源 |
 
 ## 工具和设置
@@ -120,3 +121,42 @@
 - 不把客户取片登录态复用给员工工作台。
 - 不把 OSS 改成公开读。
 - 不把 `DOUYIN_LIFE` 真实支付和 `DOUYIN_MINI_APP tt.pay` 合并。
+## 2026-06-24 member-module-phase1
+
+### 表现层
+- `studio-workbench/src/features/member/modules/assets/MemberAssetsView.vue`
+- `studio-workbench/src/features/member/modules/transactions/MemberTransactionsView.vue`
+- `member-tags` 继续复用 `studio-workbench/src/features/member/DerivedMemberModuleView.vue`
+
+### 控制逻辑层
+- `studio-workbench/src/shared/api/backendMemberApi.ts`
+- `studio-workbench/src/shared/stores/memberStore.ts`
+- `studio-workbench/src/features/member/modules/assets/useMemberAssetOverview.ts`
+- `studio-workbench/src/features/member/modules/transactions/useMemberTransactions.ts`
+- `studio-workbench/src/app/router/featureRegistry.ts`
+- `studio-workbench/src/app/router/index.ts`
+
+### 持久数据层
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyMemberAssetController.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyMemberAssetServiceImpl.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/YyMember*.java`
+- `backend/script/sql/20260624_member_module_scaffold.sql`
+
+### 说明
+- 本轮只做会员资产读链路 owner 和接口脚手架，不把充值、提现、回滚写链路塞进同一批。
+
+## 2026-06-24 member-recharge-closed-loop
+
+- `studio-workbench/src/features/member/modules/assets/MemberAssetsView.vue`
+- `studio-workbench/src/features/member/modules/assets/components/MemberRechargeModal.vue`
+- `studio-workbench/src/features/member/modules/assets/useMemberRecharge.ts`
+- `studio-workbench/src/shared/stores/memberRechargeStore.ts`
+- `studio-workbench/src/shared/api/backendMemberApi.ts`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyMemberRechargeController.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/IYyMemberRechargeService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyMemberRechargeServiceImpl.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/YyMemberRechargeOrder.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/bo/YyMemberRechargeCreateBo.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/vo/YyMemberRechargeOrderVo.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/mapper/YyMemberRechargeOrderMapper.java`
+- 闭环范围：门店手工充值建单、确认到账、会员余额回写、余额流水落表、资产页摘要刷新

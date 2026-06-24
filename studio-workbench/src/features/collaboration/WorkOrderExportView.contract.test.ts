@@ -11,17 +11,16 @@ describe('work order export page contract', () => {
     expect(getWorkbenchFeature('collaboration-export')?.permission).toBe('yy:order:list')
   })
 
-  it('exports from the same derived work order pool', () => {
-    expect(exportSource).toContain('buildWorkOrders')
+  it('exports from the same real work order runtime', () => {
+    expect(exportSource).toContain('useCollaborationWorkOrders')
     expect(exportSource).toContain('downloadWorkOrderCsv')
-    expect(exportSource).toContain('appStore.orders')
-    expect(exportSource).toContain('appStore.albums')
-    expect(exportSource).toContain('appStore.selectionLinks')
+    expect(exportSource).toContain('yy_work_order')
+    expect(exportSource).not.toContain('buildWorkOrders')
   })
 
   it('keeps export read-only for staff', () => {
     expect(exportSource).toContain('导出 CSV')
-    expect(exportSource).toContain('不新建工单账本')
+    expect(exportSource).toContain('当前门店真实工单筛选结果')
     expect(exportSource).not.toContain('createOrder')
     expect(exportSource).not.toContain('新建预约')
   })
@@ -34,6 +33,5 @@ describe('work order export page contract', () => {
     expect(exportSource).toContain(':value="String(store.backendId)"')
     expect(exportSource).toContain('String(item.order.storeBackendId) === storeFilter.value')
     expect(exportSource).not.toContain('<option value="all">全部门店</option>')
-    expect(exportSource).not.toContain("storeFilter.value !== 'all'")
   })
 })

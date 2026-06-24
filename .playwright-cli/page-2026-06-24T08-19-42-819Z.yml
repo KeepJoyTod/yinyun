@@ -1,0 +1,213 @@
+- generic [ref=e96]:
+  - generic [ref=e99]:
+    - generic [ref=e100]:
+      - link:
+        - /url: https://www.yuyue123.cn
+        - img [ref=e101] [cursor=pointer]
+    - menubar [ref=e103]:
+      - generic [ref=e104]:
+        - link "首页" [ref=e105] [cursor=pointer]:
+          - /url: "#/home/dashboard"
+          - menuitem "首页" [ref=e106]:
+            - img [ref=e107]
+            - generic [ref=e109]: 首页
+        - menuitem "商户 " [ref=e110]:
+          - generic [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - generic [ref=e114]: 商户
+            - generic [ref=e115]: 
+        - menuitem "商品 " [expanded] [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e118]
+            - generic [ref=e120]: 商品
+            - generic [ref=e121]: 
+          - menu [ref=e773]:
+            - link "服务产品" [ref=e774] [cursor=pointer]:
+              - /url: "#/product/service"
+              - menuitem "服务产品" [ref=e775]:
+                - generic [ref=e776]: 服务产品
+            - link "附加产品" [ref=e777] [cursor=pointer]:
+              - /url: "#/product/additional"
+              - menuitem "附加产品" [ref=e778]:
+                - generic [ref=e779]: 附加产品
+            - link "团单产品" [ref=e780] [cursor=pointer]:
+              - /url: "#/product/group"
+              - menuitem "团单产品" [ref=e781]:
+                - generic [ref=e782]: 团单产品
+            - link "冲印产品" [ref=e783] [cursor=pointer]:
+              - /url: "#/product/print"
+              - menuitem "冲印产品" [ref=e784]:
+                - generic [ref=e785]: 冲印产品
+            - link "入册产品" [ref=e786] [cursor=pointer]:
+              - /url: "#/product/album"
+              - menuitem "入册产品" [ref=e787]:
+                - generic [ref=e788]: 入册产品
+            - link "卡项产品" [ref=e789] [cursor=pointer]:
+              - /url: "#/product/card/manage"
+              - menuitem "卡项产品" [ref=e790]:
+                - generic [ref=e791]: 卡项产品
+            - link "抖音产品 new" [ref=e792] [cursor=pointer]:
+              - /url: "#/product/douyin"
+              - menuitem "抖音产品 new" [ref=e793]:
+                - generic [ref=e794]:
+                  - text: 抖音产品
+                  - generic [ref=e795]: new
+            - link "美团产品 new" [ref=e796] [cursor=pointer]:
+              - /url: "#/product/meituan"
+              - menuitem "美团产品 new" [ref=e797]:
+                - generic [ref=e798]:
+                  - text: 美团产品
+                  - generic [ref=e799]: new
+        - menuitem "订单 new " [ref=e122]:
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e124]
+            - generic [ref=e126]:
+              - text: 订单
+              - generic [ref=e127]: new
+            - generic [ref=e128]: 
+        - menuitem "服务 " [ref=e129]:
+          - generic [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e133]: 服务
+            - generic [ref=e134]: 
+        - menuitem "内部协作 " [ref=e135]:
+          - generic [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e139]: 内部协作
+            - generic [ref=e140]: 
+        - menuitem "资源 " [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - img [ref=e143]
+            - generic [ref=e145]: 资源
+            - generic [ref=e146]: 
+        - menuitem "会员 " [ref=e147]:
+          - generic [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+            - generic [ref=e151]: 会员
+            - generic [ref=e152]: 
+        - link "工具" [ref=e153] [cursor=pointer]:
+          - /url: "#/tools/center"
+          - menuitem "工具" [ref=e154]:
+            - img [ref=e155]
+            - generic [ref=e157]: 工具
+        - menuitem "相册 " [ref=e158]:
+          - generic [ref=e159] [cursor=pointer]:
+            - img [ref=e160]
+            - generic [ref=e162]: 相册
+            - generic [ref=e163]: 
+        - menuitem "营销 " [ref=e164]:
+          - generic [ref=e165] [cursor=pointer]:
+            - img [ref=e166]
+            - generic [ref=e168]: 营销
+            - generic [ref=e169]: 
+        - menuitem "统计 new " [ref=e170]:
+          - generic [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+            - generic [ref=e174]:
+              - text: 统计
+              - generic [ref=e175]: new
+            - generic [ref=e176]: 
+        - menuitem "设置 " [ref=e177]:
+          - generic [ref=e178] [cursor=pointer]:
+            - img [ref=e179]
+            - generic [ref=e181]: 设置
+            - generic [ref=e182]: 
+    - link "应用商城" [ref=e183] [cursor=pointer]:
+      - /url: "#/appstore"
+      - img [ref=e184]
+      - text: 应用商城
+  - generic [ref=e188]:
+    - menubar [ref=e189]:
+      - img [ref=e191] [cursor=pointer]
+      - generic [ref=e195]: 一悦照相馆
+      - generic [ref=e196]:
+        - img [ref=e198] [cursor=pointer]
+        - button "赵丽瑗 " [ref=e204] [cursor=pointer]:
+          - text: 赵丽瑗
+          - generic [ref=e205]: 
+        - button "费用 " [ref=e207] [cursor=pointer]:
+          - text: 费用
+          - generic [ref=e208]: 
+    - generic [ref=e209]:
+      - generic [ref=e1298]:
+        - generic [ref=e1301]:
+          - generic [ref=e1302]:
+            - generic [ref=e1303]: 选择门店
+            - generic [ref=e1306]:
+              - textbox "==请选择==" [ref=e1307] [cursor=pointer]
+              - generic [ref=e1309] [cursor=pointer]: 
+          - generic [ref=e1310]:
+            - generic [ref=e1311]: 冲印类型
+            - generic [ref=e1314]:
+              - textbox "请选择" [ref=e1315] [cursor=pointer]: 全部
+              - generic [ref=e1317] [cursor=pointer]: 
+          - generic [ref=e1318]:
+            - generic [ref=e1319]: 产品分类
+            - generic [ref=e1322]:
+              - textbox "请选择产品" [ref=e1323] [cursor=pointer]
+              - generic [ref=e1325] [cursor=pointer]: 
+          - generic [ref=e1326]:
+            - generic [ref=e1327]: 微信入口
+            - generic [ref=e1329]:
+              - generic [ref=e1330]:
+                - textbox [ref=e1331]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/online_print/product_list
+                - generic [ref=e1333] [cursor=pointer]:
+                  - img [ref=e1334]
+                  - text: 复制
+              - generic [ref=e1337] [cursor=pointer]:
+                - img [ref=e1338]
+                - text: 下载二维码
+          - generic [ref=e1340]:
+            - generic [ref=e1341]: 产品名称
+            - generic [ref=e1342]:
+              - textbox "请输入产品名称搜索" [ref=e1344]
+              - button " 搜索" [ref=e1345] [cursor=pointer]:
+                - generic [ref=e1346]: 
+                - text: 搜索
+              - button "产品分类管理" [ref=e1347] [cursor=pointer]:
+                - generic [ref=e1348]:
+                  - img [ref=e1349]
+                  - text: 产品分类管理
+              - button "批量上架" [ref=e1351] [cursor=pointer]:
+                - generic [ref=e1352]:
+                  - img [ref=e1353]
+                  - text: 批量上架
+              - button " 调整排序" [ref=e1355] [cursor=pointer]:
+                - generic [ref=e1356]: 
+                - text: 调整排序
+              - button " 新增产品" [ref=e1357] [cursor=pointer]:
+                - generic [ref=e1358]: 
+                - text: 新增产品
+        - generic [ref=e1359]:
+          - generic [ref=e1361]:
+            - generic [ref=e1362] [cursor=pointer]:
+              - img [ref=e1364]
+              - generic [ref=e1365]:
+                - heading "普通相片冲印" [level=3] [ref=e1366]
+                - generic [ref=e1368]: "价格: 0"
+            - generic [ref=e1370]: 门店：
+          - generic [ref=e1372]:
+            - generic [ref=e1373] [cursor=pointer]:
+              - img [ref=e1375]
+              - generic [ref=e1376]:
+                - heading "证件照冲印" [level=3] [ref=e1377]
+                - generic [ref=e1379]: "价格: 10"
+            - generic [ref=e1381]: 门店：
+        - generic [ref=e1382]:
+          - generic [ref=e1383]: 共 2 条
+          - generic [ref=e1386]:
+            - textbox "请选择" [ref=e1387] [cursor=pointer]: 12条/页
+            - generic [ref=e1389] [cursor=pointer]: 
+          - button "" [disabled] [ref=e1390]:
+            - generic [ref=e1391]: 
+          - list [ref=e1392]:
+            - listitem [ref=e1393]: "1"
+          - button "" [disabled] [ref=e1394]:
+            - generic [ref=e1395]: 
+          - generic [ref=e1396]:
+            - text: 前往
+            - spinbutton [ref=e1398]: "1"
+            - text: 页
+        - generic: 
+        - text:  
+      - text:  

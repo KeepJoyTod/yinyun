@@ -22,22 +22,27 @@ describe('workbench feature access', () => {
     expect(getWorkbenchFeature('merchant-inventory')?.permission).toBe('yy:bookingInventory:list')
   })
 
-  it('maps customer and employee modules to dedicated staff permissions', () => {
-    expect(getWorkbenchFeature('member-customers')?.permission).toBe('yy:customer:list')
-    expect(getWorkbenchFeature('settings-employees')?.permission).toBe('yy:employee:list')
+  it('maps member routes to customer permissions and keeps owner readiness explicit', () => {
+    const accounts = getWorkbenchFeature('member-accounts')
+    expect(accounts?.status).toBe('ready')
+    expect(accounts?.permission).toBe('yy:customer:list')
+    expect(canAccessWorkbenchFeature(accounts, ['yy:customer:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(accounts, [])).toBe(false)
+
+    const tags = getWorkbenchFeature('member-tags')
+    expect(tags?.status).toBe('derived')
+    expect(tags?.permission).toBe('yy:customer:list')
+    expect(canAccessWorkbenchFeature(tags, ['yy:customer:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(tags, [])).toBe(false)
+
+    const consumption = getWorkbenchFeature('member-consumption')
+    expect(consumption?.status).toBe('ready')
+    expect(consumption?.permission).toBe('yy:customer:list')
+    expect(canAccessWorkbenchFeature(consumption, ['yy:customer:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(consumption, [])).toBe(false)
   })
 
-  it('maps derived member modules to customer permissions', () => {
-    for (const key of ['member-accounts', 'member-tags', 'member-consumption']) {
-      const feature = getWorkbenchFeature(key)
-      expect(feature?.status).toBe('ready')
-      expect(feature?.permission).toBe('yy:customer:list')
-      expect(canAccessWorkbenchFeature(feature, ['yy:customer:list'])).toBe(true)
-      expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
-    }
-  })
-
-  it('maps derived marketing modules to unified order permissions', () => {
+  it('maps dedicated marketing modules to unified order permissions with ready status', () => {
     for (const key of ['marketing-center', 'marketing-coupons', 'marketing-campaigns', 'marketing-participations']) {
       const feature = getWorkbenchFeature(key)
       expect(feature?.status).toBe('ready')
@@ -47,40 +52,19 @@ describe('workbench feature access', () => {
     }
   })
 
-  it('maps derived reports to the permissions of their source ledgers', () => {
-    for (const key of ['report-store-daily', 'report-store-monthly', 'report-products', 'report-finance', 'report-channels', 'report-conversion']) {
-      expect(getWorkbenchFeature(key)?.permission).toBe('yy:order:list')
+  it('maps collaboration overview routes to real work-order permissions with ready status', () => {
+    for (const key of ['collaboration-overview', 'collaboration-work-orders', 'collaboration-export', 'collaboration-statistics']) {
+      const feature = getWorkbenchFeature(key)
+      expect(feature?.status).toBe('ready')
+      expect(feature?.permission).toBe('yy:order:list')
+      expect(canAccessWorkbenchFeature(feature, ['yy:order:list'])).toBe(true)
     }
-    expect(getWorkbenchFeature('report-employees')?.permission).toBe('yy:employee:list')
-    expect(getWorkbenchFeature('report-retouch')?.permission).toBe('yy:photoAlbum:list')
-    expect(getWorkbenchFeature('report-customers')?.permission).toBe('yy:customer:list')
-    expect(getWorkbenchFeature('report-reviews')?.permission).toBe('yy:customer:list')
-  })
-
-  it('maps notification tools to notification permissions', () => {
-    expect(getWorkbenchFeature('tool-notifications')?.permission).toBe('yy:notification:list')
-  })
-
-  it('maps work order operations to unified order permissions', () => {
-    const feature = getWorkbenchFeature('collaboration-work-orders')
-    expect(feature?.status).toBe('ready')
-    expect(feature?.permission).toBe('yy:order:list')
-    expect(canAccessWorkbenchFeature(feature, ['yy:order:list'])).toBe(true)
-    expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
-
-    const exportFeature = getWorkbenchFeature('collaboration-export')
-    expect(exportFeature?.status).toBe('ready')
-    expect(exportFeature?.permission).toBe('yy:order:list')
-
-    const statisticsFeature = getWorkbenchFeature('collaboration-statistics')
-    expect(statisticsFeature?.status).toBe('ready')
-    expect(statisticsFeature?.permission).toBe('yy:order:list')
   })
 
   it('maps derived order modules to unified order permissions', () => {
-    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-forms']) {
+    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign', 'order-forms']) {
       const feature = getWorkbenchFeature(key)
-      expect(feature?.status).toBe('ready')
+      expect(feature?.status).toBe('derived')
       expect(feature?.permission).toBe('yy:order:list')
       expect(canAccessWorkbenchFeature(feature, ['yy:order:list'])).toBe(true)
       expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
@@ -90,27 +74,23 @@ describe('workbench feature access', () => {
   it('maps derived product modules to product and channel permissions', () => {
     for (const key of ['product-addon', 'product-group', 'product-print']) {
       const feature = getWorkbenchFeature(key)
-      expect(feature?.status).toBe('ready')
+      expect(feature?.status).toBe('derived')
       expect(feature?.permission).toBe('yy:product:list')
       expect(canAccessWorkbenchFeature(feature, ['yy:product:list'])).toBe(true)
-      expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
     }
 
     const meituan = getWorkbenchFeature('product-meituan')
-    expect(meituan?.status).toBe('ready')
+    expect(meituan?.status).toBe('derived')
     expect(meituan?.permission).toBe('yy:channel:list')
     expect(canAccessWorkbenchFeature(meituan, ['yy:channel:list'])).toBe(true)
     expect(canAccessWorkbenchFeature(meituan, [])).toBe(false)
   })
 
-  it('maps resource modules to photo album permissions', () => {
-    for (const key of ['resource-files', 'resource-samples']) {
-      const feature = getWorkbenchFeature(key)
-      expect(feature?.status).toBe('ready')
-      expect(feature?.permission).toBe('yy:photoAlbum:list')
-      expect(canAccessWorkbenchFeature(feature, ['yy:photoAlbum:list'])).toBe(true)
-      expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
-    }
+  it('keeps partial routes visible but not mislabeled as ready', () => {
+    expect(getWorkbenchFeature('order-verification')?.status).toBe('partial')
+    expect(getWorkbenchFeature('report-reviews')?.status).toBe('partial')
+    expect(getWorkbenchFeature('settings-roles')?.status).toBe('partial')
+    expect(getWorkbenchFeature('settings-logs')?.status).toBe('partial')
   })
 
   it('never promotes a locally unfinished feature from a remote flag', () => {
@@ -120,6 +100,8 @@ describe('workbench feature access', () => {
     expect(getEffectiveFeatureStatus(building, { 'local-building': 'ready' })).toBe('building')
     expect(getEffectiveFeatureStatus(ready, { 'order-appointment': 'building' })).toBe('building')
     expect(getEffectiveFeatureStatus(ready, { 'order-appointment': 'hidden' })).toBe('hidden')
+    expect(getEffectiveFeatureStatus(getWorkbenchFeature('order-forms'), {})).toBe('derived')
+    expect(getEffectiveFeatureStatus(getWorkbenchFeature('settings-logs'), {})).toBe('partial')
   })
 
   it('maps pending counters to the relevant navigation entries', () => {

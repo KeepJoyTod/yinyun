@@ -134,6 +134,47 @@ create table if not exists yy_photo_asset (
     constraint ck_yy_photo_asset_visible_object_key check (del_flag = '1' or visible <> '1' or trim(coalesce(object_key, '')) <> '')
 ) engine=innodb comment='影约云底片';
 
+alter table yy_photo_asset
+    add column if not exists asset_type varchar(32) default 'RAW' comment 'resource type',
+    add column if not exists rating int default 0 comment 'resource rating',
+    add column if not exists file_size_bytes bigint(20) default 0 comment 'file size bytes';
+
+create table if not exists yy_photo_tag (
+    id          bigint(20)   not null                         comment 'primary key',
+    tenant_id   varchar(20)  default '000000'                 comment 'tenant id',
+    store_id    bigint(20)   not null                         comment 'store id',
+    tag_name    varchar(64)  not null                         comment 'tag name',
+    create_dept bigint(20)   default null                     comment 'create dept',
+    create_by   bigint(20)   default null                     comment 'create by',
+    create_time datetime                                     comment 'create time',
+    update_by   bigint(20)   default null                     comment 'update by',
+    update_time datetime                                     comment 'update time',
+    del_flag    char(1)      default '0'                      comment 'delete flag',
+    remark      varchar(500) default null                     comment 'remark',
+    primary key (id),
+    unique key uk_yy_photo_tag_store_name_flag (tenant_id, store_id, tag_name, del_flag),
+    key idx_yy_photo_tag_store (tenant_id, store_id)
+) engine=innodb comment='resource tags';
+
+create table if not exists yy_photo_asset_tag (
+    id          bigint(20)   not null                         comment 'primary key',
+    tenant_id   varchar(20)  default '000000'                 comment 'tenant id',
+    store_id    bigint(20)   not null                         comment 'store id',
+    asset_id    bigint(20)   not null                         comment 'asset id',
+    tag_id      bigint(20)   not null                         comment 'tag id',
+    create_dept bigint(20)   default null                     comment 'create dept',
+    create_by   bigint(20)   default null                     comment 'create by',
+    create_time datetime                                     comment 'create time',
+    update_by   bigint(20)   default null                     comment 'update by',
+    update_time datetime                                     comment 'update time',
+    del_flag    char(1)      default '0'                      comment 'delete flag',
+    remark      varchar(500) default null                     comment 'remark',
+    primary key (id),
+    unique key uk_yy_photo_asset_tag_relation_flag (tenant_id, asset_id, tag_id, del_flag),
+    key idx_yy_photo_asset_tag_asset (tenant_id, asset_id),
+    key idx_yy_photo_asset_tag_tag (tenant_id, tag_id)
+) engine=innodb comment='resource tag relations';
+
 create table if not exists yy_photo_access_log (
     id            bigint(20)   not null                      comment '主键',
     tenant_id     varchar(20)  default '000000'              comment '租户编号',
@@ -528,6 +569,7 @@ values
 (6212, '订单修改', 6202, 3, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:edit', '#', 103, 1, sysdate(), null, null, '订单修改'),
 (6213, '订单删除', 6202, 4, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:remove', '#', 103, 1, sysdate(), null, null, '订单删除'),
 (6214, '订单导出', 6202, 5, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:export', '#', 103, 1, sysdate(), null, null, '订单导出'),
+(6299, '首页导出', 6201, 1, '#', '', '', 1, 0, 'F', '0', '0', 'yy:dashboard:export', '#', 103, 1, sysdate(), null, null, '首页汇总导出'),
 (6215, '门店查询', 6203, 1, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:list', '#', 103, 1, sysdate(), null, null, '门店查询'),
 (6216, '门店新增', 6203, 2, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:add', '#', 103, 1, sysdate(), null, null, '门店新增'),
 (6217, '门店修改', 6203, 3, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:edit', '#', 103, 1, sysdate(), null, null, '门店修改'),

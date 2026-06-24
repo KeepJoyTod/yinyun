@@ -23,6 +23,7 @@ import type {
   YyProductVo,
   YyStoreVo,
 } from './yingyueAdapterTypes'
+import { parseAlbumProductMetadata } from '../products/albumProductMetadata'
 
 export type {
   OssVo,
@@ -179,16 +180,23 @@ export function mapYyStore(row: YyStoreVo): StoreDto {
 }
 
 export function mapYyProduct(row: YyProductVo): ProductDto {
+  const rawProductType = String(row.productType ?? '').trim().toUpperCase()
+  const albumMetadata = parseAlbumProductMetadata(row.albumProductName)
+  const isAlbumProduct = rawProductType === 'ALBUM'
   return {
     id: normalizeBackendId(row.id),
     storeId: row.storeId == null || row.storeId === '' ? null : normalizeBackendId(row.storeId),
+    rawProductType,
+    albumProductName: String(row.albumProductName ?? ''),
     productCode: `YY_PRODUCT_${row.id}`,
     name: row.productName || `产品 #${row.id}`,
     coverUrl: null,
-    spec: row.productType || row.albumProductName || '摄影服务',
+    spec: isAlbumProduct
+      ? albumMetadata.albumSpec || String(row.albumProductName ?? '').trim() || '入册产品'
+      : row.productType || row.albumProductName || '摄影服务',
     priceCents: toMoneyCents(row.price),
     unitPriceCents: toMoneyCents(row.selectionPrice),
-    includedCount: 0,
+    includedCount: isAlbumProduct ? albumMetadata.includedCount : 0,
     active: row.status === '0',
     description: row.remark || row.albumProductName || '',
   }
@@ -302,6 +310,7 @@ export function buildYyPhotoAssetFormFromOss(
   album: Pick<YyPhotoAlbumVo, 'id' | 'storeId'>,
   oss: OssVo,
   fallbackName: string,
+  fileSizeBytes: number,
   sort: number,
   ossId: string | number,
 ): YyPhotoAssetForm {
@@ -315,6 +324,7 @@ export function buildYyPhotoAssetFormFromOss(
     fileUrl: oss.url || '',
     objectKey: oss.fileName,
     thumbnailObjectKey: '',
+    fileSizeBytes: Math.max(0, Number(fileSizeBytes) || 0),
     sort,
     isSelected: '0',
     visible: '1',

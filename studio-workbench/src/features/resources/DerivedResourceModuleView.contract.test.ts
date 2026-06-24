@@ -1,16 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import routerSource from '../../app/router/index.ts?raw'
-import { getWorkbenchFeature } from '../../app/router/featureRegistry'
 import viewSource from './DerivedResourceModuleView.vue?raw'
 
 describe('derived resource module pages contract', () => {
-  it('replaces resource placeholders with one real derived resource route', () => {
+  it('keeps the old derived resource page only as a compatibility tool route', () => {
     expect(routerSource).toContain('DerivedResourceModuleView.vue')
-    for (const key of ['resource-files', 'resource-samples']) {
-      expect(getWorkbenchFeature(key)?.component).toBe('derived-resource-module')
-      expect(getWorkbenchFeature(key)?.status).toBe('ready')
-      expect(getWorkbenchFeature(key)?.permission).toBe('yy:photoAlbum:list')
-    }
+    expect(routerSource).toContain("path: '/tools/photo/sample'")
+    expect(routerSource).toContain("redirect: '/resource/manage'")
+    expect(routerSource).toContain("redirect: '/tools/photo/sample'")
   })
 
   it('uses album photos as the only source and keeps publishing read-only', () => {

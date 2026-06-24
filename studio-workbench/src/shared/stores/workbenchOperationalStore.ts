@@ -1,5 +1,6 @@
 import {
   backendApi,
+  type DashboardExportQuery,
   type DouyinLifeOrderSyncQuery,
   type OrderExportQuery,
   type OrderListQuery,
@@ -41,6 +42,7 @@ export type BookingInventoryUpdateInput = {
 
 export type OperationalOrderListQuery = OrderListQuery
 export type OperationalOrderExportQuery = OrderExportQuery
+export type OperationalDashboardExportQuery = DashboardExportQuery
 export type OperationalSyncDouyinLifeQuery = DouyinLifeOrderSyncQuery & { refreshDate?: string; refreshAllOrders?: boolean }
 
 type OperationalContext = {
@@ -110,6 +112,10 @@ export async function loadReportSnapshotsAction(ctx: OperationalContext, reportT
 
 export async function exportOrdersAction(query: OrderExportQuery) {
   return backendApi.exportOrders(query)
+}
+
+export async function exportDashboardAction(query: DashboardExportQuery) {
+  return backendApi.exportDashboard(query)
 }
 
 export async function syncDouyinLifeOrdersAndRefreshAction(
@@ -253,6 +259,7 @@ export async function refreshOrderOperationalScopeAction(ctx: OperationalContext
     loadTodayOrdersAction(ctx),
     loadAllOrdersAction(ctx),
     ctx.loadOperationLogs(),
+    ctx.loadChannelSyncLogs(),
   ])
 }
 

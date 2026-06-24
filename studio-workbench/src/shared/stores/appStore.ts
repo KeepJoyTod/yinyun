@@ -65,7 +65,6 @@ import {
   buildWorkbenchStoreNames,
   currentMonthOrderQuery,
   emptySelectionStats,
-  mapOrder,
   mapStudio,
   todayKey,
 } from './appStoreTransforms'
@@ -77,6 +76,7 @@ import { operationLogStore } from './operationLogStore'
 import { productStore } from './productStore'
 import { settingsStore } from './settingsStore'
 import {
+  confirmOrderPaymentAction,
   createOrderAction,
   findOrderInCaches,
   rememberOrderForOperations as rememberOrderForOperationCaches,
@@ -87,6 +87,7 @@ import {
   updateOrderStatusAction,
 } from './orderActionStore'
 import {
+  exportDashboardAction,
   exportOrdersAction,
   loadAllOrdersAction,
   loadBookingInventoryAction,
@@ -101,6 +102,7 @@ import {
   updateBookingInventoryAction,
   type BookingInventoryQuery,
   type BookingInventoryUpdateInput,
+  type OperationalDashboardExportQuery,
   type OperationalOrderExportQuery,
   type OperationalOrderListQuery,
   type OperationalSyncDouyinLifeQuery,
@@ -260,6 +262,11 @@ export const appStore = reactive({
   async exportOrders(query: OperationalOrderExportQuery) {
     if (this.demoMode) throw new Error('Demo 模式不可导出')
     return exportOrdersAction(query)
+  },
+
+  async exportDashboard(query: OperationalDashboardExportQuery) {
+    if (this.demoMode) throw new Error('Demo mode cannot export')
+    return exportDashboardAction(query)
   },
 
   async syncDouyinLifeOrdersAndRefresh(input: OperationalSyncDouyinLifeQuery = {}) {
@@ -493,12 +500,7 @@ export const appStore = reactive({
   },
 
   async confirmOrderPayment(input: StaffOrderConfirmPaymentInput) {
-    const dto = await backendApi.confirmOrderPayment(input)
-    const next = mapOrder(dto, this.stores)
-    this.orders = this.orders.map(order => (order.id === next.id ? next : order))
-    this.ledgerOrders = this.ledgerOrders.map(order => (order.id === next.id ? next : order))
-    this.reportOrders = this.reportOrders.map(order => (order.id === next.id ? next : order))
-    return next
+    return confirmOrderPaymentAction(this, input)
   },
 
   async updateProduct(data: ProductConfig) {

@@ -10,7 +10,7 @@ describe('derived product module pages contract', () => {
     expect(routerSource).toContain('DerivedProductModuleView.vue')
     for (const key of featureKeys) {
       expect(getWorkbenchFeature(key)?.component).toBe('derived-product-module')
-      expect(getWorkbenchFeature(key)?.status).toBe('ready')
+      expect(getWorkbenchFeature(key)?.status).toBe('derived')
     }
     expect(getWorkbenchFeature('product-addon')?.permission).toBe('yy:product:list')
     expect(getWorkbenchFeature('product-group')?.permission).toBe('yy:product:list')

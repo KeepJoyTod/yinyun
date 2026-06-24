@@ -6,7 +6,7 @@
           <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Douyin Life Products</span>
           <h2 class="mt-1 text-[17.5px] font-sans font-medium text-amber-dark">抖音产品</h2>
           <p class="mt-1 max-w-[780px] text-[10.5px] font-sans leading-relaxed text-amber-text-muted">
-            查看抖音来客商品、SKU、POI 与影约云本地产品的映射状态。真实下单入口仍走抖音来客商品页，支付后同步到本地 yy_order。
+            查看抖音来客商品、SKU、POI 与影约云本地产品的映射状态。真实下单入口仍走抖音来客商品页，支付后同步到本地 `yy_order`。
           </p>
         </div>
         <button
@@ -22,44 +22,21 @@
 
     <NoticeBanner :notice="notice" />
 
-    <section class="border border-amber-topbar-border bg-amber-content-bg/55">
-      <div class="border-b border-amber-topbar-border p-5">
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            v-for="filter in quickFilters"
-            :key="filter.key"
-            class="yy-action yy-filter-chip"
-            :class="activeFilter === filter.key ? 'border-amber-dark bg-amber-dark text-[#F4EFE6]' : 'border-amber-topbar-border text-amber-text-muted hover:bg-white'"
-            type="button"
-            @click="activeFilter = filter.key"
-          >
-            {{ filter.label }} · {{ filter.count }}
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4">
-        <article v-for="card in cards" :key="card.label" class="border border-amber-topbar-border bg-amber-content-bg p-4 shadow-sm">
-          <div class="text-[11px] font-sans font-semibold text-amber-dark">{{ card.label }}</div>
-          <div class="mt-1 text-[10px] font-sans leading-relaxed text-amber-text-muted">{{ card.hint }}</div>
-          <div class="mt-4 flex items-end justify-between gap-3">
-            <strong class="text-[25px] font-sans leading-none text-amber-dark">{{ card.value }}</strong>
-            <span class="text-[10px] font-sans text-amber-text-muted">{{ card.scope }}</span>
-          </div>
-        </article>
-      </div>
-    </section>
+    <MerchantProductReadinessBoard
+      v-model:active-filter="activeFilter"
+      :cards="cards"
+      :quick-filters="quickFilters"
+    />
 
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
       <div class="border border-amber-topbar-border bg-amber-content-bg">
         <div class="flex items-center justify-between gap-4 border-b border-amber-topbar-border px-5 py-4 max-[900px]:flex-col max-[900px]:items-start">
           <div class="flex flex-wrap items-center gap-3">
-            <select
-              v-model="storeFilter"
-              class="yy-field-sm"
-            >
+            <select v-model="storeFilter" class="yy-field-sm">
               <option v-if="!concreteStoreOptions.length" value="">暂无可用门店</option>
-              <option v-for="store in concreteStoreOptions" :key="store" :value="store">{{ store }}</option>
+              <option v-for="store in concreteStoreOptions" :key="String(store.backendId ?? store.name)" :value="store.name">
+                {{ store.name }}
+              </option>
             </select>
             <input
               v-model="searchQuery"
@@ -114,7 +91,7 @@
                 </td>
                 <td class="px-5 py-4">
                   <div class="max-w-[300px] break-all font-mono text-[10px] leading-relaxed text-amber-dark">
-                    {{ mapping.landingUrl || mapping.landingPath || '未配置落地页' }}
+                    {{ getCopyableValue(mapping) || '未配置落地页' }}
                   </div>
                 </td>
                 <td class="px-5 py-4">
@@ -161,7 +138,7 @@
 
         <div v-else-if="mappings.length === 0" class="px-6 py-12 text-center">
           <div class="text-[14px] font-sans text-amber-dark">当前未配置抖音来客商品映射</div>
-          <p class="mt-2 text-[11px] text-amber-text-muted">请先在系统后台配置 /yy/channelProductMapping/list 后再刷新。</p>
+          <p class="mt-2 text-[11px] text-amber-text-muted">请先在系统后台配置 `/yy/channelProductMapping/list` 后再刷新。</p>
         </div>
 
         <div v-else class="px-6 py-12 text-center">
@@ -180,7 +157,7 @@
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="text-[12px] font-semibold text-amber-dark">{{ selectedMapping.externalName || selectedMapping.productName }}</div>
-              <div class="mt-1 text-[10px] text-amber-text-muted">{{ selectedMapping.storeName }} · {{ selectedMapping.channelType }}</div>
+              <div class="mt-1 text-[10px] text-amber-text-muted">{{ selectedMapping.storeName }} / {{ selectedMapping.channelType }}</div>
             </div>
             <span
               class="px-2 py-0.5 text-[10px]"
@@ -219,7 +196,7 @@
           <div class="mt-6 border border-amber-topbar-border bg-amber-content-bg p-4">
             <div class="text-[11px] font-semibold text-amber-dark">操作边界</div>
             <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              门店工作台只做查看、复制和排障；真实新增、编辑和禁用映射仍在系统后台的 /yy/channelProductMapping/list 对应模块处理。
+              门店工作台只做查看、复制和排障；真实新增、编辑和禁用映射仍在系统后台的 `/yy/channelProductMapping/list` 对应模块处理。
             </p>
           </div>
         </div>
@@ -234,25 +211,38 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { appStore, type ChannelProductMappingInfo } from '../../shared/stores/appStore'
 import NoticeBanner from '../../shared/components/feedback/NoticeBanner.vue'
-import { checkDouyinProductReadiness, formatDouyinMissingList } from './douyinProductReadiness'
+import MerchantProductReadinessBoard from '../merchant/modules/product/components/MerchantProductReadinessBoard.vue'
+import { useMerchantProductState } from '../merchant/modules/product/composables/useMerchantProductState'
 import { useNotice } from '../../shared/composables/useNotice'
 
-type MappingFilter = 'all' | 'ready' | 'missing' | 'link'
-
-const loading = ref(false)
-const activeFilter = ref<MappingFilter>('all')
-const storeFilter = ref('')
-const searchQuery = ref('')
-const mappings = ref<ChannelProductMappingInfo[]>([])
-const selectedMapping = ref<ChannelProductMappingInfo | null>(null)
 const { notice, pushNotice } = useNotice()
+const {
+  loading,
+  activeFilter,
+  storeFilter,
+  searchQuery,
+  mappings,
+  concreteStoreOptions,
+  filteredMappings,
+  quickFilters,
+  cards,
+  getCopyableProductEntry,
+  getProductReadiness,
+  getProductMissingList,
+  reload,
+} = useMerchantProductState({
+  pushError: message => pushNotice('error', message),
+})
 
-const getCopyableValue = (mapping: ChannelProductMappingInfo) => mapping.landingUrl || mapping.landingPath || ''
-const readinessFor = (mapping: ChannelProductMappingInfo) => checkDouyinProductReadiness(mapping)
+type ProductMapping = (typeof mappings.value)[number]
 
-const requiredFieldChips = (mapping: ChannelProductMappingInfo) => [
+const selectedMapping = ref<ProductMapping | null>(null)
+const getCopyableValue = (mapping: ProductMapping) => getCopyableProductEntry(mapping)
+const readinessFor = (mapping: ProductMapping) => getProductReadiness(mapping)
+const readyMappings = computed(() => mappings.value.filter(item => readinessFor(item).ready))
+
+const requiredFieldChips = (mapping: ProductMapping) => [
   { label: 'Product ID', ok: Boolean(mapping.externalProductId) },
   { label: 'SKU ID', ok: Boolean(mapping.externalSkuId) },
   { label: 'POI ID', ok: Boolean(mapping.externalPoiId) },
@@ -260,93 +250,8 @@ const requiredFieldChips = (mapping: ChannelProductMappingInfo) => [
   { label: 'Status', ok: !readinessFor(mapping).fields.find(field => field.key === 'mappingStatus')?.missing },
 ]
 
-const readyMappings = computed(() => mappings.value.filter(item => readinessFor(item).ready))
-const missingMappings = computed(() => mappings.value.filter(item => !readinessFor(item).ready))
-const linkMappings = computed(() => mappings.value.filter(item => Boolean(getCopyableValue(item))))
-const storeOptions = computed(() => Array.from(new Set(mappings.value.map(item => item.storeName).filter(Boolean))))
-const concreteStoreOptions = computed(() => {
-  const visibleNames = appStore.stores.map(store => store.name).filter(Boolean)
-  return visibleNames.filter(name => storeOptions.value.includes(name))
-})
-
-const normalizeStoreFilter = (preferred = storeFilter.value) => {
-  if (preferred && concreteStoreOptions.value.includes(preferred)) return preferred
-  return concreteStoreOptions.value[0] ?? ''
-}
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
-
-const filteredMappings = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  return mappings.value.filter(mapping => {
-    if (!storeFilter.value) return false
-    if (activeFilter.value === 'ready' && !readinessFor(mapping).ready) return false
-    if (activeFilter.value === 'missing' && readinessFor(mapping).ready) return false
-    if (activeFilter.value === 'link' && !getCopyableValue(mapping)) return false
-    if (storeFilter.value && mapping.storeName !== storeFilter.value) return false
-    if (!query) return true
-    const haystack = `${mapping.storeName} ${mapping.productName} ${mapping.channelType} ${mapping.externalName} ${mapping.externalProductId} ${mapping.externalSkuId} ${mapping.externalPoiId} ${getCopyableValue(mapping)} ${mapping.remark}`.toLowerCase()
-    return haystack.includes(query)
-  })
-})
-
-const quickFilters = computed(() => [
-  { key: 'all' as const, label: '全部映射', count: mappings.value.length },
-  { key: 'ready' as const, label: '可投放', count: readyMappings.value.length },
-  { key: 'missing' as const, label: '待补齐', count: missingMappings.value.length },
-  { key: 'link' as const, label: '有入口', count: linkMappings.value.length },
-])
-
-const cards = computed(() => [
-  {
-    label: '抖音映射',
-    value: String(mappings.value.length),
-    hint: '来自 /yy/channelProductMapping/list 的 DOUYIN_LIFE 映射。',
-    scope: 'ALL',
-  },
-  {
-    label: '可投放',
-    value: String(readyMappings.value.length),
-    hint: '商品、SKU、POI 和落地页均已补齐。',
-    scope: '可用',
-  },
-  {
-    label: '待补齐',
-    value: String(missingMappings.value.length),
-    hint: '缺少外部 ID、POI、入口或状态未启用。',
-    scope: 'CHECK',
-  },
-  {
-    label: '订单归集',
-    value: 'yy_order',
-    hint: '抖音支付完成后同步到本地统一订单表。',
-    scope: 'CORE',
-  },
-])
-
-const reload = async () => {
-  loading.value = true
-  try {
-    await ensureWorkbenchStores()
-    const next = await appStore.loadChannelProductMappings('DOUYIN_LIFE')
-    mappings.value = [...next]
-    storeFilter.value = normalizeStoreFilter()
-    selectedMapping.value = filteredMappings.value[0] ?? null
-  } catch (error) {
-    pushNotice('error', error instanceof Error ? `抖音产品加载失败：${error.message}` : '抖音产品加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const copyMissingList = async (mapping: ChannelProductMappingInfo) => {
-  const text = formatDouyinMissingList(mapping)
+const copyMissingList = async (mapping: ProductMapping) => {
+  const text = getProductMissingList(mapping)
   try {
     await navigator.clipboard?.writeText(text)
     pushNotice('success', '待补清单已复制到剪贴板')
@@ -355,7 +260,7 @@ const copyMissingList = async (mapping: ChannelProductMappingInfo) => {
   }
 }
 
-const copyLandingEntry = async (mapping: ChannelProductMappingInfo) => {
+const copyLandingEntry = async (mapping: ProductMapping) => {
   const entry = getCopyableValue(mapping)
   if (!entry) {
     pushNotice('error', '该映射缺少落地入口，请先复制待补清单给系统后台补齐')
@@ -369,7 +274,10 @@ const copyLandingEntry = async (mapping: ChannelProductMappingInfo) => {
   }
 }
 
-onMounted(reload)
+onMounted(async () => {
+  await reload()
+  selectedMapping.value = filteredMappings.value[0] ?? null
+})
 </script>
 
 <style scoped>

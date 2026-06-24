@@ -74,17 +74,44 @@ describe('derived product modules', () => {
     ]))
   })
 
-  it('classifies group and print products by business keywords', () => {
+  it('classifies group and print products by business category first, then falls back to keywords', () => {
     const groupModule = getDerivedProductModule('product-group')
     const printModule = getDerivedProductModule('product-print')
     const products = [
-      product({ id: 'group', name: '企业团体形象照', spec: '团体拍摄', desc: '适合多人公司拍摄' }),
-      product({ id: 'print', name: '证照打印加洗', spec: '冲印产品', desc: '相纸打印与到店交付' }),
+      product({ id: 'group', bizCategory: 'GROUP_BUY', name: '企业团体形象照', spec: '商务写真', desc: '适合多人公司拍摄' }),
+      product({ id: 'print', bizCategory: 'PRINT', name: '证照打印加洗', spec: '标准冲印', desc: '相纸打印与到店交付' }),
       product({ id: 'portrait', name: '个人形象照套餐', spec: '形象照', desc: '职业头像' }),
     ]
 
     expect(buildDerivedProductItems(groupModule, products, []).map(item => item.product!.id)).toEqual(['group'])
     expect(buildDerivedProductItems(printModule, products, []).map(item => item.product!.id)).toEqual(['print'])
+  })
+
+  it('classifies album products from the unified product ledger', () => {
+    const module = getDerivedProductModule('product-album')
+    const items = buildDerivedProductItems(module, [
+      product({
+        id: 'album',
+        bizCategory: 'ALBUM',
+        name: '亲子入册 12 张',
+        nickname: '轻奢相册',
+        spec: 'ALBUM',
+        includedCount: 12,
+        price: '699',
+        desc: '含精修入册与相册排版',
+      }),
+      product({
+        id: 'portrait',
+        bizCategory: 'SERVICE',
+        name: '个人形象照套餐',
+        spec: 'SERVICE',
+        desc: '职业头像',
+      }),
+    ], [])
+
+    expect(items.map(item => item.product!.id)).toEqual(['album'])
+    expect(items[0].title).toBe('轻奢相册')
+    expect(items[0].stage).toBe('可售')
   })
 
   it('keeps Meituan products as channel mappings and never fabricates readiness', () => {

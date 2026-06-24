@@ -1,0 +1,40 @@
+create table if not exists yy_collaboration_setting (
+    id bigint primary key,
+    tenant_id varchar(20) default '000000',
+    setting_type varchar(32) not null,
+    status varchar(32) default 'ACTIVE',
+    config_json text,
+    remark varchar(500),
+    del_flag char(1) default '0',
+    create_dept bigint,
+    create_by bigint,
+    create_time datetime,
+    update_by bigint,
+    update_time datetime,
+    unique key uk_yy_collaboration_setting_type (tenant_id, setting_type, del_flag)
+);
+
+create table if not exists yy_product_collaboration_config (
+    id bigint primary key,
+    tenant_id varchar(20) default '000000',
+    product_id bigint not null,
+    store_id bigint,
+    workflow_json text,
+    need_makeup char(1) default '0',
+    need_photography char(1) default '1',
+    need_retouch char(1) default '0',
+    need_review char(1) default '0',
+    need_selection_review char(1) default '0',
+    need_pickup char(1) default '1',
+    makeup_count int default 0,
+    deliver_within_hours int default 48,
+    status varchar(32) default 'ACTIVE',
+    remark varchar(500),
+    del_flag char(1) default '0',
+    create_dept bigint,
+    create_by bigint,
+    create_time datetime,
+    update_by bigint,
+    update_time datetime,
+    unique key uk_yy_product_collaboration_config_product (tenant_id, product_id, del_flag)
+);

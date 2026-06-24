@@ -1,4 +1,8 @@
 import type {
+  DashboardProductRankingQuery,
+  DashboardScopeQuery,
+  DashboardTrendStatsQuery,
+  DashboardExportQuery,
   DouyinLifeOrderSyncQuery,
   OrderExportQuery,
   OrderListQuery,
@@ -69,6 +73,51 @@ export const mapOrderExportQuery = (query: OrderExportQuery = {}) => ({
   endOrderTime: query.endOrderTime,
   beginArrivalTime: query.beginArrivalTime,
   endArrivalTime: query.endArrivalTime,
+})
+
+export const mapDashboardExportQuery = (query: DashboardExportQuery) => ({
+  beginDate: query.beginDate,
+  endDate: query.endDate,
+  storeId: query.storeId,
+  channelType: query.channelType,
+})
+
+const resolveDashboardDate = (query: DashboardScopeQuery = {}) =>
+  query.date || query.bizDate
+
+const resolveDashboardStoreId = (query: DashboardScopeQuery = {}) =>
+  query.storeId || query.storeBackendId
+
+export const mapDashboardFinanceQuery = (query: DashboardScopeQuery = {}) => ({
+  date: resolveDashboardDate(query),
+  storeId: resolveDashboardStoreId(query),
+})
+
+export const mapDashboardOrderStatusStatsQuery = (query: DashboardScopeQuery = {}) => ({
+  date: resolveDashboardDate(query),
+  storeId: resolveDashboardStoreId(query),
+})
+
+export const mapDashboardTrendStatsQuery = (query: DashboardTrendStatsQuery = {}) => ({
+  endDate: query.endDate || resolveDashboardDate(query),
+  days: query.days,
+  storeId: resolveDashboardStoreId(query),
+})
+
+export const mapDashboardTodaySlotsQuery = (query: DashboardScopeQuery = {}) => ({
+  date: resolveDashboardDate(query),
+  storeId: resolveDashboardStoreId(query),
+})
+
+export const mapDashboardProductRankingQuery = (query: DashboardProductRankingQuery = {}) => ({
+  date: resolveDashboardDate(query),
+  storeId: resolveDashboardStoreId(query),
+  topN: query.topN,
+})
+
+export const mapDashboardConversionQuery = (query: DashboardScopeQuery = {}) => ({
+  date: resolveDashboardDate(query),
+  storeId: resolveDashboardStoreId(query),
 })
 
 export const mapDouyinLifeSyncQuery = (query: DouyinLifeOrderSyncQuery = {}) => ({

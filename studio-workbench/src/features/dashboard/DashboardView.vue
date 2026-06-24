@@ -26,20 +26,33 @@
       :breakdown="serviceOrderBreakdown"
       :mode="businessDateMode"
       :scope-label="businessDateScopeLabel"
+      :exporting="dashboardExporting"
+      :export-disabled="dashboardExportDisabled"
+      :export-title="dashboardExportTitle"
+      :export-begin-date="dashboardExportBeginDate"
+      :export-end-date="dashboardExportEndDate"
+      :export-store-id="dashboardExportStoreId"
+      :export-store-options="dashboardStoreOptions"
+      :export-channel-type="dashboardExportChannelType"
       @update:mode="v => businessDateMode = v"
+      @update:export-begin-date="v => dashboardExportBeginDate = v"
+      @update:export-end-date="v => dashboardExportEndDate = v"
+      @update:export-store-id="updateDashboardExportStoreId"
+      @update:export-channel-type="v => dashboardExportChannelType = v"
+      @export-dashboard="exportDashboardSummary"
     />
 
     <DashboardProductRanking
       :ranking="effectiveProductRanking"
       :mode="productRankingMode"
-      :date-label="selectedDateLabel"
+      :date-label="businessDateLabel"
       :has-backend-data="Boolean(productRankingData)"
       @update:mode="v => productRankingMode = v"
       @open-product="openProductRanking"
     />
 
     <DashboardConversion
-      :date-label="selectedDateLabel"
+      :date-label="businessDateLabel"
       v-bind="conversionDisplay"
     />
 
@@ -281,6 +294,7 @@ const buildWorkbenchUrl = (path: string, query?: Record<string, string | undefin
 const {
   businessDateMode,
   businessDateKey,
+  businessDateLabel,
   businessDateScopeLabel,
   productRankingData,
   loadDashboardPhase2Data,
@@ -300,11 +314,99 @@ const {
   selectedDashboardStoreId,
   selectedDashboardStoreBackendId,
   scopedLedgerOrders,
+  resolveOrderForSelectionLink,
   matchesDashboardDate,
   formatDateKey,
   toDateFromKey,
   buildWorkbenchUrl,
 })
+
+const dashboardExporting = ref(false)
+const dashboardExportBeginDate = ref('')
+const dashboardExportEndDate = ref('')
+const dashboardExportStoreId = ref('')
+const dashboardExportUseHomeStore = ref(true)
+const dashboardExportChannelType = ref('')
+const updateDashboardExportStoreId = (storeId: string) => {
+  dashboardExportStoreId.value = storeId
+  dashboardExportUseHomeStore.value = storeId === selectedDashboardStoreBackendId.value
+}
+const dashboardExportRangeDays = computed(() => {
+  if (!dashboardExportBeginDate.value || !dashboardExportEndDate.value) return Number.POSITIVE_INFINITY
+  const beginTime = Date.parse(`${dashboardExportBeginDate.value}T00:00:00`)
+  const endTime = Date.parse(`${dashboardExportEndDate.value}T00:00:00`)
+  if (!Number.isFinite(beginTime) || !Number.isFinite(endTime)) return Number.POSITIVE_INFINITY
+  return Math.floor((endTime - beginTime) / 86_400_000) + 1
+})
+const dashboardExportInvalidRange = computed(() =>
+  !dashboardExportBeginDate.value
+  || !dashboardExportEndDate.value
+  || dashboardExportBeginDate.value > dashboardExportEndDate.value
+  || dashboardExportRangeDays.value > 31,
+)
+const dashboardExportDisabled = computed(() =>
+  appStore.demoMode || dashboardExporting.value || dashboardExportInvalidRange.value,
+)
+const dashboardExportTitle = computed(() => {
+  if (appStore.demoMode) return '请连接 API 后导出真实首页汇总'
+  if (dashboardExporting.value) return '正在导出首页汇总'
+  if (dashboardExportInvalidRange.value) return '请选择不超过 31 天的日期范围'
+  return '导出首页汇总'
+})
+
+watch(businessDateKey, date => {
+  dashboardExportBeginDate.value = date
+  dashboardExportEndDate.value = date
+}, { immediate: true })
+
+watch(selectedDashboardStoreBackendId, storeId => {
+  if (!dashboardExportUseHomeStore.value) return
+  dashboardExportStoreId.value = storeId || ''
+}, { immediate: true })
+
+const normalizeDashboardExportDate = (date: string) => date.replace(/-/g, '')
+
+const downloadDashboardBlob = (result: { blob: Blob; fileName?: string }, fallbackName: string) => {
+  const url = URL.createObjectURL(result.blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = result.fileName || fallbackName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+const exportDashboardSummary = async () => {
+  if (appStore.demoMode) {
+    window.alert('请连接 API 后导出真实首页汇总')
+    return
+  }
+  if (dashboardExportInvalidRange.value) {
+    window.alert('请选择不超过 31 天的日期范围')
+    return
+  }
+
+  const beginDate = dashboardExportBeginDate.value
+  const endDate = dashboardExportEndDate.value
+  dashboardExporting.value = true
+  try {
+    const result = await appStore.exportDashboard({
+      beginDate,
+      endDate,
+      storeId: dashboardExportStoreId.value || undefined,
+      channelType: dashboardExportChannelType.value || undefined,
+    })
+    downloadDashboardBlob(
+      result,
+      `dashboard-summary-${normalizeDashboardExportDate(beginDate)}-${normalizeDashboardExportDate(endDate)}.xlsx`,
+    )
+  } catch (error) {
+    window.alert(error instanceof Error ? `首页导出失败：${error.message}` : '首页导出失败')
+  } finally {
+    dashboardExporting.value = false
+  }
+}
 
 const {
   buildDateOrderQuery,
@@ -372,6 +474,9 @@ const {
 
 watch([selectedDateValue, selectedDashboardStoreId], async ([date]) => {
   await loadDashboardFor(date)
+}, { immediate: true })
+
+watch([businessDateKey, selectedDashboardStoreId], async () => {
   await loadDashboardPhase2Data()
 }, { immediate: true })
 

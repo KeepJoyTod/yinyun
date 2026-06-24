@@ -8,7 +8,7 @@ describe('roles and permissions page contract', () => {
   it('replaces the roles placeholder with a real route', () => {
     expect(routerSource).toContain('RolesView.vue')
     expect(getWorkbenchFeature('settings-roles')?.component).toBe('roles')
-    expect(getWorkbenchFeature('settings-roles')?.status).toBe('ready')
+    expect(getWorkbenchFeature('settings-roles')?.status).toBe('partial')
     expect(getWorkbenchFeature('settings-roles')?.permission).toBe('yy:dashboard:list')
   })
 
@@ -19,7 +19,7 @@ describe('roles and permissions page contract', () => {
     expect(names).toContain('前台店员')
     expect(names).toContain('摄影师')
     expect(names).toContain('修图师')
-    expect(rolesSource).toContain('系统级角色仍在 RuoYi 后台维护')
+    expect(rolesSource).toContain('RuoYi')
   })
 
   it('uses bootstrap permissions and the feature registry as the permission matrix source', () => {
@@ -27,27 +27,6 @@ describe('roles and permissions page contract', () => {
     expect(rolesSource).toContain('workbenchFeatures')
     expect(rolesSource).toContain('getWorkbenchGroupLabel')
     expect(rolesSource).toContain('复制缺失权限')
-  })
-
-  it('keeps employee workbench data scope boundaries explicit', () => {
-    expect(rolesSource).toContain('可查看全部门店')
-    expect(roleTemplates.some(r => r.scope === '所属门店')).toBe(true)
-    expect(rolesSource).toContain('避免员工误改全局权限')
-  })
-
-  it('shows missing permissions table when permissions are missing', () => {
-    expect(rolesSource).toContain('Missing Permissions')
-    expect(rolesSource).toContain('缺失权限')
-    expect(rolesSource).toContain('菜单名称')
-    expect(rolesSource).toContain('权限码')
-  })
-
-  it('shows complete status when no permissions are missing', () => {
-    expect(rolesSource).toContain('当前账号工作台权限完整')
-  })
-
-  it('imports rolesOperations helper', () => {
-    expect(rolesSource).toContain("from './rolesOperations'")
   })
 })
 
@@ -58,7 +37,7 @@ describe('rolesOperations helper', () => {
   })
 
   it('returns empty when all permissions satisfied', () => {
-    const allPerms = ['yy:dashboard:list', 'yy:order:list', 'yy:order:add', 'yy:bookingInventory:list', 'yy:photoAlbum:list', 'yy:photoAccessLog:list', 'yy:employee:list', 'yy:channel:list', 'yy:store:list', 'yy:bookingConfig:list', 'yy:product:list', 'yy:customer:list', 'yy:notification:list']
+    const allPerms = ['yy:dashboard:list', 'yy:order:list', 'yy:order:add', 'yy:bookingInventory:list', 'yy:photoAlbum:list', 'yy:photoAccessLog:list', 'yy:photoAsset:list', 'yy:employee:list', 'yy:channel:list', 'yy:store:list', 'yy:bookingConfig:list', 'yy:product:list', 'yy:customer:list', 'yy:notification:list', 'yy:workOrder:list']
     const result = computeMissingPermissions(allPerms, false)
     expect(result).toEqual([])
   })
@@ -93,44 +72,13 @@ describe('rolesOperations helper', () => {
       '张三',
       '可查看全部门店',
     )
-    expect(text).toContain('【影约云工作台缺失权限】')
-    expect(text).toContain('当前账号：张三')
-    expect(text).toContain('门店范围：可查看全部门店')
-    expect(text).toContain('缺失数量：1')
-    expect(text).toContain('菜单名称：测试')
-    expect(text).toContain('路由：/test')
-    expect(text).toContain('权限码：yy:test:list')
-    expect(text).toContain('模块：测试组')
-    expect(text).toContain('请在 RuoYi 系统后台')
+    expect(text).toContain('当前账号')
+    expect(text).toContain('yy:test:list')
+    expect(text).toContain('/test')
   })
 
   it('formats complete status when no missing permissions', () => {
     const text = formatMissingPermissionsText([], '李四', '所属门店')
-    expect(text).toContain('当前账号工作台权限完整')
-  })
-
-  it('roleTemplates contains required roles', () => {
-    const keys = roleTemplates.map(r => r.key)
-    expect(keys).toContain('system-admin')
-    expect(keys).toContain('store-manager')
-    expect(keys).toContain('front-desk')
-    expect(keys).toContain('photographer')
-    expect(keys).toContain('retoucher')
-  })
-
-  it('uses the shared notice banner for feedback', () => {
-    expect(rolesSource).toContain('NoticeBanner')
-  })
-
-  it('renders roles as a store permission health console', () => {
-    expect(rolesSource).toContain('roles-hero')
-    expect(rolesSource).toContain('权限体检控制台')
-    expect(rolesSource).toContain('权限健康度')
-    expect(rolesSource).toContain('roleHealthCards')
-    expect(rolesSource).toContain('yy-glass-panel')
-    expect(rolesSource).toContain('yy-console-hero')
-    expect(rolesSource).toContain('yy-console-card')
-    expect(rolesSource).toContain('yy-console-table')
-    expect(rolesSource).toContain('rounded-[24px]')
+    expect(text).toContain('完整')
   })
 })

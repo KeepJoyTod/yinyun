@@ -11,15 +11,12 @@ describe('work execution overview contract', () => {
     expect(getWorkbenchFeature('collaboration-overview')?.permission).toBe('yy:order:list')
   })
 
-  it('builds a daily queue from unified orders, albums and selection links', () => {
-    expect(overviewSource).toContain('buildWorkExecutionItems')
-    expect(overviewSource).toContain('appStore.orders')
-    expect(overviewSource).toContain('appStore.albums')
-    expect(overviewSource).toContain('appStore.selectionLinks')
-    expect(overviewSource).toContain('拍摄')
-    expect(overviewSource).toContain('上传')
-    expect(overviewSource).toContain('客户选片')
-    expect(overviewSource).toContain('精修交付')
+  it('builds a daily queue from the real work order runtime', () => {
+    expect(overviewSource).toContain('useCollaborationWorkOrders')
+    expect(overviewSource).toContain('selectedDate')
+    expect(overviewSource).toContain('真实工单执行队列')
+    expect(overviewSource).toContain('collaborationWorkOrderStageOptions')
+    expect(overviewSource).not.toContain('buildWorkExecutionItems')
   })
 
   it('keeps staff focused on processing existing work', () => {
@@ -34,11 +31,9 @@ describe('work execution overview contract', () => {
     expect(overviewSource).toContain('ensureWorkbenchStores')
     expect(overviewSource).toContain('await ensureWorkbenchStores()')
     expect(overviewSource).toContain('scopedDateItems')
-    expect(overviewSource).toContain('countStage = (stage: WorkExecutionStage) => scopedDateItems.value')
+    expect(overviewSource).toContain('countStage = (stage: CollaborationStageCode) => scopedDateItems.value')
     expect(overviewSource).toContain(':value="String(store.backendId)"')
     expect(overviewSource).toContain('String(item.order.storeBackendId) === storeFilter.value')
     expect(overviewSource).not.toContain('<option value="all">全部门店</option>')
-    expect(overviewSource).not.toContain("storeFilter.value !== 'all'")
-    expect(overviewSource).not.toContain("storeFilter.value = 'all'")
   })
 })

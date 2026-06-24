@@ -81,6 +81,13 @@ export const rememberOrderForOperations = (
   ctx: Pick<OrderActionContext, 'orders' | 'reportOrders' | 'ledgerOrders'>,
   order: BookingOrder,
 ) => {
+  replaceOrderInCaches(ctx, order)
+}
+
+export const replaceOrderInCaches = (
+  ctx: Pick<OrderActionContext, 'orders' | 'reportOrders' | 'ledgerOrders'>,
+  order: BookingOrder,
+) => {
   const sameOrder = (item: BookingOrder) => item.id === order.id || item.backendId === order.backendId
   ctx.reportOrders = [order, ...ctx.reportOrders.filter(item => !sameOrder(item))]
   ctx.orders = ctx.orders.map(item => (sameOrder(item) ? order : item))
@@ -246,6 +253,25 @@ export async function rescheduleOrderAction(
       : ctx.refreshOrderOperationalScope(next),
   ]
   await Promise.all(scopeRefreshes)
+  return next
+}
+
+export async function confirmOrderPaymentAction(
+  ctx: Pick<OrderActionContext, 'demoMode' | 'stores' | 'orders' | 'ledgerOrders' | 'reportOrders'>,
+  input: StaffOrderConfirmPaymentInput,
+) {
+  const order = findOrderInCaches(ctx, String(input.id))
+  if (!order) throw new Error('未找到订单')
+
+  if (ctx.demoMode) {
+    const next = { ...order, payment: '已支付' as BookingOrder['payment'] }
+    replaceOrderInCaches(ctx, next)
+    return next
+  }
+
+  const dto = await backendApi.confirmOrderPayment(input)
+  const next = mapOrder(dto, ctx.stores)
+  replaceOrderInCaches(ctx, next)
   return next
 }
 

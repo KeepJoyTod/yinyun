@@ -1,135 +1,96 @@
 <template>
   <Transition name="fade">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1814]/40 backdrop-blur-sm p-4">
-      <div class="bg-[#FBF8F2] border border-amber-topbar-border rounded-md shadow-2xl w-full max-w-[588px] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
-        <!-- Header (12:418) -->
-        <div class="px-7 py-5 border-b border-amber-topbar-border flex items-center justify-between">
-          <div class="flex flex-col gap-1">
-            <span class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.22em] leading-none">产品配置</span>
-            <h2 class="text-[17.5px] font-sans font-medium text-amber-dark leading-none tracking-tight">
-              {{ mode === 'add' ? '新增服务产品' : '编辑服务产品' }}
-            </h2>
-            <p class="text-[10.5px] font-sans text-amber-text-muted mt-1 opacity-70">完善产品信息与价格配置，保存后用于预约、选片加购和商品展示。</p>
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1814]/40 p-4 backdrop-blur-sm">
+      <div class="flex max-h-[80vh] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-amber-topbar-border bg-[#FBF8F2] shadow-2xl">
+        <div class="flex items-start justify-between gap-4 border-b border-amber-topbar-border px-7 py-5">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">商品配置</span>
+            <h2 class="mt-1 text-[18px] font-semibold text-amber-dark">{{ mode === 'add' ? '新增商品' : '编辑商品' }}</h2>
+            <p class="mt-2 text-[11px] leading-relaxed text-amber-text-muted">保存后同步到预约、选片加购和工作台商品目录。</p>
           </div>
-          <button @click="$emit('close')" class="p-2 hover:bg-black/5 rounded-md transition-all">
-            <img src="../../../assets/icons/close.svg" class="w-3.5 h-3.5 opacity-40" />
+          <button class="yy-action border border-amber-topbar-border px-3 py-2 text-[10px] text-amber-dark hover:bg-black/5" type="button" @click="$emit('close')">
+            关闭
           </button>
         </div>
 
-        <!-- Body (12:430) -->
-        <div class="p-7 overflow-y-auto max-h-[70vh] flex flex-col gap-6">
-          <!-- Image Upload (12:432) -->
-          <div class="flex flex-col gap-2.5">
-            <span class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">产品主图</span>
-            <input ref="fileInputEl" type="file" accept="image/*" class="hidden" @change="onFileChange" />
-            <div 
-              class="w-full h-[180px] bg-[#EBE4D6] border-2 border-dashed border-amber-topbar-border rounded-md flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-amber-dark/30 hover:bg-amber-bg/10 transition-all group"
-              @click="triggerUpload"
-              @dragover.prevent
-              @drop.prevent="onDrop"
-            >
-              <div v-if="!formData.image" class="flex flex-col items-center gap-2">
-                <img src="../../../assets/icons/plus.svg" class="w-6 h-6 opacity-20 group-hover:opacity-40 transition-opacity" />
-                <span class="text-[11px] font-sans text-amber-text-muted opacity-50">点击或拖拽上传封面图 (建议 1:1)</span>
-              </div>
-              <img v-else :src="formData.image" class="w-full h-full object-cover" />
+        <div class="flex-1 space-y-6 overflow-y-auto px-7 py-6">
+          <div v-if="externalError" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[11px] text-red-700">
+            {{ externalError }}
+          </div>
+
+          <div class="grid gap-6 lg:grid-cols-[220px_1fr]">
+            <div class="space-y-2">
+              <div class="text-[10px] uppercase tracking-[0.18em] text-amber-text-muted">商品主图</div>
+              <input ref="fileInputEl" type="file" accept="image/*" class="hidden" @change="onFileChange" />
+              <button
+                class="flex h-[220px] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-amber-topbar-border bg-[#EBE4D6] text-[11px] text-amber-text-muted hover:border-amber-dark/30"
+                type="button"
+                @click="triggerUpload"
+              >
+                <img v-if="previewImage" :src="previewImage" class="h-full w-full object-cover" />
+                <span v-else>点击上传封面图</span>
+              </button>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="flex flex-col gap-2 md:col-span-2">
+                <span class="text-[11px] font-medium text-amber-dark">商品名称</span>
+                <input v-model.trim="formData.name" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none" type="text" />
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">商品编号</span>
+                <input v-model.trim="formData.id" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 font-mono text-[11px] text-amber-dark outline-none" type="text" />
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">业务分类</span>
+                <input v-model.trim="formData.bizCategory" class="h-10 rounded-xl border border-amber-topbar-border bg-[#F3EEE3] px-3 text-[11px] text-amber-dark outline-none" type="text" disabled />
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">套餐价</span>
+                <input v-model.trim="formData.price" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 font-mono text-[11px] text-amber-dark outline-none" type="number" min="0" />
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">加购单价</span>
+                <input v-model.trim="formData.unitPrice" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 font-mono text-[11px] text-amber-dark outline-none" type="number" min="0" />
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">规格</span>
+                <input v-model.trim="formData.spec" list="product-spec-options" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 text-[11px] text-amber-dark outline-none" type="text" />
+                <datalist id="product-spec-options">
+                  <option v-for="option in specChoiceOptions" :key="option" :value="option" />
+                </datalist>
+              </label>
+              <label class="flex flex-col gap-2">
+                <span class="text-[11px] font-medium text-amber-dark">入册张数</span>
+                <input v-model.number="formData.includedCount" class="h-10 rounded-xl border border-amber-topbar-border bg-white px-3 font-mono text-[11px] text-amber-dark outline-none" type="number" min="0" />
+              </label>
             </div>
           </div>
 
-          <!-- Form Fields (12:441) -->
-          <div class="grid grid-cols-3 gap-x-3.5 gap-y-6">
-            <!-- Row 1: Name & ID -->
-            <div class="col-span-2 flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">产品名称</label>
-              <input 
-                v-model="formData.name"
-                type="text" 
-                placeholder="例：胶片人像 · 半日档"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-sans focus:outline-none focus:border-amber-dark/30"
-              />
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">产品编号</label>
-              <input 
-                v-model="formData.id"
-                type="text" 
-                placeholder="PRD-XXX"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-mono focus:outline-none focus:border-amber-dark/30"
-              />
-            </div>
+          <label class="flex flex-col gap-2">
+            <span class="text-[11px] font-medium text-amber-dark">商品说明</span>
+            <textarea v-model.trim="formData.desc" rows="4" maxlength="180" class="rounded-2xl border border-amber-topbar-border bg-white px-3 py-3 text-[11px] text-amber-dark outline-none"></textarea>
+          </label>
 
-            <!-- Row 2: Prices -->
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">套系价 (¥)</label>
-              <input 
-                v-model="formData.price"
-                type="number" 
-                placeholder="0"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-mono focus:outline-none focus:border-amber-dark/30"
-              />
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">选片单价 (¥/张)</label>
-              <input 
-                v-model="formData.unitPrice"
-                type="number" 
-                placeholder="0"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-mono focus:outline-none focus:border-amber-dark/30"
-              />
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">含精修张数</label>
-              <input 
-                v-model="formData.includedCount"
-                type="number" 
-                placeholder="0"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-mono focus:outline-none focus:border-amber-dark/30"
-              />
-            </div>
-
-            <!-- Row 3: Album Spec (12:474) -->
-            <div class="col-span-3 flex flex-col gap-2">
-              <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">入册产品 / 成册规格</label>
-              <div class="grid grid-cols-2 gap-2.5">
-                <div 
-                  v-for="opt in specChoices" :key="opt"
-                  @click="formData.spec = opt"
-                  class="px-3 py-2 border rounded-md cursor-pointer flex items-center gap-2 transition-all"
-                  :class="formData.spec === opt ? 'bg-amber-accent/10 border-amber-accent' : 'bg-transparent border-amber-topbar-border hover:border-amber-dark/30'"
-                >
-                  <div class="w-3 h-3 rounded-full border border-amber-topbar-border flex items-center justify-center" :class="{ 'border-amber-accent': formData.spec === opt }">
-                    <div v-if="formData.spec === opt" class="w-1.5 h-1.5 bg-amber-accent rounded-full"></div>
-                  </div>
-                  <span class="text-[10.5px] font-sans" :class="formData.spec === opt ? 'text-amber-accent' : 'text-amber-dark/70'">{{ opt }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 4: Description (12:511) -->
-            <div class="col-span-3 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <label class="text-[10px] font-mono text-amber-text-muted uppercase tracking-[0.18em]">产品说明</label>
-                <span class="text-[9px] font-mono text-amber-text-muted opacity-40">{{ formData.desc.length }} / 160</span>
-              </div>
-              <textarea 
-                v-model="formData.desc"
-                maxlength="160"
-                rows="3"
-                placeholder="拍摄时长、服装套数、化妆师配置 …"
-                class="w-full px-3 py-2 bg-[#EBE4D6] border border-amber-topbar-border rounded-md text-[11.375px] font-sans focus:outline-none focus:border-amber-dark/30 resize-none"
-              ></textarea>
+          <div class="space-y-2">
+            <span class="text-[11px] font-medium text-amber-dark">适用门店</span>
+            <div class="flex flex-wrap gap-2">
+              <label
+                v-for="store in storeOptions"
+                :key="store"
+                class="flex items-center gap-2 rounded-full border border-amber-topbar-border bg-white px-3 py-2 text-[10.5px] text-amber-dark"
+              >
+                <input :checked="formData.storeNames.includes(store)" type="checkbox" @change="toggleStore(store)" />
+                <span>{{ store }}</span>
+              </label>
             </div>
           </div>
         </div>
 
-        <!-- Footer (12:520) -->
-        <div class="px-7 py-5 bg-[#FBF8F2] border-t border-amber-topbar-border flex items-center justify-end gap-3.5">
-          <button @click="$emit('close')" class="px-6 py-2 text-[11px] font-sans font-medium text-amber-text-muted hover:text-amber-dark transition-colors">取消</button>
-          <button 
-            @click="handleSubmit"
-            class="px-6 py-2 bg-amber-dark text-[#F4EFE6] rounded-md text-[11px] font-sans font-medium hover:bg-black transition-all"
-          >
-            {{ mode === 'add' ? '上架产品' : '保存修改' }}
+        <div class="flex items-center justify-end gap-3 border-t border-amber-topbar-border px-7 py-5">
+          <button class="yy-action px-4 py-2 text-[11px] text-amber-text-muted hover:text-amber-dark" type="button" @click="$emit('close')">取消</button>
+          <button class="yy-action rounded-xl border border-amber-dark bg-amber-dark px-4 py-2 text-[11px] text-[#F4EFE6] hover:bg-black" type="button" :disabled="submitting" @click="handleSubmit">
+            {{ submitting ? '保存中...' : mode === 'add' ? '创建商品' : '保存修改' }}
           </button>
         </div>
       </div>
@@ -139,95 +100,139 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import type { ModalSubmitPayload } from '../productCardCatalogOperations'
 
 const props = defineProps<{
   show: boolean
   mode: 'add' | 'edit'
-  initialData?: any
+  initialData?: Partial<ModalSubmitPayload['values']> | null
   specOptions?: string[]
+  storeOptions?: string[]
+  submitting?: boolean
+  externalError?: string
 }>()
 
-const emit = defineEmits(['close', 'submit'])
+const emit = defineEmits<{
+  close: []
+  submit: [payload: ModalSubmitPayload]
+}>()
 
-const formData = ref({
+const emptyValues = (): ModalSubmitPayload['values'] => ({
   id: '',
+  bizCategory: 'SERVICE',
   name: '',
+  nickname: '',
   image: '',
+  listImage: '',
+  halfImage: '',
+  channels: ['WECHAT'],
+  categoryName: '',
+  allowOnlineBooking: true,
+  showInApp: true,
+  allowStoreOrder: true,
+  selfPayMode: 'PAY',
+  fullSlotMode: 'ALLOW',
+  durationLabel: '',
+  supportSelection: false,
+  giftAlbum: false,
+  originalPriceLabel: '原价',
+  currentPriceLabel: '现价',
+  priceLabelText: '',
+  hasSpecs: false,
+  consumeCredit: 0,
+  ladderPricingText: '',
+  depositMode: 'BRAND',
+  depositAmount: '',
+  intro: '',
+  detailButtonMode: 'BOOK_NOW',
+  detailButtonText: '立即预约',
+  detailModules: [],
+  publishMode: 'PUBLISHED',
   spec: '',
   price: '',
   unitPrice: '',
-  includedCount: '',
-  desc: ''
+  includedCount: 0,
+  desc: '',
+  storeNames: [],
 })
 
-const specOptions = computed(() => Array.from(new Set((props.specOptions ?? []).filter(Boolean))))
-const specChoices = computed(() => {
-  if (formData.value.spec && !specOptions.value.includes(formData.value.spec)) {
-    return [formData.value.spec, ...specOptions.value]
-  }
-  return specOptions.value
-})
-
+const formData = ref<ModalSubmitPayload['values']>(emptyValues())
+const imageFile = ref<File | null>(null)
 const fileInputEl = ref<HTMLInputElement | null>(null)
 
-watch(() => props.initialData, (newVal) => {
-  if (newVal) {
-    formData.value = { ...newVal }
-  } else {
-    formData.value = {
-      id: '',
-      name: '',
-      image: '',
-      spec: specOptions.value[0] ?? '',
-      price: '',
-      unitPrice: '',
-      includedCount: '',
-      desc: ''
-    }
-  }
-}, { immediate: true })
-
-watch(specOptions, (options) => {
-  if (!formData.value.spec && options[0]) {
-    formData.value.spec = options[0]
-  }
+const specChoiceOptions = computed(() => {
+  const current = formData.value.spec ? [formData.value.spec] : []
+  return Array.from(new Set([...current, ...(props.specOptions ?? []).filter(Boolean)]))
 })
+
+const previewImage = computed(() => formData.value.image)
+
+watch(
+  () => props.initialData,
+  value => {
+    formData.value = {
+      ...emptyValues(),
+      ...value,
+      storeNames: [...(value?.storeNames ?? [])],
+      channels: [...(value?.channels ?? ['WECHAT'])],
+      detailModules: [...(value?.detailModules ?? [])],
+    }
+    imageFile.value = null
+  },
+  { immediate: true },
+)
 
 const triggerUpload = () => {
   fileInputEl.value?.click()
 }
 
-const readAsDataUrl = (file: File) => {
-  return new Promise<string>((resolve, reject) => {
+const readAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(String(reader.result ?? ''))
     reader.onerror = () => reject(new Error('read_failed'))
     reader.readAsDataURL(file)
   })
-}
 
 const applyFile = async (file: File) => {
   if (!file.type.startsWith('image/')) return
-  const url = await readAsDataUrl(file)
-  formData.value.image = url
+  imageFile.value = file
+  formData.value = {
+    ...formData.value,
+    image: await readAsDataUrl(file),
+  }
 }
 
-const onFileChange = async (e: Event) => {
-  const input = e.target as HTMLInputElement
+const onFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
   await applyFile(file)
   input.value = ''
 }
 
-const onDrop = async (e: DragEvent) => {
-  const file = e.dataTransfer?.files?.[0]
-  if (!file) return
-  await applyFile(file)
+const toggleStore = (store: string) => {
+  const stores = new Set(formData.value.storeNames)
+  if (stores.has(store)) stores.delete(store)
+  else stores.add(store)
+  formData.value = {
+    ...formData.value,
+    storeNames: [...stores],
+  }
 }
 
 const handleSubmit = () => {
-  emit('submit', { ...formData.value })
+  emit('submit', {
+    values: {
+      ...formData.value,
+      includedCount: Math.max(0, Number(formData.value.includedCount) || 0),
+    },
+    imageFiles: {
+      image: imageFile.value,
+      listImage: null,
+      halfImage: null,
+    },
+  })
 }
 </script>
 
