@@ -162,6 +162,10 @@ export interface CustomerPaymentParams {
   orderId?: string;
   orderNo?: string;
   amount?: number;
+  provider?: PhotoPlatform | string;
+  outTradeNo?: string;
+  payStatus?: string;
+  paymentRecordId?: string;
 }
 
 export interface ClientPhotoAlbum {

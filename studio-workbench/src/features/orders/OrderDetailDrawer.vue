@@ -62,6 +62,8 @@
         :cancel-reason-options="cancelReasonOptions"
         :cancel-saving="cancelSaving"
         :cancel-disabled="cancelDisabled"
+        :show-confirm-payment="showConfirmPayment"
+        :confirm-payment-saving="confirmPaymentSaving"
         @update-reschedule-date="emit('updateRescheduleDate', $event)"
         @update-reschedule-time="emit('updateRescheduleTime', $event)"
         @update-reschedule-duration-minutes="emit('updateRescheduleDurationMinutes', $event)"
@@ -72,6 +74,7 @@
         @update-cancel-reason="emit('updateCancelReason', $event)"
         @apply-cancel-reason="emit('applyCancelReason', $event)"
         @submit-cancel="emit('submitCancel')"
+        @submit-confirm-payment="emit('submitConfirmPayment')"
       />
 
       <OrderAlbumSection
@@ -180,6 +183,8 @@ defineProps<{
   cancelReasonOptions: string[]
   cancelSaving: boolean
   cancelDisabled: boolean
+  showConfirmPayment: boolean
+  confirmPaymentSaving: boolean
   album: Album | null
   photoStage: OrderPhotoDeliveryStage
   photoStageClass: string
@@ -217,6 +222,7 @@ const emit = defineEmits<{
   updateCancelReason: [value: string]
   applyCancelReason: [reason: string]
   submitCancel: []
+  submitConfirmPayment: []
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

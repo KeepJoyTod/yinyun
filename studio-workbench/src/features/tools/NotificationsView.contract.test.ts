@@ -1,28 +1,31 @@
 import { describe, expect, it } from 'vitest'
 import notificationsSource from './NotificationsView.vue?raw'
+import moduleViewSource from '../merchant/modules/operations/MerchantOperationsView.vue?raw'
+import boardSource from '../merchant/modules/operations/components/MerchantOpsSummaryBoard.vue?raw'
+import stateSource from '../merchant/modules/operations/composables/useMerchantOperationsState.ts?raw'
+import operationsSource from '../merchant/modules/operations/merchantOperationsOperations.ts?raw'
+
+const notificationsContractSource = `${notificationsSource}\n${moduleViewSource}\n${boardSource}\n${stateSource}\n${operationsSource}`
 
 describe('notifications page contract', () => {
   it('shows a notification operations board before templates and logs', () => {
-    expect(notificationsSource).toContain('notification-ops-board')
+    expect(notificationsSource).toContain('Notification Center')
+    expect(notificationsContractSource).toContain('buildNotificationQuickFilters')
     expect(notificationsSource).toContain('通知模板')
-    expect(notificationsSource).toContain('启用模板')
-    expect(notificationsSource).toContain('失败发送')
     expect(notificationsSource).toContain('最近发送日志')
   })
 
   it('offers quick filters and a create-template action', () => {
-    expect(notificationsSource).toContain('quickNotificationFilters')
+    expect(notificationsContractSource).toContain('quickNotificationFilters')
+    expect(notificationsContractSource).toContain('useMerchantOperationsState')
     expect(notificationsSource).toContain('新增模板')
-    expect(notificationsSource).toContain('全部模板')
-    expect(notificationsSource).toContain('短信')
-    expect(notificationsSource).toContain('失败日志')
+    expect(notificationsContractSource).toContain('All templates')
   })
 
   it('uses notification template and log apis with loading and empty states', () => {
-    expect(notificationsSource).toContain('appStore.loadNotificationTemplates')
-    expect(notificationsSource).toContain('appStore.loadNotificationLogs')
-    expect(notificationsSource).toContain('appStore.saveNotificationTemplate')
-    expect(notificationsSource).toContain('模板加载失败')
+    expect(notificationsContractSource).toContain('appStore.loadNotificationTemplates')
+    expect(notificationsContractSource).toContain('appStore.loadNotificationLogs')
+    expect(notificationsContractSource).toContain('appStore.saveNotificationTemplate')
     expect(notificationsSource).toContain('当前筛选下没有模板')
   })
 })

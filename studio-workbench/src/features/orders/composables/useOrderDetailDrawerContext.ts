@@ -3,6 +3,7 @@ import type { StatusBadgeTone } from '../../../shared/components/data/StatusBadg
 import type { BookingOrder } from '../../../shared/stores/appStore'
 import type { OrderDetailDrawerHostContext } from '../OrderDetailDrawerHost.vue'
 import { getNextOrderAction } from '../orderOperations'
+import { canConfirmStorePayment } from '../orderPaymentRules'
 
 type RefLike<T> = Ref<T> | { value: T }
 
@@ -48,6 +49,7 @@ export const useOrderDetailDrawerContext = (options: {
   cancelReason: RefLike<string>
   cancelReasonOptions: string[]
   cancellingOrderId: RefLike<string>
+  confirmingPaymentOrderId: RefLike<string>
   selectedOrderAlbum: RefLike<OrderDetailDrawerHostContext['album']>
   selectedOrderPhotoStage: RefLike<OrderDetailDrawerHostContext['photoStage']>
   photoDeliveryStageStyles: Record<string, string>
@@ -102,6 +104,8 @@ export const useOrderDetailDrawerContext = (options: {
     cancelReasonOptions: options.cancelReasonOptions,
     cancelSaving: order ? options.cancellingOrderId.value === order.id : false,
     cancelDisabled: order ? order.status === '已取消' || order.status === '已退单' : true,
+    showConfirmPayment: canConfirmStorePayment(order),
+    confirmPaymentSaving: order ? options.confirmingPaymentOrderId.value === order.id : false,
     album: options.selectedOrderAlbum.value,
     photoStage: options.selectedOrderPhotoStage.value,
     photoStageClass: options.photoDeliveryStageStyles[options.selectedOrderPhotoStage.value.key],

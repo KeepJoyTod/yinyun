@@ -129,6 +129,30 @@ describe('dashboard page contract', () => {
     expect(financeOverviewSource).toContain("$emit('update:mode', 'yesterday')")
   })
 
+  it('exports dashboard summaries with date range, store and channel filters', () => {
+    expect(dashboardSource).toContain('exportDashboardSummary')
+    expect(dashboardSource).toContain('dashboardExportBeginDate')
+    expect(dashboardSource).toContain('dashboardExportEndDate')
+    expect(dashboardSource).toContain('dashboardExportStoreId')
+    expect(dashboardSource).toContain('updateDashboardExportStoreId')
+    expect(dashboardSource).toContain('dashboardExportChannelType')
+    expect(dashboardSource).toContain('dashboardExportInvalidRange')
+    expect(dashboardSource).toContain('dashboardExportRangeDays.value > 31')
+    expect(dashboardSource).toContain('appStore.demoMode || dashboardExporting.value || dashboardExportInvalidRange.value')
+    expect(dashboardSource).toContain('appStore.exportDashboard({')
+    expect(dashboardSource).toContain('storeId: dashboardExportStoreId.value || undefined')
+    expect(dashboardSource).toContain('channelType: dashboardExportChannelType.value || undefined')
+    expect(dashboardSource).toContain('dashboard-summary-${normalizeDashboardExportDate(beginDate)}-${normalizeDashboardExportDate(endDate)}.xlsx')
+    expect(financeOverviewSource).toContain('exportChannelOptions')
+    expect(financeOverviewSource).toContain('exportStoreOptions')
+    expect(financeOverviewSource).toContain('export.svg')
+    expect(financeOverviewSource).toContain("$emit('export-dashboard')")
+    expect(financeOverviewSource).toContain("'update:exportBeginDate'")
+    expect(financeOverviewSource).toContain("'update:exportEndDate'")
+    expect(financeOverviewSource).toContain("'update:exportStoreId'")
+    expect(financeOverviewSource).toContain("'update:exportChannelType'")
+  })
+
   it('uses backend dashboard finance data before falling back to local order aggregation', () => {
     expect(dashboardFullSource).toContain('appStore.dashboardFinance')
     expect(dashboardFullSource).toContain('dashboardFinanceDate')
@@ -212,14 +236,18 @@ describe('dashboard page contract', () => {
   })
 
   it('ranks products by reservation count from existing store data', () => {
-    expect(dashboardFullSource).toContain('产品排行')
-    expect(dashboardFullSource).toContain('productRanking')
+    expect(productRankingSource).toContain('产品排行')
+    expect(dashboardBusinessInsightsSource).toContain('backendApi.dashboardProductRanking')
+    expect(dashboardBusinessInsightsSource).toContain('effectiveProductRanking')
+    expect(dashboardBusinessInsightsSource).toContain('productRankingMode')
   })
 
   it('provides quick entry cards with copy and a deep link to share links', () => {
     expect(dashboardFullSource).toContain('快捷入口')
     expect(dashboardFullSource).toContain('quickEntries')
     expect(dashboardFullSource).toContain('buildWorkbenchUrl')
+    expect(dashboardFullSource).toContain('buildEntryPayload')
+    expect(dashboardFullSource).toContain('appStore.selectionLinks')
     expect(dashboardFullSource).toContain('copyEntryUrl')
     expect(dashboardFullSource).toContain('@copy-entry="copyEntryUrl"')
     expect(dashboardQuickEntriesSource).toContain('@click.stop="$emit(\'copy-entry\', entry.key, entry.url)"')
@@ -227,9 +255,18 @@ describe('dashboard page contract', () => {
     expect(dashboardFullSource).toContain("key: 'booking'")
     expect(dashboardFullSource).toContain("key: 'selection'")
     expect(dashboardFullSource).toContain("key: 'pickup'")
-    expect(dashboardFullSource).toContain("path: '/tools/booking-entry'")
-    expect(dashboardFullSource).toContain("path: '/tools/pickup-entry'")
+    expect(dashboardFullSource).toContain("entryType: 'BOOKING'")
+    expect(dashboardFullSource).toContain("entryType: 'PICKUP'")
+    expect(dashboardFullSource).toContain("channel: 'WECHAT'")
     expect(dashboardFullSource).toContain("path: '/service/selection'")
+  })
+
+  it('loads dashboard conversion from the backend read model and keeps a local fallback', () => {
+    expect(dashboardSource).toContain('DashboardConversion')
+    expect(dashboardBusinessInsightsSource).toContain('backendApi.dashboardConversion')
+    expect(dashboardBusinessInsightsSource).toContain('bookedCount')
+    expect(dashboardBusinessInsightsSource).toContain('completedCount')
+    expect(dashboardBusinessInsightsSource).toContain('completedRate')
   })
 
   it('turns dashboard empty controls into real navigation actions', () => {

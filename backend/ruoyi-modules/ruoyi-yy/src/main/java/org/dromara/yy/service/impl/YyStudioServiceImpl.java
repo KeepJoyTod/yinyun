@@ -240,8 +240,10 @@ public class YyStudioServiceImpl implements IYyStudioService {
         statuses.put("order-appointment", "ready");
         statuses.put("service-selection", "ready");
         statuses.put("service-photos", "ready");
+        statuses.put("service-retouch-center", "ready");
+        statuses.put("service-retouch-providers", "ready");
         statuses.put("settings-workbench", "ready");
-        statuses.put("collaboration-work-orders", "building");
+        statuses.put("collaboration-work-orders", "ready");
         return Collections.unmodifiableMap(statuses);
     }
 }

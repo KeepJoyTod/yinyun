@@ -9,72 +9,66 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.yy.domain.YyPhotoAsset;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
- * 影约云底片业务对象 yy_photo_asset
+ * 褰辩害浜戝簳鐗囦笟鍔″璞?yy_photo_asset
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = YyPhotoAsset.class, reverseConvertGenerate = false)
 public class YyPhotoAssetBo extends BaseEntity {
 
-    /**
-     * 主键
-     */
-    @NotNull(message = "主键不能为空", groups = { EditGroup.class })
+    @NotNull(message = "涓婚敭涓嶈兘涓虹┖", groups = { EditGroup.class })
     private Long id;
 
-    @NotNull(message = "门店ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    /**
-     * 门店ID
-     */
+    @NotNull(message = "闂ㄥ簵ID涓嶈兘涓虹┖", groups = { AddGroup.class, EditGroup.class })
     private Long storeId;
 
-    @NotNull(message = "相册ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    /**
-     * 相册ID
-     */
+    @NotNull(message = "鐩稿唽ID涓嶈兘涓虹┖", groups = { AddGroup.class, EditGroup.class })
     private Long albumId;
 
-    @NotBlank(message = "文件名不能为空", groups = { AddGroup.class, EditGroup.class })
-    /**
-     * 文件名
-     */
+    private Long orderId;
+
+    private Long productId;
+
+    @NotBlank(message = "鏂囦欢鍚嶄笉鑳戒负绌?", groups = { AddGroup.class, EditGroup.class })
     private String fileName;
 
-    /**
-     * 文件地址
-     */
     private String fileUrl;
 
-    /**
-     * OSS对象Key
-     */
-    @NotBlank(message = "OSS对象Key不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "OSS瀵硅薄Key涓嶈兘涓虹┖", groups = { AddGroup.class, EditGroup.class })
     private String objectKey;
 
-    /**
-     * 缩略图OSS对象Key
-     */
     private String thumbnailObjectKey;
 
-    /**
-     * 排序
-     */
     private Integer sort;
 
-    /**
-     * 是否已选
-     */
     private String isSelected;
 
-    /**
-     * 客户可见
-     */
     private String visible;
 
-    /**
-     * 备注
-     */
+    private String assetType;
+
+    private Integer rating;
+
+    private Long fileSizeBytes;
+
+    private String keyword;
+
+    private Long uploaderId;
+
+    private String uploaderKeyword;
+
+    private String tagIds;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date beginUploadTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endUploadTime;
+
     private String remark;
 }

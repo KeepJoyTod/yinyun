@@ -41,25 +41,44 @@ const inferCardFields = (dto: ProductDto) => {
   }
 }
 
-export const mapProduct = (dto: ProductDto): ProductConfig => ({
-  backendId: dto.id,
-  storeBackendId: dto.storeId ?? null,
-  id: dto.productCode,
-  name: dto.name,
-  image: getApiAssetUrl(dto.coverUrl) || getProductFallbackImage(Number(dto.id ?? 0)),
-  spec: dto.spec,
-  price: toMoney(dto.priceCents),
-  unitPrice: toMoney(dto.unitPriceCents),
-  includedCount: dto.includedCount,
-  active: dto.active,
-  desc: dto.description,
-  storeNames: dto.storeName ? [dto.storeName] : [],
-  ...inferCardFields(dto),
-})
+const inferBizCategory = (dto: ProductDto) => {
+  const spec = String(dto.spec ?? '').trim().toUpperCase()
+  const rawProductType = String(dto.rawProductType ?? '').trim().toUpperCase()
+  const description = String(dto.description ?? '').trim()
+  if (rawProductType === 'CARD' || spec === 'CARD') return 'CARD'
+  if (rawProductType === 'ALBUM' || spec === 'ALBUM' || /入册|相册|成册/.test(description)) return 'ALBUM'
+  if (rawProductType === 'PRINT' || spec === 'PRINT' || /冲印|加洗|打印|相纸|证照/.test(description)) return 'PRINT'
+  if (rawProductType === 'GROUP_BUY' || rawProductType === 'GROUP' || spec === 'GROUP_BUY' || spec === 'GROUP' || /企业|团体|团单|多人|公司/.test(description)) return 'GROUP_BUY'
+  if (rawProductType === 'ADDON' || spec === 'ADDON' || /加片|加急|造型/.test(description)) return 'ADDON'
+  return 'SERVICE'
+}
+
+export const mapProduct = (dto: ProductDto): ProductConfig => {
+  const bizCategory = inferBizCategory(dto)
+  return {
+    backendId: dto.id,
+    storeBackendId: dto.storeId ?? null,
+    id: dto.productCode,
+    bizCategory,
+    name: dto.name,
+    image: getApiAssetUrl(dto.coverUrl) || getProductFallbackImage(Number(dto.id ?? 0)),
+    spec: dto.spec,
+    price: toMoney(dto.priceCents),
+    unitPrice: toMoney(dto.unitPriceCents),
+    includedCount: dto.includedCount,
+    active: dto.active,
+    desc: dto.description,
+    supportSelection: dto.unitPriceCents > 0,
+    giftAlbum: bizCategory === 'ALBUM' && dto.includedCount > 0,
+    storeNames: dto.storeName ? [dto.storeName] : [],
+    ...inferCardFields(dto),
+  }
+}
 
 export const productPayload = (product: ProductConfig): ProductPayload => ({
   storeId: product.storeBackendId ?? null,
   productCode: product.id,
+  bizCategory: product.bizCategory,
   name: product.name,
   coverUrl: product.image && !isWorkbenchFallbackImage(product.image) && !product.image.startsWith('data:') ? product.image : null,
   spec: product.spec,

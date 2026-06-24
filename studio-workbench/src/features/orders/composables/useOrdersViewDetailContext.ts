@@ -36,6 +36,7 @@ export function useOrdersViewDetailContext(options: {
   cancelReason: RefLike<string>
   cancelReasonOptions: string[]
   cancellingOrderId: RefLike<string>
+  confirmingPaymentOrderId: RefLike<string>
   photoDeliveryStageStyles: Record<string, string>
   orderAlbumActionLoading: RefLike<OrderDetailDrawerHostContext['albumActionLoading']>
   orderPhotoAccessLoading: RefLike<boolean>
@@ -79,6 +80,7 @@ export function useOrdersViewDetailContext(options: {
     cancelReason: options.cancelReason,
     cancelReasonOptions: options.cancelReasonOptions,
     cancellingOrderId: options.cancellingOrderId,
+    confirmingPaymentOrderId: options.confirmingPaymentOrderId,
     selectedOrderAlbum: detail.selectedOrderAlbum,
     selectedOrderPhotoStage: detail.selectedOrderPhotoStage,
     photoDeliveryStageStyles: options.photoDeliveryStageStyles,

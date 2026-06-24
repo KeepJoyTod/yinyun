@@ -4,7 +4,7 @@ import routerSource from '../../app/router/index.ts?raw'
 import { getWorkbenchFeature } from '../../app/router/featureRegistry'
 import appStoreSource from '../../shared/stores/appStore.ts?raw'
 import channelStoreSource from '../../shared/stores/channelStore.ts?raw'
-import backendSource from '../../shared/api/backend.ts?raw'
+import backendMerchantOpsApiSource from '../../shared/api/backendMerchantOpsApi.ts?raw'
 
 const channelVerificationStoreSource = [appStoreSource, channelStoreSource].join('\n')
 
@@ -12,7 +12,7 @@ describe('channel verification page contract', () => {
   it('replaces the channel verification placeholder with a real route', () => {
     expect(routerSource).toContain('ChannelVerificationView.vue')
     expect(getWorkbenchFeature('order-verification')?.component).toBe('channel-verification')
-    expect(getWorkbenchFeature('order-verification')?.status).toBe('ready')
+    expect(getWorkbenchFeature('order-verification')?.status).toBe('partial')
     expect(getWorkbenchFeature('order-verification')?.permission).toBe('yy:channel:list')
   })
 
@@ -20,8 +20,8 @@ describe('channel verification page contract', () => {
     expect(channelVerificationSource).toContain('appStore.loadDouyinAcceptanceCases')
     expect(channelVerificationSource).toContain('appStore.loadDouyinSyncHealth')
     expect(channelVerificationSource).toContain('appStore.loadChannelSyncLogs')
-    expect(backendSource).toContain('/yy/channel/DOUYIN_LIFE/acceptance-cases')
-    expect(backendSource).toContain('/yy/channel/DOUYIN_LIFE/sync-health')
+    expect(backendMerchantOpsApiSource).toContain('/yy/channel/DOUYIN_LIFE/acceptance-cases')
+    expect(backendMerchantOpsApiSource).toContain('/yy/channel/DOUYIN_LIFE/sync-health')
   })
 
   it('keeps the real verification action read-only in the staff workbench', () => {

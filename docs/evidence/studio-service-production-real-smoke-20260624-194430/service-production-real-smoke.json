@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-06-24T11:44:30.627Z",
+  "baseUrl": "https://studio.evanshine.me",
+  "releaseId": "prod-b1900b8-service-production-frontend-20260624-1942",
+  "releaseTxt": "prod-b1900b8-service-production-frontend-20260624-1942",
+  "markerMatched": true,
+  "login": {
+    "status": "PASS",
+    "tokenPresent": true,
+    "finalUrl": "https://studio.evanshine.me/dashboard/today?cb=prod-b1900b8-service-production-frontend-20260624-1942"
+  },
+  "routes": [
+    {
+      "key": "retouch-center",
+      "path": "/service/retouch-center",
+      "status": "PASS",
+      "finalUrl": "https://studio.evanshine.me/service/retouch-center?cb=prod-b1900b8-service-production-frontend-20260624-1942",
+      "detail": "",
+      "screenshot": "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\01-retouch-center.png"
+    },
+    {
+      "key": "retouch-providers",
+      "path": "/service/retouch-providers",
+      "status": "PASS",
+      "finalUrl": "https://studio.evanshine.me/service/retouch-providers?cb=prod-b1900b8-service-production-frontend-20260624-1942",
+      "detail": "",
+      "screenshot": "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\02-retouch-providers.png"
+    },
+    {
+      "key": "collaboration-retouch-center-settings",
+      "path": "/collaboration/retouch-center-settings",
+      "status": "PASS",
+      "finalUrl": "https://studio.evanshine.me/collaboration/retouch-center-settings?cb=prod-b1900b8-service-production-frontend-20260624-1942",
+      "detail": "",
+      "screenshot": "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\03-collaboration-retouch-center-settings.png"
+    },
+    {
+      "key": "collaboration-common-settings",
+      "path": "/collaboration/common-settings",
+      "status": "PASS",
+      "finalUrl": "https://studio.evanshine.me/collaboration/common-settings?cb=prod-b1900b8-service-production-frontend-20260624-1942",
+      "detail": "",
+      "screenshot": "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\04-collaboration-common-settings.png"
+    },
+    {
+      "key": "collaboration-open-settings",
+      "path": "/collaboration/open-settings",
+      "status": "PASS",
+      "finalUrl": "https://studio.evanshine.me/collaboration/open-settings?cb=prod-b1900b8-service-production-frontend-20260624-1942",
+      "detail": "",
+      "screenshot": "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\05-collaboration-open-settings.png"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT",
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT",
+    "TypeError: Failed to fetch",
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT",
+    "TypeError: Failed to fetch",
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT",
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT",
+    "TypeError: Failed to fetch",
+    "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT"
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\01-retouch-center.png",
+    "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\02-retouch-providers.png",
+    "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\03-collaboration-retouch-center-settings.png",
+    "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\04-collaboration-common-settings.png",
+    "D:\\Java\\class\\projectKu\\codex-repo-guardrails\\yingyue-cloud-feat-codex-repo-guardrails-20260623\\docs\\evidence\\studio-service-production-real-smoke-20260624-194430\\05-collaboration-open-settings.png"
+  ]
+}

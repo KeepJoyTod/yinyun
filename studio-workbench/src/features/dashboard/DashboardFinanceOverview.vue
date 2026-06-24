@@ -1,27 +1,82 @@
 <template>
   <section class="space-y-4">
-    <div class="flex items-end justify-between px-1">
+    <div class="flex flex-col gap-3 px-1 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <h2 class="text-[26px] font-sans font-bold text-ink leading-[1.2] tracking-tight">经营概况</h2>
-        <p class="text-[13px] text-ink-muted mt-1.5 font-medium">{{ scopeLabel }} · 本地 yy_order 已同步账本</p>
+        <h2 class="text-[26px] font-sans font-bold leading-[1.2] tracking-tight text-ink">经营概况</h2>
+        <p class="mt-1.5 text-[13px] font-medium text-ink-muted">{{ scopeLabel }} · 本地 yy_order 同步账本</p>
       </div>
-      <div class="flex items-center gap-1 border border-hairline bg-surface-1 p-0.5 rounded-md">
-        <button
-          class="yy-action px-3 py-1.5 text-[12px] font-sans transition-all rounded"
-          :class="mode === 'today' ? 'bg-accent text-ink font-semibold' : 'text-ink-muted hover:text-ink'"
-          type="button"
-          @click="$emit('update:mode', 'today')"
-        >今天</button>
-        <button
-          class="yy-action px-3 py-1.5 text-[12px] font-sans transition-all rounded"
-          :class="mode === 'yesterday' ? 'bg-accent text-ink font-semibold' : 'text-ink-muted hover:text-ink'"
-          type="button"
-          @click="$emit('update:mode', 'yesterday')"
-        >昨天</button>
+      <div class="flex flex-col gap-2 sm:items-end">
+        <div class="flex items-center gap-1 rounded-md border border-hairline bg-surface-1 p-0.5">
+          <button
+            class="yy-action rounded px-3 py-1.5 text-[12px] font-sans transition-all"
+            :class="mode === 'today' ? 'bg-accent font-semibold text-ink' : 'text-ink-muted hover:text-ink'"
+            type="button"
+            @click="$emit('update:mode', 'today')"
+          >今天</button>
+          <button
+            class="yy-action rounded px-3 py-1.5 text-[12px] font-sans transition-all"
+            :class="mode === 'yesterday' ? 'bg-accent font-semibold text-ink' : 'text-ink-muted hover:text-ink'"
+            type="button"
+            @click="$emit('update:mode', 'yesterday')"
+          >昨天</button>
+        </div>
+        <div class="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
+          <label class="flex h-9 items-center gap-1.5 rounded-md border border-hairline bg-surface-1 px-2 text-[12px] text-ink-muted">
+            <span class="shrink-0">开始</span>
+            <input
+              class="h-7 w-[128px] bg-transparent text-[12px] text-ink outline-none"
+              type="date"
+              :value="exportBeginDate"
+              @input="$emit('update:exportBeginDate', ($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label class="flex h-9 items-center gap-1.5 rounded-md border border-hairline bg-surface-1 px-2 text-[12px] text-ink-muted">
+            <span class="shrink-0">结束</span>
+            <input
+              class="h-7 w-[128px] bg-transparent text-[12px] text-ink outline-none"
+              type="date"
+              :value="exportEndDate"
+              @input="$emit('update:exportEndDate', ($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <select
+            class="h-9 w-[144px] rounded-md border border-hairline bg-surface-1 px-2 text-[12px] text-ink outline-none"
+            :value="exportStoreId"
+            @change="$emit('update:exportStoreId', ($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">全部门店</option>
+            <option
+              v-for="option in exportStoreOptions"
+              :key="option.id"
+              :value="option.id"
+            >{{ option.name }}</option>
+          </select>
+          <select
+            class="h-9 w-[132px] rounded-md border border-hairline bg-surface-1 px-2 text-[12px] text-ink outline-none"
+            :value="exportChannelType"
+            @change="$emit('update:exportChannelType', ($event.target as HTMLSelectElement).value)"
+          >
+            <option
+              v-for="option in exportChannelOptions"
+              :key="option.value || 'all'"
+              :value="option.value"
+            >{{ option.label }}</option>
+          </select>
+          <button
+            class="yy-action inline-flex h-9 items-center gap-2 rounded-md border border-hairline bg-surface-1 px-3 text-[12px] font-semibold text-ink transition hover:border-ink/30 disabled:cursor-not-allowed disabled:opacity-50"
+            type="button"
+            :disabled="exportDisabled"
+            :title="exportTitle"
+            @click="$emit('export-dashboard')"
+          >
+            <img src="../../assets/icons/export.svg" class="h-[13px] w-[13px]" :class="exportDisabled ? 'opacity-60' : ''" />
+            <span>{{ exporting ? '导出中' : '导出' }}</span>
+          </button>
+        </div>
       </div>
     </div>
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-      <div class="bg-surface-1 border border-hairline/70 rounded-xl shadow-sm p-6">
+      <div class="rounded-xl border border-hairline/70 bg-surface-1 p-6 shadow-sm">
         <div class="flex items-baseline gap-4">
           <div>
             <div class="text-[12px] font-mono uppercase tracking-[0.16em] text-ink-muted">实际收入</div>
@@ -50,18 +105,18 @@
             <div class="mt-1 text-[16px] font-sans font-semibold tabular-nums text-status-danger">¥ {{ finance.refundAmount.toLocaleString('zh-CN') }}</div>
           </div>
         </div>
-        <p v-if="!finance.hasBackendFinanceApi" class="mt-4 border-l-2 border-accent/40 bg-canvas pl-3 py-2 text-[12px] font-sans leading-relaxed text-ink-muted">
-          当前使用本地订单缓存汇总。商品金额/优惠减免暂无独立口径，显示为订单金额/0。
+        <p v-if="finance.warningMessage" class="mt-4 border-l-2 border-accent/40 bg-canvas py-2 pl-3 text-[12px] font-sans leading-relaxed text-ink-muted">
+          {{ finance.warningMessage }}
         </p>
       </div>
-      <div class="bg-surface-1 border border-hairline/70 rounded-xl shadow-sm p-6">
+      <div class="rounded-xl border border-hairline/70 bg-surface-1 p-6 shadow-sm">
         <div class="flex items-baseline justify-between">
           <div class="text-[15px] font-sans font-semibold text-ink">服务订单</div>
-          <div class="text-[28px] font-sans font-bold tabular-nums text-ink leading-none">{{ finance.orderCount }}<span class="text-[13px] font-sans font-normal text-ink-muted ml-1">单</span></div>
+          <div class="text-[28px] font-sans font-bold leading-none tabular-nums text-ink">{{ finance.orderCount }}<span class="ml-1 text-[13px] font-normal text-ink-muted">单</span></div>
         </div>
         <div class="mt-4 space-y-2.5">
           <div
-            v-for="item in breakdown.filter(r => r.label !== '总订单')"
+            v-for="item in breakdown.filter(row => row.label !== '总订单')"
             :key="item.label"
             class="flex items-center justify-between border-b border-hairline/50 pb-2 last:border-0 last:pb-0"
           >
@@ -85,13 +140,36 @@ defineProps<{
     refundAmount: number
     hasBackendFinanceApi: boolean
     orderCount: number
+    warningMessage: string
   }
   breakdown: Array<{ label: string; count: number }>
   mode: 'today' | 'yesterday'
   scopeLabel: string
+  exporting: boolean
+  exportDisabled: boolean
+  exportTitle: string
+  exportBeginDate: string
+  exportEndDate: string
+  exportStoreId: string
+  exportStoreOptions: Array<{ id: string; name: string }>
+  exportChannelType: string
 }>()
+
+const exportChannelOptions = [
+  { label: '全部渠道', value: '' },
+  { label: '抖音来客', value: 'DOUYIN_LIFE' },
+  { label: '微信', value: 'WECHAT' },
+  { label: '美团', value: 'MEITUAN' },
+  { label: 'H5', value: 'H5' },
+  { label: '手工', value: 'MANUAL' },
+]
 
 defineEmits<{
   'update:mode': [mode: 'today' | 'yesterday']
+  'update:exportBeginDate': [date: string]
+  'update:exportEndDate': [date: string]
+  'update:exportStoreId': [storeId: string]
+  'update:exportChannelType': [channelType: string]
+  'export-dashboard': []
 }>()
 </script>

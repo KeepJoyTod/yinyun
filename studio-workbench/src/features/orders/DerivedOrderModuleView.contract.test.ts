@@ -11,7 +11,7 @@ describe('derived order module pages contract', () => {
     expect(routerSource).toContain('DerivedOrderModuleView.vue')
     for (const key of featureKeys) {
       expect(getWorkbenchFeature(key)?.component).toBe('derived-order-module')
-      expect(getWorkbenchFeature(key)?.status).toBe('ready')
+      expect(getWorkbenchFeature(key)?.status).toBe('derived')
       expect(getWorkbenchFeature(key)?.permission).toBe('yy:order:list')
     }
   })

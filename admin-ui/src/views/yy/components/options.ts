@@ -111,6 +111,7 @@ export const productTypeOptions: YyOption[] = [
   { label: '团单产品', value: 'GROUP_BUY', type: 'warning' },
   { label: '附加产品', value: 'ADDON', type: 'success' },
   { label: '冲印产品', value: 'PRINT', type: 'info' },
+  { label: '入册产品', value: 'ALBUM', type: 'success' },
   { label: '抖音产品', value: 'DOUYIN', type: 'danger' },
   { label: '美团产品', value: 'MEITUAN', type: 'warning' }
 ];

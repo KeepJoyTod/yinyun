@@ -14,7 +14,9 @@ import ordersViewStateSource from './composables/useOrdersViewState.ts?raw'
 import orderDetailNavigationSource from './composables/useOrderDetailNavigation.ts?raw'
 import orderFilterOperationsSource from './orderFilterOperations.ts?raw'
 import orderLifecycleOperationsSource from './orderLifecycleOperations.ts?raw'
+import orderPaymentRulesSource from './orderPaymentRules.ts?raw'
 import orderStatusOperationsSource from './orderStatusOperations.ts?raw'
+import orderDetailActionSectionsSource from './OrderDetailActionSections.vue?raw'
 
 describe('orders page contract', () => {
   it('shows a store order operations board before the table', () => {
@@ -65,8 +67,33 @@ describe('orders page contract', () => {
     expect(orderDetailActionsSource).toContain('const refreshOrderDetailAfterAdvance = async () =>')
     expect(orderDetailActionsSource).toContain('await options.loadSlotScopedOrdersFromQuery()')
     expect(orderDetailActionsSource).toContain('await loadOrderOperationLogs()')
+    expect(orderDetailActionsSource).toContain('appStore.loadChannelSyncLogs()')
     expect(orderDetailActionsSource).toContain('if (shouldRefresh) await refreshOrderDetailAfterAdvance()')
     expect(orderDetailActionsSource).not.toContain('if (shouldRefresh) void refreshOrderDetailAfterAdvance()')
+  })
+
+  it('lets staff confirm store receipt only for unpaid non-refunded local orders', () => {
+    expect(orderPaymentRulesSource).toContain("export const canConfirmStorePayment = (order: BookingOrder | null) => Boolean(")
+    expect(orderPaymentRulesSource).toContain("order.payment === '待支付'")
+    expect(orderPaymentRulesSource).toContain("order.status !== '已取消'")
+    expect(orderPaymentRulesSource).toContain("order.status !== '已退单'")
+    expect(orderPaymentRulesSource).toContain("order.channelType !== 'DOUYIN_LIFE'")
+    expect(orderPaymentRulesSource).toContain("order.source !== '抖音来客'")
+    expect(orderDetailActionsSource).toContain("import { canConfirmStorePayment } from '../orderPaymentRules'")
+    expect(orderDetailActionsSource).toContain("if (!canConfirmStorePayment(order))")
+    expect(orderDetailActionsSource).toContain("await appStore.confirmOrderPayment({")
+    expect(orderDetailActionsSource).toContain("remark: '门店确认收款（非第三方平台支付）'")
+    expect(orderDetailActionsSource).toContain("await appStore.refreshOrderOperationalScope(next)")
+    expect(orderDetailActionsSource).toContain("确认收款失败")
+    expect(orderDetailActionsSource).toContain("门店确认收款已同步到后端，不是第三方平台支付")
+  })
+
+  it('renders a dedicated store-confirm payment action in the order detail drawer', () => {
+    expect(orderDetailActionSectionsSource).toContain('门店确认收款')
+    expect(orderDetailActionSectionsSource).toContain('这是门店确认收款，不是第三方平台支付')
+    expect(orderDetailActionSectionsSource).toContain('showConfirmPayment')
+    expect(orderDetailActionSectionsSource).toContain('confirmPaymentSaving')
+    expect(orderDetailActionSectionsSource).toContain('submitConfirmPayment')
   })
 
   it('loads real booking inventory for the selected order and reschedule date before showing half-hour slots', () => {

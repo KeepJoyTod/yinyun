@@ -116,6 +116,7 @@
     @update-cancel-reason="cancelReason = $event"
     @apply-cancel-reason="applyCancelReason"
     @submit-cancel="cancelSelectedOrder"
+    @submit-confirm-payment="confirmSelectedOrderPayment"
     @open-album="goToAlbum"
     @notify-album="handleOrderAlbumNotify"
     @confirm-album="handleOrderAlbumConfirm"
@@ -164,7 +165,7 @@ const {
   searchQuery, searchQueryArmed, searchQueryTouched, selectedTimeType,
   activeDropdown, advancedOpen, activeQuickFilter, slotRange, slotScopedOrders,
   slotScopedDashboardContext, statusTab, anomalyFilters, syncingFromQuery,
-  lastOpenedOrderQuery, cancelReason, cancellingOrderId, updatingOrderId,
+  lastOpenedOrderQuery, cancelReason, cancellingOrderId, updatingOrderId, confirmingPaymentOrderId,
   orderAlbumActionLoading, orderPhotoAccessLoading, orderPhotoAccessError,
   orderPhotoAccessRequestId, orderActionNotice, selectedOrder, reschedulingOrderId,
   rescheduleConflict, syncingDouyinOrders, operationLogsLoading, operationLogsReloadQueued,
@@ -384,6 +385,7 @@ const {
   cancelReason,
   cancelReasonOptions,
   cancellingOrderId,
+  confirmingPaymentOrderId,
   photoDeliveryStageStyles,
   orderAlbumActionLoading,
   orderPhotoAccessLoading,
@@ -405,6 +407,7 @@ const {
   copyOrderChannelDiagnostic,
   advanceOrder,
   cancelSelectedOrder,
+  confirmSelectedOrderPayment,
   rescheduleSelectedOrder,
 } = useOrderDetailActions({
   router,
@@ -415,6 +418,7 @@ const {
   cancelReason,
   cancellingOrderId,
   updatingOrderId,
+  confirmingPaymentOrderId,
   reschedulingOrderId,
   rescheduleConflict,
   rescheduleDraft,

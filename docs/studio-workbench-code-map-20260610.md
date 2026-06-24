@@ -88,10 +88,10 @@ http://127.0.0.1:5190/
 | 会员账户 | `/member/accounts` | `src/features/member/DerivedMemberModuleView.vue` | 从 `yy_customer` 和 `yy_order` 派生会员等级、订单次数和累计消费，不建立第二套积分余额账本 |
 | 客户标签 | `/member/tags` | `src/features/member/DerivedMemberModuleView.vue` | 从 `yy_customer.tags` 派生客户分群和回访线索，标签维护仍回到客户档案 |
 | 消费记录 | `/member/consumption` | `src/features/member/DerivedMemberModuleView.vue` | 从统一 `yy_order` 派生客户消费、退款和待支付记录 |
-| 营销中心 | `/marketing/center` | `src/features/marketing/DerivedMarketingModuleView.vue` | 按统一订单来源聚合渠道订单量、支付金额和待跟进记录 |
-| 优惠券 | `/marketing/coupons` | `src/features/marketing/DerivedMarketingModuleView.vue` | 从券、团购和兑换类订单派生只读线索，不伪造真实发放或核销数据 |
-| 活动清单 | `/marketing/campaigns` | `src/features/marketing/DerivedMarketingModuleView.vue` | 按订单来源派生活动承接清单和转化状态 |
-| 活动参与记录 | `/marketing/participations` | `src/features/marketing/DerivedMarketingModuleView.vue` | 逐单查看客户参与、支付转化、退款和后续跟进状态 |
+| 营销中心 | `/marketing/center` | `src/features/marketing/MarketingCenterView.vue` | 聚合展示营销能力开关、渠道承接、活动订单联动和固定优先级试算入口 |
+| 优惠券 | `/marketing/coupons` | `src/features/marketing/MarketingCouponsView.vue` | 展示券模板、发券记录、券实例、核销记录和退单恢复脚手架，优先调用营销域接口并回落本地 scaffold |
+| 活动清单 | `/marketing/campaigns` | `src/features/marketing/MarketingCampaignsView.vue` | 展示活动清单、时间窗、商品绑定和活动订单桥接脚手架 |
+| 活动参与记录 | `/marketing/participations` | `src/features/marketing/MarketingParticipationsView.vue` | 展示客户参与、转化、退款、失效状态和固定优先级试算结果 |
 | 门店业绩日报/月报 | `/report/store-daily`、`/report/store-monthly` | `src/features/reports/DerivedReportModuleView.vue` | 从统一订单按最近营业日或月份聚合门店订单、收入和待处理记录 |
 | 产品/渠道/收支统计 | `/report/products`、`/report/channels`、`/report/finance` | `src/features/reports/DerivedReportModuleView.vue` | 按服务、来源或门店聚合订单金额、已支付、待收和退款 |
 | 员工/修图统计 | `/report/employees`、`/report/retouch` | `src/features/reports/DerivedReportModuleView.vue` | 从员工档案、相册摄影师归属和底片数量派生工作量 |
@@ -179,8 +179,9 @@ http://127.0.0.1:5190/
 | `src/features/resources/DerivedResourceModuleView.contract.test.ts` | 派生资源页面契约，锁定资源组共用真实页面、只读相册照片数据源和不发布样片边界 |
 | `src/features/member/derivedMemberModules.test.ts` | 派生会员模块测试，锁定会员账户、客户标签和消费记录均来自客户与统一订单数据 |
 | `src/features/member/DerivedMemberModuleView.contract.test.ts` | 派生会员页面契约，锁定会员组三个入口共用真实页面、只读客户/订单数据源和不创建会员第二账本 |
-| `src/features/marketing/derivedMarketingModules.test.ts` | 派生营销模块测试，锁定渠道聚合、券订单线索和活动参与记录均来自统一订单与客户数据 |
-| `src/features/marketing/DerivedMarketingModuleView.contract.test.ts` | 派生营销页面契约，锁定营销组四个入口共用真实页面、不创建活动或优惠券第二账本 |
+| `src/features/marketing/marketingScaffoldData.test.ts` | 营销脚手架数据测试，锁定券模板、活动、参与记录和试算回落数据的最小契约 |
+| `src/features/marketing/promotionPricingFacade.test.ts` | 固定优先级试算 facade 测试，锁定兑换券、活动类、优惠券/优惠码、卡项权益的优先级和互斥结果 |
+| `src/features/marketing/MarketingModuleViews.contract.test.ts` | 营销模块页面契约，锁定四个正式 owner、能力开关空态和营销桥接入口 |
 | `src/features/reports/derivedReportModules.test.ts` | 派生报表测试，锁定门店、产品、员工、修图、财务、客户、渠道和转化均来自现有业务账本 |
 | `src/features/reports/DerivedReportModuleView.contract.test.ts` | 派生报表页面契约，锁定统计组十个入口共用真实页面、评价真实空态和只读边界 |
 | `src/features/tools/ShareLinksView.contract.test.ts` | 入口物料页契约测试，锁定店内旧二维码替换、门店参数、小程序路径和 H5 兜底边界 |
@@ -239,7 +240,7 @@ http://127.0.0.1:5190/
 - 环节统计：`/collaboration/statistics` 复用 `buildWorkOrders()` 和 `buildWorkOrderStageStats()`，生成拍摄、上传、客户选片、精修交付四个固定环节的只读统计；后续接 `yy_work_order_event` 后再扩展耗时和员工产能。
 - 派生资源模块：`/resource/files`、`/resource/samples` 共用 `DerivedResourceModuleView.vue` 和 `buildDerivedResourceItems()`；文件资源从 `yy_photo_album`/`yy_photo_asset` 展示私有 OSS 归属，样片作品只从客户已选照片派生候选，正式公开发布前仍需客户授权。
 - 派生会员模块：`/member/accounts`、`/member/tags`、`/member/consumption` 共用 `DerivedMemberModuleView.vue` 和 `buildDerivedMemberItems()`；页面挂载和模块切换时通过 `ensureCustomersLoaded()` 按需加载客户，账户/消费读取 `reportOrders`，客户标签只读 `yy_customer.tags`，不创建积分、余额、标签或消费第二账本。
-- 派生营销模块：`/marketing/center`、`/marketing/coupons`、`/marketing/campaigns`、`/marketing/participations` 共用 `DerivedMarketingModuleView.vue` 和 `buildDerivedMarketingItems()`；营销中心和活动清单按 `yy_order.source` 聚合，优惠券只展示券/团购订单线索，参与记录逐单展示转化状态，真实券模板、券实例和活动规则仍等待正式表接入。
+- 营销模块：`/marketing/center`、`/marketing/coupons`、`/marketing/campaigns`、`/marketing/participations` 已切到独立 owner；前端通过 `backendMarketingApi.ts`、`promotionPricingFacade.ts`、`campaignOrderBridge.ts` 接营销域脚手架接口，后端补了 `yy_coupon_*`、`yy_campaign*`、`yy_promotion_*` 相关实体、控制器、服务和固定优先级试算策略，当前仍属于 scaffold 阶段，未完成真实 CRUD 与真实账本闭环。
 - 派生统计模块：全部 `/report/*` 共用 `DerivedReportModuleView.vue` 和 `buildDerivedReportItems()`；页面通过 `ensureReportDataLoaded()` 按来源加载当前月订单、员工或客户，员工与修图读取 `yy_employee`、`yy_photo_album`、`yy_photo_asset`，客户评价没有正式表或渠道 API 时保持空态，不伪造评分。
 - 创建结果一致性：服务组、员工、客户、通知模板、订单和产品在 POST 成功后重新查询服务端记录并读取真实 ID；demo 临时 ID 使用 `demo-*` 前缀，不伪装数据库雪花 ID。
 

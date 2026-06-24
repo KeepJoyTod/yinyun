@@ -258,6 +258,106 @@ export type CustomerInfo = {
   remark: string
 }
 
+export type MemberOverviewInfo = {
+  customerBackendId: BackendId
+  customerName: string
+  mobile: string
+  memberLevel: string
+  tagSummary: string
+  totalOrderCount: number
+  totalSpend: number
+  activeCardCount: number
+  activeCouponCount: number
+  activeBenefitCount: number
+  pointsBalance: number
+  growthValue: number
+  balanceAmount: number
+  pendingRechargeCount: number
+  lastTradeTime: string
+  remark: string
+}
+
+export type MemberCardInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  cardName: string
+  cardType: string
+  status: string
+  totalQuota: number
+  usedQuota: number
+  remainingQuota: number
+  balanceAmount: number
+  effectiveFrom: string
+  effectiveTo: string
+  sourceOrderBackendId?: BackendId
+  remark: string
+}
+
+export type MemberBenefitInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  benefitName: string
+  benefitType: string
+  status: string
+  totalAmount: number
+  usedAmount: number
+  remainingAmount: number
+  sourceType: string
+  sourceBackendId?: BackendId
+  expireTime: string
+  remark: string
+}
+
+export type MemberCouponInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  couponName: string
+  couponType: string
+  status: string
+  discountAmount: number
+  thresholdAmount: number
+  sourceType: string
+  sourceBackendId?: BackendId
+  expireTime: string
+  remark: string
+}
+
+export type MemberPointsLedgerInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  changeType: string
+  changeAmount: number
+  balanceAfter: number
+  sourceType: string
+  sourceBackendId?: BackendId
+  happenedAt: string
+  remark: string
+}
+
+export type MemberGrowthLedgerInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  changeType: string
+  changeAmount: number
+  balanceAfter: number
+  sourceType: string
+  sourceBackendId?: BackendId
+  happenedAt: string
+  remark: string
+}
+
+export type MemberBalanceLedgerInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  changeType: string
+  changeAmount: number
+  balanceAfter: number
+  sourceType: string
+  sourceBackendId?: BackendId
+  happenedAt: string
+  remark: string
+}
+
 export type NotificationTemplateInfo = {
   backendId: BackendId
   templateCode: string

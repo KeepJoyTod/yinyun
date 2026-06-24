@@ -1,0 +1,186 @@
+- generic [ref=e96]:
+  - generic [ref=e99]:
+    - generic [ref=e100]:
+      - link:
+        - /url: https://www.yuyue123.cn
+        - img [ref=e101] [cursor=pointer]
+    - menubar [ref=e103]:
+      - generic [ref=e104]:
+        - link "首页" [ref=e105] [cursor=pointer]:
+          - /url: "#/home/dashboard"
+          - menuitem "首页" [ref=e106]:
+            - img [ref=e107]
+            - generic [ref=e109]: 首页
+        - menuitem "商户 " [ref=e110]:
+          - generic [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - generic [ref=e114]: 商户
+            - generic [ref=e115]: 
+        - menuitem "商品 " [expanded] [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e118]
+            - generic [ref=e120]: 商品
+            - generic [ref=e121]: 
+          - menu [ref=e773]:
+            - link "服务产品" [ref=e774] [cursor=pointer]:
+              - /url: "#/product/service"
+              - menuitem "服务产品" [ref=e775]:
+                - generic [ref=e776]: 服务产品
+            - link "附加产品" [ref=e777] [cursor=pointer]:
+              - /url: "#/product/additional"
+              - menuitem "附加产品" [ref=e778]:
+                - generic [ref=e779]: 附加产品
+            - link "团单产品" [ref=e780] [cursor=pointer]:
+              - /url: "#/product/group"
+              - menuitem "团单产品" [ref=e781]:
+                - generic [ref=e782]: 团单产品
+            - link "冲印产品" [ref=e783] [cursor=pointer]:
+              - /url: "#/product/print"
+              - menuitem "冲印产品" [ref=e784]:
+                - generic [ref=e785]: 冲印产品
+            - link "入册产品" [ref=e786] [cursor=pointer]:
+              - /url: "#/product/album"
+              - menuitem "入册产品" [ref=e787]:
+                - generic [ref=e788]: 入册产品
+            - link "卡项产品" [ref=e789] [cursor=pointer]:
+              - /url: "#/product/card/manage"
+              - menuitem "卡项产品" [ref=e790]:
+                - generic [ref=e791]: 卡项产品
+            - link "抖音产品 new" [ref=e792] [cursor=pointer]:
+              - /url: "#/product/douyin"
+              - menuitem "抖音产品 new" [ref=e793]:
+                - generic [ref=e794]:
+                  - text: 抖音产品
+                  - generic [ref=e795]: new
+            - link "美团产品 new" [ref=e796] [cursor=pointer]:
+              - /url: "#/product/meituan"
+              - menuitem "美团产品 new" [ref=e797]:
+                - generic [ref=e798]:
+                  - text: 美团产品
+                  - generic [ref=e799]: new
+        - menuitem "订单 new " [ref=e122]:
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e124]
+            - generic [ref=e126]:
+              - text: 订单
+              - generic [ref=e127]: new
+            - generic [ref=e128]: 
+        - menuitem "服务 " [ref=e129]:
+          - generic [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e133]: 服务
+            - generic [ref=e134]: 
+        - menuitem "内部协作 " [ref=e135]:
+          - generic [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e139]: 内部协作
+            - generic [ref=e140]: 
+        - menuitem "资源 " [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - img [ref=e143]
+            - generic [ref=e145]: 资源
+            - generic [ref=e146]: 
+        - menuitem "会员 " [ref=e147]:
+          - generic [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+            - generic [ref=e151]: 会员
+            - generic [ref=e152]: 
+        - link "工具" [ref=e153] [cursor=pointer]:
+          - /url: "#/tools/center"
+          - menuitem "工具" [ref=e154]:
+            - img [ref=e155]
+            - generic [ref=e157]: 工具
+        - menuitem "相册 " [ref=e158]:
+          - generic [ref=e159] [cursor=pointer]:
+            - img [ref=e160]
+            - generic [ref=e162]: 相册
+            - generic [ref=e163]: 
+        - menuitem "营销 " [ref=e164]:
+          - generic [ref=e165] [cursor=pointer]:
+            - img [ref=e166]
+            - generic [ref=e168]: 营销
+            - generic [ref=e169]: 
+        - menuitem "统计 new " [ref=e170]:
+          - generic [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+            - generic [ref=e174]:
+              - text: 统计
+              - generic [ref=e175]: new
+            - generic [ref=e176]: 
+        - menuitem "设置 " [ref=e177]:
+          - generic [ref=e178] [cursor=pointer]:
+            - img [ref=e179]
+            - generic [ref=e181]: 设置
+            - generic [ref=e182]: 
+    - link "应用商城" [ref=e183] [cursor=pointer]:
+      - /url: "#/appstore"
+      - img [ref=e184]
+      - text: 应用商城
+  - generic [ref=e188]:
+    - menubar [ref=e189]:
+      - img [ref=e191] [cursor=pointer]
+      - generic [ref=e195]: 一悦照相馆
+      - generic [ref=e196]:
+        - img [ref=e198] [cursor=pointer]
+        - button "赵丽瑗 " [ref=e204] [cursor=pointer]:
+          - text: 赵丽瑗
+          - generic [ref=e205]: 
+        - button "费用 " [ref=e207] [cursor=pointer]:
+          - text: 费用
+          - generic [ref=e208]: 
+    - generic [ref=e209]:
+      - generic [ref=e1168]:
+        - generic [ref=e1171]:
+          - generic [ref=e1172]:
+            - generic [ref=e1173]: 选择门店
+            - generic [ref=e1176]:
+              - textbox "==请选择==" [ref=e1177] [cursor=pointer]
+              - generic [ref=e1179] [cursor=pointer]: 
+          - generic [ref=e1180]:
+            - generic [ref=e1181]: 产品昵称
+            - textbox "请输入产品昵称搜索" [ref=e1184]
+          - generic [ref=e1185]:
+            - generic [ref=e1186]: 产品名称
+            - generic [ref=e1187]:
+              - textbox "请输入产品名称搜索" [ref=e1189]
+              - button " 搜索" [ref=e1190] [cursor=pointer]:
+                - generic [ref=e1191]: 
+                - text: 搜索
+              - button "批量上架" [ref=e1192] [cursor=pointer]:
+                - generic [ref=e1193]:
+                  - img [ref=e1194]
+                  - text: 批量上架
+              - button " 新增产品" [ref=e1196] [cursor=pointer]:
+                - generic [ref=e1197]: 
+                - text: 新增产品
+              - img [ref=e1200]
+        - generic [ref=e1204]:
+          - generic [ref=e1205] [cursor=pointer]:
+            - img [ref=e1207]
+            - generic [ref=e1208]:
+              - heading "相框" [level=3] [ref=e1209]
+              - heading [level=6]
+              - generic [ref=e1211]: "价格: 20"
+          - generic [ref=e1213]:
+            - text: 门店：
+            - generic [ref=e1214]: 滨州吾悦店
+            - generic [ref=e1215]: 滨州万达店
+            - generic [ref=e1216]: 威海智慧谷店
+        - generic [ref=e1217]:
+          - generic [ref=e1218]: 共 1 条
+          - generic [ref=e1221]:
+            - textbox "请选择" [ref=e1222] [cursor=pointer]: 12条/页
+            - generic [ref=e1224] [cursor=pointer]: 
+          - button "" [disabled] [ref=e1225]:
+            - generic [ref=e1226]: 
+          - list [ref=e1227]:
+            - listitem [ref=e1228]: "1"
+          - button "" [disabled] [ref=e1229]:
+            - generic [ref=e1230]: 
+          - generic [ref=e1231]:
+            - text: 前往
+            - spinbutton [ref=e1233]: "1"
+            - text: 页
+        - generic: 
+        - text: 
+      - text:  

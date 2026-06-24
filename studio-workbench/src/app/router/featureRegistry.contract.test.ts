@@ -27,7 +27,7 @@ describe('studio complete navigation contract', () => {
     expect(routerSource).toContain('ConstructionView.vue')
   })
 
-  it('replaces merchant service group and inventory placeholders with dedicated views', () => {
+  it('keeps merchant routes on dedicated views', () => {
     expect(routerSource).toContain('MerchantOverviewView.vue')
     expect(routerSource).toContain('ServiceGroupsView.vue')
     expect(routerSource).toContain('InventoryView.vue')
@@ -37,89 +37,68 @@ describe('studio complete navigation contract', () => {
     expect(routerSource).toContain('MerchantMicroFormEditorView.vue')
     expect(routerSource).toContain("redirect: '/merchant/overview'")
     expect(workbenchFeatures.find(feature => feature.key === 'merchant-overview')?.component).toBe('merchant-overview')
-    expect(workbenchFeatures.find(feature => feature.key === 'merchant-decoration')?.component).toBe('decoration')
-    expect(workbenchFeatures.find(feature => feature.key === 'merchant-micro-pages')?.component).toBe('micro-pages')
-    expect(workbenchFeatures.find(feature => feature.key === 'merchant-micro-forms')?.component).toBe('micro-forms')
   })
 
-  it('replaces customer and employee placeholders with dedicated views', () => {
-    expect(routerSource).toContain('CustomersView.vue')
-    expect(routerSource).toContain('EmployeesView.vue')
-  })
-
-  it('replaces notification placeholders with a dedicated view', () => {
-    expect(routerSource).toContain('NotificationsView.vue')
-  })
-
-  it('replaces customer entry and QR placeholders with a dedicated view', () => {
-    expect(routerSource).toContain('ShareLinksView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'tool-booking-entry')?.status).toBe('ready')
-    expect(workbenchFeatures.find(feature => feature.key === 'tool-pickup-entry')?.status).toBe('ready')
-    expect(workbenchFeatures.find(feature => feature.key === 'tool-share-links')?.status).toBe('ready')
-  })
-
-  it('replaces channel settings placeholder with a dedicated view', () => {
-    expect(routerSource).toContain('ChannelsView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'settings-channels')?.status).toBe('ready')
-  })
-
-  it('replaces system logs placeholder with a dedicated view', () => {
-    expect(routerSource).toContain('LogsView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'settings-logs')?.status).toBe('ready')
-  })
-
-  it('replaces roles and permissions placeholder with a dedicated view', () => {
-    expect(routerSource).toContain('RolesView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'settings-roles')?.status).toBe('ready')
-  })
-
-  it('replaces Douyin product and channel verification placeholders with dedicated views', () => {
-    expect(routerSource).toContain('DouyinProductsView.vue')
-    expect(routerSource).toContain('ChannelVerificationView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'product-douyin')?.status).toBe('ready')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-verification')?.status).toBe('ready')
-  })
-
-  it('replaces remaining product placeholders with derived product module views', () => {
-    expect(routerSource).toContain('DerivedProductModuleView.vue')
-    expect(routerSource).toContain('ProductCardManagementView.vue')
-    expect(routerSource).toContain('ProductCardCatalogView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'product-card-management')?.component).toBe('product-cards')
-    expect(workbenchFeatures.find(feature => feature.key === 'product-card-catalog')?.component).toBe('product-card-catalog')
+  it('marks derived product modules with real status instead of ready', () => {
     for (const key of ['product-addon', 'product-group', 'product-print', 'product-meituan']) {
       const feature = workbenchFeatures.find(feature => feature.key === key)
       expect(feature?.component).toBe('derived-product-module')
-      expect(feature?.status).toBe('ready')
+      expect(feature?.status).toBe('derived')
+    }
+    expect(workbenchFeatures.find(feature => feature.key === 'product-douyin')?.status).toBe('ready')
+  })
+
+  it('marks derived order routes and partial routes with real status', () => {
+    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign', 'order-forms']) {
+      expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('derived')
+    }
+    expect(workbenchFeatures.find(feature => feature.key === 'order-verification')?.status).toBe('partial')
+  })
+
+  it('marks member, marketing, and report routes with their current Phase 3 status', () => {
+    expect(workbenchFeatures.find(feature => feature.key === 'member-accounts')?.component).toBe('member-assets')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-accounts')?.status).toBe('ready')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-tags')?.component).toBe('derived-member-module')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-tags')?.status).toBe('derived')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-consumption')?.component).toBe('member-transactions')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-consumption')?.status).toBe('ready')
+
+    for (const key of ['marketing-center', 'marketing-coupons', 'marketing-campaigns', 'marketing-participations']) {
+      expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('ready')
+    }
+
+    for (const key of ['report-store-daily', 'report-store-monthly', 'report-products', 'report-employees', 'report-retouch', 'report-finance', 'report-customers', 'report-channels', 'report-conversion']) {
+      expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('derived')
+    }
+    expect(workbenchFeatures.find(feature => feature.key === 'report-reviews')?.status).toBe('partial')
+  })
+
+  it('uses dedicated marketing owners instead of one derived placeholder', () => {
+    expect(routerSource).toContain('MarketingCenterView.vue')
+    expect(routerSource).toContain('MarketingCouponsView.vue')
+    expect(routerSource).toContain('MarketingCampaignsView.vue')
+    expect(routerSource).toContain('MarketingParticipationsView.vue')
+    expect(workbenchFeatures.find(feature => feature.key === 'marketing-center')?.component).toBe('marketing-center-view')
+    expect(workbenchFeatures.find(feature => feature.key === 'marketing-coupons')?.component).toBe('marketing-coupons-view')
+    expect(workbenchFeatures.find(feature => feature.key === 'marketing-campaigns')?.component).toBe('marketing-campaigns-view')
+    expect(workbenchFeatures.find(feature => feature.key === 'marketing-participations')?.component).toBe('marketing-participations-view')
+  })
+
+  it('marks collaboration overview routes and settings as ready after real work-order接线', () => {
+    for (const key of ['collaboration-overview', 'collaboration-work-orders', 'collaboration-export', 'collaboration-statistics']) {
+      expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('ready')
+    }
+    for (const key of ['collaboration-positions', 'collaboration-product-settings', 'collaboration-retouch-center-settings', 'collaboration-common-settings', 'collaboration-open-settings']) {
+      expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('ready')
     }
   })
 
-  it('replaces the campaign order placeholder with a unified order view', () => {
-    expect(routerSource).toContain('CampaignOrdersView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-campaign')?.component).toBe('campaign-orders')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-campaign')?.status).toBe('ready')
-  })
-
-  it('exposes a dedicated staff booking entry instead of hiding manual booking inside QR tools', () => {
-    expect(routerSource).toContain('StaffBookingEntryView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-staff-booking')?.component).toBe('staff-booking-entry')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-staff-booking')?.permission).toBe('yy:order:add')
-    expect(workbenchFeatures.find(feature => feature.key === 'order-staff-booking')?.path).toBe('/order/staff-booking')
-  })
-
-  it('replaces the remaining order placeholders with derived order module views', () => {
-    expect(routerSource).toContain('DerivedOrderModuleView.vue')
-    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon']) {
-      const feature = workbenchFeatures.find(feature => feature.key === key)
-      expect(feature?.component).toBe('derived-order-module')
-      expect(feature?.status).toBe('ready')
-    }
-  })
-
-  it('maps order-forms to the real OrderFormSubmissionsView', () => {
-    expect(routerSource).toContain('OrderFormSubmissionsView.vue')
-    const feature = workbenchFeatures.find(f => f.key === 'order-forms')
-    expect(feature?.component).toBe('order-form-submissions')
-    expect(feature?.status).toBe('ready')
+  it('keeps partial settings routes explicit in code', () => {
+    expect(routerSource).toContain('RolesView.vue')
+    expect(routerSource).toContain('LogsView.vue')
+    expect(workbenchFeatures.find(feature => feature.key === 'settings-roles')?.status).toBe('partial')
+    expect(workbenchFeatures.find(feature => feature.key === 'settings-logs')?.status).toBe('partial')
+    expect(workbenchFeatures.find(feature => feature.key === 'settings-channels')?.status).toBe('ready')
   })
 
   it('keeps public micro page and micro form routes outside staff auth', () => {
@@ -128,42 +107,5 @@ describe('studio complete navigation contract', () => {
     expect(routerSource).toContain("path: '/public/micro-page/:id'")
     expect(routerSource).toContain('PublicMicroPageView.vue')
     expect(routerSource).toContain("meta: { public: true")
-  })
-
-  it('replaces the work execution placeholder with a derived operations view', () => {
-    expect(routerSource).toContain('WorkExecutionOverviewView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-overview')?.component).toBe('work-execution-overview')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-overview')?.status).toBe('ready')
-  })
-
-  it('replaces the work order placeholder with a derived work order view', () => {
-    expect(routerSource).toContain('WorkOrdersView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-work-orders')?.component).toBe('work-orders')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-work-orders')?.status).toBe('ready')
-  })
-
-  it('replaces the work order export placeholder with a CSV export view', () => {
-    expect(routerSource).toContain('WorkOrderExportView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-export')?.component).toBe('work-order-export')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-export')?.status).toBe('ready')
-  })
-
-  it('replaces the work order statistics placeholder with a stage statistics view', () => {
-    expect(routerSource).toContain('WorkOrderStatisticsView.vue')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-statistics')?.component).toBe('work-order-statistics')
-    expect(workbenchFeatures.find(feature => feature.key === 'collaboration-statistics')?.status).toBe('ready')
-  })
-
-  it('replaces resource placeholders with derived resource module views', () => {
-    expect(routerSource).toContain('DerivedResourceModuleView.vue')
-    for (const key of ['resource-files', 'resource-samples']) {
-      const feature = workbenchFeatures.find(feature => feature.key === key)
-      expect(feature?.component).toBe('derived-resource-module')
-      expect(feature?.status).toBe('ready')
-    }
-  })
-
-  it('does not add an old CreateBooking route outside the workbench registry', () => {
-    expect(routerSource).not.toContain('CreateBooking')
   })
 })

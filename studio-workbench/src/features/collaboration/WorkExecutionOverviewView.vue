@@ -6,7 +6,7 @@
           <span class="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-text-muted">Work Execution</span>
           <h2 class="mt-1 font-sans text-[18px] font-medium text-amber-dark">工作执行概况</h2>
           <p class="mt-2 max-w-[820px] text-[10.5px] leading-relaxed text-amber-text-muted">
-            从统一订单、客片相册和在线选片数据判断每个订单当前唯一环节，门店按拍摄、上传、客户选片、精修交付顺序处理，不建立重复业务账本。
+            该页面按日期查看真实工单执行队列，结合订单、相册、选片上下文展示当前门店当日协作压力，不再从订单主表派生虚拟工序。
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -65,14 +65,26 @@
               type="search"
             />
           </div>
-          <div class="text-[10.5px] text-amber-text-muted">{{ selectedDateLabel }} · {{ filteredItems.length }} 项工作</div>
+          <div class="flex items-center gap-3 text-[10.5px] text-amber-text-muted">
+            <span>{{ selectedDateLabel }} · {{ filteredItems.length }} 项工位</span>
+            <button class="yy-action border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-dark hover:bg-white" type="button" @click="reload">
+              刷新
+            </button>
+          </div>
         </div>
 
-        <div v-if="filteredItems.length" class="overflow-x-auto">
+        <div v-if="error" class="border-b border-amber-topbar-border bg-[#FFF4E8] px-5 py-4 text-[10.5px] text-[#8C3E2C]">
+          {{ error }}
+        </div>
+
+        <div v-if="loading" class="px-6 py-14 text-center text-[11px] text-amber-text-muted">
+          正在加载真实工单队列...
+        </div>
+        <div v-else-if="filteredItems.length" class="overflow-x-auto">
           <table class="w-full min-w-[960px] border-collapse">
             <thead>
               <tr class="border-b border-amber-topbar-border bg-amber-bg/10 text-left">
-                <th class="px-5 py-3 text-[11px] text-amber-text-muted">当前环节</th>
+                <th class="px-5 py-3 text-[11px] text-amber-text-muted">当前岗位</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">客户 / 订单</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">门店 / 服务</th>
                 <th class="px-5 py-3 text-[11px] text-amber-text-muted">负责人</th>
@@ -91,8 +103,8 @@
               >
                 <td class="px-5 py-4">
                   <span class="px-2 py-1 text-[10px]" :class="stageClass(item.stage)">{{ item.stageLabel }}</span>
-                  <div class="mt-2 text-[10px]" :class="item.overdue ? 'text-[#B8543B]' : 'text-amber-text-muted'">
-                    {{ item.overdue ? '已超时' : item.statusLabel }}
+                  <div class="mt-2 text-[10px]" :class="item.execution.overdue ? 'text-[#B8543B]' : 'text-amber-text-muted'">
+                    {{ item.execution.overdue ? '已超时' : item.status }}
                   </div>
                 </td>
                 <td class="px-5 py-4">
@@ -103,13 +115,13 @@
                   <div class="text-[11px] text-amber-dark">{{ item.order.store }}</div>
                   <div class="mt-1 text-[10px] text-amber-text-muted">{{ item.order.service }}</div>
                 </td>
-                <td class="px-5 py-4 text-[10.5px] text-amber-dark">{{ item.owner }}</td>
-                <td class="px-5 py-4 font-mono text-[10.5px]" :class="item.overdue ? 'text-[#B8543B]' : 'text-amber-dark'">{{ item.dueLabel }}</td>
+                <td class="px-5 py-4 text-[10.5px] text-amber-dark">{{ item.assignee }}</td>
+                <td class="px-5 py-4 font-mono text-[10.5px]" :class="item.execution.overdue ? 'text-[#B8543B]' : 'text-amber-dark'">{{ item.execution.dueLabel }}</td>
                 <td class="px-5 py-4">
                   <div class="h-1.5 w-24 overflow-hidden bg-black/10">
-                    <div class="h-full bg-amber-dark" :style="{ width: `${item.progress}%` }" />
+                    <div class="h-full bg-amber-dark" :style="{ width: `${item.execution.progress}%` }" />
                   </div>
-                  <div class="mt-1 font-mono text-[9px] text-amber-text-muted">{{ item.progress }}%</div>
+                  <div class="mt-1 font-mono text-[9px] text-amber-text-muted">{{ item.execution.progress }}%</div>
                 </td>
                 <td class="px-5 py-4">
                   <button class="yy-action border border-amber-topbar-border px-3 py-1.5 text-[10.5px] text-amber-dark hover:bg-black/5" type="button" @click.stop="openItem(item)">
@@ -122,8 +134,8 @@
         </div>
 
         <div v-else class="px-6 py-14 text-center">
-          <div class="font-sans text-[15px] text-amber-dark">当前日期没有匹配的执行工作</div>
-          <p class="mt-2 text-[11px] text-amber-text-muted">{{ storeFilter ? '可切换日期、门店或环节查看其他任务。' : '当前账号暂无可用门店，请先检查员工门店权限。' }}</p>
+          <div class="font-sans text-[15px] text-amber-dark">当前日期没有匹配的真实工单</div>
+          <p class="mt-2 text-[11px] text-amber-text-muted">{{ storeFilter ? '可切换日期、门店或岗位查看其他任务。' : '当前账号暂无可用门店，请先检查员工门店权限。' }}</p>
         </div>
       </div>
 
@@ -144,16 +156,16 @@
           <dl class="mt-5 space-y-4">
             <div>
               <dt class="font-mono text-[9px] uppercase tracking-[0.16em] text-amber-text-muted">Current Status</dt>
-              <dd class="mt-1 text-[11px] text-amber-dark">{{ selectedItem.statusLabel }}</dd>
+              <dd class="mt-1 text-[11px] text-amber-dark">{{ selectedItem.status }}</dd>
             </div>
             <div>
               <dt class="font-mono text-[9px] uppercase tracking-[0.16em] text-amber-text-muted">下一步</dt>
-              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.nextAction }}</dd>
+              <dd class="mt-1 text-[10.5px] leading-relaxed text-amber-text-muted">{{ selectedItem.execution.nextAction }}</dd>
             </div>
             <div>
               <dt class="font-mono text-[9px] uppercase tracking-[0.16em] text-amber-text-muted">Due</dt>
-              <dd class="mt-1 text-[11px]" :class="selectedItem.overdue ? 'text-[#B8543B]' : 'text-amber-dark'">
-                {{ selectedItem.dueLabel }}{{ selectedItem.overdue ? ' · 已超时' : '' }}
+              <dd class="mt-1 text-[11px]" :class="selectedItem.execution.overdue ? 'text-[#B8543B]' : 'text-amber-dark'">
+                {{ selectedItem.execution.dueLabel }}{{ selectedItem.execution.overdue ? ' · 已超时' : '' }}
               </dd>
             </div>
             <div>
@@ -171,12 +183,12 @@
           <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
             <div class="text-[11px] font-semibold text-amber-dark">数据边界</div>
             <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-              当前页面只派生执行视图，订单仍由 yy_order 管理，相册和底片仍由客片模块管理，选片结果仍由在线选片模块管理。
+              当前页只展示真实工单执行队列，订单仍由 <code>yy_order</code> 管理，相册和选片仍由客片链路维护，避免再次派生重复账本。
             </p>
           </div>
         </div>
         <div v-else class="px-5 py-12 text-center text-[11px] leading-relaxed text-amber-text-muted">
-          选择一项工作后查看当前环节、负责人、时限和下一步操作。
+          选择一项工作后查看当前岗位、负责人、时限和下一步操作。
         </div>
       </aside>
     </section>
@@ -186,48 +198,44 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { appStore } from '../../shared/stores/appStore'
-import { buildWorkExecutionItems, type WorkExecutionItem, type WorkExecutionStage } from './workExecution'
+import type { CollaborationStageCode } from '../../shared/api/backend'
+import { useCollaborationWorkOrders } from './useCollaborationWorkOrders'
+import { collaborationWorkOrderStageOptions, type CollaborationWorkOrderItem } from './workOrderRuntime'
 
-type StageFilter = 'ALL' | WorkExecutionStage
+type StageFilter = 'ALL' | CollaborationStageCode
 
 const router = useRouter()
 const pad2 = (value: number) => String(value).padStart(2, '0')
 const dateKey = (date: Date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
 const todayKey = dateKey(new Date())
+
 const selectedDate = ref(todayKey)
 const activeStage = ref<StageFilter>('ALL')
-const storeFilter = ref('')
 const searchQuery = ref('')
-const selectedItem = ref<WorkExecutionItem | null>(null)
+const selectedItem = ref<CollaborationWorkOrderItem | null>(null)
 
-const allItems = computed(() => buildWorkExecutionItems({
-  orders: appStore.orders,
-  albums: appStore.albums,
-  selectionLinks: appStore.selectionLinks,
-}))
+const {
+  storeFilter,
+  concreteStoreOptions,
+  ensureWorkbenchStores,
+  normalizeStoreFilter,
+  workOrders,
+  loading,
+  error,
+  reload,
+} = useCollaborationWorkOrders()
 
 const selectedDateLabel = computed(() => {
   const date = new Date(`${selectedDate.value}T00:00:00`)
   return Number.isNaN(date.getTime()) ? selectedDate.value : `${date.getMonth() + 1} 月 ${date.getDate()} 日`
 })
 
-const dateItems = computed(() => allItems.value.filter(item => item.businessDate === selectedDate.value))
-const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
+const dateItems = computed(() => workOrders.value.filter(item => item.execution.businessDate === selectedDate.value))
 
-const normalizeStoreFilter = (preferred = storeFilter.value) => {
-  const matched = concreteStoreOptions.value.find(store => store.name === preferred || String(store.backendId) === preferred)
-  return matched?.backendId ? String(matched.backendId) : String(concreteStoreOptions.value[0]?.backendId ?? '')
-}
-
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
+const scopedDateItems = computed(() => {
+  if (!storeFilter.value) return []
+  return dateItems.value.filter(item => String(item.order.storeBackendId) === storeFilter.value)
+})
 
 const filteredItems = computed(() => {
   const query = searchQuery.value.toLowerCase()
@@ -239,25 +247,22 @@ const filteredItems = computed(() => {
   })
 })
 
-const scopedDateItems = computed(() => {
-  if (!storeFilter.value) return []
-  return dateItems.value.filter(item => String(item.order.storeBackendId) === storeFilter.value)
-})
+const countStage = (stage: CollaborationStageCode) => scopedDateItems.value.filter(item => item.stage === stage).length
 
-const countStage = (stage: WorkExecutionStage) => scopedDateItems.value.filter(item => item.stage === stage).length
 const stageFilters = computed(() => [
-  { key: 'ALL' as const, label: '全部环节', count: scopedDateItems.value.length },
-  { key: 'SHOOT' as const, label: '拍摄', count: countStage('SHOOT') },
-  { key: 'UPLOAD' as const, label: '上传', count: countStage('UPLOAD') },
-  { key: 'SELECTION' as const, label: '客户选片', count: countStage('SELECTION') },
-  { key: 'DELIVERY' as const, label: '精修交付', count: countStage('DELIVERY') },
+  { key: 'ALL' as const, label: '全部岗位', count: scopedDateItems.value.length },
+  ...collaborationWorkOrderStageOptions.map(option => ({
+    key: option.code,
+    label: option.label,
+    count: countStage(option.code),
+  })),
 ])
 
 const summaryCards = computed(() => [
-  { label: '当日执行项', value: String(scopedDateItems.value.length), hint: '每个订单只展示当前唯一环节。', scope: 'TOTAL' },
-  { label: '已超时', value: String(scopedDateItems.value.filter(item => item.overdue).length), hint: '要求时间已经过去，需要优先处理。', scope: 'OVERDUE' },
-  { label: '待拍摄 / 上传', value: String(countStage('SHOOT') + countStage('UPLOAD')), hint: '门店现场和素材入库环节。', scope: 'PRODUCE' },
-  { label: '待选片 / 交付', value: String(countStage('SELECTION') + countStage('DELIVERY')), hint: '客户确认和最终交付环节。', scope: 'DELIVER' },
+  { label: '当日执行项', value: String(scopedDateItems.value.length), hint: '当前日期下真实工单执行队列中的全部岗位任务。', scope: 'TOTAL' },
+  { label: '已超时', value: String(scopedDateItems.value.filter(item => item.execution.overdue).length), hint: '已超过岗位 SLA 的协作工单。', scope: 'OVERDUE' },
+  { label: '进行中', value: String(scopedDateItems.value.filter(item => item.statusCode === 'IN_PROGRESS').length), hint: '当前已经进入执行中的真实工单。', scope: 'ACTIVE' },
+  { label: '待恢复阻塞', value: String(scopedDateItems.value.filter(item => item.statusCode === 'BLOCKED').length), hint: '先解除阻塞，再继续门店协作处理。', scope: 'BLOCK' },
 ])
 
 const shiftDate = (days: number) => {
@@ -267,15 +272,18 @@ const shiftDate = (days: number) => {
   selectedDate.value = dateKey(date)
 }
 
-const openItem = (item: WorkExecutionItem) => {
+const openItem = (item: CollaborationWorkOrderItem) => {
   router.push(item.actionPath)
 }
 
-const stageClass = (stage: WorkExecutionStage) => {
-  if (stage === 'SHOOT') return 'bg-[#1A1814] text-[#F4EFE6]'
-  if (stage === 'UPLOAD') return 'bg-[#F0E9DD] text-amber-dark'
-  if (stage === 'SELECTION') return 'bg-[#F6EBDD] text-[#8C5A2C]'
-  return 'bg-[#EBF4ED] text-[#2D7A4D]'
+const stageClass = (stage: CollaborationStageCode) => {
+  if (stage === 'RECEPTION') return 'bg-[#1A1814] text-[#F4EFE6]'
+  if (stage === 'MAKEUP') return 'bg-[#F7E8E1] text-[#8C5A2C]'
+  if (stage === 'PHOTOGRAPHY') return 'bg-[#F0E9DD] text-amber-dark'
+  if (stage === 'RETOUCH') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+  if (stage === 'REVIEW') return 'bg-[#EEF2FF] text-[#3650A3]'
+  if (stage === 'SELECTION_REVIEW') return 'bg-[#F6EBDD] text-[#8C5A2C]'
+  return 'bg-[#E9F2F7] text-[#2B617B]'
 }
 
 watch(
@@ -288,15 +296,7 @@ watch(
 
 watch(selectedDate, () => {
   activeStage.value = 'ALL'
-  storeFilter.value = normalizeStoreFilter()
 })
-
-watch(
-  () => concreteStoreOptions.value.map(store => `${store.backendId}:${store.name}`).join('|'),
-  () => {
-    storeFilter.value = normalizeStoreFilter()
-  },
-)
 
 onMounted(async () => {
   await ensureWorkbenchStores()

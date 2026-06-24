@@ -25,6 +25,22 @@
       }
     },
     {
+      "path": "pages/coupons/index",
+      "style": {
+        "navigationBarTitleText": "卡券权益",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "个人资料",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/customer/orders/index",
       "style": {
         "navigationBarTitleText": "订单",

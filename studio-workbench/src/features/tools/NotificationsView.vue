@@ -21,46 +21,17 @@
 
     <NoticeBanner :notice="notice" />
 
-    <section class="notification-ops-board border border-amber-topbar-border bg-amber-content-bg/55">
-      <div class="border-b border-amber-topbar-border p-5">
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            v-for="filter in quickNotificationFilters"
-            :key="filter.key"
-            class="yy-action yy-filter-chip"
-            :class="activeNotificationFilter === filter.key ? 'border-amber-dark bg-amber-dark text-[#F4EFE6]' : 'border-amber-topbar-border text-amber-text-muted hover:bg-white'"
-            type="button"
-            @click="activeNotificationFilter = filter.key"
-          >
-            {{ filter.label }} · {{ filter.count }}
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4">
-        <article
-          v-for="item in cards"
-          :key="item.label"
-          class="border border-amber-topbar-border bg-amber-content-bg p-4 shadow-sm"
-        >
-          <div class="text-[11px] font-sans font-semibold text-amber-dark">{{ item.label }}</div>
-          <div class="mt-1 text-[10px] font-sans leading-relaxed text-amber-text-muted">{{ item.hint }}</div>
-          <div class="mt-4 flex items-end justify-between gap-3">
-            <strong class="text-[25px] font-sans leading-none text-amber-dark">{{ item.value }}</strong>
-            <span class="text-[10px] font-sans text-amber-text-muted">{{ item.scope }}</span>
-          </div>
-        </article>
-      </div>
-    </section>
+    <MerchantOpsSummaryBoard
+      v-model:active-notification-filter="activeNotificationFilter"
+      :cards="cards"
+      :quick-notification-filters="quickNotificationFilters"
+    />
 
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
       <div class="border border-amber-topbar-border bg-amber-content-bg">
         <div class="flex items-center justify-between gap-4 border-b border-amber-topbar-border px-5 py-4 max-[860px]:flex-col max-[860px]:items-start">
           <div class="flex flex-wrap items-center gap-3">
-            <select
-              v-model="channelFilter"
-              class="yy-field-sm"
-            >
+            <select v-model="channelFilter" class="yy-field-sm">
               <option value="all">全部渠道</option>
               <option value="SMS">短信</option>
               <option value="WECHAT">微信</option>
@@ -140,14 +111,10 @@
           <h3 class="mt-1 text-[15px] font-sans font-medium text-amber-dark">最近发送日志</h3>
         </div>
         <div class="divide-y divide-amber-topbar-border/60">
-          <article
-            v-for="log in visibleLogs"
-            :key="log.backendId"
-            class="px-5 py-4"
-          >
+          <article v-for="log in visibleLogs" :key="log.backendId" class="px-5 py-4">
             <div class="flex items-start justify-between gap-3">
               <div>
-                <div class="text-[11px] font-semibold text-amber-dark">{{ log.channelType }} · {{ log.receiver }}</div>
+                <div class="text-[11px] font-semibold text-amber-dark">{{ log.channelType }} / {{ log.receiver }}</div>
                 <div class="mt-1 text-[10px] text-amber-text-muted">{{ log.storeName }}</div>
               </div>
               <span
@@ -160,8 +127,8 @@
               </span>
             </div>
             <div class="mt-3 text-[10.5px] leading-relaxed text-amber-text-muted">
-              <div>发送时间：{{ log.sentTime ? log.sentTime.replace('T', ' ').slice(0, 16) : '—' }}</div>
-              <div>请求 ID：{{ log.requestId || '—' }}</div>
+              <div>发送时间：{{ log.sentTime ? log.sentTime.replace('T', ' ').slice(0, 16) : '-' }}</div>
+              <div>请求 ID：{{ log.requestId || '-' }}</div>
               <div v-if="log.errorMessage">错误：{{ log.errorMessage }}</div>
               <div v-else>备注：{{ log.remark || '无' }}</div>
             </div>
@@ -240,80 +207,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { appStore, type NotificationLogInfo, type NotificationTemplateInfo } from '../../shared/stores/appStore'
+import { onMounted } from 'vue'
+import { appStore } from '../../shared/stores/appStore'
 import NoticeBanner from '../../shared/components/feedback/NoticeBanner.vue'
+import MerchantOpsSummaryBoard from '../merchant/modules/operations/components/MerchantOpsSummaryBoard.vue'
+import { useMerchantOperationsState } from '../merchant/modules/operations/composables/useMerchantOperationsState'
 import { useNotice } from '../../shared/composables/useNotice'
 
-type QuickNotificationFilter = 'all' | 'sms' | 'wechat' | 'failed'
-
-const loading = ref(false)
-const saving = ref(false)
-const modalOpen = ref(false)
-const editingId = ref<string | null>(null)
 const { notice, pushNotice } = useNotice()
-const templates = ref<NotificationTemplateInfo[]>([])
-const logs = ref<NotificationLogInfo[]>([])
-const activeNotificationFilter = ref<QuickNotificationFilter>('all')
-const channelFilter = ref('all')
-const searchQuery = ref('')
-
-const form = reactive({
-  templateCode: '',
-  scene: '',
-  channelType: 'SMS',
-  title: '',
-  content: '',
-  providerTemplateId: '',
-  enabled: '1',
-  remark: '',
+const {
+  loading,
+  saving,
+  modalOpen,
+  editingId,
+  activeNotificationFilter,
+  channelFilter,
+  searchQuery,
+  form,
+  filteredTemplates,
+  visibleLogs,
+  quickNotificationFilters,
+  cards,
+  openCreate,
+  openEdit,
+  reload,
+} = useMerchantOperationsState({
+  pushError: message => pushNotice('error', message),
 })
-
-const reload = async () => {
-  loading.value = true
-  try {
-    const [nextTemplates, nextLogs] = await Promise.all([
-      appStore.loadNotificationTemplates(),
-      appStore.loadNotificationLogs(),
-    ])
-    templates.value = [...nextTemplates]
-    logs.value = [...nextLogs]
-  } catch (error) {
-    pushNotice('error', error instanceof Error ? `模板加载失败：${error.message}` : '模板加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const resetForm = () => {
-  editingId.value = null
-  form.templateCode = ''
-  form.scene = ''
-  form.channelType = 'SMS'
-  form.title = ''
-  form.content = ''
-  form.providerTemplateId = ''
-  form.enabled = '1'
-  form.remark = ''
-}
-
-const openCreate = () => {
-  resetForm()
-  modalOpen.value = true
-}
-
-const openEdit = (template: NotificationTemplateInfo) => {
-  editingId.value = template.backendId
-  form.templateCode = template.templateCode
-  form.scene = template.scene
-  form.channelType = template.channelType
-  form.title = template.title
-  form.content = template.content
-  form.providerTemplateId = template.providerTemplateId
-  form.enabled = template.enabled
-  form.remark = template.remark
-  modalOpen.value = true
-}
 
 const submit = async () => {
   saving.value = true
@@ -338,64 +258,6 @@ const submit = async () => {
     saving.value = false
   }
 }
-
-const smsTemplates = computed(() => templates.value.filter(item => item.channelType === 'SMS'))
-const wechatTemplates = computed(() => templates.value.filter(item => item.channelType === 'WECHAT'))
-const failedLogs = computed(() => logs.value.filter(item => item.sendStatus !== 'SUCCESS'))
-
-const filteredTemplates = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  return templates.value.filter(template => {
-    if (channelFilter.value !== 'all' && template.channelType !== channelFilter.value) return false
-    if (activeNotificationFilter.value === 'sms' && template.channelType !== 'SMS') return false
-    if (activeNotificationFilter.value === 'wechat' && template.channelType !== 'WECHAT') return false
-    if (activeNotificationFilter.value === 'failed' && !failedLogs.value.some(log => log.templateBackendId === template.backendId)) return false
-    if (!query) return true
-    const haystack = `${template.templateCode} ${template.scene} ${template.title} ${template.content}`.toLowerCase()
-    return haystack.includes(query)
-  })
-})
-
-const visibleLogs = computed(() => {
-  if (activeNotificationFilter.value === 'failed') return failedLogs.value
-  if (activeNotificationFilter.value === 'sms') return logs.value.filter(item => item.channelType === 'SMS')
-  if (activeNotificationFilter.value === 'wechat') return logs.value.filter(item => item.channelType === 'WECHAT')
-  return logs.value
-})
-
-const quickNotificationFilters = computed(() => [
-  { key: 'all' as const, label: '全部模板', count: templates.value.length },
-  { key: 'sms' as const, label: '短信', count: smsTemplates.value.length },
-  { key: 'wechat' as const, label: '微信', count: wechatTemplates.value.length },
-  { key: 'failed' as const, label: '失败日志', count: failedLogs.value.length },
-])
-
-const cards = computed(() => [
-  {
-    label: '启用模板',
-    value: String(templates.value.filter(item => item.enabled === '1').length),
-    hint: '当前可用于真实发送的通知模板数量。',
-    scope: '可用',
-  },
-  {
-    label: '短信模板',
-    value: String(smsTemplates.value.length),
-    hint: '面向短信验证码、取片提醒和人工回访的模板。',
-    scope: 'SMS',
-  },
-  {
-    label: '失败发送',
-    value: String(failedLogs.value.length),
-    hint: '最近需要人工排查的发送失败记录。',
-    scope: 'FAIL',
-  },
-  {
-    label: '最近发送日志',
-    value: String(logs.value.length),
-    hint: '最近一次加载到的通知发送日志数量。',
-    scope: 'LOG',
-  },
-])
 
 onMounted(reload)
 </script>

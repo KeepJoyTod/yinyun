@@ -18,35 +18,14 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3 border-b border-amber-topbar-border px-5 py-4">
-        <input
-          v-model.trim="keyword"
-          class="h-9 w-[210px] border border-amber-topbar-border bg-white px-3 text-[12px] text-amber-dark outline-none focus:border-amber-dark/50"
-          placeholder="请输入表单名称"
-          type="search"
-          @keydown.enter="loadForms"
-        />
-        <select v-model="status" class="h-9 w-[122px] border border-amber-topbar-border bg-white px-3 text-[12px] text-amber-dark outline-none focus:border-amber-dark/50" @change="loadForms">
-          <option value="">全部状态</option>
-          <option value="PUBLISHED">已发布</option>
-          <option value="DRAFT">草稿</option>
-          <option value="OFFLINE">已下线</option>
-        </select>
-        <select v-model="storeFilter" class="h-9 w-[150px] border border-amber-topbar-border bg-white px-3 text-[12px] text-amber-dark outline-none focus:border-amber-dark/50" @change="loadForms">
-          <option v-if="!concreteStoreOptions.length" value="">暂无可用门店</option>
-          <option v-for="store in concreteStoreOptions" :key="store.backendId" :value="String(store.backendId)">
-            {{ store.name }}
-          </option>
-        </select>
-        <button class="yy-action inline-flex items-center gap-2 bg-[#F58235] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#D96C25]" type="button" @click="loadForms">
-          <Search :size="14" :stroke-width="1.9" />
-          搜索
-        </button>
-        <button class="yy-action border border-amber-topbar-border px-4 py-2 text-[12px] text-amber-text-muted hover:bg-white" type="button" @click="resetFilters">
-          重置
-        </button>
-        <span class="min-w-0 text-[12px] text-amber-text-muted">查看数据保留订单页深链，同时新增页内提交数据视图。</span>
-      </div>
+      <MerchantContentScopeBar
+        v-model:keyword="keyword"
+        v-model:status="status"
+        v-model:store-filter="storeFilter"
+        :concrete-store-options="concreteStoreOptions"
+        @reset="resetFilters"
+        @search="loadForms"
+      />
 
       <div v-if="notice" class="border-b border-amber-topbar-border px-5 py-3">
         <NoticeBanner :notice="notice" />
@@ -64,9 +43,9 @@
           </div>
 
           <div class="mb-4 rounded-[24px] border border-amber-topbar-border bg-white p-4">
-            <div class="text-[14px] font-semibold text-amber-dark">吸粉二维码双态</div>
+            <div class="text-[14px] font-semibold text-amber-dark">吸粉二维码边界</div>
             <p class="mt-2 text-[12px] leading-6 text-amber-text-muted">
-              当前默认生成可追踪来源的普通推广二维码；公众号真实场景码能力已预留接口和状态字段，待授权后可无缝切换。
+              当前默认生成可追踪来源的普通推广二维码；公众号场景码能力已预留接口与状态字段，等授权后可无缝切换。
             </p>
           </div>
 
@@ -170,7 +149,7 @@
 
           <div v-if="!filteredForms.length" class="border-t border-amber-topbar-border px-6 py-12 text-center">
             <div class="text-[14px] font-semibold text-amber-dark">{{ loading ? '加载中...' : '暂无微表单' }}</div>
-            <p class="mt-2 text-[12px] text-amber-text-muted">点击"新增表单"创建第一个顾客收集表。</p>
+            <p class="mt-2 text-[12px] text-amber-text-muted">点击“新增表单”创建第一个留资收集表。</p>
           </div>
 
           <div class="flex items-center justify-end gap-4 border-t border-amber-topbar-border px-4 py-4 text-[12px] text-amber-text-muted">
@@ -213,7 +192,7 @@
       <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
         <div class="w-[360px] max-w-full bg-[#FBF8F2] p-6 shadow-2xl">
           <h3 class="text-[15px] font-semibold text-amber-dark">删除表单</h3>
-          <p class="mt-3 text-[12px] leading-relaxed text-amber-text-muted">确认删除"{{ deleteTarget.formName }}"？已产生提交数据的表单建议先导出留档。</p>
+          <p class="mt-3 text-[12px] leading-relaxed text-amber-text-muted">确认删除“{{ deleteTarget.formName }}”？已产生提交数据的表单建议先导出留档。</p>
           <div class="mt-6 flex justify-end gap-2">
             <button class="yy-action border border-amber-topbar-border px-4 py-2 text-[12px] text-amber-text-muted hover:bg-white" type="button" @click="deleteTarget = null">取消</button>
             <button class="yy-action bg-[#B8543B] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#963726]" type="button" @click="confirmDelete">删除</button>
@@ -227,21 +206,20 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Copy, Download, Eye, Pencil, Plus, Search, Share2, Trash2 } from 'lucide-vue-next'
+import { Copy, Download, Eye, Pencil, Plus, Share2, Trash2 } from 'lucide-vue-next'
 import MerchantMicroFormPromotionDialog from './components/MerchantMicroFormPromotionDialog.vue'
 import MerchantMicroFormSubmissionDrawer from './components/MerchantMicroFormSubmissionDrawer.vue'
 import MerchantModuleChrome from './components/MerchantModuleChrome.vue'
+import MerchantContentScopeBar from './modules/content/components/MerchantContentScopeBar.vue'
+import { useMerchantContentState } from './modules/content/composables/useMerchantContentState'
 import NoticeBanner from '../../shared/components/feedback/NoticeBanner.vue'
 import { backendApi, type MicroFormDto, type MicroFormSubmissionDto } from '../../shared/api/backend'
 import { useCopyWithState } from '../../shared/composables/useCopyWithState'
 import { useNotice } from '../../shared/composables/useNotice'
-import { appStore } from '../../shared/stores/appStore'
 import {
   buildMicroFormLink,
   fillSubmissionFollowDraft,
   filterMicroForms,
-  normalizeStoreFilter as normalizeStoreFilterOption,
-  selectMicroFormId,
   selectSubmissionId,
   statusClass,
   statusLabel,
@@ -250,17 +228,31 @@ import {
 
 const router = useRouter()
 const { copiedKey, copyText } = useCopyWithState()
+const { notice, pushNotice } = useNotice()
 
-const merchantMicroForms = ref<MicroFormDto[]>([])
-const keyword = ref('')
-const status = ref('')
-const storeFilter = ref('')
-const loading = ref(false)
-const total = ref(0)
-const selectedFormId = ref('')
+const showNotice = (type: 'info' | 'error', text: string) => {
+  pushNotice(type === 'error' ? 'error' : 'success', text)
+}
+
+const {
+  appStore,
+  merchantMicroForms,
+  keyword,
+  status,
+  storeFilter,
+  loading,
+  total,
+  selectedFormId,
+  concreteStoreOptions,
+  publicBaseUrl,
+  loadForms,
+  resetFilters,
+} = useMerchantContentState({
+  pushError: message => showNotice('error', message),
+})
+
 const promotionForm = ref<MicroFormDto | null>(null)
 const deleteTarget = ref<MicroFormDto | null>(null)
-const { notice, pushNotice } = useNotice()
 
 const submissionDrawerOpen = ref(false)
 const submissionDrawerForm = ref<MicroFormDto | null>(null)
@@ -275,11 +267,6 @@ const submissionFollowForm = reactive({
   followRemark: '',
 })
 
-const publicBaseUrl = computed(() => {
-  const configured = import.meta.env.VITE_PUBLIC_MICRO_FORM_BASE_URL
-  return configured || 'https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/smallform/index'
-})
-
 const selectedForm = computed(() => merchantMicroForms.value.find(form => form.id === selectedFormId.value) ?? merchantMicroForms.value[0] ?? null)
 const previewForm = computed(() => selectedForm.value)
 const previewFields = computed(() => [...(previewForm.value?.schema.fields ?? [])].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)))
@@ -287,66 +274,9 @@ const filteredForms = computed(() => filterMicroForms(merchantMicroForms.value, 
 const selectedLink = computed(() => selectedForm.value ? formLink(selectedForm.value) : '')
 const promotionLink = computed(() => promotionForm.value ? formLink(promotionForm.value) : '')
 const selectedSubmission = computed(() => submissionItems.value.find(item => item.id === selectedSubmissionId.value) ?? null)
-const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
 
-const normalizeStoreFilter = (preferred = storeFilter.value) => normalizeStoreFilterOption(preferred, concreteStoreOptions.value)
-const ensureWorkbenchStores = async () => {
-  while (appStore.loading) {
-    await new Promise(resolve => setTimeout(resolve, 25))
-  }
-  if (!appStore.initialized && !appStore.loading) {
-    await appStore.bootstrap()
-  }
-}
-
-const storeNameForForm = (form: MicroFormDto) => {
-  return storeNameForFormLabel(form, appStore.stores)
-}
-
-const formLink = (form: MicroFormDto) => {
-  return buildMicroFormLink(form, publicBaseUrl.value, storeFilter.value)
-}
-
-const showNotice = (type: 'info' | 'error', text: string) => {
-  pushNotice(type === 'error' ? 'error' : 'success', text)
-}
-
-const loadForms = async () => {
-  loading.value = true
-  try {
-    await ensureWorkbenchStores()
-    storeFilter.value = normalizeStoreFilter()
-    if (!storeFilter.value) {
-      merchantMicroForms.value = []
-      total.value = 0
-      selectedFormId.value = ''
-      return
-    }
-    const page = await backendApi.listMicroForms({
-      formName: keyword.value || undefined,
-      status: status.value || undefined,
-      storeId: storeFilter.value || undefined,
-      pageSize: 100,
-    })
-    merchantMicroForms.value = page.items
-    total.value = page.total
-    selectedFormId.value = selectMicroFormId(selectedFormId.value, page.items)
-  } catch (error) {
-    merchantMicroForms.value = []
-    total.value = 0
-    selectedFormId.value = ''
-    showNotice('error', error instanceof Error ? `微表单加载失败：${error.message}` : '微表单加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const resetFilters = () => {
-  keyword.value = ''
-  status.value = ''
-  storeFilter.value = normalizeStoreFilter()
-  void loadForms()
-}
+const storeNameForForm = (form: MicroFormDto) => storeNameForFormLabel(form, appStore.stores)
+const formLink = (form: MicroFormDto) => buildMicroFormLink(form, publicBaseUrl.value, storeFilter.value)
 
 const createForm = () => {
   router.push('/merchant/micro-forms/new')

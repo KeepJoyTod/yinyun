@@ -1,4 +1,23 @@
-import type { WorkOrder } from './workOrders'
+type WorkOrderExportItem = {
+  workOrderNo: string
+  order: {
+    id: string
+    customer: string
+    phone: string
+    store: string
+    service: string
+  }
+  stageLabel: string
+  status: string
+  priorityLabel: string
+  assignee: string
+  blockReason: string
+  execution: {
+    dueLabel: string
+    overdue: boolean
+    nextAction: string
+  }
+}
 
 const headers = [
   '工单号',
@@ -23,7 +42,7 @@ const escapeCsvCell = (value: string | number | undefined | null) => {
   return text
 }
 
-export const buildWorkOrderCsv = (workOrders: WorkOrder[]) => {
+export const buildWorkOrderCsv = (workOrders: WorkOrderExportItem[]) => {
   const rows = workOrders.map(item => [
     item.workOrderNo,
     item.order.id,
@@ -44,7 +63,7 @@ export const buildWorkOrderCsv = (workOrders: WorkOrder[]) => {
   return `\ufeff${[headers, ...rows].map(row => row.map(escapeCsvCell).join(',')).join('\n')}`
 }
 
-export const downloadWorkOrderCsv = (workOrders: WorkOrder[], fileName: string) => {
+export const downloadWorkOrderCsv = (workOrders: WorkOrderExportItem[], fileName: string) => {
   const csv = buildWorkOrderCsv(workOrders)
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)

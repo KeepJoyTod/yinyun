@@ -76,15 +76,18 @@ import { operationLogStore } from './operationLogStore'
 import { productStore } from './productStore'
 import { settingsStore } from './settingsStore'
 import {
+  confirmOrderPaymentAction,
   createOrderAction,
   findOrderInCaches,
   rememberOrderForOperations as rememberOrderForOperationCaches,
   rescheduleOrderAction,
+  type StaffOrderConfirmPaymentInput,
   type StaffOrderCreateInput,
   type StaffOrderRescheduleInput,
   updateOrderStatusAction,
 } from './orderActionStore'
 import {
+  exportDashboardAction,
   exportOrdersAction,
   loadAllOrdersAction,
   loadBookingInventoryAction,
@@ -99,6 +102,7 @@ import {
   updateBookingInventoryAction,
   type BookingInventoryQuery,
   type BookingInventoryUpdateInput,
+  type OperationalDashboardExportQuery,
   type OperationalOrderExportQuery,
   type OperationalOrderListQuery,
   type OperationalSyncDouyinLifeQuery,
@@ -258,6 +262,11 @@ export const appStore = reactive({
   async exportOrders(query: OperationalOrderExportQuery) {
     if (this.demoMode) throw new Error('Demo 模式不可导出')
     return exportOrdersAction(query)
+  },
+
+  async exportDashboard(query: OperationalDashboardExportQuery) {
+    if (this.demoMode) throw new Error('Demo mode cannot export')
+    return exportDashboardAction(query)
   },
 
   async syncDouyinLifeOrdersAndRefresh(input: OperationalSyncDouyinLifeQuery = {}) {
@@ -490,6 +499,10 @@ export const appStore = reactive({
     return rescheduleOrderAction(this, orderId, input)
   },
 
+  async confirmOrderPayment(input: StaffOrderConfirmPaymentInput) {
+    return confirmOrderPaymentAction(this, input)
+  },
+
   async updateProduct(data: ProductConfig) {
     return updateProductFacade(this, data)
   },
@@ -590,4 +603,3 @@ export const appDerived = {
     }
   }),
 }
-

@@ -3,6 +3,7 @@ import { type BackendId } from './backendId'
 import { pageQuery } from './backendQueryMappers'
 import { extractRuoyiRows, mapYyProduct, type RuoyiTableResponse, type YyProductVo } from './yingyueAdapter'
 import type { ProductDto, ProductPayload, StoreDto } from './backendTypes'
+import { buildAlbumProductMetadataLabel } from '../products/albumProductMetadata'
 
 type RuoyiResponse<T> = {
   code?: number
@@ -36,19 +37,25 @@ const findCreatedRecord = async <T>(
   return created
 }
 
-const productToYyPayload = (payload: ProductPayload, id?: BackendId, fallbackStoreId = '') => ({
-  id,
-  storeId: payload.storeId ?? fallbackStoreId,
-  productType: payload.spec || 'SERVICE',
-  productName: payload.name,
-  price: payload.priceCents / 100,
-  durationMinutes: 60,
-  selectionPrice: payload.unitPriceCents / 100,
-  albumProductName: payload.description || payload.name,
-  status: payload.active ? '0' : '1',
-  sort: 0,
-  remark: payload.description,
-})
+const productToYyPayload = (payload: ProductPayload, id?: BackendId, fallbackStoreId = '') => {
+  const normalizedBizCategory = String(payload.bizCategory || payload.spec || 'SERVICE').trim().toUpperCase()
+  const isAlbumProduct = normalizedBizCategory === 'ALBUM'
+  return {
+    id,
+    storeId: payload.storeId ?? fallbackStoreId,
+    productType: normalizedBizCategory,
+    productName: payload.name,
+    price: payload.priceCents / 100,
+    durationMinutes: 60,
+    selectionPrice: payload.unitPriceCents / 100,
+    albumProductName: isAlbumProduct
+      ? buildAlbumProductMetadataLabel(payload.spec, payload.includedCount)
+      : payload.description || payload.name,
+    status: payload.active ? '0' : '1',
+    sort: 0,
+    remark: payload.description,
+  }
+}
 
 export const createProductsApi = (deps: ProductsApiDeps) => {
   const productWithStoreName = (product: ProductDto): ProductDto => ({
@@ -91,6 +98,7 @@ export const createProductsApi = (deps: ProductsApiDeps) => {
       return api.updateProduct(id, {
         productCode: current.productCode,
         storeId: current.storeId,
+        bizCategory: current.rawProductType || current.spec,
         name: current.name,
         coverUrl: current.coverUrl,
         spec: current.spec,

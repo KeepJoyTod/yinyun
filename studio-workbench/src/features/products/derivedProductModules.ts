@@ -52,6 +52,8 @@ const includesAny = (value: string, keywords: string[]) => keywords.some(keyword
 const productText = (product: ProductConfig) =>
   `${product.id} ${product.name} ${product.spec} ${product.desc}`.toLowerCase()
 
+const normalizedBizCategory = (product: ProductConfig) => String(product.bizCategory ?? '').trim().toUpperCase()
+
 const moneyNumber = (value: string) => Number(String(value).replace(/,/g, '')) || 0
 
 const hasProductRuleIssue = (product: ProductConfig) =>
@@ -95,7 +97,9 @@ const moduleConfigs: DerivedProductModule[] = [
     emptyTitle: '当前没有企业或团体产品',
     emptyHint: '产品名称、规格或说明包含企业、团体、团单、多人、公司等关键词时，会自动归入这里。',
     source: 'product',
-    matchProduct: product => includesAny(productText(product), ['企业', '团体', '团单', '多人', '公司']),
+    matchProduct: product =>
+      ['GROUP', 'GROUP_BUY'].includes(normalizedBizCategory(product))
+      || includesAny(productText(product), ['企业', '团体', '团单', '多人', '公司']),
     titleForProduct: product => product.name,
     subtitleForProduct: product => `${product.spec || '未配置规格'} · ${product.desc || '暂无说明'}`,
     nextActionForProduct: product => (product.active ? '确认拍摄人数、批次和交付规则，订单仍进入统一订单页处理。' : '产品已下架，先在服务产品里确认是否恢复。'),
@@ -108,10 +112,32 @@ const moduleConfigs: DerivedProductModule[] = [
     emptyTitle: '当前没有冲印或打印产品',
     emptyHint: '产品名称、规格或说明包含冲印、加洗、打印、相纸、证照等关键词时，会自动归入这里。',
     source: 'product',
-    matchProduct: product => includesAny(productText(product), ['冲印', '加洗', '打印', '相纸', '证照']),
+    matchProduct: product =>
+      normalizedBizCategory(product) === 'PRINT'
+      || includesAny(productText(product), ['冲印', '加洗', '打印', '相纸', '证照']),
     titleForProduct: product => product.name,
     subtitleForProduct: product => `${product.spec || '未配置规格'} · 套系价 ¥${product.price || 0}`,
     nextActionForProduct: product => (product.active ? '核对尺寸、相纸和交付要求，订单进入统一订单页跟进。' : '产品已下架，先确认是否仍需保留冲印入口。'),
+  },
+  {
+    key: 'product-album',
+    title: '入册产品',
+    eyebrow: 'Album Products',
+    description: '从统一产品表 yy_product 归集相册、入册、成册和精修入册类产品，沿用统一商品账本，不单独新建第二套入册产品台账。',
+    addLabel: '新增入册产品',
+    priceLabel: '入册金额',
+    quantityLabel: '入册数量',
+    emptyTitle: '当前没有入册产品',
+    emptyHint: '当产品业务分类为 ALBUM，或商品名称/规格包含入册、相册、成册时，会自动归集到这里。',
+    source: 'product',
+    matchProduct: product =>
+      normalizedBizCategory(product) === 'ALBUM'
+      || includesAny(productText(product), ['入册', '相册', '成册']),
+    titleForProduct: product => product.nickname || product.name,
+    subtitleForProduct: product => product.intro || product.desc || '未配置入册说明',
+    metricValueForProduct: product => `¥${product.price || 0}`,
+    quantityValueForProduct: product => `${Number(product.includedCount) || 0} 张`,
+    nextActionForProduct: product => (product.active ? '确认相册类型、入册张数和上架入口，订单仍进入统一订单链路。' : '产品已下架，先确认是否仍需保留入册入口。'),
   },
   {
     key: 'product-card-catalog',

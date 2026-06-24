@@ -7,7 +7,7 @@ describe('campaign orders page contract', () => {
   it('replaces the campaign order placeholder with a real route', () => {
     expect(routerSource).toContain('CampaignOrdersView.vue')
     expect(getWorkbenchFeature('order-campaign')?.component).toBe('campaign-orders')
-    expect(getWorkbenchFeature('order-campaign')?.status).toBe('ready')
+    expect(getWorkbenchFeature('order-campaign')?.status).toBe('derived')
     expect(getWorkbenchFeature('order-campaign')?.permission).toBe('yy:order:list')
   })
 
@@ -28,6 +28,8 @@ describe('campaign orders page contract', () => {
   it('keeps staff workbench focused on follow-up instead of creating bookings', () => {
     expect(campaignOrdersSource).toContain('打开统一订单')
     expect(campaignOrdersSource).toContain('跟进订单')
+    expect(campaignOrdersSource).toContain('PromotionTrialPanel')
+    expect(campaignOrdersSource).toContain('CampaignOrderLinkPanel')
     expect(campaignOrdersSource).not.toContain('新建预约')
     expect(campaignOrdersSource).not.toContain('createOrder')
   })

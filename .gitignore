@@ -36,6 +36,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# local Windows helper scripts
+*.bat
+
 # local archives
 *.zip
 *.7z

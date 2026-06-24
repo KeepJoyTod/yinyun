@@ -309,7 +309,13 @@ function Start-Backend {
 
     Remove-Item -LiteralPath $BackendOutLog, $BackendErrLog -ErrorAction SilentlyContinue
     $process = Start-Process -FilePath (Assert-Command java) `
-        -ArgumentList @('-jar', $BackendJar) `
+        -ArgumentList @(
+            '-Dfile.encoding=UTF-8',
+            '-Dsun.stdout.encoding=UTF-8',
+            '-Dsun.stderr.encoding=UTF-8',
+            '-jar',
+            $BackendJar
+        ) `
         -WorkingDirectory $BackendRoot `
         -RedirectStandardOutput $BackendOutLog `
         -RedirectStandardError $BackendErrLog `

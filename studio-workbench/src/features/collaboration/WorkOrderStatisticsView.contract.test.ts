@@ -11,17 +11,16 @@ describe('work order statistics page contract', () => {
     expect(getWorkbenchFeature('collaboration-statistics')?.permission).toBe('yy:order:list')
   })
 
-  it('aggregates stage stats from the same derived work orders', () => {
-    expect(statsSource).toContain('buildWorkOrders')
+  it('aggregates stage stats from the real work order runtime', () => {
+    expect(statsSource).toContain('useCollaborationWorkOrders')
     expect(statsSource).toContain('buildWorkOrderStageStats')
-    expect(statsSource).toContain('appStore.orders')
-    expect(statsSource).toContain('appStore.albums')
-    expect(statsSource).toContain('appStore.selectionLinks')
+    expect(statsSource).toContain('真实工单主链')
+    expect(statsSource).not.toContain('buildWorkOrders')
   })
 
   it('keeps statistics read-only', () => {
-    expect(statsSource).toContain('环节统计')
-    expect(statsSource).toContain('只读统计视图')
+    expect(statsSource).toContain('岗位统计')
+    expect(statsSource).toContain('当前页只读真实工单统计')
     expect(statsSource).not.toContain('createOrder')
     expect(statsSource).not.toContain('新建预约')
   })

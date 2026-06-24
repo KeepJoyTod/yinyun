@@ -111,6 +111,7 @@ export type YyPhotoAssetForm = {
   fileUrl: string
   objectKey: string
   thumbnailObjectKey: string
+  fileSizeBytes: number
   sort: number
   isSelected: string
   visible: string

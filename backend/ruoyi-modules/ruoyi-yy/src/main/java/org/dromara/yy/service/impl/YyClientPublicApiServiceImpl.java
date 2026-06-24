@@ -311,21 +311,11 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
     @Override
     public Map<String, Object> payCustomerOrder(String authorization, Long orderId) {
         CustomerIdentity identity = requirePhoneIdentity(authorization);
-        TenantHelper.dynamic(defaultTenantId, () -> {
-            requireAuthorizedLocalOrder(identity, orderId);
-            return null;
+        return TenantHelper.dynamic(defaultTenantId, () -> {
+            YyOrder order = requireAuthorizedOrder(identity, orderId);
+            YyPaymentOrderPolicy.validateCustomerPayableOrder(order, defaultTenantId);
+            return YyClientPaymentPlaceholderAssembler.customerPayResponse(order);
         });
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("timeStamp", "");
-        data.put("nonceStr", "");
-        data.put("package", "");
-        data.put("signType", "");
-        data.put("paySign", "");
-        data.put("orderId", String.valueOf(orderId));
-        data.put("amount", 0);
-        data.put("paymentReady", false);
-        data.put("message", "在线支付暂未接入，订单已创建，请到店或联系门店确认。");
-        return data;
     }
 
     @Override

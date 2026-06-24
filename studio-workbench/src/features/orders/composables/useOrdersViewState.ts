@@ -28,6 +28,7 @@ export function useOrdersViewState() {
   const cancelReason = ref('')
   const cancellingOrderId = ref('')
   const updatingOrderId = ref('')
+  const confirmingPaymentOrderId = ref('')
   const orderAlbumActionLoading = ref<'' | 'notify' | 'confirm' | 'deliver'>('')
   const orderPhotoAccessLoading = ref(false)
   const orderPhotoAccessError = ref('')
@@ -104,7 +105,7 @@ export function useOrdersViewState() {
     slotRange, slotScopedOrders, slotScopedDashboardContext,
     statusTab, anomalyFilters, ordersTableScrollRef,
     syncingFromQuery, lastAllOrdersQueryKey, lastOpenedOrderQuery,
-    cancelReason, cancellingOrderId, updatingOrderId,
+    cancelReason, cancellingOrderId, updatingOrderId, confirmingPaymentOrderId,
     orderAlbumActionLoading, orderPhotoAccessLoading, orderPhotoAccessError, orderPhotoAccessRequestId,
     orderActionNotice, selectedOrder, exportingOrders,
     reschedulingOrderId, rescheduleConflict, syncingDouyinOrders,

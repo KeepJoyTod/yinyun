@@ -139,6 +139,58 @@ create unique index if not exists uk_yy_photo_asset_album_object_key_active
     on yy_photo_asset (tenant_id, album_id, object_key)
     where del_flag = '0' and object_key is not null and btrim(object_key) <> '';
 
+alter table if exists yy_photo_asset add column if not exists asset_type varchar(32) default 'RAW';
+alter table if exists yy_photo_asset add column if not exists rating int default 0;
+alter table if exists yy_photo_asset add column if not exists file_size_bytes bigint default 0;
+
+create table if not exists yy_photo_tag (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint not null,
+    tag_name varchar(64) not null,
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_photo_tag_store_name_active
+    on yy_photo_tag (tenant_id, store_id, tag_name)
+    where del_flag = '0';
+
+create index if not exists idx_yy_photo_tag_store
+    on yy_photo_tag (tenant_id, store_id);
+
+create table if not exists yy_photo_asset_tag (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint not null,
+    asset_id bigint not null,
+    tag_id bigint not null,
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_photo_asset_tag_relation_active
+    on yy_photo_asset_tag (tenant_id, asset_id, tag_id)
+    where del_flag = '0';
+
+create index if not exists idx_yy_photo_asset_tag_asset
+    on yy_photo_asset_tag (tenant_id, asset_id);
+
+create index if not exists idx_yy_photo_asset_tag_tag
+    on yy_photo_asset_tag (tenant_id, tag_id);
+
 create table if not exists yy_photo_access_log (
     id bigint not null,
     tenant_id varchar(20) default '000000',
@@ -643,6 +695,7 @@ values
 (6212, '订单修改', 6202, 3, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:edit', '#', 103, 1, now(), null, null, '订单修改'),
 (6213, '订单删除', 6202, 4, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:remove', '#', 103, 1, now(), null, null, '订单删除'),
 (6214, '订单导出', 6202, 5, '#', '', '', 1, 0, 'F', '0', '0', 'yy:order:export', '#', 103, 1, now(), null, null, '订单导出'),
+(6299, '首页导出', 6201, 1, '#', '', '', 1, 0, 'F', '0', '0', 'yy:dashboard:export', '#', 103, 1, now(), null, null, '首页汇总导出'),
 (6215, '门店查询', 6203, 1, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:list', '#', 103, 1, now(), null, null, '门店查询'),
 (6216, '门店新增', 6203, 2, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:add', '#', 103, 1, now(), null, null, '门店新增'),
 (6217, '门店修改', 6203, 3, '#', '', '', 1, 0, 'F', '0', '0', 'yy:store:edit', '#', 103, 1, now(), null, null, '门店修改'),

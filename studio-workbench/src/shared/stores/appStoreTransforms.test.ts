@@ -208,6 +208,42 @@ describe('appStoreTransforms helpers', () => {
     expect(productPayload(product).storeId).toBe('900000000000000100')
   })
 
+  it('maps backend album and group-buy products back to normalized business categories', () => {
+    const album = mapProduct({
+      id: '900000000000030002',
+      storeId: '900000000000000100',
+      storeName: '滨州万达店',
+      productCode: 'YY_PRODUCT_900000000000030002',
+      name: '轻奢相册入册 12 张',
+      coverUrl: null,
+      spec: 'ALBUM',
+      priceCents: 69900,
+      unitPriceCents: 0,
+      includedCount: 12,
+      active: true,
+      description: '含精修入册与相册排版',
+    })
+    const group = mapProduct({
+      id: '900000000000030003',
+      storeId: '900000000000000100',
+      storeName: '滨州万达店',
+      productCode: 'YY_PRODUCT_900000000000030003',
+      name: '企业团单形象照',
+      coverUrl: null,
+      spec: 'GROUP_BUY',
+      priceCents: 199900,
+      unitPriceCents: 0,
+      includedCount: 1,
+      active: true,
+      description: '多人企业拍摄套餐',
+    })
+
+    expect(album.bizCategory).toBe('ALBUM')
+    expect(group.bizCategory).toBe('GROUP_BUY')
+    expect(productPayload(album).bizCategory).toBe('ALBUM')
+    expect(productPayload(group).bizCategory).toBe('GROUP_BUY')
+  })
+
   it('keeps standalone photo albums usable when they are not linked to an order', () => {
     const album = mapAlbum({
       id: '900000000000040001',
