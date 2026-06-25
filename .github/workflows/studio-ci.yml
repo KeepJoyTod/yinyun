@@ -154,4 +154,4 @@ jobs:
 
       - name: Douyin Life adapter targeted tests
         working-directory: backend
-        run: mvn -pl ruoyi-modules/ruoyi-yy -am "-Dtest=DouyinLifeChannelAdapterTest" "-DskipTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" test
+        run: mvn -pl ruoyi-modules/ruoyi-yy -am -P dev "-Dtest=DouyinLifeChannelAdapterTest" "-DskipTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" test
