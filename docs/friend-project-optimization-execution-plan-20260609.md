@@ -15,8 +15,8 @@ D:\OtherProject\CameraApp\yingyue-cloud-repo
 ```text
 D:\OtherProject\CameraApp\photoshop-master
 D:\OtherProject\CameraApp\yuyue-main
-C:\Users\Administrator\Desktop\yiyue\前端优化
-C:\Users\Administrator\Desktop\yiyue\抖音小程序
+docs\yiyue\前端优化
+docs\yiyue\抖音小程序
 ```
 
 ## 总目标
@@ -320,10 +320,10 @@ EXPIRED
 ```text
 D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\friend-project-current-handover-master-map-20260609.md
 D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\friend-project-optimization-execution-plan-20260609.md
-C:\Users\Administrator\Desktop\yiyue\friend-project-current-handover-master-map-20260609.md
-C:\Users\Administrator\Desktop\yiyue\friend-project-optimization-execution-plan-20260609.md
-C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-交接地图-20260609.md
-C:\Users\Administrator\Desktop\yiyue\抖音小程序\抖音小程序-交接地图-20260609.md
+docs\yiyue\friend-project-current-handover-master-map-20260609.md
+docs\yiyue\friend-project-optimization-execution-plan-20260609.md
+docs\yiyue\前端优化\前端优化-交接地图-20260609.md
+docs\yiyue\抖音小程序\抖音小程序-交接地图-20260609.md
 ```
 
 ## 近期推荐执行顺序

@@ -13,8 +13,8 @@
 ### Task 1: Freeze Canonical Inputs
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\studio-workbench-master-plan-20260619.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md`
+- Modify: `docs\yiyue\studio-workbench-master-plan-20260619.md`
+- Modify: `docs\yiyue\hk2-runbook-20260619.md`
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\superpowers\plans\2026-06-19-studio-workbench-governance-reset.md`
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\superpowers\plans\2026-06-19-studio-workbench-hk2-douyin-truth-table.md`
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\superpowers\plans\2026-06-19-studio-workbench-schedule-fulfillment.md`
@@ -28,7 +28,7 @@ Run:
 ```powershell
 git -C "D:\OtherProject\CameraApp\yingyue-cloud-repo" status --short --branch
 git -C "D:\OtherProject\CameraApp\yingyue-cloud-repo" log --oneline -3
-Get-Item "C:\Users\Administrator\Desktop\yiyue\studio-workbench-master-plan-20260619.md", "C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md" |
+Get-Item "docs\yiyue\studio-workbench-master-plan-20260619.md", "docs\yiyue\hk2-runbook-20260619.md" |
   Select-Object FullName,Length,LastWriteTime
 ```
 
@@ -39,7 +39,7 @@ Expected:
 
 - [ ] **Step 2: Record the canonical plan pack in the master spec**
 
-Append this block to `C:\Users\Administrator\Desktop\yiyue\studio-workbench-master-plan-20260619.md` under a new `## Canonical Plan Pack` section:
+Append this block to `docs\yiyue\studio-workbench-master-plan-20260619.md` under a new `## Canonical Plan Pack` section:
 
 ```md
 ## Canonical Plan Pack
@@ -57,7 +57,7 @@ Append this block to `C:\Users\Administrator\Desktop\yiyue\studio-workbench-mast
 Run:
 
 ```powershell
-rg -n "Canonical Plan Pack|multiagent-orchestration|schedule-fulfillment" "C:\Users\Administrator\Desktop\yiyue\studio-workbench-master-plan-20260619.md"
+rg -n "Canonical Plan Pack|multiagent-orchestration|schedule-fulfillment" "docs\yiyue\studio-workbench-master-plan-20260619.md"
 ```
 
 Expected:
@@ -133,9 +133,9 @@ Expected:
 ### Task 3: Merge Gates and Release Gates
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\code_map.md`
+- Modify: `docs\yiyue\optimization_map.md`
+- Modify: `docs\yiyue\function_map.md`
+- Modify: `docs\yiyue\code_map.md`
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\studio-workbench-multiagent-release-20260619.md`
 
 - [ ] **Step 1: Enforce the three completion gates**

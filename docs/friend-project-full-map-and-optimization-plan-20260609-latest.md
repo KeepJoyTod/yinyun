@@ -16,7 +16,7 @@ Friend projects are reference assets only:
 | --- | --- | --- |
 | Photo studio admin demo | `D:\OtherProject\CameraApp\photoshop-master` | Reference for album workspace, online selection, order filtering, schedule capacity UI |
 | Taro miniapp demo | `D:\OtherProject\CameraApp\yuyue-main` | Reference for login, booking, orders, negatives selection |
-| Desktop maps | `C:\Users\Administrator\Desktop\yiyue` | Operating maps, acceptance notes, platform configuration notes |
+| Desktop maps | `docs\yiyue` | Operating maps, acceptance notes, platform configuration notes |
 
 Production boundaries:
 
@@ -118,7 +118,7 @@ After uploading in the admin photo dialog, operators can click `复制预检命�
 Desktop twin:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\朋友项目全量地图与优化总计划-20260609-latest.md
+docs\yiyue\朋友项目全量地图与优化总计划-20260609-latest.md
 ```
 
 Final real-image evidence template:

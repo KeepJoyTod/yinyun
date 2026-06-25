@@ -100,9 +100,9 @@ GET https://studio.evanshine.me/service/photos?cb=prod-fffc079-store-scoped-slot
 ## Local Maps Updated
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\function_map.md
-C:\Users\Administrator\Desktop\yiyue\optimization_map.md
-C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md
+docs\yiyue\function_map.md
+docs\yiyue\optimization_map.md
+docs\yiyue\jianyue_benchmark_map.md
 ```
 
 ## Rollback

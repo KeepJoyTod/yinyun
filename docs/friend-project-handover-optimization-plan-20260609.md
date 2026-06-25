@@ -11,7 +11,7 @@
 | 正式主项目 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | RuoYi / Spring Boot / admin-ui / mobile-uniapp | 唯一生产基线 |
 | 预约小程序参考 | `D:\OtherProject\CameraApp\yuyue-main` | Taro React 小程序 + Vue admin + Spring Boot demo server | 吸收预约、订单、底片选片体验 |
 | 前端优化参考 | `D:\OtherProject\CameraApp\photoshop-master` | Vue 3 / Vite / Tailwind / Spring Boot demo | 吸收后台 UI、在线选片、相册运营体验 |
-| 桌面交接目录 | `C:\Users\Administrator\Desktop\yiyue` | 地图、验收、账号、平台配置沉淀 | 同步地图，不放明文密钥 |
+| 桌面交接目录 | `docs\yiyue` | 地图、验收、账号、平台配置沉淀 | 同步地图，不放明文密钥 |
 
 ## 核心边界
 

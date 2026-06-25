@@ -63,7 +63,7 @@ Phase 0 要求把工作台共享类型按域拆出：
 - `yy_booking_slot_inventory` 继续作为真实排期库存账本。
 - 会员、营销、通知、财务、审计等真实读写在 Phase 0 不落伪数据，只登记目标账本和接口边界。
 - `admin-ui` 只作为迁移参考，不再新增 owner。
-- 当前缺失 `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`，Phase 0 先在 `optimization_map.md` 登记替代说明。
+- 当前缺失 `docs\yiyue\jianyue_benchmark_map.md`，Phase 0 先在 `optimization_map.md` 登记替代说明。
 
 ## 6. Phase 0 验收命令
 
@@ -73,3 +73,10 @@ npm --prefix studio-workbench run test -- src/app/router/featureRegistry.contrac
 npm --prefix studio-workbench run build
 node --test mobile-uniapp/tests/domain-registry-contract.test.cjs
 ```
+## 2026-06-24 Platform Settings Phase 1
+
+- `/platform/integration`, `/platform/notification-center`, `/platform/service-packages` now use a read-only Phase 1 full-stack scaffold.
+- Frontend owner: `studio-workbench/src/features/platform-settings/*`, `backendPlatformApi.ts`, `backendTypesPlatform.ts`.
+- Backend facade: `GET /yy/platform-settings/integrations`, `GET /yy/platform-settings/notifications`, `GET /yy/platform-settings/service-packages`.
+- Data ledgers reused: `yy_channel_account`, `yy_channel_sync_log`, `yy_channel_event_inbox`, `yy_notification_template`, `yy_notification_log`, `yy_service_license_binding`.
+- Boundary: no real payment, no renewal write, no channel inventory write, no webhook subscription creation in this phase.

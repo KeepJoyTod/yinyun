@@ -3,11 +3,15 @@ package org.dromara.yy.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.yy.domain.YyCouponInstance;
 import org.dromara.yy.domain.YyCouponTemplate;
 import org.dromara.yy.domain.YyCustomer;
+import org.dromara.yy.domain.YyEmployee;
+import org.dromara.yy.domain.YyEmployeeStore;
 import org.dromara.yy.domain.YyMemberAccount;
 import org.dromara.yy.domain.YyMemberBalanceLedger;
 import org.dromara.yy.domain.YyMemberBenefitLedger;
@@ -24,6 +28,8 @@ import org.dromara.yy.domain.vo.YyMemberPointsLedgerVo;
 import org.dromara.yy.mapper.YyCouponInstanceMapper;
 import org.dromara.yy.mapper.YyCouponTemplateMapper;
 import org.dromara.yy.mapper.YyCustomerMapper;
+import org.dromara.yy.mapper.YyEmployeeMapper;
+import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyMemberAccountMapper;
 import org.dromara.yy.mapper.YyMemberBalanceLedgerMapper;
 import org.dromara.yy.mapper.YyMemberBenefitLedgerMapper;
@@ -34,9 +40,12 @@ import org.dromara.yy.service.IYyMemberAssetService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +58,8 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     private static final BigDecimal ZERO = BigDecimal.ZERO;
 
     private final YyCustomerMapper customerMapper;
+    private final YyEmployeeMapper employeeMapper;
+    private final YyEmployeeStoreMapper employeeStoreMapper;
     private final YyMemberAccountMapper memberAccountMapper;
     private final YyMemberCardInstanceMapper memberCardInstanceMapper;
     private final YyMemberBenefitLedgerMapper memberBenefitLedgerMapper;
@@ -61,10 +72,8 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public YyMemberOverviewVo getMemberOverview(Long customerId) {
         YyCustomer customer = requireCustomer(customerId);
-        YyMemberAccount account = memberAccountMapper.selectOne(Wrappers.<YyMemberAccount>lambdaQuery()
-            .eq(YyMemberAccount::getCustomerId, customerId)
-            .orderByDesc(YyMemberAccount::getId)
-            .last("limit 1"));
+        YyMemberAccount account = findLatestAccount(customerId);
+        requireStoreAccess(account == null ? null : account.getStoreId(), "无权查看该会员资产");
 
         int activeCardCount = Math.toIntExact(memberCardInstanceMapper.selectCount(Wrappers.<YyMemberCardInstance>lambdaQuery()
             .eq(YyMemberCardInstance::getCustomerId, customerId)
@@ -99,6 +108,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberCardInstanceVo> listMemberCards(Long customerId) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员卡资产");
         return memberCardInstanceMapper.selectList(Wrappers.<YyMemberCardInstance>lambdaQuery()
                 .eq(YyMemberCardInstance::getCustomerId, customerId)
                 .orderByDesc(YyMemberCardInstance::getUpdateTime)
@@ -111,6 +121,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberBenefitLedgerVo> listMemberBenefits(Long customerId) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员权益资产");
         return memberBenefitLedgerMapper.selectList(Wrappers.<YyMemberBenefitLedger>lambdaQuery()
                 .eq(YyMemberBenefitLedger::getCustomerId, customerId)
                 .orderByDesc(YyMemberBenefitLedger::getUpdateTime)
@@ -123,6 +134,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberCouponVo> listMemberCoupons(Long customerId) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员券资产");
         List<YyCouponInstance> instances = couponInstanceMapper.selectList(Wrappers.<YyCouponInstance>lambdaQuery()
             .eq(YyCouponInstance::getCustomerId, customerId)
             .orderByDesc(YyCouponInstance::getUpdateTime)
@@ -132,7 +144,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
         }
         List<Long> templateIds = instances.stream()
             .map(YyCouponInstance::getTemplateId)
-            .filter(id -> id != null)
+            .filter(Objects::nonNull)
             .distinct()
             .toList();
         Map<Long, YyCouponTemplate> templates = templateIds.isEmpty()
@@ -149,6 +161,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberPointsLedgerVo> listMemberPointsLedger(Long customerId, int limit) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员积分流水");
         int safeLimit = normalizeLimit(limit);
         return memberPointsLedgerMapper.selectList(Wrappers.<YyMemberPointsLedger>lambdaQuery()
                 .eq(YyMemberPointsLedger::getCustomerId, customerId)
@@ -163,6 +176,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberGrowthLedgerVo> listMemberGrowthLedger(Long customerId, int limit) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员成长值流水");
         int safeLimit = normalizeLimit(limit);
         return memberGrowthLedgerMapper.selectList(Wrappers.<YyMemberGrowthLedger>lambdaQuery()
                 .eq(YyMemberGrowthLedger::getCustomerId, customerId)
@@ -177,6 +191,7 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     @Override
     public List<YyMemberBalanceLedgerVo> listMemberBalanceLedger(Long customerId, int limit) {
         requireCustomer(customerId);
+        requireStoreAccess(resolveMemberStoreId(customerId), "无权查看该会员余额流水");
         int safeLimit = normalizeLimit(limit);
         return memberBalanceLedgerMapper.selectList(Wrappers.<YyMemberBalanceLedger>lambdaQuery()
                 .eq(YyMemberBalanceLedger::getCustomerId, customerId)
@@ -191,9 +206,21 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
     private YyCustomer requireCustomer(Long customerId) {
         YyCustomer customer = customerMapper.selectById(customerId);
         if (customer == null) {
-            throw new ServiceException("客户不存在");
+            throw new ServiceException("会员客户不存在");
         }
         return customer;
+    }
+
+    private YyMemberAccount findLatestAccount(Long customerId) {
+        return memberAccountMapper.selectOne(Wrappers.<YyMemberAccount>lambdaQuery()
+            .eq(YyMemberAccount::getCustomerId, customerId)
+            .orderByDesc(YyMemberAccount::getId)
+            .last("limit 1"));
+    }
+
+    private Long resolveMemberStoreId(Long customerId) {
+        YyMemberAccount account = findLatestAccount(customerId);
+        return account == null ? null : account.getStoreId();
     }
 
     private int normalizeLimit(int limit) {
@@ -350,5 +377,76 @@ public class YyMemberAssetServiceImpl implements IYyMemberAssetService {
 
     private String formatDateTime(Date value) {
         return value == null ? "" : DateUtil.formatDateTime(value);
+    }
+
+    private void requireStoreAccess(Long storeId, String message) {
+        if (!canAccessStore(storeId)) {
+            throw new ServiceException(message);
+        }
+    }
+
+    private boolean canAccessStore(Long storeId) {
+        StoreScope storeScope = resolveCurrentStoreScope();
+        return !storeScope.applicable()
+            || storeScope.globalScope()
+            || (storeId != null && storeScope.storeIds().contains(storeId));
+    }
+
+    private StoreScope resolveCurrentStoreScope() {
+        if (!LoginHelper.isLogin()) {
+            return StoreScope.notApplicable();
+        }
+        if (LoginHelper.isSuperAdmin() || LoginHelper.isTenantAdmin()) {
+            return StoreScope.global();
+        }
+        if (employeeMapper == null) {
+            return StoreScope.empty();
+        }
+        LoginUser loginUser = LoginHelper.getLoginUser();
+        if (loginUser == null || loginUser.getUserId() == null) {
+            return StoreScope.empty();
+        }
+        YyEmployee employee = employeeMapper.selectOne(Wrappers.lambdaQuery(YyEmployee.class)
+            .eq(YyEmployee::getUserId, loginUser.getUserId())
+            .eq(YyEmployee::getStatus, "0")
+            .last("limit 1"));
+        if (employee == null) {
+            return StoreScope.empty();
+        }
+        LinkedHashSet<Long> storeIds = new LinkedHashSet<>();
+        if (employeeStoreMapper != null && employee.getId() != null) {
+            List<YyEmployeeStore> employeeStores = employeeStoreMapper.selectList(
+                Wrappers.<YyEmployeeStore>lambdaQuery()
+                    .eq(YyEmployeeStore::getEmployeeId, employee.getId())
+                    .eq(YyEmployeeStore::getDelFlag, "0")
+                    .orderByAsc(YyEmployeeStore::getSort)
+                    .orderByAsc(YyEmployeeStore::getId));
+            employeeStores.stream()
+                .map(YyEmployeeStore::getStoreId)
+                .filter(Objects::nonNull)
+                .forEach(storeIds::add);
+        }
+        if (storeIds.isEmpty() && employee.getStoreId() != null) {
+            storeIds.add(employee.getStoreId());
+        }
+        return StoreScope.limited(storeIds);
+    }
+
+    private record StoreScope(boolean applicable, boolean globalScope, Set<Long> storeIds) {
+        private static StoreScope notApplicable() {
+            return new StoreScope(false, false, Set.of());
+        }
+
+        private static StoreScope global() {
+            return new StoreScope(true, true, Set.of());
+        }
+
+        private static StoreScope empty() {
+            return new StoreScope(true, false, Set.of());
+        }
+
+        private static StoreScope limited(Collection<Long> storeIds) {
+            return new StoreScope(true, false, Set.copyOf(storeIds));
+        }
     }
 }

@@ -9,7 +9,7 @@
 | 项 | 值 |
 | --- | --- |
 | 项目路径 | `D:\OtherProject\CameraApp\photoshop-master` |
-| 桌面副本 | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` |
+| 桌面副本 | `docs\yiyue\前端优化\photoshop-master` |
 | 前端 | `frontend`，Vue 3 + Vite + TypeScript + Tailwind v4 + Radix Vue + lucide-vue-next |
 | 后端 | `backend`，Spring Boot + MyBatis Plus + Flyway + MinIO demo |
 | 重点参考 | 在线选片、相册运营、日程、订单、门店、财务 |

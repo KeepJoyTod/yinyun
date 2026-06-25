@@ -37,13 +37,13 @@ Not shipped:
 JianYue evidence is stored outside the repo:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\jianyue-assets\20260617-dashboard
+docs\yiyue\jianyue-assets\20260617-dashboard
 ```
 
 Implementation evidence is stored outside the repo:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\jianyue-assets\20260617-implemented
+docs\yiyue\jianyue-assets\20260617-implemented
 ```
 
 ## Verification

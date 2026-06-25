@@ -132,3 +132,101 @@ type MemberRechargeOrderResponse = {
 - 只支持工作台门店手工充值，不接第三方在线支付。
 - 不补提现、退款回滚、审批流。
 - 不改订单主账本 `yy_order` 的支付状态机。
+
+
+## 8. 储值 P1 只读接口
+
+### `GET /yy/member/recharge-setting`
+
+权限：`yy:customer:list`
+
+```ts
+type MemberRechargeSettingResponse = {
+  status: 'scaffold' | 'ready' | 'disabled' | 'expired'
+  enabled: boolean
+  scopeLabel: string
+  gateCopy: string
+  allowManualRecharge: boolean
+  allowGiftAmount: boolean
+  allowCrossStore: boolean
+  supportedChannels: Array<'STORE_CASH' | 'WECHAT_PAY' | 'ALIPAY' | 'BANK_TRANSFER' | 'OTHER'>
+  defaultChannelType: 'STORE_CASH' | 'WECHAT_PAY' | 'ALIPAY' | 'BANK_TRANSFER' | 'OTHER'
+  minRechargeAmount: number
+  maxRechargeAmount?: number
+  notice: string
+  updatedAt?: string
+  giftRules: Array<{
+    ruleId: string
+    label: string
+    rechargeAmount: number
+    giftAmount: number
+    enabled: boolean
+    remark?: string
+  }>
+}
+```
+
+默认口径：`enabled=false`、`status=scaffold`、`allowManualRecharge=true`、`allowGiftAmount=true`、`allowCrossStore=false`，仅表达接口已接入，不代表在线支付、提现或消费扣减开通。
+
+### `GET /yy/member/customer/{customerId}/recharge-orders`
+
+鏉冮檺锛歚yy:customer:list`
+
+```ts
+type MemberRechargeOrderListResponse = Array<{
+  id: string
+  customerId: string
+  rechargeOrderNo: string
+  rechargeAmount: number
+  giftAmount: number
+  creditedAmount: number
+  balanceAfter: number
+  status: 'PENDING' | 'PENDING_APPROVAL' | 'CONFIRMED'
+  channelType: string
+  paidTime: string
+  externalTradeNo: string
+  remark: string
+}>
+```
+
+鍙ｅ緞锛欼imit` 榛樿 `10`锛屽悗绔繚鎶よ寖鍥翠负 `1..100`銆傛寜 `yy_member_recharge_order.create_time desc, id desc` 杩斿洖鏈€杩戝厖鍊煎崟锛宐alanceAfter` 浼樺厛浠?`yy_member_balance_ledger.sourceType=RECHARGE_ORDER` 鐨勭湡瀹炲埌璐﹀悗浣欓涓哄噯锛屽緟纭鍏呭€煎崟鍥炴樉褰撳墠浼氬憳浣欓蹇収銆?
+
+### `GET /yy/member/recharge-capability`
+
+权限：`yy:customer:list`
+
+```ts
+type MemberRechargeCapabilityResponse = {
+  capabilityCode: string
+  capabilityName: string
+  enabled: boolean
+  status: 'scaffold' | 'ready' | 'disabled' | 'expired'
+  scopeLabel: string
+  gateCopy: string
+  permissionCode: string
+  requiresApproval: boolean
+  pluginState: 'enabled' | 'disabled' | 'unknown'
+  licenseState: 'active' | 'missing' | 'expired' | 'unknown'
+  expiresAt?: string
+}
+```
+
+默认口径：`capabilityCode=MEMBER_RECHARGE`、`permissionCode=yy:customer:list`、`requiresApproval=true`、`pluginState=disabled`、`licenseState=missing`。
+
+### `GET /yy/member/stored-value-transactions`
+
+权限：`yy:customer:list`
+
+```ts
+type MemberStoredValueTransactionListQuery = {
+  customerId?: string
+  storeId?: string
+  transactionType?: 'RECHARGE' | 'CONSUME' | 'REFUND' | 'ADJUST' | 'EXPIRE' | 'WITHDRAW'
+  transactionStatus?: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'FAILED' | 'REVERSED'
+  limit?: number
+}
+```
+
+响应字段对齐工作台 `MemberStoredValueTransactionDto`。数据来源为 `yy_member_balance_ledger`，当 `sourceType=RECHARGE_ORDER` 时关联 `yy_member_recharge_order` 补充 `rechargeOrderNo`、`channelType`、`giftAmount`、`principalAmount` 与状态。`limit` 后端保护范围为 `1..100`。
+
+门店边界：未登录测试态不拦截；超管/租户管理员全局可读；普通员工只能读取自己门店范围内的储值流水，指定越权 `storeId` 时拒绝。

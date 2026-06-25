@@ -9,9 +9,9 @@
 | 类型 | 路径 | 定位 | 结论 |
 | --- | --- | --- | --- |
 | 正式影约云主仓库 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | 生产开发基线 | 只在这里做正式代码、构建、提交 |
-| 前端优化参考项目 | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master`、`D:\OtherProject\CameraApp\photoshop-master` | 朋友做的影楼后台 Demo | 只吸收 UI、在线选片、客片管理、排期体验 |
-| 预约/小程序参考项目 | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main`、`D:\OtherProject\CameraApp\yuyue-main` | 朋友做的 Taro 小程序 + 后端 Demo | 只吸收预约、订单、底片、登录流程 |
-| 抖音小程序交接目录 | `C:\Users\Administrator\Desktop\yiyue\抖音小程序` | 抖音端配置和地图目录 | 不是源码目录 |
+| 前端优化参考项目 | `docs\yiyue\前端优化\photoshop-master`、`D:\OtherProject\CameraApp\photoshop-master` | 朋友做的影楼后台 Demo | 只吸收 UI、在线选片、客片管理、排期体验 |
+| 预约/小程序参考项目 | `docs\yiyue\微信小程序\yuyue-main`、`D:\OtherProject\CameraApp\yuyue-main` | 朋友做的 Taro 小程序 + 后端 Demo | 只吸收预约、订单、底片、登录流程 |
+| 抖音小程序交接目录 | `docs\yiyue\抖音小程序` | 抖音端配置和地图目录 | 不是源码目录 |
 | 正式小程序源码 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp` | H5 / 微信小程序 / 抖音小程序统一源码 | 继续维护这一套 |
 
 一句话：朋友项目是参考素材，不替换正式影约云。正式后台仍是 RuoYi `admin-ui`，正式客户取片仍是 `mobile-uniapp`，正式核心后端仍是 Spring Boot + `api.evanshine.me`。
@@ -148,9 +148,9 @@ uploadFile合法域名: https://api.evanshine.me
 
 | 项目 | 桌面副本 | 工作区副本 | 处理方式 |
 | --- | --- | --- | --- |
-| `photoshop-master` | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | `D:\OtherProject\CameraApp\photoshop-master` | 两份内容高度一致，作为同一摄影后台参考项目 |
-| `yuyue-main` | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | `D:\OtherProject\CameraApp\yuyue-main` | 两份内容高度一致，作为同一预约/小程序参考项目 |
-| 抖音小程序资料 | `C:\Users\Administrator\Desktop\yiyue\抖音小程序` | 无源码副本 | 资料目录，不是正式源码 |
+| `photoshop-master` | `docs\yiyue\前端优化\photoshop-master` | `D:\OtherProject\CameraApp\photoshop-master` | 两份内容高度一致，作为同一摄影后台参考项目 |
+| `yuyue-main` | `docs\yiyue\微信小程序\yuyue-main` | `D:\OtherProject\CameraApp\yuyue-main` | 两份内容高度一致，作为同一预约/小程序参考项目 |
+| 抖音小程序资料 | `docs\yiyue\抖音小程序` | 无源码副本 | 资料目录，不是正式源码 |
 
 ### `photoshop-master` 扫描结论
 

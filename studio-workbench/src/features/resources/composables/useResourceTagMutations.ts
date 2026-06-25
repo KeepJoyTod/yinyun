@@ -1,6 +1,7 @@
-import { ref } from 'vue'
-import { backendApi, type ResourceTagPayload } from '../../../shared/api/backend'
+﻿import { ref } from 'vue'
+import type { ResourceTagPayload } from '../../../shared/api/backend'
 import type { BackendId } from '../../../shared/api/backendId'
+import { resourcesApi } from '../../../shared/api/backendResourcesApi'
 
 export const useResourceTagMutations = () => {
   const submitting = ref(false)
@@ -22,12 +23,22 @@ export const useResourceTagMutations = () => {
     }
   }
 
+  const createTag = (payload: ResourceTagPayload) =>
+    wrap(() => resourcesApi.createResourceTag(payload), '资源标签已创建。')
+
+  const updateTag = (payload: ResourceTagPayload) =>
+    wrap(() => resourcesApi.updateResourceTag(payload), '资源标签已更新。')
+
+  const deleteTag = (id: BackendId) =>
+    wrap(() => resourcesApi.deleteResourceTag(id), '资源标签已删除。')
+
   return {
     submitting,
     error,
     statusMessage,
-    createTag: (payload: ResourceTagPayload) => wrap(() => backendApi.createResourceTag(payload), '资源标签已创建。'),
-    updateTag: (payload: ResourceTagPayload) => wrap(() => backendApi.updateResourceTag(payload), '资源标签已更新。'),
-    deleteTag: (id: BackendId) => wrap(() => backendApi.deleteResourceTag(id), '资源标签已删除。'),
+    createTag,
+    updateTag,
+    deleteTag,
   }
 }
+

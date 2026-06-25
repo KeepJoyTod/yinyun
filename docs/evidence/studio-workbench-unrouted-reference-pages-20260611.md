@@ -26,7 +26,7 @@
 
 ```powershell
 cd D:\OtherProject\CameraApp\yingyue-cloud-repo
-rg "CustomersView|FinanceView|PackagesView|features/customers|features/finance|features/packages" studio-workbench\src docs C:\Users\Administrator\Desktop\yiyue\前端优化 -n
+rg "CustomersView|FinanceView|PackagesView|features/customers|features/finance|features/packages" studio-workbench\src docs docs\yiyue\前端优化 -n
 rg "RouteRecordRaw|path:|component:" studio-workbench\src\app\router\index.ts -n
 ```
 

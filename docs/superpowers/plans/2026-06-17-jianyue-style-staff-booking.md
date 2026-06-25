@@ -71,7 +71,7 @@
 ### Task 5: Verification
 
 **Files:**
-- Update maps if behavior changes materially: `C:/Users/Administrator/Desktop/yiyue/code_map.md`, `api_map.md`, `liucheng_map.md`
+- Update maps if behavior changes materially: `docs/yiyue/code_map.md`, `api_map.md`, `liucheng_map.md`
 
 - [ ] Run backend targeted test.
 - [ ] Run frontend Vitest targeted tests.

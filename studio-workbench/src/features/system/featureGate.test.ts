@@ -54,6 +54,50 @@ describe('feature gate', () => {
     expect(resolveLicenseState([])).toBe('missing')
   })
 
+  it('keeps advisory license gaps accessible for the collaboration open settings page', () => {
+    studioAccessStore.apply({
+      identity: { userId: 'manager-2' },
+      globalStoreScope: false,
+      stores: [
+        {
+          storeId: 'store-2',
+          storeCode: 'YY-HZ-001',
+          storeName: '杭州门店',
+          status: '0',
+        },
+      ],
+      menuPermissions: ['yy:bookingConfig:list'],
+      rolePermissions: ['studio_manager'],
+      featureStatuses: { 'collaboration-open-settings': 'ready' },
+      pending: {
+        pendingOrders: 0,
+        todayArrivals: 0,
+        inventoryConflicts: 0,
+        activeSelections: 0,
+      },
+    })
+
+    const gate = resolveFeatureGate({
+      featureKey: 'collaboration-open-settings',
+      requireStoreScope: true,
+      licenseMode: 'advisory',
+      featureScope: {
+        featureKey: 'collaboration-open-settings',
+        licenseState: 'missing',
+        pluginState: 'not_applicable',
+        approvalState: 'not_applicable',
+        gateCopy: '当前门店范围内未开通协作许可证，可继续创建或续期。',
+        licenseSummary: null,
+        pluginSummary: null,
+      },
+    })
+
+    expect(gate.state).toBe('enabled')
+    expect(gate.licenseState).toBe('missing')
+    expect(gate.pluginState).toBe('not_applicable')
+    expect(gate.approvalState).toBe('not_applicable')
+  })
+
   it('passes when permission, role, plugin and active license are all ready', () => {
     studioAccessStore.apply({
       identity: { userId: 'manager-1' },

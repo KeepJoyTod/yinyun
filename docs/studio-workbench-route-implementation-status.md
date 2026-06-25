@@ -27,6 +27,7 @@
 
 | 路由 | 状态 | 说明 |
 | --- | --- | --- |
+| `/merchant/overview` | READY | 商户模块总览，走 `merchant-core` owner，汇总门店范围、运营指标和渠道映射 |
 | `/merchant/store` | READY | 门店承接概况、快筛与范围切换 |
 | `/merchant/service-groups` | READY | 服务组 CRUD 与排班配置 |
 | `/merchant/inventory` | READY | 时段库存查询、更新与冲突视图 |

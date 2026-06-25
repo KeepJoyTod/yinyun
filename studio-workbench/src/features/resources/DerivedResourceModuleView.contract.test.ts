@@ -3,11 +3,12 @@ import routerSource from '../../app/router/index.ts?raw'
 import viewSource from './DerivedResourceModuleView.vue?raw'
 
 describe('derived resource module pages contract', () => {
-  it('keeps the old derived resource page only as a compatibility tool route', () => {
+  it('keeps the old derived resource page only as a legacy compatibility route', () => {
     expect(routerSource).toContain('DerivedResourceModuleView.vue')
     expect(routerSource).toContain("path: '/tools/photo/sample'")
-    expect(routerSource).toContain("redirect: '/resource/manage'")
-    expect(routerSource).toContain("redirect: '/tools/photo/sample'")
+    expect(routerSource).toContain("redirect: '/tools/sample-works'")
+    expect(routerSource).toContain("path: '/tools/photo/sample/legacy'")
+    expect(routerSource).toContain("redirect: '/tools/sample-works'")
   })
 
   it('uses album photos as the only source and keeps publishing read-only', () => {

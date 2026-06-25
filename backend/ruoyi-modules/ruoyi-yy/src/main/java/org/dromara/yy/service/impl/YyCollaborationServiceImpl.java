@@ -23,7 +23,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,9 @@ public class YyCollaborationServiceImpl implements IYyCollaborationService {
     private static final String TYPE_POSITION = "POSITION";
     private static final String TYPE_COMMON = "COMMON";
     private static final String TYPE_RETOUCH_CENTER = "RETOUCH_CENTER";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME_MINUTE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final YyCollaborationSettingMapper collaborationSettingMapper;
     private final YyProductCollaborationConfigMapper productCollaborationConfigMapper;
@@ -142,7 +148,7 @@ public class YyCollaborationServiceImpl implements IYyCollaborationService {
         payload.setActivatedTime(parseDate(bo.getValidFrom(), existing == null ? null : existing.getActivatedTime()));
         payload.setExpireTime(parseDate(bo.getValidTo(), existing == null ? null : existing.getExpireTime()));
         payload.setSeatCount(bo.getSeatCount());
-        payload.setRenewAction(existing == null ? "RENEW" : existing.getRenewAction());
+        payload.setRenewAction(resolveRenewAction(bo, existing));
         payload.setBoundStoreIds(existing == null ? "" : StringUtils.defaultIfBlank(existing.getBoundStoreIds(), ""));
         payload.setRemark(StringUtils.defaultIfBlank(bo.getRemark(), existing == null ? "" : existing.getRemark()));
         return mapLicense(yyServiceProductionService.saveLicenseBinding(payload));
@@ -256,9 +262,11 @@ public class YyCollaborationServiceImpl implements IYyCollaborationService {
         vo.setLicenseName(StringUtils.defaultIfBlank(source.getPlanName(), "内部协作许可证"));
         vo.setAuthStatus(StringUtils.defaultIfBlank(source.getStatus(), STATUS_ACTIVE));
         vo.setEnabled(isDisabledStatus(source.getStatus()) ? "0" : "1");
+        vo.setStatus(StringUtils.defaultIfBlank(source.getStatus(), STATUS_ACTIVE));
         vo.setValidFrom(source.getActivatedTime());
         vo.setValidTo(source.getExpireTime());
         vo.setSeatCount(source.getSeatCount());
+        vo.setRenewAction(StringUtils.defaultIfBlank(source.getRenewAction(), "RENEW"));
         vo.setRemark(StringUtils.defaultIfBlank(source.getRemark(), ""));
         vo.setCreateTime(source.getCreateTime());
         vo.setUpdateTime(source.getUpdateTime());
@@ -311,10 +319,20 @@ public class YyCollaborationServiceImpl implements IYyCollaborationService {
     }
 
     private String resolveLicenseStatus(YyCollaborationLicenseBo bo) {
+        if (StringUtils.isNotBlank(bo.getStatus())) {
+            return StringUtils.upperCase(bo.getStatus());
+        }
         if ("0".equals(StringUtils.defaultIfBlank(bo.getEnabled(), "1"))) {
             return "DISABLED";
         }
         return StringUtils.defaultIfBlank(bo.getAuthStatus(), STATUS_ACTIVE);
+    }
+
+    private String resolveRenewAction(YyCollaborationLicenseBo bo, YyServiceLicenseBindingVo existing) {
+        if (StringUtils.isNotBlank(bo.getRenewAction())) {
+            return bo.getRenewAction().trim();
+        }
+        return existing == null ? "RENEW" : StringUtils.defaultIfBlank(existing.getRenewAction(), "RENEW");
     }
 
     private boolean isDisabledStatus(String status) {
@@ -325,7 +343,20 @@ public class YyCollaborationServiceImpl implements IYyCollaborationService {
         if (StringUtils.isBlank(value)) {
             return fallback;
         }
-        LocalDate date = LocalDate.parse(value.trim());
+        String normalized = value.trim().replace('T', ' ');
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(normalized, DATE_TIME_FORMATTER);
+            return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } catch (DateTimeParseException ignore) {
+            // fallback to minute-level or date-only parsing
+        }
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(normalized, DATE_TIME_MINUTE_FORMATTER);
+            return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } catch (DateTimeParseException ignore) {
+            // fallback to date-only parsing
+        }
+        LocalDate date = LocalDate.parse(normalized, DATE_FORMATTER);
         return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 

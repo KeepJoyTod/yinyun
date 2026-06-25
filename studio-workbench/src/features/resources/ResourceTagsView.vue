@@ -6,7 +6,10 @@
       <p class="mt-1 text-[12px] leading-relaxed text-amber-text-muted">标签字典读取 `yy_photo_tag`，资源数量聚合读取 `yy_photo_asset_tag`，删除标签不会删除资源主记录。</p>
     </section>
 
-    <section class="border border-amber-topbar-border bg-amber-content-bg p-4">
+    <FeatureGateStatusCard :gate="gate" />
+    <p v-if="gateError" class="text-[12px] text-[#8C3E2C]">{{ gateError }}</p>
+
+    <section v-if="canLoadData" class="border border-amber-topbar-border bg-amber-content-bg p-4">
       <div class="grid grid-cols-1 gap-3 md:grid-cols-[1fr_220px_auto]">
         <input v-model.trim="tagKeyword" class="h-10 border border-amber-topbar-border px-3 text-[12px]" placeholder="搜索标签名" />
         <select v-model="createStoreId" class="h-10 border border-amber-topbar-border px-3 text-[12px]">
@@ -24,7 +27,7 @@
       <p v-if="mutationError" class="mt-3 text-[12px] text-[#8C3E2C]">{{ mutationError }}</p>
     </section>
 
-    <StateView :loading="loading" :error="error" :empty="!tags.length" :empty-title="emptyState.title" :empty-hint="emptyState.hint" :on-retry="loadTags">
+    <StateView v-if="canLoadData" :loading="loading" :error="error" :empty="!tags.length" :empty-title="emptyState.title" :empty-hint="emptyState.hint" :on-retry="loadTags">
       <ResourceTagTable :rows="tags" @open-tag="openTag" @rename="renameTag" @delete="deleteTag" />
     </StateView>
   </div>
@@ -34,7 +37,10 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { backendApi, type ResourceTagDto, type StoreDto } from '../../shared/api/backend'
+import { resourcesApi } from '../../shared/api/backendResourcesApi'
 import StateView from '../../shared/components/feedback/StateView.vue'
+import FeatureGateStatusCard from '../system/FeatureGateStatusCard.vue'
+import { useFeatureScopeGate } from '../system/useFeatureScopeGate'
 import ResourceTagTable from './components/ResourceTagTable.vue'
 import { useResourceTagMutations } from './composables/useResourceTagMutations'
 import { buildTagDeleteMessage, buildTagEmptyState, sortTagsByUsage } from './resourceTagOperations'
@@ -47,6 +53,10 @@ const createStoreId = ref('')
 const createTagName = ref('')
 const tags = ref<ResourceTagDto[]>([])
 const stores = ref<StoreDto[]>([])
+const { gate, gateError, canLoadData, loadGate } = useFeatureScopeGate({
+  featureKey: 'resource-tags',
+  requireStoreScope: true,
+})
 
 const { submitting, error: mutationError, statusMessage, createTag, updateTag, deleteTag: removeTag } = useResourceTagMutations()
 
@@ -54,8 +64,14 @@ const loadTags = async () => {
   loading.value = true
   error.value = ''
   try {
+    await loadGate()
+    if (!canLoadData.value) {
+      tags.value = []
+      stores.value = []
+      return
+    }
     const [page, storeRows] = await Promise.all([
-      backendApi.listResourceTags({ keyword: tagKeyword.value || undefined }),
+      resourcesApi.listResourceTags({ keyword: tagKeyword.value || undefined }),
       backendApi.listStores().catch(() => []),
     ])
     tags.value = sortTagsByUsage(page.items)

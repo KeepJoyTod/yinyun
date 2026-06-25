@@ -107,6 +107,7 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
     private static final String RECEPTION_STOCK_TRIGGER_API = "life_reception_stock_trigger";
     private static final String TIME_STOCK_SAVE_API = "life_time_stock_save";
     private static final String TIME_STOCK_GET_API = "life_time_stock_get";
+    private static final ZoneId DOUYIN_LIFE_ZONE = ZoneId.of("Asia/Shanghai");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter SLOT_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter SLOT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -1423,7 +1424,7 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
         }
         try {
             LocalDateTime dateTime = LocalDateTime.parse(text, DATE_TIME_FORMATTER);
-            return String.valueOf(dateTime.atZone(ZoneId.systemDefault()).toEpochSecond());
+            return String.valueOf(dateTime.atZone(DOUYIN_LIFE_ZONE).toEpochSecond());
         } catch (Exception ignored) {
             return text;
         }
@@ -2157,7 +2158,7 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
         try {
             long epoch = Long.parseLong(text);
             long epochMillis = text.length() <= 10 ? epoch * 1000L : epoch;
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault());
+            return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), DOUYIN_LIFE_ZONE);
         } catch (Exception ignored) {
             return null;
         }
@@ -2171,7 +2172,7 @@ public class DouyinLifeChannelAdapter implements YyChannelAdapter {
                 return null;
             }
             LocalDateTime dateTime = LocalDateTime.parse(normalizedDate + " " + normalizedStart + ":00", DATE_TIME_FORMATTER);
-            return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+            return Date.from(dateTime.atZone(DOUYIN_LIFE_ZONE).toInstant());
         } catch (Exception ignored) {
             return null;
         }

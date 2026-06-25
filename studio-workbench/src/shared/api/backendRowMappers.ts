@@ -4,6 +4,7 @@ import type {
   ChannelProductMappingDto,
   ChannelSyncLogDto,
   CustomerDto,
+  FeatureScopeDto,
   DashboardConversionDto,
   DashboardScheduleGridDto,
   DashboardFinanceDto,
@@ -36,6 +37,30 @@ export const mapServiceGroupRow = (row: Record<string, any>): ServiceGroupDto =>
   status: String(row.status ?? ''),
   sort: Number(row.sort ?? 0),
   remark: String(row.remark ?? ''),
+})
+
+export const mapFeatureScopeRow = (row: Record<string, any>): FeatureScopeDto => ({
+  featureKey: String(row.featureKey ?? ''),
+  licenseState: String(row.licenseState ?? 'unknown') as FeatureScopeDto['licenseState'],
+  pluginState: String(row.pluginState ?? 'unknown') as FeatureScopeDto['pluginState'],
+  approvalState: String(row.approvalState ?? 'unknown') as FeatureScopeDto['approvalState'],
+  gateCopy: String(row.gateCopy ?? ''),
+  licenseSummary: row.licenseSummary && typeof row.licenseSummary === 'object'
+    ? {
+        licenseKey: String(row.licenseSummary.licenseKey ?? ''),
+        planName: String(row.licenseSummary.planName ?? ''),
+        expireTime: String(row.licenseSummary.expireTime ?? ''),
+        boundStoreIds: String(row.licenseSummary.boundStoreIds ?? ''),
+      }
+    : null,
+  pluginSummary: row.pluginSummary && typeof row.pluginSummary === 'object'
+    ? {
+        channelType: String(row.pluginSummary.channelType ?? ''),
+        pluginName: String(row.pluginSummary.pluginName ?? ''),
+        authStatus: String(row.pluginSummary.authStatus ?? ''),
+        openTip: String(row.pluginSummary.openTip ?? ''),
+      }
+    : null,
 })
 
 export const mapBookingInventoryRow = (row: Record<string, any>): BookingInventoryDto => ({
@@ -196,10 +221,12 @@ export const mapWorkOrderRow = (row: Record<string, any>): WorkOrderDto => ({
   orderNo: String(row.orderNo ?? ''),
   orderId: optionalBackendId(row.orderId) ?? null,
   orderType: String(row.orderType ?? ''),
+  stageCode: String(row.stageCode ?? ''),
   status: String(row.status ?? ''),
   priority: String(row.priority ?? ''),
   handlerId: optionalBackendId(row.handlerId) ?? null,
   handlerName: String(row.handlerName ?? ''),
+  dueTime: String(row.dueTime ?? ''),
   description: String(row.description ?? ''),
   remark: String(row.remark ?? ''),
   createTime: String(row.createTime ?? ''),

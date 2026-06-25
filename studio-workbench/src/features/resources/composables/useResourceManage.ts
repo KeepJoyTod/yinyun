@@ -2,6 +2,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { backendApi, type ProductDto, type ResourceBatchUpdatePayload, type ResourceRowDto, type ResourceTagOptionDto, type StoreDto } from '../../../shared/api/backend'
 import type { BackendId } from '../../../shared/api/backendId'
+import { resourcesApi } from '../../../shared/api/backendResourcesApi'
+import { useFeatureScopeGate } from '../../system/useFeatureScopeGate'
 import type { ResourceManageFilters } from '../resourceTypes'
 
 type SaveMetaPayload = {
@@ -13,6 +15,10 @@ type SaveMetaPayload = {
 
 export const useResourceManage = (filters: ResourceManageFilters) => {
   const router = useRouter()
+  const featureGate = useFeatureScopeGate({
+    featureKey: 'resource-manage',
+    requireStoreScope: true,
+  })
   const loading = ref(false)
   const error = ref('')
   const submitting = ref(false)
@@ -32,7 +38,15 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
     loading.value = true
     error.value = ''
     try {
-      const resourcePage = await backendApi.listResources({
+      await featureGate.loadGate()
+      if (!featureGate.canLoadData.value) {
+        resources.value = []
+        total.value = 0
+        selectedIds.value = []
+        activeResource.value = null
+        return
+      }
+      const resourcePage = await resourcesApi.listResources({
         pageNum: page.value,
         pageSize: pageSize.value,
         keyword: filters.keyword.trim() || undefined,
@@ -62,9 +76,16 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
   }
 
   const loadReferenceData = async () => {
+    await featureGate.loadGate()
+    if (!featureGate.canLoadData.value) {
+      stores.value = []
+      tagOptions.value = []
+      products.value = []
+      return
+    }
     const [storesResult, tagsResult, productsResult] = await Promise.all([
       backendApi.listStores().catch(() => []),
-      backendApi.listResourceTags().catch(() => ({ items: [] })),
+      resourcesApi.listResourceTags().catch(() => ({ items: [] })),
       backendApi.listProducts().catch(() => []),
     ])
     stores.value = storesResult
@@ -78,7 +99,8 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
 
   const refresh = async () => {
     await loadResources()
-    const tagsResult = await backendApi.listResourceTags().catch(() => ({ items: [] }))
+    if (!featureGate.canLoadData.value) return
+    const tagsResult = await resourcesApi.listResourceTags().catch(() => ({ items: [] }))
     tagOptions.value = tagsResult.items.map(item => ({ id: item.id, tagName: item.tagName }))
   }
 
@@ -124,7 +146,7 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
     submitting.value = true
     statusMessage.value = ''
     try {
-      await backendApi.batchUpdateResources(payload)
+      await resourcesApi.batchUpdateResources(payload)
       statusMessage.value = successMessage
       await refresh()
     } finally {
@@ -157,7 +179,7 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
     submitting.value = true
     statusMessage.value = ''
     try {
-      await backendApi.deleteResource(resource.assetId)
+      await resourcesApi.deleteResource(resource.assetId)
       statusMessage.value = '资源已删除。'
       await refresh()
     } finally {
@@ -184,6 +206,10 @@ export const useResourceManage = (filters: ResourceManageFilters) => {
   return {
     loading,
     error,
+    gate: featureGate.gate,
+    gateLoading: featureGate.gateLoading,
+    gateError: featureGate.gateError,
+    canLoadData: featureGate.canLoadData,
     submitting,
     statusMessage,
     page,

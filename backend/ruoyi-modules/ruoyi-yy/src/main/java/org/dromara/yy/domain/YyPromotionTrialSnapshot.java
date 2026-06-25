@@ -26,6 +26,8 @@ public class YyPromotionTrialSnapshot extends TenantEntity {
     private Long originalAmountCent;
     private Long finalAmountCent;
     private Long discountAmountCent;
+    private String conflictSource;
+    private String blockedReasons;
 
     @TableLogic
     private String delFlag;

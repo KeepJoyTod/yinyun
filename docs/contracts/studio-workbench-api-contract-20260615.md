@@ -1,6 +1,6 @@
 > owner: studio-workbench-api-contract-20260615
 > canonical_for: 门店工作台和影约云后端 API 的现有接口、待实现接口、数据账本边界和国产模型填代码边界
-> upstream: docs/studio-workbench-api-route-map.md, docs/studio-workbench-preimplementation-solutions-20260615.md, C:\Users\Administrator\Desktop\yiyue\api_map.md, C:\Users\Administrator\Desktop\yiyue\callback_map.md
+> upstream: docs/studio-workbench-api-route-map.md, docs/studio-workbench-preimplementation-solutions-20260615.md, docs\yiyue\api_map.md, docs\yiyue\callback_map.md
 > downstream: docs/api/studio-workbench-openapi-skeleton-20260615.yaml, docs/domestic-model-tasks/DM-API-*.md
 
 # 门店工作台 API 契约

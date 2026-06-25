@@ -141,10 +141,10 @@ Expected: PASS.
 
 **Files:**
 - Create: `docs/evidence/jianyue-booking-workbench-acceptance-20260617.md`
-- Update: `C:/Users/Administrator/Desktop/yiyue/jianyue-booking-code-map-20260617.md`
-- Update: `C:/Users/Administrator/Desktop/yiyue/jianyue-booking-feature-map-20260617.md`
-- Update: `C:/Users/Administrator/Desktop/yiyue/jianyue-booking-product-map-20260617.md`
-- Update: `C:/Users/Administrator/Desktop/yiyue/jianyue-booking-optimization-map-20260617.md`
+- Update: `docs/yiyue/jianyue-booking-code-map-20260617.md`
+- Update: `docs/yiyue/jianyue-booking-feature-map-20260617.md`
+- Update: `docs/yiyue/jianyue-booking-product-map-20260617.md`
+- Update: `docs/yiyue/jianyue-booking-optimization-map-20260617.md`
 
 - [ ] **Step 1: Run full frontend checks**
 

@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 工单Service业务层处理
@@ -31,6 +34,13 @@ public class YyWorkOrderServiceImpl implements IYyWorkOrderService {
 
     private final YyWorkOrderMapper baseMapper;
     private final YyWorkOrderEventMapper eventMapper;
+    private static final Map<String, Set<String>> STATUS_TRANSITIONS = Map.of(
+        "PENDING", Set.of("IN_PROGRESS", "BLOCKED", "CANCELLED"),
+        "IN_PROGRESS", Set.of("COMPLETED", "BLOCKED", "CANCELLED"),
+        "BLOCKED", Set.of("IN_PROGRESS", "CANCELLED"),
+        "COMPLETED", Set.of(),
+        "CANCELLED", Set.of()
+    );
 
     @Override
     public TableDataInfo<YyWorkOrderVo> queryPageList(YyWorkOrderBo bo, PageQuery pageQuery) {
@@ -64,10 +74,12 @@ public class YyWorkOrderServiceImpl implements IYyWorkOrderService {
         lqw.eq(bo.getStoreId() != null, YyWorkOrder::getStoreId, bo.getStoreId());
         lqw.eq(bo.getOrderId() != null, YyWorkOrder::getOrderId, bo.getOrderId());
         lqw.eq(StringUtils.isNotBlank(bo.getOrderType()), YyWorkOrder::getOrderType, bo.getOrderType());
+        lqw.eq(StringUtils.isNotBlank(bo.getStageCode()), YyWorkOrder::getStageCode, bo.getStageCode());
         lqw.eq(StringUtils.isNotBlank(bo.getStatus()), YyWorkOrder::getStatus, bo.getStatus());
         lqw.eq(StringUtils.isNotBlank(bo.getPriority()), YyWorkOrder::getPriority, bo.getPriority());
         lqw.eq(bo.getHandlerId() != null, YyWorkOrder::getHandlerId, bo.getHandlerId());
         lqw.like(StringUtils.isNotBlank(bo.getHandlerName()), YyWorkOrder::getHandlerName, bo.getHandlerName());
+        lqw.orderByAsc(YyWorkOrder::getDueTime);
         lqw.orderByDesc(YyWorkOrder::getCreateTime);
         lqw.orderByDesc(YyWorkOrder::getId);
         return lqw;
@@ -97,11 +109,15 @@ public class YyWorkOrderServiceImpl implements IYyWorkOrderService {
         if (current == null) {
             throw new ServiceException("工单不存在");
         }
-        String currentStatus = StringUtils.blankToDefault(current.getStatus(), "PENDING");
-        if (StringUtils.isNotBlank(expectedStatus) && !StringUtils.equals(currentStatus, expectedStatus)) {
+        String currentStatus = normalizeStatus(current.getStatus(), "PENDING");
+        String expected = normalizeStatus(expectedStatus, "");
+        if (StringUtils.isNotBlank(expected) && !StringUtils.equals(currentStatus, expected)) {
             throw new ServiceException("工单状态已变化，请刷新后重试");
         }
-        String nextStatus = StringUtils.blankToDefault(targetStatus, currentStatus);
+        String nextStatus = normalizeStatus(targetStatus, "");
+        if (!canTransition(currentStatus, nextStatus)) {
+            throw new ServiceException("Invalid work order status transition: " + currentStatus + " -> " + nextStatus);
+        }
         current.setStatus(nextStatus);
         if (baseMapper.updateById(current) <= 0) {
             throw new ServiceException("工单状态更新失败");
@@ -119,8 +135,40 @@ public class YyWorkOrderServiceImpl implements IYyWorkOrderService {
 
     private void validEntityBeforeSave(YyWorkOrder entity) {
         entity.setOrderType(StringUtils.blankToDefault(entity.getOrderType(), "OTHER"));
+        entity.setStageCode(StringUtils.blankToDefault(entity.getStageCode(), resolveDefaultStageCode(entity.getOrderType())));
         entity.setStatus(StringUtils.blankToDefault(entity.getStatus(), "PENDING"));
         entity.setPriority(StringUtils.blankToDefault(entity.getPriority(), "MEDIUM"));
+    }
+
+    private String normalizeStatus(String status, String fallback) {
+        return StringUtils.blankToDefault(status, fallback).trim().toUpperCase(Locale.ROOT);
+    }
+
+    private boolean canTransition(String currentStatus, String nextStatus) {
+        return STATUS_TRANSITIONS.getOrDefault(currentStatus, Set.of()).contains(nextStatus);
+    }
+
+    private String resolveDefaultStageCode(String orderType) {
+        String normalized = StringUtils.blankToDefault(orderType, "OTHER").trim().toUpperCase();
+        if (normalized.contains("MAKEUP")) {
+            return "MAKEUP";
+        }
+        if (normalized.contains("RETOUCH")) {
+            return "RETOUCH";
+        }
+        if (normalized.contains("REVIEW") && !normalized.contains("SELECTION")) {
+            return "REVIEW";
+        }
+        if (normalized.contains("SELECTION")) {
+            return "SELECTION_REVIEW";
+        }
+        if (normalized.contains("DELIVERY") || normalized.contains("PICKUP")) {
+            return "PICKUP";
+        }
+        if (normalized.contains("PHOTO") || normalized.contains("SHOOT") || normalized.contains("UPLOAD")) {
+            return "PHOTOGRAPHY";
+        }
+        return "RECEPTION";
     }
 
     private String escapeJson(String value) {

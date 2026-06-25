@@ -13,6 +13,8 @@ describe('account center scaffold contract', () => {
     expect(scaffoldsSource).toContain("featureKey: 'account-profile'")
     expect(scaffoldsSource).toContain("featureKey: 'account-brands'")
     expect(scaffoldsSource).toContain("featureKey: 'account-help'")
+    expect(scaffoldsSource).toContain("phase: 'Phase 3'")
+    expect(scaffoldsSource).toContain('ownerLayers')
     expect(scaffoldsSource).toContain('backendAccountApi.ts')
   })
 })

@@ -1,4 +1,5 @@
 import type { BackendId } from './backendId'
+import type { CollaborationStageCode } from './backendTypesCollaboration'
 
 export type ProductPayload = {
   storeId?: BackendId | null
@@ -156,10 +157,12 @@ export type WorkOrderDto = {
   orderNo: string
   orderId: BackendId | null
   orderType: string
+  stageCode?: CollaborationStageCode | string
   status: string
   priority: string
   handlerId: BackendId | null
   handlerName: string
+  dueTime?: string
   description: string
   remark: string
   createTime: string
@@ -183,6 +186,7 @@ export type WorkOrderListQuery = {
   orderNo?: string
   orderId?: BackendId
   orderType?: string
+  stageCode?: CollaborationStageCode | string
   status?: string
   priority?: string
   handlerId?: BackendId
@@ -265,6 +269,10 @@ export type ResourceBatchUpdatePayload = {
   visible?: boolean
   tagIdsToAdd?: BackendId[]
   tagIdsToRemove?: BackendId[]
+}
+
+export type ResourceSizeBackfillPayload = {
+  limit?: number
 }
 
 export type ResourceTagListQuery = {

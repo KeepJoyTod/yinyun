@@ -6,7 +6,7 @@
 
 **Architecture:** `yy_order` remains the only order/appointment ledger. `yy_booking_slot_inventory` remains the only schedule/capacity ledger. DOUYIN_LIFE data enters local business state only through existing backend APIs, SPI/Webhook, OpenAPI sync, or explicitly evidenced HK2 scripts; historical orders without real slot fields stay out of today's schedule.
 
-**Tech Stack:** Vue 3 + TypeScript + Vite + Vitest for `studio-workbench`; Spring Boot/RuoYi + PostgreSQL + Redis for backend; PowerShell + Node/Playwright for smoke scripts; HK2 `103.24.216.8` through `tools/invoke-hk2.ps1`; maps under `C:\Users\Administrator\Desktop\yiyue`.
+**Tech Stack:** Vue 3 + TypeScript + Vite + Vitest for `studio-workbench`; Spring Boot/RuoYi + PostgreSQL + Redis for backend; PowerShell + Node/Playwright for smoke scripts; HK2 `103.24.216.8` through `tools/invoke-hk2.ps1`; maps under `docs\yiyue`.
 
 ---
 
@@ -65,7 +65,7 @@ Expected:
 - Modify only if needed: `tools/yingyue-douyin-real-account-discovery.ps1`
 - Read: `tools/invoke-hk2.ps1`
 - Evidence: `docs/evidence/douyin-life-real-account-discovery-<timestamp>.json|md`
-- Maps: `C:\Users\Administrator\Desktop\yiyue\api_map.md`, `callback_map.md`, `open_platform_setting_map.md`, `optimization_map.md`
+- Maps: `docs\yiyue\api_map.md`, `callback_map.md`, `open_platform_setting_map.md`, `optimization_map.md`
 
 - [ ] Reproduce current failure with a minimal, read-only command:
 
@@ -333,12 +333,12 @@ Expected:
 **Objective:** Leave the project understandable without chat history.
 
 **Files:**
-- `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
+- `docs\yiyue\code_map.md`
+- `docs\yiyue\api_map.md`
+- `docs\yiyue\callback_map.md`
+- `docs\yiyue\open_platform_setting_map.md`
+- `docs\yiyue\function_map.md`
+- `docs\yiyue\optimization_map.md`
 - `docs/evidence/*`
 
 - [ ] Append each completed loop with:
@@ -351,7 +351,7 @@ Expected:
 - [ ] Secret scan before claiming done:
 
 ```powershell
-rg -n "APPSecret|AccessKey|client_secret|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence C:\Users\Administrator\Desktop\yiyue\code_map.md C:\Users\Administrator\Desktop\yiyue\api_map.md C:\Users\Administrator\Desktop\yiyue\callback_map.md C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md C:\Users\Administrator\Desktop\yiyue\function_map.md C:\Users\Administrator\Desktop\yiyue\optimization_map.md
+rg -n "APPSecret|AccessKey|client_secret|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence docs\yiyue\code_map.md docs\yiyue\api_map.md docs\yiyue\callback_map.md docs\yiyue\open_platform_setting_map.md docs\yiyue\function_map.md docs\yiyue\optimization_map.md
 ```
 
 Expected:
@@ -415,7 +415,7 @@ This section is the latest execution state and supersedes the older "Current Kno
 | Loop I Merchant/card runtime smoke | AVAILABLE | rerun after related UI/API changes |
 | Loop J Customer/mobile public API closure | PENDING TARGETED VERIFY | payment remains `paymentReady=false` |
 | Loop K Backend verification/deploy | ONLY IF BACKEND CHANGES | no backend deploy unless tests and migration impact are clear |
-| Loop L Evidence/maps/handoff | CONTINUOUS | update `C:\Users\Administrator\Desktop\yiyue` after each loop |
+| Loop L Evidence/maps/handoff | CONTINUOUS | update `docs\yiyue` after each loop |
 
 Latest Douyin/HK2 facts:
 
@@ -550,16 +550,16 @@ Expected:
 - [ ] Update:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\code_map.md
-C:\Users\Administrator\Desktop\yiyue\api_map.md
-C:\Users\Administrator\Desktop\yiyue\optimization_map.md
-C:\Users\Administrator\Desktop\yiyue\function_map.md
+docs\yiyue\code_map.md
+docs\yiyue\api_map.md
+docs\yiyue\optimization_map.md
+docs\yiyue\function_map.md
 ```
 
 - [ ] Run a targeted secret scan before any DONE claim:
 
 ```powershell
-rg -n "APPSecret|AccessKey|client_secret|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence C:\Users\Administrator\Desktop\yiyue\code_map.md C:\Users\Administrator\Desktop\yiyue\api_map.md C:\Users\Administrator\Desktop\yiyue\optimization_map.md
+rg -n "APPSecret|AccessKey|client_secret|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence docs\yiyue\code_map.md docs\yiyue\api_map.md docs\yiyue\optimization_map.md
 ```
 
 Expected:
@@ -585,7 +585,7 @@ Stop and report instead of continuing if:
 | Loop G reversible appointment/inventory smoke | DONE | `docs/evidence/studio-appointment-write-smoke-20260620-075439/appointment-write-smoke.json` |
 | Loop I merchant/card runtime smoke | DONE | `docs/evidence/studio-merchant-card-write-smoke-20260620-075456/merchant-card-write-smoke.json` |
 | Loop H photo runtime smoke | PARTIAL SAFE | contracts 83 passed; `photo-pickup-smoke.ps1 -PreviewAccount -AllowEmptyAlbum -SkipStream` passed; no real customer notification executed |
-| Loop L maps/handoff | IN PROGRESS | `C:\Users\Administrator\Desktop\yiyue\code_map.md`、`api_map.md`、`function_map.md`、`optimization_map.md` updated |
+| Loop L maps/handoff | IN PROGRESS | `docs\yiyue\code_map.md`、`api_map.md`、`function_map.md`、`optimization_map.md` updated |
 
 Fixes made in this loop:
 

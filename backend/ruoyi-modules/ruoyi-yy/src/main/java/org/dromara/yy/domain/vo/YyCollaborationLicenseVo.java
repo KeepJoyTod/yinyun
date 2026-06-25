@@ -24,11 +24,15 @@ public class YyCollaborationLicenseVo implements Serializable {
 
     private String enabled;
 
+    private String status;
+
     private Date validFrom;
 
     private Date validTo;
 
     private Integer seatCount;
+
+    private String renewAction;
 
     private String remark;
 

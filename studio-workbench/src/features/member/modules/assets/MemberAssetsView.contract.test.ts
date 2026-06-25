@@ -4,10 +4,8 @@ import { getWorkbenchFeature } from '../../../../app/router/featureRegistry'
 import viewSource from './MemberAssetsView.vue?raw'
 import composableSource from './useMemberAssetOverview.ts?raw'
 import rechargeComposableSource from './useMemberRecharge.ts?raw'
-import memberStoreSource from '../../../../shared/stores/memberStore.ts?raw'
-import memberRechargeStoreSource from '../../../../shared/stores/memberRechargeStore.ts?raw'
 
-const assetsContractSource = `${viewSource}\n${composableSource}\n${rechargeComposableSource}\n${memberStoreSource}\n${memberRechargeStoreSource}`
+const assetsContractSource = `${viewSource}\n${composableSource}\n${rechargeComposableSource}`
 
 describe('member assets view contract', () => {
   it('mounts a dedicated member assets owner route', () => {
@@ -23,6 +21,7 @@ describe('member assets view contract', () => {
     expect(assetsContractSource).toContain('memberStore.refreshCards')
     expect(assetsContractSource).toContain('memberStore.refreshBenefits')
     expect(assetsContractSource).toContain('memberStore.refreshCoupons')
+    expect(assetsContractSource).toContain('memberStore.refreshRechargeOrders')
   })
 
   it('exposes a dedicated manual recharge entry and write owner', () => {
@@ -32,11 +31,11 @@ describe('member assets view contract', () => {
     expect(rechargeComposableSource).toContain('memberStore.refreshBalanceLedger')
   })
 
-  it('renders summary cards and three asset sections instead of the old derived placeholder', () => {
+  it('renders summary cards, recharge orders, and three asset sections instead of the old derived placeholder', () => {
     expect(viewSource).toContain('summaryCards')
-    expect(viewSource).toContain('会员卡')
-    expect(viewSource).toContain('权益')
-    expect(viewSource).toContain('优惠券')
+    expect(viewSource).toContain('Recent Recharge Orders')
+    expect(viewSource).toContain('selectedRechargeOrders')
+    expect(viewSource).toContain('MemberConsumerAssetPreview')
     expect(viewSource).not.toContain('buildDerivedMemberItems')
   })
 })

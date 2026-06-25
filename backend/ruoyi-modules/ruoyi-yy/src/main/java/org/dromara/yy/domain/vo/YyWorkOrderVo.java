@@ -32,6 +32,9 @@ public class YyWorkOrderVo implements Serializable {
     @ExcelProperty("工单类型")
     private String orderType;
 
+    @ExcelProperty("协作岗位")
+    private String stageCode;
+
     @ExcelProperty("工单状态")
     private String status;
 
@@ -43,6 +46,9 @@ public class YyWorkOrderVo implements Serializable {
 
     @ExcelProperty("处理人姓名")
     private String handlerName;
+
+    @ExcelProperty("SLA截止时间")
+    private Date dueTime;
 
     @ExcelProperty("描述")
     private String description;

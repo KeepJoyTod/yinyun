@@ -102,3 +102,68 @@ type ProductPayload = {
   - `GET /yy/collaboration/product-config/list`
   - `PUT /yy/collaboration/product-config/{productId}`
   - 持久层：`yy_product_collaboration_config`
+
+## 2026-06-24 phase2 履约证据回读
+
+- 新增 `studio-workbench/src/features/products/albumProductFulfillmentEvidence.ts` 作为入册履约证据 owner。
+- `buildAlbumProductFulfillmentEvidence(...)` 仅读取现有前端状态，不新增接口和库表：
+  - `ProductConfig`
+  - `BookingOrder`
+  - `Album`
+  - `SelectionLink`
+- 匹配规则：
+  - 订单匹配 `productBackendId`，兼容 `externalProductId / externalSkuId`
+  - 相册匹配订单 `backendId / id`
+  - 选片链接匹配订单或相册 `backendId / id`
+- `AlbumProductReadinessPanel` 新增可选 `evidence?: AlbumProductFulfillmentEvidence`，展示：
+  - 订单关联
+  - 选片证据
+  - 交付证据
+- 本阶段只做工作台代码闭环和本地验证，不声明真实生产订单端到端已验收。
+
+## 2026-06-25 全链路脚手架补齐
+
+### 主账本与扩展表
+
+- `yy_product` 继续作为唯一商品主账本。
+- 新增 SQL 草案：`backend/script/sql/20260625_product_module_scaffold.sql`，只承载扩展配置表，不修改订单、支付、库存、权益主链路。
+- 扩展配置表：
+  - `yy_product_category`
+  - `yy_product_sku`
+  - `yy_product_display_config`
+  - `yy_product_relation`
+  - `yy_product_booking_rule`
+  - `yy_product_channel_config`
+  - `yy_product_fulfillment_rule`
+
+### 后端接口契约
+
+- `GET /yy/productCatalog/{productId}`：返回商品聚合目录。
+- `GET /yy/productCatalog/{productId}/order-readiness`：只读检查商品是否可用于订单侧后续接入。
+- `GET /yy/productCatalog/{productId}/inventory-binding`：只读检查 SKU/预约规则与库存绑定状态。
+- `GET /yy/productCatalog/{productId}/benefit-binding`：只读检查卡券/权益适用状态。
+- `GET/POST/PUT/DELETE /yy/productSku`：SKU 配置骨架。
+- `GET/POST/PUT/DELETE /yy/productCategory`：分类配置骨架。
+- `GET/POST/PUT/DELETE /yy/productDisplayConfig`：展示配置骨架。
+- `GET/POST/PUT/DELETE /yy/productRelation`：关联/加购/入册/冲印关系骨架。
+- `GET/POST/PUT/DELETE /yy/productBookingRule`：预约规则配置骨架。
+- `GET/POST/PUT/DELETE /yy/productChannelConfig`：抖音/美团渠道商品配置骨架，继续关联 `yy_channel_product_mapping`。
+- `GET/POST/PUT/DELETE /yy/productFulfillmentRule`：履约规则配置骨架，兼容 `yy_product_collaboration_config`。
+
+### 前端 owner 契约
+
+- `features/products/catalog`：商品目录聚合入口。
+- `features/products/sku`：SKU/价格配置入口。
+- `features/products/category`：分类与批量运营入口。
+- `features/products/relation`：关联产品/加购/入册配置入口。
+- `features/products/booking-rules`：预约限制、预付模式、服务组绑定入口。
+- `features/products/channel`：抖音/美团渠道商品映射入口。
+- `features/products/cards`：卡项产品与权益 readiness 入口。
+- 控制层新增 `backendProductCatalogApi.ts`、`backendProductSkuApi.ts`、`backendProductCategoryApi.ts`、`backendProductRelationApi.ts`、`productCatalogStore.ts`、`productCatalogTransforms.ts`。
+
+### 边界
+
+- 本阶段不新增测试文件。
+- 本阶段不执行测试流程。
+- 本阶段不调用真实支付、退款、核销、库存扣减、发券、充值、提现、抖音或美团写接口。
+- 当前状态为全链路业务脚手架与契约补齐，不等于生产验收完成。

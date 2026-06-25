@@ -27,6 +27,8 @@ type MemberApiDeps = {
   setGrowthLedger: (next: Record<string, MemberGrowthLedgerDto[]>) => void
   getBalanceLedger: () => Record<string, MemberBalanceLedgerDto[]>
   setBalanceLedger: (next: Record<string, MemberBalanceLedgerDto[]>) => void
+  getRechargeOrders: () => Record<string, MemberRechargeOrderDto[]>
+  setRechargeOrders: (next: Record<string, MemberRechargeOrderDto[]>) => void
 }
 
 const keyOf = (customerId: BackendId) => String(customerId)
@@ -65,6 +67,11 @@ export const createMemberApi = (deps: MemberApiDeps) => ({
   async listMemberBalanceLedger(customerId: BackendId, limit = 20) {
     const data = await apiRequest<MemberBalanceLedgerDto[]>(`/yy/member/customer/${customerId}/balance-ledger`, {}, { limit })
     deps.setBalanceLedger({ ...deps.getBalanceLedger(), [keyOf(customerId)]: data })
+    return data
+  },
+  async listMemberRechargeOrders(customerId: BackendId, limit = 10) {
+    const data = await apiRequest<MemberRechargeOrderDto[]>(`/yy/member/customer/${customerId}/recharge-orders`, {}, { limit })
+    deps.setRechargeOrders({ ...deps.getRechargeOrders(), [keyOf(customerId)]: data })
     return data
   },
   async createMemberRechargeOrder(customerId: BackendId, payload: MemberRechargeCreatePayload) {

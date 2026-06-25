@@ -17,9 +17,9 @@
 - Current local HEAD: `aad6f52 fix(studio): localize merchant store polish`
 - Git state: branch is ahead of origin by 1 commit; push needs retry.
 - Production marker: `prod-aad6f52-merchant-store-polish-20260619`
-- Main local plan: `C:\Users\Administrator\Desktop\yiyue\studio-workbench-complete-optimization-plan-20260619.md`
-- Handoff prompt: `C:\Users\Administrator\Desktop\yiyue\studio-workbench-ai-handoff-prompt-20260619.md`
-- Acceptance checklist: `C:\Users\Administrator\Desktop\yiyue\studio-workbench-acceptance-checklist-20260619.md`
+- Main local plan: `docs\yiyue\studio-workbench-complete-optimization-plan-20260619.md`
+- Handoff prompt: `docs\yiyue\studio-workbench-ai-handoff-prompt-20260619.md`
+- Acceptance checklist: `docs\yiyue\studio-workbench-acceptance-checklist-20260619.md`
 
 ## Non-Negotiable Rules
 

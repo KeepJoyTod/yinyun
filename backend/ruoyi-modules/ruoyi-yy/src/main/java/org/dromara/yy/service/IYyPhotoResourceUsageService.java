@@ -1,5 +1,7 @@
 package org.dromara.yy.service;
 
+import org.dromara.yy.domain.bo.YyPhotoResourceSizeBackfillBo;
+import org.dromara.yy.domain.vo.YyPhotoResourceSizeBackfillVo;
 import org.dromara.yy.domain.vo.YyPhotoResourceUsageSummaryVo;
 
 /**
@@ -8,4 +10,6 @@ import org.dromara.yy.domain.vo.YyPhotoResourceUsageSummaryVo;
 public interface IYyPhotoResourceUsageService {
 
     YyPhotoResourceUsageSummaryVo getUsageSummary();
+
+    YyPhotoResourceSizeBackfillVo backfillMissingSize(YyPhotoResourceSizeBackfillBo bo);
 }

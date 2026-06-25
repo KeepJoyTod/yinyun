@@ -18,12 +18,19 @@ describe('resource manage contract', () => {
   })
 
   it('loads real resource rows and batch updates through backend resource apis', () => {
-    expect(composableSource).toContain('backendApi.listResources')
-    expect(composableSource).toContain('backendApi.batchUpdateResources')
-    expect(composableSource).toContain('backendApi.deleteResource')
+    expect(composableSource).toContain('resourcesApi.listResources')
+    expect(composableSource).toContain('resourcesApi.batchUpdateResources')
+    expect(composableSource).toContain('resourcesApi.deleteResource')
     expect(composableSource).toContain('pageNum: page.value')
     expect(composableSource).toContain('pageSize: pageSize.value')
     expect(contractSource).toContain('yy_photo_asset / yy_photo_album')
+  })
+
+  it('loads feature scope before showing resource write controls', () => {
+    expect(viewSource).toContain('FeatureGateStatusCard')
+    expect(viewSource).toContain('v-if="canLoadData"')
+    expect(composableSource).toContain("featureKey: 'resource-manage'")
+    expect(composableSource).toContain('featureGate.loadGate()')
   })
 
   it('keeps route query filters in a dedicated composable', () => {

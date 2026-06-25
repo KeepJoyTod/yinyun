@@ -16,7 +16,7 @@ The friend projects are reference assets only:
 | --- | --- | --- |
 | Photo studio admin demo | `D:\OtherProject\CameraApp\photoshop-master` | Admin UX, album workspace, online selection, schedule board |
 | Appointment / miniapp demo | `D:\OtherProject\CameraApp\yuyue-main` | Login, order, booking, negatives flow |
-| Local handover maps | `C:\Users\Administrator\Desktop\yiyue` | Human-facing maps and runbooks |
+| Local handover maps | `docs\yiyue` | Human-facing maps and runbooks |
 
 Do not migrate demo runtimes into production. Rewrite useful ideas into the existing RuoYi admin and uni-app client.
 

@@ -30,11 +30,11 @@
 
 **Files:**
 - Modify: `docs/friend-project-handover-master-map-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\README.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\前端优化\README.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\抖音小程序\README.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\wechatapp\README.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\douyinapp\README.md`
+- Modify: `docs\yiyue\README.md`
+- Modify: `docs\yiyue\前端优化\README.md`
+- Modify: `docs\yiyue\抖音小程序\README.md`
+- Modify: `docs\yiyue\wechatapp\README.md`
+- Modify: `docs\yiyue\douyinapp\README.md`
 
 - [x] **Step 1: 明确源码唯一性**
 
@@ -53,7 +53,7 @@
 Run:
 
 ```powershell
-rg "photoshop-master|yuyue-main|mobile-uniapp|api.evanshine.me" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs C:\Users\Administrator\Desktop\yiyue
+rg "photoshop-master|yuyue-main|mobile-uniapp|api.evanshine.me" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs docs\yiyue
 ```
 
 Expected: 能看到参考项目、正式项目、API 域名的统一说明。
@@ -181,8 +181,8 @@ Expected: 测试和构建通过。
 
 **Files:**
 - Modify: `docs/miniapp-preview-checklist-20260609.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\wechatapp\miniapp-preview-checklist-20260609.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\douyinapp\miniapp-preview-checklist-20260609.md`
+- Modify: `docs\yiyue\wechatapp\miniapp-preview-checklist-20260609.md`
+- Modify: `docs\yiyue\douyinapp\miniapp-preview-checklist-20260609.md`
 
 - [ ] **Step 1: 微信开发者工具导入**
 
@@ -318,9 +318,9 @@ Expected: 能看到 client_token 状态、订单查询状态和最近 logid。
 - Modify: `docs/friend-project-takeover-and-optimization-master-plan-20260609.md`
 - Modify: `docs/frontend-reference-takeover-map-20260609.md`
 - Modify: `docs/douyin-miniapp-official-map-20260609.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\朋友项目接手与优化总规划-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-接手总图-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\抖音小程序\抖音小程序-接手总图-20260609-latest.md`
+- Modify: `docs\yiyue\朋友项目接手与优化总规划-20260609-latest.md`
+- Modify: `docs\yiyue\前端优化\前端优化-接手总图-20260609-latest.md`
+- Modify: `docs\yiyue\抖音小程序\抖音小程序-接手总图-20260609-latest.md`
 
 - [x] **Step 1: 明确朋友项目和正式项目边界**
 
@@ -339,7 +339,7 @@ Expected: 能看到 client_token 状态、订单查询状态和最近 logid。
 Run:
 
 ```powershell
-rg "正式源码|photoshop-master|yuyue-main|mp-toutiao|api.evanshine.me" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs C:\Users\Administrator\Desktop\yiyue
+rg "正式源码|photoshop-master|yuyue-main|mp-toutiao|api.evanshine.me" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs docs\yiyue
 ```
 
 Expected: 能检索到 repo 和桌面两份地图。
@@ -350,23 +350,23 @@ Expected: 能检索到 repo 和桌面两份地图。
 - Modify: `docs/friend-project-handover-master-map-20260609-latest.md`
 - Modify: `docs/friend-photoshop-master-code-map-20260609.md`
 - Modify: `docs/friend-yuyue-main-code-map-20260609.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\朋友项目接手与优化总规划-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-代码地图-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-功能地图-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-优化计划-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\抖音小程序\抖音小程序-代码地图-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\抖音小程序\抖音小程序-优化计划-20260609-latest.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\wechatapp\latest-index.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\douyinapp\latest-index.md`
+- Modify: `docs\yiyue\朋友项目接手与优化总规划-20260609-latest.md`
+- Modify: `docs\yiyue\前端优化\前端优化-代码地图-20260609-latest.md`
+- Modify: `docs\yiyue\前端优化\前端优化-功能地图-20260609-latest.md`
+- Modify: `docs\yiyue\前端优化\前端优化-优化计划-20260609-latest.md`
+- Modify: `docs\yiyue\抖音小程序\抖音小程序-代码地图-20260609-latest.md`
+- Modify: `docs\yiyue\抖音小程序\抖音小程序-优化计划-20260609-latest.md`
+- Modify: `docs\yiyue\wechatapp\latest-index.md`
+- Modify: `docs\yiyue\douyinapp\latest-index.md`
 
 - [x] **Step 1: 标明参考项目副本关系**
 
 写清：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master
+docs\yiyue\前端优化\photoshop-master
 D:\OtherProject\CameraApp\photoshop-master
-C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main
+docs\yiyue\微信小程序\yuyue-main
 D:\OtherProject\CameraApp\yuyue-main
 ```
 
@@ -405,7 +405,7 @@ P2 预约库存看板、加片统计、精修交付流
 Run:
 
 ```powershell
-rg "深度扫描|Taro 4.1.9|Tailwind v4|相册运营排障|DOUYIN_LIFE" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs C:\Users\Administrator\Desktop\yiyue
+rg "深度扫描|Taro 4.1.9|Tailwind v4|相册运营排障|DOUYIN_LIFE" D:\OtherProject\CameraApp\yingyue-cloud-repo\docs docs\yiyue
 ```
 
 Expected: repo docs 和桌面地图都能检索到最新结论。

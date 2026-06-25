@@ -170,7 +170,7 @@ VITE_API_BASE_URL=https://api.evanshine.me
 桌面目录里存在朋友交接的小程序项目：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main
+docs\yiyue\微信小程序\yuyue-main
 ```
 
 该项目是 Taro React 技术栈，可作为预约、订单、手机号授权、底片页面的参考，但不作为影约云正式小程序源码。正式微信/抖音小程序仍以本目录 `mobile-uniapp` 为准。
@@ -178,6 +178,6 @@ C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main
 相关交接地图：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\wechatapp\friend-yuyue-main-audit.md
-C:\Users\Administrator\Desktop\yiyue\douyinapp\friend-yuyue-main-audit.md
+docs\yiyue\wechatapp\friend-yuyue-main-audit.md
+docs\yiyue\douyinapp\friend-yuyue-main-audit.md
 ```

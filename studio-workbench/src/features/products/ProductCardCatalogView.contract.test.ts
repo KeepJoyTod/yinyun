@@ -66,6 +66,7 @@ describe('product card catalog contract', () => {
     expect(catalogSource).toContain('AlbumProductReadinessPanel')
     expect(catalogSource).toContain('AlbumProductFulfillmentModal')
     expect(catalogSource).toContain('buildAlbumProductReadiness')
+    expect(catalogSource).toContain('buildAlbumProductFulfillmentEvidence')
     expect(catalogSource).toContain('collaborationStore.saveProductConfig')
   })
 })

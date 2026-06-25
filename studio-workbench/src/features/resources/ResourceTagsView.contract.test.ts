@@ -9,9 +9,17 @@ const contractSource = [viewSource, tableSource, composableSource, operationsSou
 describe('resource tags contract', () => {
   it('keeps tag list, mutations and navigation in dedicated owners', () => {
     expect(contractSource).toContain('ResourceTagTable')
-    expect(composableSource).toContain('backendApi.createResourceTag')
-    expect(composableSource).toContain('backendApi.updateResourceTag')
-    expect(composableSource).toContain('backendApi.deleteResourceTag')
+    expect(viewSource).toContain('resourcesApi.listResourceTags')
+    expect(composableSource).toContain('resourcesApi.createResourceTag')
+    expect(composableSource).toContain('resourcesApi.updateResourceTag')
+    expect(composableSource).toContain('resourcesApi.deleteResourceTag')
+  })
+
+  it('loads feature scope before showing tag mutations', () => {
+    expect(viewSource).toContain('FeatureGateStatusCard')
+    expect(viewSource).toContain("featureKey: 'resource-tags'")
+    expect(viewSource).toContain('v-if="canLoadData"')
+    expect(viewSource).toContain('await loadGate()')
   })
 
   it('requires store selection before creating a tag', () => {

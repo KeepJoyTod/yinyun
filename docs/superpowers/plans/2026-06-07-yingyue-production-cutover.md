@@ -61,11 +61,11 @@
   - 只补非密钥占位项：API 域名、OSS 私有策略说明、生产签名开关。
 - Modify: `docs/photo-pickup-smoke.md`
   - 补充 `api.evanshine.me` 正式验证方式。
-- Modify: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
+- Modify: `docs\yiyue\api_map.md`
   - 记录正式 API 域名和不要把 Lsky 当 Spring Boot API。
-- Modify: `C:\Users\Administrator\Desktop\yiyue\douyinapp\README.md`
+- Modify: `docs\yiyue\douyinapp\README.md`
   - 写明抖音小程序导入路径、API 域名、stream 兜底。
-- Modify: `C:\Users\Administrator\Desktop\yiyue\wechatapp\README.md`
+- Modify: `docs\yiyue\wechatapp\README.md`
   - 写明微信小程序导入路径、合法域名、手机号+取片码 MVP。
 
 ---
@@ -532,7 +532,7 @@ Never include tokens or full signed URLs.
 **Files:**
 - Read: `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyDouyinLifeSpiController.java`
 - Read: `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/channel/douyin/DouyinLifeChannelAdapter.java`
-- Update: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
+- Update: `docs\yiyue\api_map.md`
 - Update: `docs/evidence/douyin-life-springboot-spi-cutover-20260607.md`
 
 - [ ] **Step 1: Ensure production env is safe**
@@ -635,8 +635,8 @@ Do not include buyer phone, token, app secret, or full request bodies.
 ## Task 8: Configure Mini Program Domains
 
 **Files:**
-- Update: `C:\Users\Administrator\Desktop\yiyue\wechatapp\README.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\douyinapp\README.md`
+- Update: `docs\yiyue\wechatapp\README.md`
+- Update: `docs\yiyue\douyinapp\README.md`
 
 - [ ] **Step 1: WeChat mini program**
 

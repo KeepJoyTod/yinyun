@@ -55,10 +55,10 @@ Expected: migration and base SQL both contain the new payment structure.
 **Files:**
 - Modify: `docs/comprehensive-architecture-absorption-20260611.md`
 - Modify: `docs/douyin-life-current-status.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
+- Modify: `docs\yiyue\code_map.md`
+- Modify: `docs\yiyue\api_map.md`
+- Modify: `docs\yiyue\liucheng_map.md`
+- Modify: `docs\yiyue\callback_map.md`
 
 - [ ] **Step 1: Document DOUYIN_LIFE payment boundary**
 
@@ -100,7 +100,7 @@ Expected: base SQL, migration SQL, and docs contain the new terms.
 Run:
 
 ```powershell
-rg -n "DOUYIN_LIFE.*抖音.*支付|DOUYIN_MINI_APP.*tt\.pay|yy_payment_record" C:\Users\Administrator\Desktop\yiyue D:\OtherProject\CameraApp\yingyue-cloud-repo\docs
+rg -n "DOUYIN_LIFE.*抖音.*支付|DOUYIN_MINI_APP.*tt\.pay|yy_payment_record" docs\yiyue D:\OtherProject\CameraApp\yingyue-cloud-repo\docs
 ```
 
 Expected: maps consistently distinguish Douyin Life real payment from miniapp self-payment.

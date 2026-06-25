@@ -36,11 +36,11 @@
 
 ## 地图更新
 
-- `C:\Users\Administrator\Desktop\yiyue\code_map.md`：本机不存在，无法验证或更新。
-- `C:\Users\Administrator\Desktop\yiyue\api_map.md`：本机不存在，无法验证或更新。
-- `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`：本机不存在，无法验证或更新。
-- `C:\Users\Administrator\Desktop\yiyue\callback_map.md`：本机不存在，无法验证或更新。
-- `C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md`：本机不存在，无法验证或更新。
+- `docs\yiyue\code_map.md`：本机不存在，无法验证或更新。
+- `docs\yiyue\api_map.md`：本机不存在，无法验证或更新。
+- `docs\yiyue\liucheng_map.md`：本机不存在，无法验证或更新。
+- `docs\yiyue\callback_map.md`：本机不存在，无法验证或更新。
+- `docs\yiyue\open_platform_setting_map.md`：本机不存在，无法验证或更新。
 - 仓库内替代更新：已更新 `docs/contracts/customer-payment-inventory-closed-loop-contract-20260624.md` 与 `docs/flows/customer-payment-inventory-closed-loop-flow-20260624.md`。
 
 ## 工作树约束

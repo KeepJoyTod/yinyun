@@ -1,6 +1,6 @@
 > owner: domestic-model-task-DM-LOG-001-logs-query-skeleton
 > canonical_for: 国产模型增强系统日志页搜索和排障文本的单任务边界
-> upstream: docs/studio-workbench-feature-code-map-20260615.md, C:\Users\Administrator\Desktop\yiyue\callback_map.md
+> upstream: docs/studio-workbench-feature-code-map-20260615.md, docs\yiyue\callback_map.md
 > downstream: studio-workbench/src/features/settings/LogsView.vue
 
 # DM-LOG-001：日志搜索和排障文本增强

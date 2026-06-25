@@ -25,9 +25,9 @@ Do not migrate demo backends, MinIO, Taro as the production stack, Tailwind/Radi
 | --- | --- |
 | Final takeover map | `docs\friend-project-final-takeover-map-20260609-latest.md` |
 | Current execution board | `docs\current-execution-board-20260609.md` |
-| Desktop final map | `C:\Users\Administrator\Desktop\yiyue\朋友项目最终接手地图与优化计划-20260609-latest.md` |
-| Desktop frontend map | `C:\Users\Administrator\Desktop\yiyue\前端优化\前端优化-最终接手地图与优化计划-20260609-latest.md` |
-| Desktop Douyin miniapp map | `C:\Users\Administrator\Desktop\yiyue\抖音小程序\抖音小程序-最终接手地图与优化计划-20260609-latest.md` |
+| Desktop final map | `docs\yiyue\朋友项目最终接手地图与优化计划-20260609-latest.md` |
+| Desktop frontend map | `docs\yiyue\前端优化\前端优化-最终接手地图与优化计划-20260609-latest.md` |
+| Desktop Douyin miniapp map | `docs\yiyue\抖音小程序\抖音小程序-最终接手地图与优化计划-20260609-latest.md` |
 
 ## Verified In This Pass
 

@@ -141,6 +141,7 @@ export const mapWorkOrderListQuery = (query: WorkOrderListQuery = {}) => ({
   orderNo: query.orderNo,
   orderId: query.orderId,
   orderType: query.orderType,
+  stageCode: query.stageCode,
   status: query.status,
   priority: query.priority,
   handlerId: query.handlerId,

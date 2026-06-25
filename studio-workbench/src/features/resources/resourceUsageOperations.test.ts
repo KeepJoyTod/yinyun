@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { buildUsageEmptyState, buildUsageSizeBackfillHint, computeUsagePercent, formatBytesToGb } from './resourceUsageOperations'
+import {
+  buildSizeBackfillButtonText,
+  buildSizeBackfillResultText,
+  buildUsageEmptyState,
+  buildUsageSizeBackfillHint,
+  computeUsagePercent,
+  formatBytesToGb,
+} from './resourceUsageOperations'
 
 describe('resourceUsageOperations', () => {
   it('formats bytes to gb and computes usage percent', () => {
@@ -38,5 +45,17 @@ describe('resourceUsageOperations', () => {
       cleanupRetentionConfigKey: '',
       typeBreakdown: [],
     }).title).toContain('当前没有可统计的资源大小')
+  })
+
+  it('builds size backfill action and result copy', () => {
+    expect(buildSizeBackfillButtonText(true, null)).toContain('正在回填')
+    expect(buildSizeBackfillResultText({
+      attemptedCount: 5,
+      updatedCount: 3,
+      skippedCount: 1,
+      failedCount: 1,
+      remainingMissingSizeCount: 2,
+      message: '',
+    })).toContain('更新 3 条')
   })
 })

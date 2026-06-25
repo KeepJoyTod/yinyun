@@ -93,7 +93,7 @@ Rpc-Persist-Life-Test-Data-Access: all
 来客后台页面本身不是由脚本调用，进入单独的测试店铺/创建测试商品时要按本地视频材料使用浏览器插件 ModHeader。视频材料位置：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\测试店铺管理
+docs\yiyue\测试店铺管理
 ```
 
 后台页面保存 `client_secret` 和 token 时按敏感凭证处理，规则见 `docs/channel-secret-storage.md`。

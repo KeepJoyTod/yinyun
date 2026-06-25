@@ -4,6 +4,7 @@ import { createAuditApi } from './backendAuditApi'
 import { assetsApi } from './backendAssetsApi'
 import { createAlbumsApi } from './backendAlbumsApi'
 import { dashboardApi } from './backendDashboardApi'
+import { featureScopeApi } from './backendFeatureScopeApi'
 import { financeApi } from './backendFinanceApi'
 import { normalizeBackendId, type BackendId } from './backendId'
 import { createInventoryApi } from './backendInventoryApi'
@@ -13,6 +14,7 @@ import { createMerchantConfigApi } from './backendMerchantConfigApi'
 import { marketingApi } from './backendMarketingApi'
 import { merchantContentApi } from './backendMerchantContentApi'
 import { createMerchantOpsApi } from './backendMerchantOpsApi'
+import { merchantReadinessApi } from './backendMerchantReadinessApi'
 import { createOrdersApi } from './backendOrdersApi'
 import { createPaymentsApi } from './backendPaymentsApi'
 import { platformApi } from './backendPlatformApi'
@@ -21,6 +23,7 @@ import { resourcesApi } from './backendResourcesApi'
 import { reportsApi } from './backendReportsApi'
 import { scheduleRulesApi } from './backendScheduleRulesApi'
 import { serviceProductionApi } from './backendServiceProductionApi'
+import { toolsApi } from './backendToolsApi'
 import { workOrdersApi } from './backendWorkOrdersApi'
 import {
   pageQuery,
@@ -51,6 +54,11 @@ import type {
   MemberGrowthLedgerDto,
   MemberOverviewDto,
   MemberPointsLedgerDto,
+  MemberRechargeOrderDto,
+  MemberRechargeCapabilityDto,
+  MemberRechargeSettingDto,
+  MemberStoredValueTransactionDto,
+  MemberStoredValueTransactionListQuery,
   NotificationLogDto,
   NotificationTemplateDto,
   OperationLogDto,
@@ -98,6 +106,12 @@ export type {
   DouyinLifeOrderSyncResult,
   EmployeeDto,
   EmployeePayload,
+  FeatureScopeApprovalState,
+  FeatureScopeDto,
+  FeatureScopeLicenseState,
+  FeatureScopeLicenseSummaryDto,
+  FeatureScopePluginState,
+  FeatureScopePluginSummaryDto,
   FinanceOverviewDto,
   FinanceTransactionDto,
   FinanceTransactionQuery,
@@ -109,11 +123,16 @@ export type {
   MemberGrowthLedgerDto,
   MemberOverviewDto,
   MemberPointsLedgerDto,
+  MemberRechargeCapabilityDto,
   MemberRechargeCreatePayload,
   MemberRechargeOrderDto,
+  MemberRechargeSettingDto,
   MerchantDecorationConfig,
   MerchantDecorationDto,
   MerchantDecorationPayload,
+  MerchantReadinessItemDto,
+  MerchantReadinessPriority,
+  MerchantReadinessStatus,
   MicroFormDto,
   MicroFormFieldSchema,
   MicroFormFieldType,
@@ -130,16 +149,26 @@ export type {
   MicroPagePayload,
   MicroPageSchema,
   MarketingCampaignDto,
+  MarketingCampaignListQuery,
   MarketingCampaignParticipationDto,
+  MarketingCampaignPayload,
   MarketingCampaignScaffoldDto,
   MarketingCapabilityDto,
   MarketingChannelSummaryDto,
   MarketingCouponGrantDto,
+  MarketingCouponGrantRecordDto,
   MarketingCouponInstanceDto,
+  MarketingCouponIssuePayload,
   MarketingCouponScaffoldDto,
+  MarketingCouponTemplateListQuery,
   MarketingCouponTemplateDto,
+  MarketingCouponTemplatePayload,
+  MarketingCouponTemplateType,
+  MarketingCouponWriteoffDto,
   MarketingDashboardDto,
   MarketingDashboardMetricDto,
+  MarketingParticipationListQuery,
+  MarketingParticipationRowDto,
   MarketingScaffoldStatus,
   NotificationLogDto,
   NotificationTemplateDto,
@@ -154,14 +183,20 @@ export type {
   OrderReschedulePayload,
   OrderStatusPayload,
   OrderStatusStatDto,
+  PlatformActionHintDto,
   PlatformBookingPolicyDto,
   PlatformBrandInfoDto,
   PlatformEmailSettingsDto,
+  PlatformEvidenceDto,
   PlatformIntegrationDto,
+  PlatformIntegrationStatusDto,
   PlatformNotificationCenterDto,
+  PlatformNotificationRuleDto,
   PlatformPrintSettingsDto,
   PlatformScoreSettingsDto,
+  PlatformScaffoldStatus,
   PlatformServicePackageDto,
+  PlatformServicePackageStatusDto,
   PaymentRecordDto,
   PhotoAccessLog,
   PhotoAccessLogQuery,
@@ -180,6 +215,8 @@ export type {
   ResourceBatchUpdatePayload,
   ResourceListQuery,
   ResourceRowDto,
+  ResourceSizeBackfillPayload,
+  ResourceSizeBackfillResultDto,
   ResourceTagDto,
   ResourceTagListQuery,
   ResourceTagOptionDto,
@@ -196,6 +233,9 @@ export type {
   StoreDto,
   StudioDto,
   TodaySlotDto,
+  ToolPrecisionDeliverySummaryDto,
+  ToolPrecisionDeliveryTaskDto,
+  ToolSampleWorkDto,
   TrendStatDto,
   WorkOrderDto,
   WorkOrderEventDto,
@@ -210,6 +250,8 @@ export type {
   PromotionTrialCandidateDto,
   PromotionTrialPayload,
   PromotionTrialResultDto,
+  MemberStoredValueTransactionDto,
+  MemberStoredValueTransactionListQuery,
 } from './backendTypes'
 
 let cachedStores: StoreDto[] = []
@@ -227,6 +269,7 @@ let cachedMemberCoupons: Record<string, MemberCouponDto[]> = {}
 let cachedMemberPointsLedger: Record<string, MemberPointsLedgerDto[]> = {}
 let cachedMemberGrowthLedger: Record<string, MemberGrowthLedgerDto[]> = {}
 let cachedMemberBalanceLedger: Record<string, MemberBalanceLedgerDto[]> = {}
+let cachedMemberRechargeOrders: Record<string, MemberRechargeOrderDto[]> = {}
 let cachedNotificationTemplates: NotificationTemplateDto[] = []
 let cachedNotificationLogs: NotificationLogDto[] = []
 let cachedOperationLogs: OperationLogDto[] = []
@@ -347,7 +390,21 @@ const memberApi = createMemberApi({
   setGrowthLedger: items => { cachedMemberGrowthLedger = items },
   getBalanceLedger: () => cachedMemberBalanceLedger,
   setBalanceLedger: items => { cachedMemberBalanceLedger = items },
+  getRechargeOrders: () => cachedMemberRechargeOrders,
+  setRechargeOrders: items => { cachedMemberRechargeOrders = items },
 })
+
+const memberStoredValueApi = {
+  getMemberRechargeSetting() {
+    return apiRequest<MemberRechargeSettingDto>('/yy/member/recharge-setting')
+  },
+  getMemberRechargeCapability() {
+    return apiRequest<MemberRechargeCapabilityDto>('/yy/member/recharge-capability')
+  },
+  listMemberStoredValueTransactions(query: MemberStoredValueTransactionListQuery = {}) {
+    return apiRequest<MemberStoredValueTransactionDto[]>('/yy/member/stored-value-transactions', {}, query)
+  },
+}
 
 const ordersApi = createOrdersApi({
   listRows,
@@ -371,6 +428,7 @@ const paymentsApi = createPaymentsApi({
 
 export const backendApi = {
   getWorkbenchBootstrap: () => apiRequest<WorkbenchBootstrapDto>('/yy/studio/bootstrap'),
+  ...featureScopeApi,
   ...accountApi,
   ...assetsApi,
   ...dashboardApi,
@@ -383,6 +441,7 @@ export const backendApi = {
   ...productsApi,
   ...masterDataApi,
   ...memberApi,
+  ...memberStoredValueApi,
   ...merchantConfigApi,
   ...merchantOpsApi,
   ...inventoryApi,
@@ -412,7 +471,9 @@ export const backendApi = {
   ...serviceProductionApi,
   ...financeApi,
   ...merchantContentApi,
+  ...merchantReadinessApi,
   ...platformApi,
+  ...toolsApi,
 }
 
 export { getApiAssetUrl } from './request'

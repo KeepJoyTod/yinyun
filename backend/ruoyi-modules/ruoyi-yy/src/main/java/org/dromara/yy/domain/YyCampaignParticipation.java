@@ -25,6 +25,11 @@ public class YyCampaignParticipation extends TenantEntity {
     private Long orderId;
     private String channelSource;
     private String stage;
+    private String participationStatus;
+    private String conversionStatus;
+    private String refundStatus;
+    private String invalidReason;
+    private String participatedAt;
     private Long payableAmountCent;
     private Long finalAmountCent;
 

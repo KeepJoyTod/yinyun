@@ -2,7 +2,7 @@
 
 > owner: yingyue-three-layer-architecture
 > canonical_for: 三层楼架构、规格驱动开工流程、跨层依赖方向
-> upstream: `AGENTS.md`, `C:\Users\Administrator\Desktop\yiyue\code_map.md`
+> upstream: `AGENTS.md`, `docs\yiyue\code_map.md`
 > downstream: feature plans, contract docs, flow docs, refactor tasks
 
 ## 目标

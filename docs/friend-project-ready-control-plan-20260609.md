@@ -16,7 +16,7 @@ Friend projects are reference assets only:
 | --- | --- | --- |
 | Friend admin demo | `D:\OtherProject\CameraApp\photoshop-master` | Admin UX and workflow reference |
 | Friend miniapp demo | `D:\OtherProject\CameraApp\yuyue-main` | Taro miniapp flow reference |
-| Desktop maps | `C:\Users\Administrator\Desktop\yiyue` | Local maps, runbooks, acceptance notes |
+| Desktop maps | `docs\yiyue` | Local maps, runbooks, acceptance notes |
 
 Do not migrate demo backends, MinIO, public image URLs, legacy AppIDs, secrets, or demo database models.
 

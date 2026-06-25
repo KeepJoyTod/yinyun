@@ -14,7 +14,7 @@ param(
 
     [string]$Date = '',
 
-    [string]$YiyueOutDir = 'C:\Users\Administrator\Desktop\yiyue',
+    [string]$YiyueOutDir = 'docs\yiyue',
 
     [string]$EvidenceDir = '',
 

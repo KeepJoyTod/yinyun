@@ -16,6 +16,7 @@ import {
   type MemberGrowthLedgerDto,
   type MemberOverviewDto,
   type MemberPointsLedgerDto,
+  type MemberRechargeOrderDto,
   type NotificationLogDto,
   type NotificationTemplateDto,
   type OperationLogDto,
@@ -50,6 +51,7 @@ import type {
   MemberGrowthLedgerInfo,
   MemberOverviewInfo,
   MemberPointsLedgerInfo,
+  MemberRechargeOrderInfo,
   NotificationLogInfo,
   NotificationTemplateInfo,
   OperationLogInfo,
@@ -512,6 +514,21 @@ export const mapMemberBalanceLedger = (dto: MemberBalanceLedgerDto): MemberBalan
   sourceType: dto.sourceType,
   sourceBackendId: dto.sourceId ?? undefined,
   happenedAt: dto.happenedAt || '',
+  remark: dto.remark || '',
+})
+
+export const mapMemberRechargeOrder = (dto: MemberRechargeOrderDto): MemberRechargeOrderInfo => ({
+  backendId: dto.id,
+  customerBackendId: dto.customerId,
+  rechargeOrderNo: dto.rechargeOrderNo,
+  rechargeAmount: dto.rechargeAmount,
+  giftAmount: dto.giftAmount,
+  creditedAmount: dto.creditedAmount,
+  balanceAfter: dto.balanceAfter,
+  status: dto.status,
+  channelType: dto.channelType,
+  paidTime: dto.paidTime || '',
+  externalTradeNo: dto.externalTradeNo || '',
   remark: dto.remark || '',
 })
 

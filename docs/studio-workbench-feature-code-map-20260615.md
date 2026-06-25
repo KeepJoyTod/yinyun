@@ -160,3 +160,14 @@
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/vo/YyMemberRechargeOrderVo.java`
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/mapper/YyMemberRechargeOrderMapper.java`
 - 闭环范围：门店手工充值建单、确认到账、会员余额回写、余额流水落表、资产页摘要刷新
+
+## 2026-06-24 member-stored-value-p1-read
+
+- 表现层 owner：`studio-workbench/src/features/member/modules/stored-value-p1/**`
+- 前端 API facade：`studio-workbench/src/shared/api/backend.ts` 暴露 `getMemberRechargeSetting`、`getMemberRechargeCapability`、`listMemberStoredValueTransactions`
+- 后端 owner：`YyMemberStoredValueController`、`IYyMemberStoredValueService`、`YyMemberStoredValueServiceImpl`
+- 契约对象：`YyMemberRechargeSettingVo`、`YyMemberRechargeCapabilityVo`、`YyMemberStoredValueTransactionVo`、`YyMemberStoredValueTransactionQueryBo`
+- 数据来源：`yy_member_balance_ledger` 作为储值交易明细主事实，`yy_member_recharge_order` 只用于补充值单展示字段
+- 权限：三个读取接口统一 `yy:customer:list`，普通员工按门店范围读取
+- 验证命令：`cmd /c "mvn -f backend/pom.xml -pl ruoyi-modules/ruoyi-yy -Dtest=YyMemberStoredValueControllerTest,YyMemberStoredValueServiceImplTest,YyMemberRechargeControllerTest,YyMemberAssetControllerTest,YyMemberRechargeServiceImplTest,YyMemberAssetServiceImplTest -DskipTests=false -Dmaven.test.skip=false test"`
+- 前端验证：`npm --prefix studio-workbench run test -- src/features/member/modules/stored-value-p1/MemberStoredValueP1.contract.test.ts src/shared/api/backend.contract.test.ts`、`npm --prefix studio-workbench run build`、`npm --prefix studio-workbench run check:file-size`

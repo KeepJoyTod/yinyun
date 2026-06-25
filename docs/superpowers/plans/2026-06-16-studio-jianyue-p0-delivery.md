@@ -12,8 +12,8 @@
 
 > owner: studio-jianyue-p0-delivery-plan-20260616
 > canonical_for: 门店工作台简约网口径 P0 剩余实现任务
-> upstream: `docs/superpowers/specs/2026-06-16-studio-jianyue-p0-delivery-design.md`, `docs/studio-workbench-complete-delivery-plan-20260615.md`, `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-> downstream: `docs/evidence/studio-jianyue-p0-delivery-*.md`, `C:\Users\Administrator\Desktop\yiyue\studio-jianyue-p0-delivery-plan-20260616.md`
+> upstream: `docs/superpowers/specs/2026-06-16-studio-jianyue-p0-delivery-design.md`, `docs/studio-workbench-complete-delivery-plan-20260615.md`, `docs\yiyue\code_map.md`
+> downstream: `docs/evidence/studio-jianyue-p0-delivery-*.md`, `docs\yiyue\studio-jianyue-p0-delivery-plan-20260616.md`
 
 ## 当前结论
 
@@ -413,7 +413,7 @@ Expected: all selected contracts pass.
 
 **Files:**
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\studio-jianyue-p0-delivery-20260616.md`
-- Copy: `C:\Users\Administrator\Desktop\yiyue\studio-jianyue-p0-delivery-plan-20260616.md`
+- Copy: `docs\yiyue\studio-jianyue-p0-delivery-plan-20260616.md`
 
 - [ ] **Step 1: 跑目标测试集**
 

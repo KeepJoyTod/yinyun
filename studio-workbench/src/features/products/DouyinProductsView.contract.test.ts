@@ -11,7 +11,8 @@ const douyinProductsContractSource = `${douyinProductsSource}\n${moduleViewSourc
 
 describe('douyin products page contract', () => {
   it('replaces the douyin product placeholder with a real route', () => {
-    expect(routerSource).toContain('DouyinProductsView.vue')
+    expect(routerSource).toContain('modules/product/MerchantProductView.vue')
+    expect(moduleViewSource).toContain('DouyinProductsView.vue')
     expect(getWorkbenchFeature('product-douyin')?.component).toBe('douyin-products')
     expect(getWorkbenchFeature('product-douyin')?.status).toBe('ready')
   })

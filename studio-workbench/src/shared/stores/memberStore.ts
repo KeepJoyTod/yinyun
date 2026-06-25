@@ -9,6 +9,7 @@ import type {
   MemberGrowthLedgerInfo,
   MemberOverviewInfo,
   MemberPointsLedgerInfo,
+  MemberRechargeOrderInfo,
 } from './appStoreTypes'
 import {
   mapMemberBalanceLedger,
@@ -18,6 +19,7 @@ import {
   mapMemberGrowthLedger,
   mapMemberOverview,
   mapMemberPointsLedger,
+  mapMemberRechargeOrder,
 } from './appStoreTransforms'
 
 const keyOf = (customerId: BackendId) => String(customerId)
@@ -30,6 +32,7 @@ export const memberStore = reactive({
   pointsLedger: {} as Record<string, MemberPointsLedgerInfo[]>,
   growthLedger: {} as Record<string, MemberGrowthLedgerInfo[]>,
   balanceLedger: {} as Record<string, MemberBalanceLedgerInfo[]>,
+  rechargeOrders: {} as Record<string, MemberRechargeOrderInfo[]>,
 
   reset() {
     this.overviews = {}
@@ -39,6 +42,7 @@ export const memberStore = reactive({
     this.pointsLedger = {}
     this.growthLedger = {}
     this.balanceLedger = {}
+    this.rechargeOrders = {}
   },
 
   async refreshOverview(customerId: BackendId) {
@@ -81,5 +85,11 @@ export const memberStore = reactive({
     const ledger = (await backendApi.listMemberBalanceLedger(customerId, limit)).map(mapMemberBalanceLedger)
     this.balanceLedger = { ...this.balanceLedger, [keyOf(customerId)]: ledger }
     return ledger
+  },
+
+  async refreshRechargeOrders(customerId: BackendId, limit = 10) {
+    const orders = (await backendApi.listMemberRechargeOrders(customerId, limit)).map(mapMemberRechargeOrder)
+    this.rechargeOrders = { ...this.rechargeOrders, [keyOf(customerId)]: orders }
+    return orders
   },
 })

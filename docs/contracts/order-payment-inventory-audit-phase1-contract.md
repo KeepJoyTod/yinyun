@@ -16,10 +16,10 @@
 - studio-workbench/src/shared/api/backend*.ts
 - studio-workbench/src/shared/api/backendTypes*.ts
 - studio-workbench/src/shared/stores/* 与订单 contract tests 的最小必要文件
-- C:\Users\Administrator\Desktop\yiyue\code_map.md
-- C:\Users\Administrator\Desktop\yiyue\function_map.md
-- C:\Users\Administrator\Desktop\yiyue\api_map.md
-- C:\Users\Administrator\Desktop\yiyue\optimization_map.md
+- docs\yiyue\code_map.md
+- docs\yiyue\function_map.md
+- docs\yiyue\api_map.md
+- docs\yiyue\optimization_map.md
 禁止修改：
 - mobile-uniapp 真实支付链路
 - backend 退款写链路

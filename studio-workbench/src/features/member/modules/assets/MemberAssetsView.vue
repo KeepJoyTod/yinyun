@@ -4,7 +4,8 @@
       <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Member Assets</span>
       <h2 class="mt-2 text-[18px] font-semibold text-amber-dark">会员资产总览</h2>
       <p class="mt-2 max-w-[760px] text-[11px] leading-relaxed text-amber-text-muted">
-        统一查看会员卡、权益、优惠券、积分、成长值和余额摘要，并补齐门店手工充值入口。
+        统一查看会员卡、权益、优惠券、积分、成长值和余额摘要，并保留门店手工充值入口；下方新增消费者只读预览，
+        方便后续逐步接入真实消费者页接口。
       </p>
     </section>
 
@@ -38,7 +39,7 @@
         </div>
 
         <div v-else class="px-5 py-8 text-[11px] text-amber-text-muted">
-          暂无客户，请先到客户档案建立会员主档。
+          暂无客户，请先在客户档案中建立会员主体。
         </div>
       </aside>
 
@@ -96,20 +97,27 @@
                 <button
                   class="yy-action border border-amber-dark bg-amber-dark px-4 py-2 text-[11px] font-medium text-[#F4EFE6] hover:bg-black disabled:bg-amber-bg disabled:text-amber-text-muted"
                   type="button"
-                  :disabled="loading || rechargeSubmitting"
+                  :disabled="loading || rechargeSubmitting || !canRecharge"
                   @click="openRecharge"
                 >
                   {{ rechargeSubmitting ? '充值中...' : '会员充值' }}
                 </button>
               </div>
             </div>
+            <p v-if="rechargeBlockedReason" class="mt-3 text-[10.5px] text-amber-text-muted">
+              {{ rechargeBlockedReason }}
+            </p>
           </div>
 
           <div class="grid gap-5 p-5 xl:grid-cols-3">
             <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
               <div class="text-[12px] font-semibold text-amber-dark">会员卡</div>
               <div class="mt-3 space-y-3 text-[11px]">
-                <div v-for="card in selectedCards" :key="card.backendId" class="rounded-md border border-amber-topbar-border/70 px-3 py-3">
+                <div
+                  v-for="card in selectedCards"
+                  :key="card.backendId"
+                  class="rounded-md border border-amber-topbar-border/70 px-3 py-3"
+                >
                   <div class="font-medium text-amber-dark">{{ card.cardName }}</div>
                   <div class="mt-1 text-amber-text-muted">{{ card.cardType }} / {{ card.status }}</div>
                   <div class="mt-1 text-amber-text-muted">剩余 {{ card.remainingQuota }} / 总量 {{ card.totalQuota }}</div>
@@ -121,7 +129,11 @@
             <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
               <div class="text-[12px] font-semibold text-amber-dark">权益</div>
               <div class="mt-3 space-y-3 text-[11px]">
-                <div v-for="benefit in selectedBenefits" :key="benefit.backendId" class="rounded-md border border-amber-topbar-border/70 px-3 py-3">
+                <div
+                  v-for="benefit in selectedBenefits"
+                  :key="benefit.backendId"
+                  class="rounded-md border border-amber-topbar-border/70 px-3 py-3"
+                >
                   <div class="font-medium text-amber-dark">{{ benefit.benefitName }}</div>
                   <div class="mt-1 text-amber-text-muted">{{ benefit.benefitType }} / {{ benefit.status }}</div>
                   <div class="mt-1 text-amber-text-muted">剩余 {{ benefit.remainingAmount }} / 总量 {{ benefit.totalAmount }}</div>
@@ -133,7 +145,11 @@
             <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
               <div class="text-[12px] font-semibold text-amber-dark">优惠券</div>
               <div class="mt-3 space-y-3 text-[11px]">
-                <div v-for="coupon in selectedCoupons" :key="coupon.backendId" class="rounded-md border border-amber-topbar-border/70 px-3 py-3">
+                <div
+                  v-for="coupon in selectedCoupons"
+                  :key="coupon.backendId"
+                  class="rounded-md border border-amber-topbar-border/70 px-3 py-3"
+                >
                   <div class="font-medium text-amber-dark">{{ coupon.couponName }}</div>
                   <div class="mt-1 text-amber-text-muted">{{ coupon.couponType }} / {{ coupon.status }}</div>
                   <div class="mt-1 text-amber-text-muted">减免 {{ coupon.discountAmount }} / 门槛 {{ coupon.thresholdAmount }}</div>
@@ -141,6 +157,44 @@
                 <div v-if="!selectedCoupons.length" class="text-amber-text-muted">暂无优惠券资产</div>
               </div>
             </article>
+          </div>
+
+          <div class="border-t border-amber-topbar-border px-5 py-5">
+            <div class="text-[12px] font-semibold text-amber-dark">Recent Recharge Orders</div>
+            <div class="mt-1 text-[10.5px] text-amber-text-muted">
+              Pending approval and confirmed recharge orders stay on the same member recharge ledger.
+            </div>
+            <div class="mt-4 space-y-3 text-[11px]">
+              <div
+                v-for="order in selectedRechargeOrders"
+                :key="order.backendId"
+                class="rounded-md border border-amber-topbar-border/70 px-3 py-3"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="font-medium text-amber-dark">{{ order.rechargeOrderNo }}</div>
+                  <div class="font-mono text-[10px] uppercase tracking-[0.14em] text-amber-text-muted">{{ order.status }}</div>
+                </div>
+                <div class="mt-2 text-amber-text-muted">
+                  Credited {{ order.creditedAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  / Balance After {{ order.balanceAfter.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                </div>
+                <div class="mt-1 text-amber-text-muted">
+                  {{ order.channelType }}<span v-if="order.paidTime"> / {{ order.paidTime }}</span><span v-if="order.remark"> / {{ order.remark }}</span>
+                </div>
+              </div>
+              <div v-if="!selectedRechargeOrders.length" class="text-amber-text-muted">No recharge orders yet.</div>
+            </div>
+          </div>
+
+          <div class="border-t border-amber-topbar-border px-5 py-5">
+            <MemberConsumerAssetPreview
+              :selected-benefits="selectedBenefits"
+              :selected-cards="selectedCards"
+              :selected-coupons="selectedCoupons"
+              :selected-customer="selectedCustomer"
+              :selected-customer-id="selectedCustomerId"
+              :selected-overview="selectedOverview"
+            />
           </div>
         </section>
 
@@ -165,6 +219,7 @@
 </template>
 
 <script setup lang="ts">
+import MemberConsumerAssetPreview from './components/MemberConsumerAssetPreview.vue'
 import MemberRechargeModal from './components/MemberRechargeModal.vue'
 import { useMemberAssetOverview } from './useMemberAssetOverview'
 import { useMemberRecharge } from './useMemberRecharge'
@@ -181,15 +236,18 @@ const {
   selectedCustomer,
   selectedCustomerId,
   selectedOverview,
+  selectedRechargeOrders,
   selectCustomer,
   summaryCards,
 } = useMemberAssetOverview()
 
 const {
+  canRecharge,
   closeRecharge,
   form: rechargeForm,
   modalOpen: rechargeOpen,
   openRecharge,
+  rechargeBlockedReason,
   submitError: rechargeError,
   submitRecharge,
   submitting: rechargeSubmitting,

@@ -1,0 +1,63 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic:
+      - heading [level=1] [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: https://www.yuyue123.cn
+          - img [ref=e8]
+      - list [ref=e10]:
+        - listitem [ref=e11] [cursor=pointer]:
+          - link "我的品牌" [ref=e78]:
+            - /url: "#/account/change"
+        - listitem [ref=e79] [cursor=pointer]
+        - listitem [ref=e81] [cursor=pointer]:
+          - link "赵丽瑗" [ref=e82]:
+            - /url: "#/account/personal"
+        - listitem [ref=e83] [cursor=pointer]
+        - listitem [ref=e15] [cursor=pointer]:
+          - generic [ref=e85]: 退出
+  - main [ref=e17]:
+    - generic [ref=e87]:
+      - generic [ref=e89]: 选择品牌
+      - generic [ref=e90]:
+        - generic [ref=e91] [cursor=pointer]:
+          - img "item.name" [ref=e92]
+          - heading "一悦照相馆" [level=5] [ref=e93]
+        - generic [ref=e94] [cursor=pointer]:
+          - generic [ref=e95]: 
+          - heading "创建品牌" [level=5] [ref=e96]
+      - heading "简 · 约 让预约更简单" [level=3] [ref=e98]
+  - contentinfo [ref=e47]:
+    - generic [ref=e48]:
+      - list [ref=e49]:
+        - listitem [ref=e50]:
+          - img [ref=e51]
+          - generic [ref=e53]: QQ
+          - generic [ref=e54]: "171485124"
+        - listitem [ref=e55]:
+          - img [ref=e56]
+          - generic [ref=e58]: 微信
+          - generic [ref=e59]: jianyue_09
+        - listitem [ref=e60]:
+          - img [ref=e61]
+          - generic [ref=e63]: 电话
+          - generic [ref=e64]: "16620013461"
+      - paragraph [ref=e65]:
+        - text: 简约网，专注为生活服务类商家提供最专业的
+        - link "公众号预约系统" [ref=e66] [cursor=pointer]:
+          - /url: https://www.yuyue123.cn
+        - text: ，
+        - link "微信预约系统" [ref=e67] [cursor=pointer]:
+          - /url: https://www.yuyue123.cn
+        - text: ，
+        - link "照相馆预约系统" [ref=e68] [cursor=pointer]:
+          - /url: https://www.yuyue123.cn
+        - text: ",欢迎来电咨询：16620013461"
+      - paragraph [ref=e69]:
+        - text: Copyright © 2016-2018 EasyShare. All Rights Reserved.
+        - link "粤ICP备17085863号" [ref=e70] [cursor=pointer]:
+          - /url: https://beian.miit.gov.cn/
+      - link "粤公网安备 44010602008999号" [ref=e72] [cursor=pointer]:
+        - /url: ""
+        - img [ref=e73]
+        - paragraph [ref=e74]: 粤公网安备 44010602008999号

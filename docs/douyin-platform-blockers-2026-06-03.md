@@ -190,7 +190,7 @@ https://yingyueyun.evanshine.me/api/douyin/life/tripartite-code/create
 本地视频材料：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\测试店铺管理
+docs\yiyue\测试店铺管理
 ```
 
 ## 关键文档地址

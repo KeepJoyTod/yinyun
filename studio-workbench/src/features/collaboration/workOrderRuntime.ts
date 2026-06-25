@@ -55,6 +55,7 @@ const stageSlaHours = Object.fromEntries(
 ) as Record<CollaborationStageCode, number>
 
 const stageSequence: CollaborationStageCode[] = collaborationStageOptions.map(option => option.code)
+const stageCodeSet = new Set<CollaborationStageCode>(stageSequence)
 
 const stageOwnerMap: Record<CollaborationStageCode, string> = {
   RECEPTION: '接待',
@@ -104,7 +105,8 @@ const matchesSelection = (link: SelectionLink, order: BookingOrder, album?: Albu
 
 const parseDate = (value: string | undefined | null) => {
   if (!value) return null
-  const next = new Date(value)
+  const normalized = value.includes(' ') && !value.includes('T') ? value.replace(' ', 'T') : value
+  const next = new Date(normalized)
   return Number.isNaN(next.getTime()) ? null : next
 }
 
@@ -132,7 +134,14 @@ const resolvePriority = (workOrder: WorkOrderDto): CollaborationWorkOrderPriorit
   return 'MEDIUM'
 }
 
+const normalizeStageCode = (value: string | undefined | null): CollaborationStageCode | null => {
+  const normalized = String(value ?? '').trim().toUpperCase() as CollaborationStageCode
+  return stageCodeSet.has(normalized) ? normalized : null
+}
+
 const resolveStage = (workOrder: WorkOrderDto): CollaborationStageCode => {
+  const explicitStage = normalizeStageCode(workOrder.stageCode)
+  if (explicitStage) return explicitStage
   const text = `${workOrder.orderType} ${workOrder.description} ${workOrder.remark}`.toUpperCase()
   if (text.includes('MAKEUP') || text.includes('化妆')) return 'MAKEUP'
   if (text.includes('REVIEW') || text.includes('审片')) return 'REVIEW'
@@ -191,6 +200,7 @@ const resolveBusinessDate = (workOrder: WorkOrderDto, order: BookingOrder, album
   album?.date
   || order.arrivalDate
   || order.orderDate
+  || workOrder.dueTime?.slice(0, 10)
   || workOrder.createTime.slice(0, 10)
   || new Date().toISOString().slice(0, 10)
 
@@ -205,9 +215,10 @@ const resolveExecution = (
 ): CollaborationWorkOrderExecution => {
   const baseTime = resolveExecutionBaseTime(workOrder, order, album)
   const businessDate = resolveBusinessDate(workOrder, order, album)
-  const due = stage === 'SELECTION_REVIEW' && selectionLink?.expire
+  const explicitDue = parseDate(workOrder.dueTime)
+  const due = explicitDue ?? (stage === 'SELECTION_REVIEW' && selectionLink?.expire
     ? parseDate(`${baseTime.getFullYear()}-${selectionLink.expire}T23:59:00`) ?? addHours(baseTime, stageSlaHours[stage])
-    : addHours(baseTime, stageSlaHours[stage])
+    : addHours(baseTime, stageSlaHours[stage]))
   const overdue = !['COMPLETED', 'CANCELLED'].includes(statusCode) && due.getTime() < now.getTime()
   const progress = statusCode === 'COMPLETED'
     ? 100

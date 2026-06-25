@@ -9,7 +9,7 @@
 | 项 | 值 |
 | --- | --- |
 | 项目路径 | `D:\OtherProject\CameraApp\yuyue-main` |
-| 桌面副本 | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` |
+| 桌面副本 | `docs\yiyue\微信小程序\yuyue-main` |
 | 小程序端 | `client`，Taro + React + TypeScript + Zustand |
 | 运营后台 | `admin`，Vue 3 + Vite |
 | Demo 后端 | `server`，Spring Boot |

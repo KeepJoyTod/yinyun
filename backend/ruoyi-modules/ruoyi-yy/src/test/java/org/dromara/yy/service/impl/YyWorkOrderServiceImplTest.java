@@ -8,6 +8,7 @@ import org.apache.ibatis.session.Configuration;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.yy.domain.YyWorkOrder;
 import org.dromara.yy.domain.YyWorkOrderEvent;
+import org.dromara.yy.domain.bo.YyWorkOrderBo;
 import org.dromara.yy.domain.vo.YyWorkOrderVo;
 import org.dromara.yy.mapper.YyWorkOrderEventMapper;
 import org.dromara.yy.mapper.YyWorkOrderMapper;
@@ -36,6 +37,41 @@ class YyWorkOrderServiceImplTest {
 
     @Mock
     private YyWorkOrderEventMapper workOrderEventMapper;
+
+    @Test
+    void insertByBoShouldDefaultStageCodeFromOrderType() {
+        YyWorkOrderBo bo = new YyWorkOrderBo();
+        bo.setOrderNo("WO-20260624-001");
+        bo.setOrderType("RETOUCH");
+        when(workOrderMapper.insert(any(YyWorkOrder.class))).thenReturn(1);
+        YyWorkOrderServiceImpl service = new YyWorkOrderServiceImpl(workOrderMapper, workOrderEventMapper);
+
+        service.insertByBo(bo);
+
+        ArgumentCaptor<YyWorkOrder> captor = ArgumentCaptor.forClass(YyWorkOrder.class);
+        verify(workOrderMapper).insert(captor.capture());
+        YyWorkOrder saved = captor.getValue();
+        assertEquals("RETOUCH", saved.getStageCode());
+        assertEquals("PENDING", saved.getStatus());
+        assertEquals("MEDIUM", saved.getPriority());
+    }
+
+    @Test
+    void queryListShouldFilterByStageCode() {
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new Configuration(), "test"), YyWorkOrder.class);
+        YyWorkOrderBo bo = new YyWorkOrderBo();
+        bo.setStageCode("SELECTION_REVIEW");
+        YyWorkOrderServiceImpl service = new YyWorkOrderServiceImpl(workOrderMapper, workOrderEventMapper);
+
+        service.queryList(bo);
+
+        ArgumentCaptor<Wrapper<YyWorkOrder>> captor = ArgumentCaptor.forClass(Wrapper.class);
+        verify(workOrderMapper).selectVoList(captor.capture());
+        captor.getValue().getSqlSegment();
+        AbstractWrapper<YyWorkOrder, ?, ?> wrapper = (AbstractWrapper<YyWorkOrder, ?, ?>) captor.getValue();
+        List<Object> values = wrapper.getParamNameValuePairs().values().stream().toList();
+        assertEquals(List.of("SELECTION_REVIEW"), values);
+    }
 
     @Test
     void transitionStatusShouldUpdateWorkOrderAndPersistAuditEvent() {
@@ -76,6 +112,20 @@ class YyWorkOrderServiceImplTest {
         YyWorkOrderServiceImpl service = new YyWorkOrderServiceImpl(workOrderMapper, workOrderEventMapper);
 
         assertThrows(ServiceException.class, () -> service.transitionStatus(9002L, "PENDING", "COMPLETED", "完成"));
+
+        verify(workOrderMapper, never()).updateById(any(YyWorkOrder.class));
+        verify(workOrderEventMapper, never()).insert(any(YyWorkOrderEvent.class));
+    }
+
+    @Test
+    void transitionStatusShouldRejectInvalidStatusJumpWithoutAuditEvent() {
+        YyWorkOrder current = new YyWorkOrder();
+        current.setId(9004L);
+        current.setStatus("PENDING");
+        when(workOrderMapper.selectById(9004L)).thenReturn(current);
+        YyWorkOrderServiceImpl service = new YyWorkOrderServiceImpl(workOrderMapper, workOrderEventMapper);
+
+        assertThrows(ServiceException.class, () -> service.transitionStatus(9004L, "PENDING", "COMPLETED", "invalid jump"));
 
         verify(workOrderMapper, never()).updateById(any(YyWorkOrder.class));
         verify(workOrderEventMapper, never()).insert(any(YyWorkOrderEvent.class));

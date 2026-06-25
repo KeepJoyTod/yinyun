@@ -380,6 +380,15 @@ export type ResourceUsageSummaryDto = {
   typeBreakdown: ResourceUsageBreakdownDto[]
 }
 
+export type ResourceSizeBackfillResultDto = {
+  attemptedCount: number
+  updatedCount: number
+  skippedCount: number
+  failedCount: number
+  remainingMissingSizeCount: number
+  message: string
+}
+
 export type SelectionLinkDto = {
   id: BackendId
   token: string

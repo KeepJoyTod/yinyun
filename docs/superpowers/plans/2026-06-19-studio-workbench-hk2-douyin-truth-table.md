@@ -14,8 +14,8 @@
 
 **Files:**
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\douyin-life-hk2-truth-table-20260619.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md`
+- Modify: `docs\yiyue\api_map.md`
+- Modify: `docs\yiyue\hk2-runbook-20260619.md`
 
 - [ ] **Step 1: Run environment and release checks on HK2**
 
@@ -89,8 +89,8 @@ Populate it using the evidence from steps 1-4.
 ### Task 2: Classify HK2 Operations by Risk
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
+- Modify: `docs\yiyue\hk2-runbook-20260619.md`
+- Modify: `docs\yiyue\callback_map.md`
 
 - [ ] **Step 1: Add operation-class labels to the HK2 runbook**
 
@@ -135,8 +135,8 @@ Run:
 
 ```powershell
 rg -n "Operation Classes|WRITE_PLATFORM|WRITE_LOCAL_DB|READ_ONLY" `
-  "C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md" `
-  "C:\Users\Administrator\Desktop\yiyue\callback_map.md"
+  "docs\yiyue\hk2-runbook-20260619.md" `
+  "docs\yiyue\callback_map.md"
 ```
 
 Expected:
@@ -146,7 +146,7 @@ Expected:
 
 **Files:**
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\douyin-life-hk2-health-20260619.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
+- Modify: `docs\yiyue\api_map.md`
 
 - [ ] **Step 1: Read sync health and inbox status**
 

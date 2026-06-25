@@ -3,24 +3,39 @@ import {
   canAccessWorkbenchFeature,
   getEffectiveFeatureStatus,
   getWorkbenchFeature,
+  type WorkbenchFeatureStatus,
   type WorkbenchFeatureRuntimeStatus,
 } from '../../app/router/featureRegistry'
 import { studioAccessStore } from '../../shared/stores/studioAccessStore'
+
+export type ModuleScaffoldPhase = 'Phase 0' | 'Phase 1' | 'Phase 2' | 'Phase 3' | 'Phase 4'
+
+export type ModuleScaffoldOwnerLayers = {
+  presentation: string[]
+  control: string[]
+  data: string[]
+}
 
 export type ModuleScaffoldConfig = {
   featureKey: string
   domain: string
   title: string
   summary: string
+  phase?: ModuleScaffoldPhase
+  ownerStatus?: WorkbenchFeatureStatus
   owner: string
   nextPhase: string
   routes: string[]
   contracts: string[]
   apis: string[]
   ledgers: string[]
+  ownerLayers?: ModuleScaffoldOwnerLayers
 }
 
 export type ModuleScaffoldViewModel = ModuleScaffoldConfig & {
+  phase: ModuleScaffoldPhase
+  ownerStatus: WorkbenchFeatureStatus
+  ownerLayers: ModuleScaffoldOwnerLayers
   permissionCode: string
   runtimeStatus: WorkbenchFeatureRuntimeStatus
   accessState: string
@@ -35,6 +50,12 @@ const resolveStoreScopeLabel = () => {
   if (studioAccessStore.stores.length === 0) return '当前账号暂无门店范围'
   if (studioAccessStore.stores.length === 1) return studioAccessStore.stores[0]?.storeName ?? '单门店'
   return `${studioAccessStore.stores.length} 个授权门店`
+}
+
+const emptyOwnerLayers: ModuleScaffoldOwnerLayers = {
+  presentation: [],
+  control: [],
+  data: [],
 }
 
 const resolveAccessState = (featureKey: string, runtimeStatus: WorkbenchFeatureRuntimeStatus) => {
@@ -53,6 +74,9 @@ export const useModuleScaffold = (config: ModuleScaffoldConfig) => computed<Modu
   const runtimeStatus = getEffectiveFeatureStatus(feature, studioAccessStore.featureStatuses)
   return {
     ...config,
+    phase: config.phase ?? 'Phase 0',
+    ownerStatus: config.ownerStatus ?? feature?.status ?? 'building',
+    ownerLayers: config.ownerLayers ?? emptyOwnerLayers,
     permissionCode: feature?.permission ?? '',
     runtimeStatus,
     accessState: resolveAccessState(config.featureKey, runtimeStatus),

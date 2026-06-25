@@ -596,10 +596,10 @@ npm run build:h5 passed
 **Files:**
 - Verify: `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp\src\manifest.json`
 - Verify: `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp\src\api\clientPhoto.ts`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\wechatapp\README.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\wechatapp\code-map.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\wechatapp\feature-map.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\wechatapp\optimization-map.md`
+- Update if behavior changes: `docs\yiyue\wechatapp\README.md`
+- Update if behavior changes: `docs\yiyue\wechatapp\code-map.md`
+- Update if behavior changes: `docs\yiyue\wechatapp\feature-map.md`
+- Update if behavior changes: `docs\yiyue\wechatapp\optimization-map.md`
 
 - [x] **Step 1: Build WeChat mini program**
 
@@ -679,10 +679,10 @@ Do not include AppSecret, token, AccessKey, or customer phone data.
 **Files:**
 - Verify: `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp\src\manifest.json`
 - Verify: `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp\src\api\clientPhoto.ts`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\douyinapp\README.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\douyinapp\code-map.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\douyinapp\feature-map.md`
-- Update if behavior changes: `C:\Users\Administrator\Desktop\yiyue\douyinapp\optimization-map.md`
+- Update if behavior changes: `docs\yiyue\douyinapp\README.md`
+- Update if behavior changes: `docs\yiyue\douyinapp\code-map.md`
+- Update if behavior changes: `docs\yiyue\douyinapp\feature-map.md`
+- Update if behavior changes: `docs\yiyue\douyinapp\optimization-map.md`
 
 - [x] **Step 1: Build Douyin/Toutiao mini program**
 
@@ -767,8 +767,8 @@ Do not mix this with DOUYIN_LIFE SPI callback maps.
 **Files:**
 - Verify controller: `D:\OtherProject\CameraApp\yingyue-cloud-repo\backend\ruoyi-modules\ruoyi-yy\src\main\java\org\dromara\yy\controller\YyDouyinLifeSpiController.java`
 - Verify adapter: `D:\OtherProject\CameraApp\yingyue-cloud-repo\backend\ruoyi-modules\ruoyi-yy\src\main\java\org\dromara\yy\channel\douyin\DouyinLifeChannelAdapter.java`
-- Reference: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- Reference: `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`
+- Reference: `docs\yiyue\callback_map.md`
+- Reference: `docs\yiyue\liucheng_map.md`
 
 - [ ] **Step 1: Confirm production environment variables**
 
@@ -847,8 +847,8 @@ Use `agree` or `reject` only during explicit platform test cases.
 ## Task 10: DOUYIN_LIFE Acceptance Evidence
 
 **Files:**
-- Reference: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- Reference: `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`
+- Reference: `docs\yiyue\callback_map.md`
+- Reference: `docs\yiyue\liucheng_map.md`
 - Optional evidence: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\douyin-life-acceptance-20260607.md`
 
 - [ ] **Step 1: Reconfirm callback URLs**

@@ -1,5 +1,12 @@
 import { proxyRefs, ref } from 'vue'
-import { backendApi, type CollaborationPolicyPayload, type RetouchProviderListQuery, type RetouchProviderPayload, type RetouchTaskActionPayload, type RetouchTaskListQuery, type ServiceLicenseBindingPayload } from '../../../shared/api/backend'
+import {
+  backendApi,
+  type CollaborationPolicyPayload,
+  type RetouchProviderListQuery,
+  type RetouchProviderPayload,
+  type RetouchTaskActionPayload,
+  type RetouchTaskListQuery,
+} from '../../../shared/api/backend'
 import { appStore } from '../../../shared/stores/appStore'
 
 const messageOf = (error: unknown, fallback: string) =>
@@ -52,12 +59,6 @@ export const useServiceProduction = () => {
     },
     saveCollaborationPolicy(payload: CollaborationPolicyPayload) {
       return run('saving', '保存中央修图策略失败', () => backendApi.saveCollaborationPolicy(payload))
-    },
-    loadLicenseBindings(storeId?: string) {
-      return run('loading', '加载开通设置失败', () => backendApi.listServiceLicenseBindings(storeId))
-    },
-    saveLicenseBinding(payload: ServiceLicenseBindingPayload) {
-      return run('saving', '保存开通设置失败', () => backendApi.saveServiceLicenseBinding(payload))
     },
   })
 }

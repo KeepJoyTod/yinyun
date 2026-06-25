@@ -64,4 +64,4 @@ Accepted
 - 重大计划优先写到 `docs/superpowers/plans`。
 - 功能契约写到 `docs/contracts`。
 - 数据流图写到 `docs/flows`。
-- 本地交接地图更新到 `C:\Users\Administrator\Desktop\yiyue`。
+- 本地交接地图更新到 `docs\yiyue`。

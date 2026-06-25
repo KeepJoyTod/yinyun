@@ -13,7 +13,7 @@ This batch keeps the backend order and booking ledgers unchanged. It only fixes 
 
 - Run targeted contract tests for orders, dashboard, and schedule.
 - Run `studio-workbench` production build.
-- Update local maps under `C:\Users\Administrator\Desktop\yiyue`.
+- Update local maps under `docs\yiyue`.
 
 ## Boundary
 

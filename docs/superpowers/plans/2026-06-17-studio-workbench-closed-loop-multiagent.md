@@ -121,9 +121,9 @@ npm --prefix client-web run test -- src/api/clientPhotoApi.test.ts src/views/cus
 **Owner:** Main coordinator after integration.
 
 **Files:**
-- Update: `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
+- Update: `docs\yiyue\function_map.md`
+- Update: `docs\yiyue\optimization_map.md`
+- Update: `docs\yiyue\api_map.md`
 - Add/update evidence under `docs/evidence/`
 
 - [ ] Record implemented user path, API, tables, source files, and verification.

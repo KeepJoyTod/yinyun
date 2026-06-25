@@ -1,6 +1,9 @@
 import { computed, ref, watch } from 'vue'
-import { backendApi, type WorkOrderDto } from '../../shared/api/backend'
+import type { WorkOrderDto, WorkOrderEventDto } from '../../shared/api/backend'
+import type { BackendId } from '../../shared/api/backendId'
+import { workOrdersApi } from '../../shared/api/backendWorkOrdersApi'
 import { appStore } from '../../shared/stores/appStore'
+import { useFeatureScopeGate } from '../system/useFeatureScopeGate'
 import {
   buildCollaborationWorkOrderItems,
   resolveWorkOrderTransitionPayload,
@@ -10,10 +13,17 @@ import {
 const toErrorMessage = (error: unknown) => error instanceof Error ? error.message : '真实工单加载失败，请稍后重试。'
 
 export const useCollaborationWorkOrders = (pageSize = 200) => {
+  const featureGate = useFeatureScopeGate({
+    featureKey: 'collaboration-work-orders',
+    requireStoreScope: true,
+  })
   const storeFilter = ref('')
   const rawWorkOrders = ref<WorkOrderDto[]>([])
+  const workOrderEvents = ref<WorkOrderEventDto[]>([])
   const loading = ref(false)
+  const eventsLoading = ref(false)
   const error = ref('')
+  const eventsError = ref('')
   const loadSeq = ref(0)
 
   const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
@@ -47,19 +57,34 @@ export const useCollaborationWorkOrders = (pageSize = 200) => {
   })
 
   const reload = async () => {
-    const currentStoreId = selectedStoreId.value
     const seq = loadSeq.value + 1
     loadSeq.value = seq
+    loading.value = true
+    error.value = ''
+    try {
+      await featureGate.loadGate()
+      if (!featureGate.canLoadData.value) {
+        rawWorkOrders.value = []
+        return
+      }
+    } catch (nextError) {
+      if (seq !== loadSeq.value) return
+      rawWorkOrders.value = []
+      error.value = toErrorMessage(nextError)
+      return
+    } finally {
+      if (seq === loadSeq.value) loading.value = false
+    }
+    const currentStoreId = selectedStoreId.value
     if (!currentStoreId) {
       rawWorkOrders.value = []
       error.value = ''
-      loading.value = false
       return
     }
     loading.value = true
     error.value = ''
     try {
-      const response = await backendApi.listWorkOrders({
+      const response = await workOrdersApi.listWorkOrders({
         storeId: currentStoreId,
         pageNum: 1,
         pageSize,
@@ -78,9 +103,23 @@ export const useCollaborationWorkOrders = (pageSize = 200) => {
   const transitionWorkOrder = async (item: CollaborationWorkOrderItem, remark = '') => {
     const payload = resolveWorkOrderTransitionPayload(item, remark)
     if (!payload) return null
-    const next = await backendApi.transitionWorkOrder(payload)
+    const next = await workOrdersApi.transitionWorkOrder(payload)
     rawWorkOrders.value = rawWorkOrders.value.map(entry => (entry.id === next.id ? next : entry))
     return next
+  }
+
+  const loadWorkOrderEvents = async (id: BackendId | null | undefined) => {
+    workOrderEvents.value = []
+    eventsError.value = ''
+    if (!id || !featureGate.canLoadData.value) return
+    eventsLoading.value = true
+    try {
+      workOrderEvents.value = await workOrdersApi.listWorkOrderEvents(id)
+    } catch (nextError) {
+      eventsError.value = toErrorMessage(nextError)
+    } finally {
+      eventsLoading.value = false
+    }
   }
 
   watch(selectedStoreId, () => {
@@ -103,9 +142,17 @@ export const useCollaborationWorkOrders = (pageSize = 200) => {
     normalizeStoreFilter,
     ensureWorkbenchStores,
     workOrders,
+    workOrderEvents,
     loading,
+    eventsLoading,
     error,
+    eventsError,
+    gate: featureGate.gate,
+    gateLoading: featureGate.gateLoading,
+    gateError: featureGate.gateError,
+    canLoadData: featureGate.canLoadData,
     reload,
     transitionWorkOrder,
+    loadWorkOrderEvents,
   }
 }

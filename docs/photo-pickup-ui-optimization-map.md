@@ -400,8 +400,8 @@ docs/evidence/p0-verification-20260609.md
 
 | 项目 | 路径 | 判断 | 处理 |
 | --- | --- | --- | --- |
-| `photoshop-master` | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | Vue/Vite + Java 的影楼管理演示项目 | 借鉴相册管理、在线选片、预约档期、订单状态 UI |
-| `yuyue-main` | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | Taro React 小程序 + Vue admin + Java server | 借鉴手机号授权、预约、订单、底片流程 |
+| `photoshop-master` | `docs\yiyue\前端优化\photoshop-master` | Vue/Vite + Java 的影楼管理演示项目 | 借鉴相册管理、在线选片、预约档期、订单状态 UI |
+| `yuyue-main` | `docs\yiyue\微信小程序\yuyue-main` | Taro React 小程序 + Vue admin + Java server | 借鉴手机号授权、预约、订单、底片流程 |
 
 正式路线保持：
 
@@ -413,13 +413,13 @@ docs/evidence/p0-verification-20260609.md
 本地交接地图已沉淀到：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\handover-master-map.md
-C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master-code-map.md
-C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master-feature-map.md
-C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master-ui-audit.md
-C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master-absorb-plan.md
-C:\Users\Administrator\Desktop\yiyue\wechatapp\friend-yuyue-main-audit.md
-C:\Users\Administrator\Desktop\yiyue\douyinapp\friend-yuyue-main-audit.md
+docs\yiyue\handover-master-map.md
+docs\yiyue\前端优化\photoshop-master-code-map.md
+docs\yiyue\前端优化\photoshop-master-feature-map.md
+docs\yiyue\前端优化\photoshop-master-ui-audit.md
+docs\yiyue\前端优化\photoshop-master-absorb-plan.md
+docs\yiyue\wechatapp\friend-yuyue-main-audit.md
+docs\yiyue\douyinapp\friend-yuyue-main-audit.md
 ```
 
 下一轮优化优先级：
@@ -451,6 +451,6 @@ C:\Users\Administrator\Desktop\yiyue\douyinapp\friend-yuyue-main-audit.md
 | 接手总控计划 | 新增 `docs/friend-project-takeover-master-plan-20260609.md`，统一桌面目录、工作区解压目录、正式源码目录和吸收边界 |
 | 前端优化路线图 | 新增 `docs/frontend-optimization-roadmap-20260609.md`，把 `photoshop-master` 可吸收内容拆成相册、在线选片、预约档期、订单状态、仪表盘 |
 | 抖音小程序地图 | 新增 `docs/douyin-miniapp-takeover-map-20260609.md`，明确正式抖音小程序代码在 `mobile-uniapp`，桌面 `抖音小程序` 目录仅沉淀 AppID 和配置 |
-| 桌面同步 | 已同步到 `C:\Users\Administrator\Desktop\yiyue`、`前端优化`、`抖音小程序` |
+| 桌面同步 | 已同步到 `docs\yiyue`、`前端优化`、`抖音小程序` |
 
 下一轮 UI/体验优先级仍然不变：先真机验证微信/抖音小程序取片码链路，再从 `photoshop-master` 吸收“在线选片链接/二维码/有效期”到后台相册页。

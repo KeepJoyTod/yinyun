@@ -4,7 +4,7 @@
 
 ## 结果
 
-桌面目录 `C:\Users\Administrator\Desktop\yiyue\抖音小程序` 当前只保存抖音小程序 AppID，不是正式源码目录。正式抖音小程序源码在：
+桌面目录 `docs\yiyue\抖音小程序` 当前只保存抖音小程序 AppID，不是正式源码目录。正式抖音小程序源码在：
 
 ```text
 D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp

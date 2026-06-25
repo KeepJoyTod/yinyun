@@ -43,14 +43,32 @@
         {{ label }}
       </span>
     </div>
+
+    <div v-if="evidence" class="mt-4 rounded-xl border border-amber-topbar-border bg-white/75 p-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="text-[10px] uppercase tracking-[0.16em] text-amber-text-muted">履约证据</div>
+        <div class="text-[11px] font-semibold text-amber-dark">{{ evidence.summary }}</div>
+      </div>
+      <div class="mt-3 grid gap-2 md:grid-cols-3">
+        <div v-for="item in evidence.items" :key="item.key" class="border border-amber-topbar-border bg-[#FBF7F0] px-3 py-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10.5px] font-semibold text-amber-dark">{{ item.label }}</span>
+            <span :class="item.tone === 'ready' ? 'text-emerald-700' : 'text-amber-700'" class="text-[9px] font-semibold">{{ item.tone === 'ready' ? '有证据' : '待验证' }}</span>
+          </div>
+          <p class="mt-1 text-[10px] leading-relaxed text-amber-text-muted">{{ item.detail }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { AlbumProductFulfillmentEvidence } from '../albumProductFulfillmentEvidence'
 import type { AlbumProductReadiness } from '../albumProductReadiness'
 
 defineProps<{
   readiness: AlbumProductReadiness
+  evidence?: AlbumProductFulfillmentEvidence
 }>()
 
 defineEmits<{

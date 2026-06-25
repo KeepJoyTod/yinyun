@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 基于 RuoYi OSS 配置生成短期访问链接。
@@ -30,5 +31,16 @@ public class DefaultYyPhotoAssetUrlSigner implements YyPhotoAssetUrlSigner {
             throw new ServiceException("照片对象Key不能为空");
         }
         OssFactory.instance().download(objectKey, outputStream, null);
+    }
+
+    @Override
+    public Long resolveObjectSizeBytes(String objectKey) {
+        if (StringUtils.isBlank(objectKey)) {
+            throw new ServiceException("Photo object key must not be blank");
+        }
+        AtomicLong sizeBytes = new AtomicLong(-1L);
+        OssFactory.instance().download(objectKey, sizeBytes::set);
+        long resolved = sizeBytes.get();
+        return resolved >= 0L ? resolved : null;
     }
 }

@@ -6,7 +6,7 @@
 
 **Architecture:** `yy_order` remains the only order and appointment ledger. `yy_booking_slot_inventory` remains the only schedule and capacity ledger. The workbench must read and write through backend APIs, and every production/HK2 write must leave an evidence artifact with release marker, route/API, affected store, affected synthetic order/card/page id, and rollback or cleanup status.
 
-**Tech Stack:** Vue 3 + TypeScript + Vite + Vitest for `studio-workbench`; Spring Boot/RuoYi + PostgreSQL + Redis for backend; HK2 `103.24.216.8` via `tools/invoke-hk2.ps1`; PowerShell scripts for deploy/smoke/evidence; local maps under `C:\Users\Administrator\Desktop\yiyue`.
+**Tech Stack:** Vue 3 + TypeScript + Vite + Vitest for `studio-workbench`; Spring Boot/RuoYi + PostgreSQL + Redis for backend; HK2 `103.24.216.8` via `tools/invoke-hk2.ps1`; PowerShell scripts for deploy/smoke/evidence; local maps under `docs\yiyue`.
 
 ---
 
@@ -22,7 +22,7 @@
 | Latest deployment evidence | `docs/evidence/studio-workbench-secure-env-deploy-20260620-012323.md` |
 | Latest login evidence | `docs/evidence/studio-real-login-smoke-20260620-014005/` |
 | Latest appointment write evidence | `docs/evidence/studio-appointment-write-smoke-20260620-014821/appointment-write-smoke.json` |
-| Maps updated | `C:\Users\Administrator\Desktop\yiyue\code_map.md`, `api_map.md`, `function_map.md`, `optimization_map.md` |
+| Maps updated | `docs\yiyue\code_map.md`, `api_map.md`, `function_map.md`, `optimization_map.md` |
 
 ## Already Completed In This Loop
 
@@ -77,7 +77,7 @@ Do not run broad cleanup. Do not revert unrelated files. Do not use `git add .`.
 | Backend order/inventory | `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyOrderServiceImpl.java`, `YyBookingSlotInventoryServiceImpl.java` |
 | Douyin Life | `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/channel/douyin/*`, `YyDouyinLifeSpiController.java` |
 | Evidence/scripts | `tools/*.ps1`, `docs/evidence/*.md`, `docs/evidence/*.json` |
-| Local maps | `C:\Users\Administrator\Desktop\yiyue\*.md` |
+| Local maps | `docs\yiyue\*.md` |
 
 ## Loop 1: Make Deployment Repeatable
 
@@ -401,10 +401,10 @@ Expected:
 **Objective:** Keep the project operable for the next AI without relying on chat history.
 
 **Files:**
-- `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
+- `docs\yiyue\code_map.md`
+- `docs\yiyue\api_map.md`
+- `docs\yiyue\function_map.md`
+- `docs\yiyue\optimization_map.md`
 - `docs/evidence/*.md`
 - `docs/evidence/*.json`
 
@@ -423,7 +423,7 @@ Expected:
 - [ ] Verification:
 
 ```powershell
-rg -n "APPSecret|AccessKey|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence C:\Users\Administrator\Desktop\yiyue\code_map.md C:\Users\Administrator\Desktop\yiyue\api_map.md C:\Users\Administrator\Desktop\yiyue\function_map.md C:\Users\Administrator\Desktop\yiyue\optimization_map.md
+rg -n "APPSecret|AccessKey|password\s*=|密码\s*[:=]|token\s*[:=]|Authorization|Bearer" docs\evidence docs\yiyue\code_map.md docs\yiyue\api_map.md docs\yiyue\function_map.md docs\yiyue\optimization_map.md
 git status --short --branch
 ```
 
@@ -462,7 +462,7 @@ Expected:
 6. Loop F: quality, maps, and final local handoff.
    - Run targeted tests plus build for touched module.
    - Deploy HK2 only after passing build.
-   - Update local maps under `C:\Users\Administrator\Desktop\yiyue`.
+   - Update local maps under `docs\yiyue`.
    - Record evidence path, release id, created synthetic ids, cleanup state, and next safe command.
    - Local commit is allowed after stabilization; GitHub push remains disabled.
 

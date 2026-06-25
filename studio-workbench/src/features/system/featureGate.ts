@@ -4,7 +4,7 @@ import {
   getWorkbenchFeature,
   type WorkbenchFeatureRuntimeStatus,
 } from '../../app/router/featureRegistry'
-import type { MarketingCapabilityDto, ServiceLicenseBindingDto } from '../../shared/api/backend'
+import type { FeatureScopeDto, MarketingCapabilityDto, ServiceLicenseBindingDto } from '../../shared/api/backend'
 import { studioAccessStore } from '../../shared/stores/studioAccessStore'
 
 export type FeatureGateState =
@@ -19,9 +19,10 @@ export type FeatureGateState =
   | 'building'
   | 'capability_blocked'
 
-export type FeatureGateLicenseState = 'active' | 'missing' | 'expired' | 'unknown'
-export type FeatureGatePluginState = 'enabled' | 'disabled' | 'unknown'
-export type FeatureGateApprovalState = 'not_required' | 'required' | 'unknown'
+export type FeatureGateLicenseState = 'active' | 'missing' | 'expired' | 'unknown' | 'not_applicable'
+export type FeatureGatePluginState = 'enabled' | 'disabled' | 'unknown' | 'not_applicable'
+export type FeatureGateApprovalState = 'not_required' | 'required' | 'unknown' | 'not_applicable'
+export type FeatureGateLicenseMode = 'hard' | 'advisory'
 
 export type FeatureGateCapability = Pick<
   MarketingCapabilityDto,
@@ -36,11 +37,13 @@ export type FeatureGateLicenseBinding = Pick<
 export type FeatureGateInput = {
   featureKey: string
   capability?: FeatureGateCapability | null
+  featureScope?: FeatureScopeDto | null
   requiredRoles?: string[]
   requireStoreScope?: boolean
   pluginEnabled?: boolean | null
   licenseBindings?: FeatureGateLicenseBinding[] | null
   requiresApproval?: boolean | null
+  licenseMode?: FeatureGateLicenseMode
 }
 
 export type FeatureGateResult = {
@@ -62,6 +65,9 @@ export type FeatureGateResult = {
   licenseState: FeatureGateLicenseState
   pluginState: FeatureGatePluginState
   approvalState: FeatureGateApprovalState
+  licenseMode: FeatureGateLicenseMode
+  licenseSummary: FeatureScopeDto['licenseSummary']
+  pluginSummary: FeatureScopeDto['pluginSummary']
 }
 
 const storeScopeFallbackLabel = '待加载权限范围'
@@ -99,6 +105,21 @@ export const resolveLicenseState = (
   return 'missing'
 }
 
+const resolveLicenseStateFromScope = (scope?: FeatureScopeDto | null, fallback?: FeatureGateLicenseState) =>
+  scope?.licenseState ?? fallback ?? 'unknown'
+
+const resolvePluginState = (scope?: FeatureScopeDto | null, pluginEnabled?: boolean | null): FeatureGatePluginState => {
+  if (scope?.pluginState) return scope.pluginState
+  if (pluginEnabled == null) return 'unknown'
+  return pluginEnabled ? 'enabled' : 'disabled'
+}
+
+const resolveApprovalState = (scope?: FeatureScopeDto | null, requiresApproval?: boolean | null): FeatureGateApprovalState => {
+  if (scope?.approvalState) return scope.approvalState
+  if (requiresApproval == null) return 'unknown'
+  return requiresApproval ? 'required' : 'not_required'
+}
+
 const resolveStateLabel = (
   state: FeatureGateState,
   runtimeStatus: WorkbenchFeatureRuntimeStatus,
@@ -119,10 +140,11 @@ const resolveStateLabel = (
 }
 
 const resolveGateCopy = (
+  featureScope: FeatureScopeDto | null | undefined,
   capability: FeatureGateCapability | null | undefined,
   stateLabel: string,
   storeScopeLabel: string,
-) => capability?.gateCopy || `${stateLabel}，当前门店范围：${storeScopeLabel}`
+) => featureScope?.gateCopy || capability?.gateCopy || `${stateLabel}，当前门店范围：${storeScopeLabel}`
 
 export const resolveFeatureGate = (input: FeatureGateInput): FeatureGateResult => {
   const feature = getWorkbenchFeature(input.featureKey)
@@ -130,18 +152,11 @@ export const resolveFeatureGate = (input: FeatureGateInput): FeatureGateResult =
   const permissionMatched = canAccessWorkbenchFeature(feature, studioAccessStore.menuPermissions)
   const roleMatched = !input.requiredRoles?.length
     || input.requiredRoles.some(role => studioAccessStore.rolePermissions.includes(role))
-  const pluginState: FeatureGatePluginState = input.pluginEnabled == null
-    ? 'unknown'
-    : input.pluginEnabled
-      ? 'enabled'
-      : 'disabled'
-  const licenseState = resolveLicenseState(input.licenseBindings)
-  const approvalState: FeatureGateApprovalState = input.requiresApproval == null
-    ? 'unknown'
-    : input.requiresApproval
-      ? 'required'
-      : 'not_required'
   const storeScopeLabel = resolveStoreScopeLabel()
+  const licenseMode = input.licenseMode ?? 'hard'
+  const licenseState = resolveLicenseStateFromScope(input.featureScope, resolveLicenseState(input.licenseBindings))
+  const pluginState = resolvePluginState(input.featureScope, input.pluginEnabled)
+  const approvalState = resolveApprovalState(input.featureScope, input.requiresApproval)
 
   let state: FeatureGateState = 'enabled'
   if (!studioAccessStore.initialized) {
@@ -156,9 +171,12 @@ export const resolveFeatureGate = (input: FeatureGateInput): FeatureGateResult =
     state = 'store_scope_required'
   } else if (pluginState === 'disabled') {
     state = 'plugin_disabled'
-  } else if (licenseState === 'missing' || licenseState === 'expired') {
+  } else if (licenseMode === 'hard' && (licenseState === 'missing' || licenseState === 'expired')) {
     state = 'license_required'
-  } else if (input.capability && (!input.capability.enabled || input.capability.status === 'disabled' || input.capability.status === 'expired')) {
+  } else if (
+    input.capability
+    && (!input.capability.enabled || input.capability.status === 'disabled' || input.capability.status === 'expired')
+  ) {
     state = 'capability_blocked'
   } else if (runtimeStatus === 'building' || runtimeStatus === 'planned') {
     state = 'building'
@@ -178,7 +196,7 @@ export const resolveFeatureGate = (input: FeatureGateInput): FeatureGateResult =
     stateLabel,
     enabled: state === 'enabled',
     scopeLabel: input.capability?.scopeLabel || storeScopeLabel,
-    gateCopy: resolveGateCopy(input.capability, stateLabel, storeScopeLabel),
+    gateCopy: resolveGateCopy(input.featureScope, input.capability, stateLabel, storeScopeLabel),
     expiresAt: input.capability?.expiresAt,
     capabilityStatus: input.capability?.status,
     storeScopeLabel,
@@ -187,5 +205,8 @@ export const resolveFeatureGate = (input: FeatureGateInput): FeatureGateResult =
     licenseState,
     pluginState,
     approvalState,
+    licenseMode,
+    licenseSummary: input.featureScope?.licenseSummary ?? null,
+    pluginSummary: input.featureScope?.pluginSummary ?? null,
   }
 }

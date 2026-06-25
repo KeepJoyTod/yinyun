@@ -5,9 +5,9 @@
 - Added repo agent rules: `AGENTS.md`.
 - Added local Codex skill: `C:\Users\Administrator\.codex\skills\yiyue-jianyue-workbench-runner`.
 - Added local maps:
-  - `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
+  - `docs\yiyue\jianyue_benchmark_map.md`
+  - `docs\yiyue\function_map.md`
+  - `docs\yiyue\optimization_map.md`
 
 ## Skill
 

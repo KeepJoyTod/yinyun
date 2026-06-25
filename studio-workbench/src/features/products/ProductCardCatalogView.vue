@@ -129,6 +129,7 @@
 
           <AlbumProductReadinessPanel
             v-if="isAlbumModule && item.product"
+            :evidence="albumEvidence(item.product)"
             :readiness="albumReadiness(item.product)"
             @configure="openFulfillmentModal(item.product)"
           />
@@ -204,6 +205,7 @@ import NoticeBar from '../../shared/components/NoticeBar.vue'
 import { useNotice } from '../../shared/composables/useNotice'
 import { collaborationStore } from '../../shared/stores/collaborationStore'
 import { appDerived, appStore, type ProductConfig } from '../../shared/stores/appStore'
+import { buildAlbumProductFulfillmentEvidence } from './albumProductFulfillmentEvidence'
 import { buildAlbumProductConfigDraft, buildAlbumProductReadiness } from './albumProductReadiness'
 import AlbumProductFulfillmentModal from './components/AlbumProductFulfillmentModal.vue'
 import AlbumProductReadinessPanel from './components/AlbumProductReadinessPanel.vue'
@@ -314,6 +316,8 @@ const productQuantityValue = (item: DerivedProductItem) => quantityValue(module.
 
 const albumReadiness = (product: ProductConfig) =>
   buildAlbumProductReadiness(product, product.backendId ? albumConfigMap.value[String(product.backendId)] : undefined)
+const albumEvidence = (product: ProductConfig) =>
+  buildAlbumProductFulfillmentEvidence({ product, orders: appStore.orders, albums: appStore.albums, selectionLinks: appStore.selectionLinks })
 
 const openServiceView = () => {
   router.push('/product/service')

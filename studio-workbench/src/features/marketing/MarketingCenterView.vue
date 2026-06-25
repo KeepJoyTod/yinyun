@@ -71,7 +71,7 @@ import CampaignOrderLinkPanel from './components/CampaignOrderLinkPanel.vue'
 import MarketingCapabilityGateCard from './components/MarketingCapabilityGateCard.vue'
 
 const { capabilities, error: capabilityError } = useMarketingCapabilityGate()
-const { dashboard, error: dashboardError, loadCampaignScaffold: reload } = useCampaignEditor()
+const { dashboard, error: dashboardError, loadCampaigns: reload } = useCampaignEditor()
 
 const error = computed(() => capabilityError.value || dashboardError.value)
 const summary = computed(() => buildCampaignOrderBridgeSummary(appStore.orders))

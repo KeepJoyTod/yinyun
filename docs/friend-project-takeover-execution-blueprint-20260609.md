@@ -8,8 +8,8 @@
 
 | 项目 | 路径 | 定位 |
 | --- | --- | --- |
-| `photoshop-master` | `D:\OtherProject\CameraApp\photoshop-master`、`C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | 摄影后台 UI/流程参考 |
-| `yuyue-main` | `D:\OtherProject\CameraApp\yuyue-main`、`C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | 小程序登录、预约、订单、底片流程参考 |
+| `photoshop-master` | `D:\OtherProject\CameraApp\photoshop-master`、`docs\yiyue\前端优化\photoshop-master` | 摄影后台 UI/流程参考 |
+| `yuyue-main` | `D:\OtherProject\CameraApp\yuyue-main`、`docs\yiyue\微信小程序\yuyue-main` | 小程序登录、预约、订单、底片流程参考 |
 | 正式项目 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | 唯一生产开发基线 |
 
 正式代码只改 `yingyue-cloud-repo`。朋友项目只做参考，不直接替换正式后台、小程序或后端。

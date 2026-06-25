@@ -11,4 +11,6 @@ public interface YyPhotoAssetUrlSigner {
     String signGetUrl(String objectKey, long expiresInSeconds, String usage);
 
     void writeObject(String objectKey, OutputStream outputStream) throws IOException;
+
+    Long resolveObjectSizeBytes(String objectKey);
 }

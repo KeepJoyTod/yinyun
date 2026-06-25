@@ -11,6 +11,8 @@ describe('finance center scaffold contract', () => {
     expect(transactionsSource).toContain('useModuleScaffold')
     expect(scaffoldsSource).toContain("featureKey: 'finance-overview'")
     expect(scaffoldsSource).toContain("featureKey: 'finance-transactions'")
+    expect(scaffoldsSource).toContain("phase: 'Phase 3'")
+    expect(scaffoldsSource).toContain('ownerLayers')
     expect(scaffoldsSource).toContain('backendFinanceApi.ts')
   })
 })

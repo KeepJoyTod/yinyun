@@ -13,15 +13,15 @@
 ### Task 1: Archive Legacy Plan Files
 
 **Files:**
-- Create: `C:\Users\Administrator\Desktop\yiyue\archive\legacy-plans\20260619\INDEX.md`
-- Move: all legacy planning docs under `C:\Users\Administrator\Desktop\yiyue\` except the canonical 8 docs and live maps
+- Create: `docs\yiyue\archive\legacy-plans\20260619\INDEX.md`
+- Move: all legacy planning docs under `docs\yiyue\` except the canonical 8 docs and live maps
 
 - [ ] **Step 1: List candidate legacy plan files**
 
 Run:
 
 ```powershell
-Get-ChildItem "C:\Users\Administrator\Desktop\yiyue" -File |
+Get-ChildItem "docs\yiyue" -File |
   Where-Object {
     $_.Name -match "朋友项目|handover|takeover|optimization-plan|master-plan|总规划|总计划|总控|执行地图|接手"
   } |
@@ -37,7 +37,7 @@ Expected:
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force "C:\Users\Administrator\Desktop\yiyue\archive\legacy-plans\20260619" | Out-Null
+New-Item -ItemType Directory -Force "docs\yiyue\archive\legacy-plans\20260619" | Out-Null
 ```
 
 Expected:
@@ -59,12 +59,12 @@ $keep = @(
   "hk2-runbook-20260619.md"
 )
 
-Get-ChildItem "C:\Users\Administrator\Desktop\yiyue" -File |
+Get-ChildItem "docs\yiyue" -File |
   Where-Object {
     $_.Name -notin $keep -and
     $_.Name -match "朋友项目|handover|takeover|optimization-plan|master-plan|总规划|总计划|总控|执行地图|接手"
   } |
-  Move-Item -Destination "C:\Users\Administrator\Desktop\yiyue\archive\legacy-plans\20260619"
+  Move-Item -Destination "docs\yiyue\archive\legacy-plans\20260619"
 ```
 
 - [ ] **Step 4: Write the archive index**
@@ -92,7 +92,7 @@ Canonical live docs moved forward:
 Run:
 
 ```powershell
-Get-ChildItem "C:\Users\Administrator\Desktop\yiyue" -File | Select-Object Name | Sort-Object Name
+Get-ChildItem "docs\yiyue" -File | Select-Object Name | Sort-Object Name
 ```
 
 Expected:
@@ -101,12 +101,12 @@ Expected:
 ### Task 2: Normalize Canonical Map Headers
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- Modify: `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`
+- Modify: `docs\yiyue\code_map.md`
+- Modify: `docs\yiyue\function_map.md`
+- Modify: `docs\yiyue\optimization_map.md`
+- Modify: `docs\yiyue\api_map.md`
+- Modify: `docs\yiyue\callback_map.md`
+- Modify: `docs\yiyue\jianyue_benchmark_map.md`
 
 - [ ] **Step 1: Update stale header timestamps**
 
@@ -147,12 +147,12 @@ Run:
 
 ```powershell
 rg -n "Canonical Status|owner: studio-workbench-main-controller|Related Canonical Docs" `
-  "C:\Users\Administrator\Desktop\yiyue\code_map.md" `
-  "C:\Users\Administrator\Desktop\yiyue\function_map.md" `
-  "C:\Users\Administrator\Desktop\yiyue\optimization_map.md" `
-  "C:\Users\Administrator\Desktop\yiyue\api_map.md" `
-  "C:\Users\Administrator\Desktop\yiyue\callback_map.md" `
-  "C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md"
+  "docs\yiyue\code_map.md" `
+  "docs\yiyue\function_map.md" `
+  "docs\yiyue\optimization_map.md" `
+  "docs\yiyue\api_map.md" `
+  "docs\yiyue\callback_map.md" `
+  "docs\yiyue\jianyue_benchmark_map.md"
 ```
 
 Expected:
@@ -161,7 +161,7 @@ Expected:
 ### Task 3: Write a Canonical Root Entry
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\00-权威入口-朋友项目接手与优化规划.md`
+- Modify: `docs\yiyue\00-权威入口-朋友项目接手与优化规划.md`
 
 - [ ] **Step 1: Replace the old root-entry body with a short canonical doc index**
 
@@ -191,7 +191,7 @@ Use this body shape:
 Run:
 
 ```powershell
-Get-Content -First 40 "C:\Users\Administrator\Desktop\yiyue\00-权威入口-朋友项目接手与优化规划.md"
+Get-Content -First 40 "docs\yiyue\00-权威入口-朋友项目接手与优化规划.md"
 ```
 
 Expected:
@@ -200,6 +200,6 @@ Expected:
 - [ ] **Step 3: Commit the governance reset only**
 
 ```bash
-git add "C:/Users/Administrator/Desktop/yiyue"
+git add "docs/yiyue"
 git commit -m "docs: archive legacy yiyue plans and normalize canonical maps"
 ```

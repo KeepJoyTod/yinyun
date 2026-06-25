@@ -18,10 +18,10 @@ D:\OtherProject\CameraApp\yingyue-cloud-repo
 | --- | --- | --- | --- |
 | 正式主项目 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | Spring Boot / RuoYi / admin-ui / mobile-uniapp | 唯一生产基线 |
 | 前端优化参考 | `D:\OtherProject\CameraApp\photoshop-master` | 影楼后台 Demo，Vue 3 + Vite + Tailwind + Spring Boot | 吸收相册、在线选片、档期、订单 UI |
-| 桌面前端优化副本 | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | 朋友交付原始目录副本 | 只读参考，地图沉淀 |
+| 桌面前端优化副本 | `docs\yiyue\前端优化\photoshop-master` | 朋友交付原始目录副本 | 只读参考，地图沉淀 |
 | 预约小程序参考 | `D:\OtherProject\CameraApp\yuyue-main` | Taro 小程序 + Vue admin + Spring Boot demo | 吸收预约、订单、底片、手机号授权流程 |
-| 桌面微信小程序副本 | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | 朋友交付小程序副本 | 只读参考，地图沉淀 |
-| 桌面抖音小程序目录 | `C:\Users\Administrator\Desktop\yiyue\抖音小程序` | 当前只有抖音 AppID 记录 | 作为抖音端配置/地图目录 |
+| 桌面微信小程序副本 | `docs\yiyue\微信小程序\yuyue-main` | 朋友交付小程序副本 | 只读参考，地图沉淀 |
+| 桌面抖音小程序目录 | `docs\yiyue\抖音小程序` | 当前只有抖音 AppID 记录 | 作为抖音端配置/地图目录 |
 | 正式小程序代码 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp` | H5 / 微信小程序 / 抖音小程序统一源码 | 继续维护，一套代码多端构建 |
 
 ## 核心边界
@@ -37,11 +37,11 @@ D:\OtherProject\CameraApp\yingyue-cloud-repo
 
 | 类型 | 主仓库 | 桌面同步位置 |
 | --- | --- | --- |
-| 接手总规划 | `docs/friend-project-handover-optimization-plan-20260609.md` | `C:\Users\Administrator\Desktop\yiyue\friend-project-handover-optimization-plan-20260609.md` |
-| 接手总控计划 | `docs/friend-project-takeover-master-plan-20260609.md` | `C:\Users\Administrator\Desktop\yiyue\friend-project-takeover-master-plan-20260609.md` |
-| 差距审计 | `docs/friend-project-gap-audit-20260609.md` | `C:\Users\Administrator\Desktop\yiyue\friend-project-gap-audit-20260609.md` |
-| `photoshop-master` 代码地图 | `docs/friend-photoshop-master-code-map-20260609.md` | `C:\Users\Administrator\Desktop\yiyue\前端优化\friend-photoshop-master-code-map-20260609.md` |
-| `yuyue-main` 代码地图 | `docs/friend-yuyue-main-code-map-20260609.md` | `C:\Users\Administrator\Desktop\yiyue\wechatapp\friend-yuyue-main-code-map-20260609.md`、`douyinapp\friend-yuyue-main-code-map-20260609.md` |
+| 接手总规划 | `docs/friend-project-handover-optimization-plan-20260609.md` | `docs\yiyue\friend-project-handover-optimization-plan-20260609.md` |
+| 接手总控计划 | `docs/friend-project-takeover-master-plan-20260609.md` | `docs\yiyue\friend-project-takeover-master-plan-20260609.md` |
+| 差距审计 | `docs/friend-project-gap-audit-20260609.md` | `docs\yiyue\friend-project-gap-audit-20260609.md` |
+| `photoshop-master` 代码地图 | `docs/friend-photoshop-master-code-map-20260609.md` | `docs\yiyue\前端优化\friend-photoshop-master-code-map-20260609.md` |
+| `yuyue-main` 代码地图 | `docs/friend-yuyue-main-code-map-20260609.md` | `docs\yiyue\wechatapp\friend-yuyue-main-code-map-20260609.md`、`douyinapp\friend-yuyue-main-code-map-20260609.md` |
 | 客户取片 UI 优化地图 | `docs/photo-pickup-ui-optimization-map.md` | 主仓库维护 |
 
 ## 前端优化吸收路线

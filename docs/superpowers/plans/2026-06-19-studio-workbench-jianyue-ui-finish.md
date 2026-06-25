@@ -13,7 +13,7 @@
 ### Task 1: Build the Final Benchmark Checklist
 
 **Files:**
-- Modify: `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`
+- Modify: `docs\yiyue\jianyue_benchmark_map.md`
 - Create: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\jianyue-ui-benchmark-20260619.md`
 
 - [ ] **Step 1: Rewrite the benchmark map as a pass/fail checklist**
@@ -48,7 +48,7 @@ Create:
 Run:
 
 ```powershell
-Get-Content -First 60 "C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md"
+Get-Content -First 60 "docs\yiyue\jianyue_benchmark_map.md"
 ```
 
 Expected:

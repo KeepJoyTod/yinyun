@@ -78,7 +78,7 @@ Decision:
 
 - Reject `DOUYIN_LIFE` orders from customer pay entry and store-confirm payment entry in this phase unless a later contract explicitly broadens scope.
 
-### Q6. Can Part 0 verify the required external `C:\Users\Administrator\Desktop\yiyue\*.md` maps on this machine?
+### Q6. Can Part 0 verify the required external `docs\yiyue\*.md` maps on this machine?
 
 Answer:
 

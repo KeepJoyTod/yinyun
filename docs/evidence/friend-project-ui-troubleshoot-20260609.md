@@ -16,7 +16,7 @@
 | 隐私 | `admin-ui/src/views/yy/order/index.vue` | 订单列表和详情中的客户手机号默认脱敏 |
 | 契约测试 | `admin-ui/src/views/yy/utils/orderPageContract.test.ts` | 约束排障入口、脱敏、下一步建议不能被误删 |
 | 客户端 UI | `mobile-uniapp/src/styles/app.scss`、`src/pages.json`、`src/App.vue` | 统一灰白底色、深绿主操作色、状态卡片和小程序导航栏 |
-| 地图 | `docs/friend-project-*.md` 与桌面 `C:\Users\Administrator\Desktop\yiyue` | 已标记订单排障、保存权限提示、UI 首轮升级完成 |
+| 地图 | `docs/friend-project-*.md` 与桌面 `docs\yiyue` | 已标记订单排障、保存权限提示、UI 首轮升级完成 |
 
 ## 验证命令
 

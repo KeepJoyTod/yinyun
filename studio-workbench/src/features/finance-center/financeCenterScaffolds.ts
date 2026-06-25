@@ -1,10 +1,18 @@
 import { defineModuleScaffold } from '../system/moduleScaffold'
 
+const financeOwnerLayers = (data: string[]) => ({
+  presentation: ['studio-workbench/src/features/finance-center'],
+  control: ['studio-workbench/src/shared/api/backendFinanceApi.ts'],
+  data,
+})
+
 export const financeOverviewScaffold = defineModuleScaffold({
   featureKey: 'finance-overview',
   domain: '费用中心',
   title: '费用概览',
   summary: '统一承接消费账户、可用余额、预付款、欠费和收益概况的模块 owner。',
+  phase: 'Phase 3',
+  ownerStatus: 'building',
   owner: 'studio-workbench/src/features/finance-center',
   nextPhase: 'Phase 3 接真实费用概览、充值与对账规则。',
   routes: ['/finance/overview'],
@@ -14,6 +22,7 @@ export const financeOverviewScaffold = defineModuleScaffold({
   ],
   apis: ['backendApi.getFinanceOverview()'],
   ledgers: ['消费账户账本', '收益概况快照'],
+  ownerLayers: financeOwnerLayers(['消费账户账本', '收益概况快照']),
 })
 
 export const financeTransactionsScaffold = defineModuleScaffold({
@@ -21,6 +30,8 @@ export const financeTransactionsScaffold = defineModuleScaffold({
   domain: '费用中心',
   title: '收支明细',
   summary: '统一承接收支流水、导出、脱敏权限和风险动作审计的 owner 模块。',
+  phase: 'Phase 3',
+  ownerStatus: 'building',
   owner: 'studio-workbench/src/features/finance-center',
   nextPhase: 'Phase 3 接真实充值、提现、退款和对账流水。',
   routes: ['/finance/transactions'],
@@ -30,4 +41,10 @@ export const financeTransactionsScaffold = defineModuleScaffold({
   ],
   apis: ['backendApi.listFinanceTransactions()'],
   ledgers: ['收支流水账本', '导出审计日志'],
+  ownerLayers: financeOwnerLayers(['收支流水账本', '导出审计日志']),
 })
+
+export const financeCenterScaffolds = [
+  financeOverviewScaffold,
+  financeTransactionsScaffold,
+]

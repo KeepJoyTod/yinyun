@@ -2,9 +2,9 @@
   <div class="flex flex-col gap-6">
     <section class="yy-glass-panel yy-console-hero rounded-[24px] p-6">
       <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-amber-accent">Coupon Templates</span>
-      <h2 class="mt-1 text-[28px] font-sans font-black leading-[1.08] tracking-[-0.02em] text-amber-dark">券模板与发券脚手架</h2>
+      <h2 class="mt-1 text-[28px] font-sans font-black leading-[1.08] text-amber-dark">券模板与发券</h2>
       <p class="mt-2 max-w-[820px] text-[13px] leading-relaxed text-amber-text-muted">
-        统一承接券模板、发券记录、券实例和退单恢复入口。当前先跑脚手架与真实接口骨架，不伪造第二套订单账本。
+        商户后台券模板、发券、券实例和核销记录已经切到真实营销接口；本页只在 Demo 模式使用本地 scaffold。
       </p>
     </section>
 
@@ -12,68 +12,129 @@
     <p v-if="error" class="text-[10.5px] text-[var(--color-status-danger)]">{{ error }}</p>
 
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
-      <div class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-5">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h3 class="text-[14px] font-semibold text-amber-dark">券模板</h3>
-            <p class="mt-1 text-[10.5px] text-amber-text-muted">{{ scaffold.boundary }}</p>
-          </div>
-          <button class="yy-action border border-amber-topbar-border px-3 py-1.5 text-[10.5px] text-amber-dark hover:bg-black/5" type="button" @click="loadCouponScaffold">
-            刷新
-          </button>
-        </div>
-        <div class="mt-4 space-y-3">
-          <article v-for="template in scaffold.templates" :key="template.templateId" class="border border-amber-topbar-border bg-[#FBF8F2] p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <div class="text-[11px] font-semibold text-amber-dark">{{ template.templateName }}</div>
-                <div class="mt-1 text-[10px] text-amber-text-muted">{{ template.storeScopeLabel }} · {{ template.productScopeLabel }}</div>
-              </div>
-              <span class="border border-amber-topbar-border px-2 py-0.5 text-[10px] text-amber-dark">{{ template.templateType }}</span>
-            </div>
-            <div class="mt-3 grid grid-cols-2 gap-3 text-[10.5px] text-amber-text-muted">
-              <div>面额 {{ formatMarketingMoney(template.faceValueCent) }}</div>
-              <div>已发 {{ template.issuedCount }} / 已核销 {{ template.writeoffCount }}</div>
-              <div>叠加规则 {{ template.stackedWith }}</div>
-              <div>退单恢复 {{ template.restoreOnRefund ? '允许' : '不允许' }}</div>
-            </div>
-          </article>
-        </div>
-      </div>
+      <CouponTemplateTable
+        :templates="templates"
+        :selected-id="selectedTemplateId"
+        :loading="templateLoading"
+        @create="openTemplateDrawer()"
+        @edit="openTemplateDrawer"
+        @issue="openIssueDrawer"
+        @refresh="loadCouponTemplates"
+        @select="selectedTemplateId = $event"
+        @toggle="toggleTemplate"
+      />
 
-      <aside class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-5">
-        <h3 class="text-[14px] font-semibold text-amber-dark">发券与券实例</h3>
-        <div class="mt-4 space-y-3">
-          <article v-for="grant in scaffold.grantRecords" :key="grant.grantId" class="border border-amber-topbar-border bg-[#FBF8F2] p-3">
-            <div class="text-[11px] font-semibold text-amber-dark">{{ grant.templateName }}</div>
-            <div class="mt-1 text-[10px] text-amber-text-muted">{{ grant.targetCustomer }} · {{ grant.targetMobile }}</div>
-            <div class="mt-1 text-[10px] text-amber-text-muted">{{ grant.grantSource }}</div>
-          </article>
-        </div>
-        <div class="mt-5 border-t border-amber-topbar-border pt-4">
-          <div class="text-[11px] font-semibold text-amber-dark">券实例</div>
-          <div class="mt-3 space-y-2">
-            <div v-for="instance in scaffold.instances" :key="instance.instanceId" class="flex items-center justify-between gap-3 text-[10.5px] text-amber-text-muted">
-              <span>{{ instance.holderName }} · {{ instance.templateName }}</span>
-              <strong class="text-amber-dark">{{ instance.status }}</strong>
-            </div>
-          </div>
-        </div>
-      </aside>
+      <CouponInstanceTable
+        :grant-records="grantRecords"
+        :instances="instances"
+        :writeoffs="writeoffs"
+        :loading="ledgerLoading"
+      />
     </section>
+
+    <CouponTemplateDrawer
+      :show="templateDrawerOpen"
+      :template-id="editingTemplateId"
+      :initial-draft="templateDraft"
+      :stores="appStore.stores"
+      :products="appStore.products"
+      :submitting="templateSubmitting"
+      @close="templateDrawerOpen = false"
+      @submit="submitTemplate"
+    />
+
+    <CouponIssueDrawer
+      :show="issueDrawerOpen"
+      :template-name="selectedTemplate?.templateName"
+      :initial-draft="issueDraft"
+      :customers="appStore.customers"
+      :submitting="issueSubmitting"
+      @close="issueDrawerOpen = false"
+      @submit="submitIssue"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useCouponTemplates } from './composables/useCouponTemplates'
-import { useMarketingCapabilityGate } from './composables/useMarketingCapabilityGate'
+import { computed, onMounted, ref, watch } from 'vue'
+import { appStore } from '../../shared/stores/appStore'
+import CouponInstanceTable from './components/CouponInstanceTable.vue'
+import CouponIssueDrawer from './components/CouponIssueDrawer.vue'
+import CouponTemplateDrawer from './components/CouponTemplateDrawer.vue'
+import CouponTemplateTable from './components/CouponTemplateTable.vue'
 import MarketingCapabilityGateCard from './components/MarketingCapabilityGateCard.vue'
-import { formatMarketingMoney } from './marketingScaffoldData'
+import { useCouponIssuance, type CouponIssueDraft } from './composables/useCouponIssuance'
+import { useCouponTemplates, type CouponTemplateDraft } from './composables/useCouponTemplates'
+import { useMarketingCapabilityGate } from './composables/useMarketingCapabilityGate'
 
-const { scaffold, error: couponError, loadCouponScaffold } = useCouponTemplates()
+const {
+  loading: templateLoading,
+  submitting: templateSubmitting,
+  error: couponError,
+  templates,
+  selectedTemplate,
+  selectedTemplateId,
+  buildDraft,
+  loadCouponTemplates,
+  saveTemplate,
+  toggleTemplateStatus,
+} = useCouponTemplates()
+const {
+  loading: ledgerLoading,
+  submitting: issueSubmitting,
+  error: issueError,
+  grantRecords,
+  instances,
+  writeoffs,
+  buildIssueDraft,
+  loadCouponLedger,
+  issueCoupons,
+} = useCouponIssuance()
 const { capabilityMap, error: capabilityError } = useMarketingCapabilityGate()
 
+const templateDrawerOpen = ref(false)
+const issueDrawerOpen = ref(false)
+const editingTemplateId = ref('')
+const templateDraft = ref<CouponTemplateDraft>(buildDraft())
+const issueDraft = ref<CouponIssueDraft>(buildIssueDraft())
+
 const couponCapability = computed(() => capabilityMap.value.get('COUPON_TEMPLATE'))
-const error = computed(() => capabilityError.value || couponError.value)
+const error = computed(() => capabilityError.value || couponError.value || issueError.value)
+
+const openTemplateDrawer = (templateId = '') => {
+  editingTemplateId.value = templateId
+  templateDraft.value = buildDraft(templates.value.find(item => item.templateId === templateId) ?? null)
+  templateDrawerOpen.value = true
+}
+
+const openIssueDrawer = (templateId: string) => {
+  selectedTemplateId.value = templateId
+  issueDraft.value = buildIssueDraft(templateId)
+  issueDrawerOpen.value = true
+}
+
+const submitTemplate = async (draft: CouponTemplateDraft) => {
+  await saveTemplate(draft, editingTemplateId.value || undefined)
+  templateDrawerOpen.value = false
+}
+
+const submitIssue = async (draft: CouponIssueDraft) => {
+  await issueCoupons(draft)
+  issueDrawerOpen.value = false
+  await loadCouponTemplates()
+}
+
+const toggleTemplate = async (templateId: string) => {
+  const template = templates.value.find(item => item.templateId === templateId)
+  if (template) await toggleTemplateStatus(template)
+}
+
+watch(selectedTemplateId, value => {
+  void loadCouponLedger(value)
+}, { immediate: true })
+
+onMounted(async () => {
+  if (!appStore.initialized && !appStore.loading) await appStore.bootstrap().catch(() => undefined)
+  if (!appStore.customers.length) await appStore.ensureCustomersLoaded().catch(() => undefined)
+})
 </script>

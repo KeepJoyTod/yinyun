@@ -22,11 +22,15 @@ import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPhotoAlbumMapper;
 import org.dromara.yy.mapper.YyPhotoAssetMapper;
 import org.dromara.yy.mapper.YyStoreMapper;
+import org.dromara.yy.service.dashboard.YyDashboardExportAssembler;
+import org.dromara.yy.service.dashboard.YyDashboardMetricsAssembler;
+import org.dromara.yy.service.dashboard.YyDashboardOrderQuerySupport;
+import org.dromara.yy.service.dashboard.YyDashboardScheduleAssembler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -62,8 +66,27 @@ class YyDashboardServiceImplTest {
     @Mock
     private YyBookingSlotInventoryMapper bookingSlotInventoryMapper;
 
-    @InjectMocks
     private YyDashboardServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        YyDashboardMetricsAssembler metricsAssembler = new YyDashboardMetricsAssembler();
+        YyDashboardOrderQuerySupport orderQuerySupport =
+            new YyDashboardOrderQuerySupport(storeMapper, orderMapper, bookingSlotInventoryMapper);
+        YyDashboardScheduleAssembler scheduleAssembler = new YyDashboardScheduleAssembler();
+        YyDashboardExportAssembler exportAssembler = new YyDashboardExportAssembler(metricsAssembler);
+        service = new YyDashboardServiceImpl(
+            storeMapper,
+            orderMapper,
+            photoAlbumMapper,
+            photoAssetMapper,
+            channelPluginMapper,
+            orderQuerySupport,
+            metricsAssembler,
+            scheduleAssembler,
+            exportAssembler
+        );
+    }
 
     @Tag("dev")
     @Test

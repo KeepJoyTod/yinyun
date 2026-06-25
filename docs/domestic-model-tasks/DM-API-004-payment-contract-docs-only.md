@@ -1,6 +1,6 @@
 > owner: domestic-model-task-DM-API-004-payment-contract-docs-only
 > canonical_for: 国产模型整理小程序支付接口文档但不实现真实支付的任务边界
-> upstream: docs/contracts/studio-workbench-api-contract-20260615.md, C:\Users\Administrator\Desktop\yiyue\callback_map.md
+> upstream: docs/contracts/studio-workbench-api-contract-20260615.md, docs\yiyue\callback_map.md
 > downstream: future payment implementation plan
 
 # DM-API-004：支付接口文档整理

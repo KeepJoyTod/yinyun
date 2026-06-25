@@ -67,6 +67,6 @@ Local tests:
 
 ## Notes
 
-- The cleartext Jianyue order import SQL contains customer PII and stays outside Git under `C:\Users\Administrator\Desktop\yiyue`.
+- The cleartext Jianyue order import SQL contains customer PII and stays outside Git under `docs\yiyue`.
 - `backend/script/sql/postgres/postgres_jianyue_inventory_reconcile_20260617.sql` contains only aggregate slot/order reconciliation logic and no customer PII.
 - Douyin Life historical `1003` orders still cannot receive real appointment slots unless the saved raw payload has slot fields; this deployment does not fabricate missing Douyin historical times.

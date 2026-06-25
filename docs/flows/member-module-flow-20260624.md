@@ -92,3 +92,39 @@ sequenceDiagram
 - `npm --prefix studio-workbench run test -- src/features/member/modules/assets/MemberAssetsView.contract.test.ts src/features/member/modules/transactions/MemberTransactionsView.contract.test.ts src/shared/api/backend.contract.test.ts src/app/router/featureRegistry.contract.test.ts src/app/router/featureRegistry.access.test.ts`
 - `npm --prefix studio-workbench run check:file-size`
 - `mvn -f backend/pom.xml -pl ruoyi-modules/ruoyi-yy -am -DskipTests compile`
+
+## 2026-06-24 储值 P1 只读链路
+
+```mermaid
+sequenceDiagram
+  actor Staff as 店员
+  participant View as 表现层 stored-value-p1 页面/未来入口
+  participant Logic as useMemberStoredValueP1
+  participant Api as backendApi
+  participant Controller as YyMemberStoredValueController
+  participant Service as YyMemberStoredValueServiceImpl
+  participant DB as yy_member_balance_ledger / yy_member_recharge_order
+
+  Staff->>View: 打开会员储值正式版入口
+  View->>Logic: load(query)
+  Logic->>Api: getMemberRechargeCapability()
+  Logic->>Api: getMemberRechargeSetting()
+  Logic->>Api: listMemberStoredValueTransactions(query)
+  Api->>Controller: GET /yy/member/recharge-capability
+  Api->>Controller: GET /yy/member/recharge-setting
+  Api->>Controller: GET /yy/member/stored-value-transactions
+  Controller->>Service: 读取设置/能力/流水
+  Service->>DB: 按 customerId/storeId/type/status/limit 查询余额流水
+  Service->>DB: sourceType=RECHARGE_ORDER 时补充值单展示字段
+  DB-->>Service: 账本事实
+  Service-->>Controller: P1 VO
+  Controller-->>Api: R.ok(data)
+  Api-->>Logic: MemberRechargeSettingDto / MemberRechargeCapabilityDto / transactions
+  Logic-->>View: 展示后端真实只读数据
+```
+
+### 失败路径
+
+- 三个读取接口任一失败时，前端 `useMemberStoredValueP1` 保留本地 scaffold fallback。
+- 普通员工指定越权 `storeId` 时，后端拒绝读取，不返回跨门店流水。
+- 当前不生成消费、提现、退款回滚等未落地写链路的数据，只展示余额流水已有事实。

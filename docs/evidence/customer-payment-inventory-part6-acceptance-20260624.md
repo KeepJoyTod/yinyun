@@ -49,17 +49,17 @@ rg -n "YyWechatPaymentNotifyController|YyOrderPaymentController|IYyPaymentServic
 4. 外部 canonical map 目录检查
 
 ```powershell
-Get-ChildItem "C:\Users\Administrator\Desktop\yiyue" -ErrorAction SilentlyContinue
-Write-Output "dir_exists=$(Test-Path 'C:\Users\Administrator\Desktop\yiyue')"
-Write-Output "code_map_exists=$(Test-Path 'C:\Users\Administrator\Desktop\yiyue\code_map.md')"
-Write-Output "api_map_exists=$(Test-Path 'C:\Users\Administrator\Desktop\yiyue\api_map.md')"
+Get-ChildItem "docs\yiyue" -ErrorAction SilentlyContinue
+Write-Output "dir_exists=$(Test-Path 'docs\yiyue')"
+Write-Output "code_map_exists=$(Test-Path 'docs\yiyue\code_map.md')"
+Write-Output "api_map_exists=$(Test-Path 'docs\yiyue\api_map.md')"
 ```
 
 结果：`dir_exists=False`、`code_map_exists=False`、`api_map_exists=False`，当前机器无法验证或更新外部 canonical map。
 
 ## 阻塞与风险
 
-- `C:\Users\Administrator\Desktop\yiyue\code_map.md` 当前无法验证存在，未更新。已有只读证据：`docs/domestic-model-tasks/DM-API-005-payment-entry-part3-task-pack-20260624.md:39`
-- `C:\Users\Administrator\Desktop\yiyue\api_map.md` 当前无法验证存在，未更新。已有只读证据：`docs/domestic-model-tasks/DM-API-005-payment-entry-part3-task-pack-20260624.md:40`
+- `docs\yiyue\code_map.md` 当前无法验证存在，未更新。已有只读证据：`docs/domestic-model-tasks/DM-API-005-payment-entry-part3-task-pack-20260624.md:39`
+- `docs\yiyue\api_map.md` 当前无法验证存在，未更新。已有只读证据：`docs/domestic-model-tasks/DM-API-005-payment-entry-part3-task-pack-20260624.md:40`
 - 本次未重新联网复核微信官方支付签名、回调报文和商户配置，因此文档只能保持“待官方复核/待真实接入”的保守口径。
 - HK2、真实微信支付、真实退款链路未在本次 Part 6 验收范围内执行 smoke 或联调。

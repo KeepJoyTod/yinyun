@@ -539,14 +539,14 @@ build:h5 passes
 - Modify if needed: `mobile-uniapp/src/api/clientPhoto.ts`
 - Modify if needed: `mobile-uniapp/src/pages/pickup/preview/index.vue`
 - Desktop maps:
-  - `C:\Users\Administrator\Desktop\yiyue\wechatapp\README.md`
-  - `C:\Users\Administrator\Desktop\yiyue\wechatapp\code-map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\wechatapp\feature-map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\wechatapp\optimization-map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\douyinapp\README.md`
-  - `C:\Users\Administrator\Desktop\yiyue\douyinapp\code-map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\douyinapp\feature-map.md`
-  - `C:\Users\Administrator\Desktop\yiyue\douyinapp\optimization-map.md`
+  - `docs\yiyue\wechatapp\README.md`
+  - `docs\yiyue\wechatapp\code-map.md`
+  - `docs\yiyue\wechatapp\feature-map.md`
+  - `docs\yiyue\wechatapp\optimization-map.md`
+  - `docs\yiyue\douyinapp\README.md`
+  - `docs\yiyue\douyinapp\code-map.md`
+  - `docs\yiyue\douyinapp\feature-map.md`
+  - `docs\yiyue\douyinapp\optimization-map.md`
 
 - [ ] **Step 1: Build WeChat**
 
@@ -691,9 +691,9 @@ BUILD SUCCESS
 ## Task 8: Douyin Life Acceptance Follow-Up
 
 **Files:**
-- Reference: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- Reference: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- Reference: `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`
+- Reference: `docs\yiyue\callback_map.md`
+- Reference: `docs\yiyue\api_map.md`
+- Reference: `docs\yiyue\liucheng_map.md`
 - Modify if defects found:
   - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyDouyinLifeSpiController.java`
   - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/channel/douyin/DouyinLifeChannelAdapter.java`
@@ -865,4 +865,4 @@ The project is considered ready for the next deployment checkpoint when all of t
 - Douyin production SPI signature is required.
 - Douyin refund apply defaults to `processing`.
 - `/api/douyin/life/*` production traffic is handled by Spring Boot.
-- Desktop maps under `C:\Users\Administrator\Desktop\yiyue` are updated after behavior changes.
+- Desktop maps under `docs\yiyue` are updated after behavior changes.

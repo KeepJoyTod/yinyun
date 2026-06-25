@@ -27,7 +27,7 @@ flowchart TD
 | 今日预约/上午下午晚上/工位 | `ScheduleView.vue`, `JianyueSlotGrid.vue`, `scheduleOperations.ts`, `yy_booking_slot_inventory` |
 | 预约订单/状态筛选 | `OrdersView.vue`, `orderOperations.ts`, `yy_order` |
 | 店员录入/新增订单 | `StaffBookingModal.vue`, `YyStaffBookingCreateBo.java`, `YyOrderServiceImpl.java` |
-| 抖音来客/同步/Webhook | local maps under `C:\Users\Administrator\Desktop\yiyue`, `DouyinLifeChannelAdapter.java` |
+| 抖音来客/同步/Webhook | local maps under `docs\yiyue`, `DouyinLifeChannelAdapter.java` |
 | 部署/香港2 | deploy map, server folder, evidence runbooks |
 
 ## Summary Template

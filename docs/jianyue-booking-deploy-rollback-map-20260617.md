@@ -9,7 +9,7 @@ Deploy to Hong Kong 2 only after local build/tests and data migration review. Ro
 | Environment | Purpose | Notes |
 | --- | --- | --- |
 | Local repo | Development and tests | `D:\OtherProject\CameraApp\yingyue-cloud-repo` |
-| Local docs/cache | Maps, scripts, credentials references | `C:\Users\Administrator\Desktop\yiyue`; do not commit secrets |
+| Local docs/cache | Maps, scripts, credentials references | `docs\yiyue`; do not commit secrets |
 | GitHub branch | Remote source control | `yingyue-closed-loop-optimization-20260603` |
 | Hong Kong 2 | Production/staging server currently used | SSH details are local under `C:\Users\Administrator\Desktop\服务器` |
 | Public studio | Workbench URL | `https://studio.evanshine.me` |
@@ -24,7 +24,7 @@ Deploy to Hong Kong 2 only after local build/tests and data migration review. Ro
 | Frontend build | `npm --prefix studio-workbench run build` |
 | Backend compile | `mvn -pl backend/ruoyi-modules/ruoyi-yy -DskipTests compile` |
 | SQL review | inspect migration scripts before applying |
-| Secret scan | `rg -n "APPSecret|client_secret|password|密码|token" docs C:\Users\Administrator\Desktop\yiyue` and manually ignore only documented secret-file path mentions |
+| Secret scan | `rg -n "APPSecret|client_secret|password|密码|token" docs docs\yiyue` and manually ignore only documented secret-file path mentions |
 | Evidence folder | write acceptance evidence under `docs/evidence` |
 
 ## Deployment Order

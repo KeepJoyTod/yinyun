@@ -8,8 +8,8 @@
 
 | 参考项目 | 路径 | 可借鉴 | 不迁移 |
 | --- | --- | --- | --- |
-| `photoshop-master` | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | 相册管理、在线选片、预约档期、订单状态 UI | Vue/Vite/Tailwind/Radix 整套后台、独立 Java 后端 |
-| `yuyue-main` | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | 手机号授权、预约确认、订单列表/详情、底片页 | Taro 替换 uni-app、独立 server、独立账号/订单体系 |
+| `photoshop-master` | `docs\yiyue\前端优化\photoshop-master` | 相册管理、在线选片、预约档期、订单状态 UI | Vue/Vite/Tailwind/Radix 整套后台、独立 Java 后端 |
+| `yuyue-main` | `docs\yiyue\微信小程序\yuyue-main` | 手机号授权、预约确认、订单列表/详情、底片页 | Taro 替换 uni-app、独立 server、独立账号/订单体系 |
 
 ## 差距清单
 

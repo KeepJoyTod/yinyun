@@ -5,6 +5,8 @@ import type {
   ResourceBatchUpdatePayload,
   ResourceListQuery,
   ResourceRowDto,
+  ResourceSizeBackfillPayload,
+  ResourceSizeBackfillResultDto,
   ResourceTagDto,
   ResourceTagListQuery,
   ResourceTagOptionDto,
@@ -68,6 +70,15 @@ type ResourceUsageRow = {
     assetCount?: string | number
     totalBytes?: string | number
   }>
+}
+
+type ResourceSizeBackfillRow = {
+  attemptedCount?: string | number
+  updatedCount?: string | number
+  skippedCount?: string | number
+  failedCount?: string | number
+  remainingMissingSizeCount?: string | number
+  message?: string
 }
 
 const toNumber = (value: string | number | null | undefined) => {
@@ -135,6 +146,15 @@ const mapUsageSummary = (row: ResourceUsageRow): ResourceUsageSummaryDto => ({
   cleanupPlanConfigKey: String(row.cleanupPlanConfigKey ?? ''),
   cleanupRetentionConfigKey: String(row.cleanupRetentionConfigKey ?? ''),
   typeBreakdown: Array.isArray(row.typeBreakdown) ? row.typeBreakdown.map(mapUsageBreakdown) : [],
+})
+
+const mapSizeBackfillResult = (row: ResourceSizeBackfillRow): ResourceSizeBackfillResultDto => ({
+  attemptedCount: toNumber(row.attemptedCount),
+  updatedCount: toNumber(row.updatedCount),
+  skippedCount: toNumber(row.skippedCount),
+  failedCount: toNumber(row.failedCount),
+  remainingMissingSizeCount: toNumber(row.remainingMissingSizeCount),
+  message: String(row.message ?? ''),
 })
 
 const joinIds = (value?: BackendId[]) => value?.length ? value.join(',') : undefined
@@ -216,5 +236,12 @@ export const resourcesApi = {
   async getResourceUsageSummary() {
     const response = await apiRequest<ResourceUsageRow>('/yy/photoAsset/usage-summary')
     return mapUsageSummary(response)
+  },
+  async backfillResourceSizes(payload: ResourceSizeBackfillPayload = {}) {
+    const response = await apiRequest<ResourceSizeBackfillRow>('/yy/photoAsset/size-backfill', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    return mapSizeBackfillResult(response)
   },
 }

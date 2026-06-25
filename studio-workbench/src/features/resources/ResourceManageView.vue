@@ -11,9 +11,12 @@
       </div>
     </section>
 
-    <ResourceManageFilterBar :filters="filters" :stores="stores" :products="products" :tag-options="tagOptions" :has-active-filter="hasActiveFilter" @patch="patchFilters" @reset="resetFilters" />
+    <FeatureGateStatusCard :gate="gate" />
+    <p v-if="gateError" class="text-[12px] text-[#8C3E2C]">{{ gateError }}</p>
 
-    <section class="border border-amber-topbar-border bg-amber-content-bg p-4">
+    <ResourceManageFilterBar v-if="canLoadData" :filters="filters" :stores="stores" :products="products" :tag-options="tagOptions" :has-active-filter="hasActiveFilter" @patch="patchFilters" @reset="resetFilters" />
+
+    <section v-if="canLoadData" class="border border-amber-topbar-border bg-amber-content-bg p-4">
       <div class="flex flex-wrap items-center gap-3">
         <span class="text-[12px] text-amber-text-muted">已选 {{ selectedIds.length }} 条</span>
         <select v-model="batchDraft.assetType" class="h-9 border border-amber-topbar-border px-3 text-[12px]">
@@ -48,7 +51,7 @@
       <p v-if="statusMessage" class="mt-3 text-[12px] text-[#2D7A4D]">{{ statusMessage }}</p>
     </section>
 
-    <StateView :loading="loading" :error="error" :empty="!resources.length" :empty-title="emptyState.title" :empty-hint="emptyState.hint" :on-retry="refresh">
+    <StateView v-if="canLoadData" :loading="loading" :error="error" :empty="!resources.length" :empty-title="emptyState.title" :empty-hint="emptyState.hint" :on-retry="refresh">
       <ResourceManageTable
         :rows="resources"
         :selected-ids="selectedIds"
@@ -62,7 +65,7 @@
       />
     </StateView>
 
-    <section class="flex flex-wrap items-center justify-between gap-3 border border-amber-topbar-border bg-amber-content-bg px-4 py-3 text-[12px] text-amber-text-muted">
+    <section v-if="canLoadData" class="flex flex-wrap items-center justify-between gap-3 border border-amber-topbar-border bg-amber-content-bg px-4 py-3 text-[12px] text-amber-text-muted">
       <div>显示 {{ pageStart }} - {{ pageEnd }} / {{ total }}</div>
       <div class="flex items-center gap-2">
         <select :value="String(pageSize)" class="h-9 border border-amber-topbar-border px-3 text-[12px]" @change="changePageSize">
@@ -80,13 +83,14 @@
       </div>
     </section>
 
-    <ResourceMetaDrawer :open="drawerOpen" :resource="activeResource" :tag-options="tagOptions" :submitting="submitting" @save="saveMeta" @close="closeMeta" />
+    <ResourceMetaDrawer v-if="canLoadData" :open="drawerOpen" :resource="activeResource" :tag-options="tagOptions" :submitting="submitting" @save="saveMeta" @close="closeMeta" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
 import StateView from '../../shared/components/feedback/StateView.vue'
+import FeatureGateStatusCard from '../system/FeatureGateStatusCard.vue'
 import { canRunBatchAction, buildResourceEmptyState } from './resourceManageOperations'
 import ResourceManageFilterBar from './components/ResourceManageFilterBar.vue'
 import ResourceManageTable from './components/ResourceManageTable.vue'
@@ -101,6 +105,9 @@ const manage = useResourceManage(filters)
 const {
   loading,
   error,
+  gate,
+  gateError,
+  canLoadData,
   submitting,
   statusMessage,
   page,

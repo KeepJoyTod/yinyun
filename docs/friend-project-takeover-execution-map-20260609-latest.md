@@ -16,7 +16,7 @@ Friend projects are reference assets only:
 | --- | --- | --- |
 | Photo studio admin demo | `D:\OtherProject\CameraApp\photoshop-master` | UI and workflow reference for album workspace, online selection, schedule capacity |
 | Taro miniapp demo | `D:\OtherProject\CameraApp\yuyue-main` | Reference for login, orders, negatives selection, customer tabs |
-| Desktop maps | `C:\Users\Administrator\Desktop\yiyue` | Operator-facing maps and acceptance notes |
+| Desktop maps | `docs\yiyue` | Operator-facing maps and acceptance notes |
 
 ## Production Boundaries
 

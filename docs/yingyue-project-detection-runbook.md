@@ -39,10 +39,10 @@
 | 文档 | 用途 |
 | --- | --- |
 | `docs/friend-project-gap-audit-20260609.md` | 朋友项目和正式主项目的差距审计，说明哪些可借鉴、哪些不能迁移 |
-| `C:\Users\Administrator\Desktop\yiyue\handover-master-map.md` | 桌面交接总地图，适合非仓库视角快速查看 |
-| `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master-*.md` | `photoshop-master` 的代码、功能、UI、吸收计划 |
-| `C:\Users\Administrator\Desktop\yiyue\wechatapp\friend-yuyue-main-audit.md` | 朋友 Taro 项目对微信小程序的可借鉴点 |
-| `C:\Users\Administrator\Desktop\yiyue\douyinapp\friend-yuyue-main-audit.md` | 朋友 Taro 项目对抖音小程序的可借鉴点 |
+| `docs\yiyue\handover-master-map.md` | 桌面交接总地图，适合非仓库视角快速查看 |
+| `docs\yiyue\前端优化\photoshop-master-*.md` | `photoshop-master` 的代码、功能、UI、吸收计划 |
+| `docs\yiyue\wechatapp\friend-yuyue-main-audit.md` | 朋友 Taro 项目对微信小程序的可借鉴点 |
+| `docs\yiyue\douyinapp\friend-yuyue-main-audit.md` | 朋友 Taro 项目对抖音小程序的可借鉴点 |
 | `docs/evidence/photo-pickup-real-oss-acceptance-template-20260609.md` | 真实 OSS 图、H5、小程序、审计的最终验收证据模板 |
 
 交接项目默认只作为参考源。正式工程仍以 `admin-ui`、`mobile-uniapp`、Spring Boot 后端和私有 OSS 为准。

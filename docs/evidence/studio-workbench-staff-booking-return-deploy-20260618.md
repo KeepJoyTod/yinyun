@@ -94,9 +94,9 @@ GET https://studio.evanshine.me/merchant/inventory?date=2026-06-18&cb=prod-d5275
 ## Local Maps Updated
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\function_map.md
-C:\Users\Administrator\Desktop\yiyue\optimization_map.md
-C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md
+docs\yiyue\function_map.md
+docs\yiyue\optimization_map.md
+docs\yiyue\jianyue_benchmark_map.md
 ```
 
 ## Rollback

@@ -53,3 +53,7 @@ nbdist/
 !*/build/*.xml
 
 .flattened-pom.xml
+
+######################################################################
+# Playwright
+.playwright-cli/

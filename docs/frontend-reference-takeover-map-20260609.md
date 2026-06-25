@@ -9,7 +9,7 @@
 | 项 | 值 |
 | --- | --- |
 | 参考项目 | `D:\OtherProject\CameraApp\photoshop-master` |
-| 桌面副本 | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` |
+| 桌面副本 | `docs\yiyue\前端优化\photoshop-master` |
 | 正式后台 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\admin-ui` |
 | 正式小程序 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp` |
 

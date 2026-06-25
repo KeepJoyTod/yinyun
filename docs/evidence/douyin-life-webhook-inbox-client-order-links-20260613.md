@@ -267,7 +267,7 @@ git diff --check
 Result: no whitespace errors; only existing Windows line-ending warnings.
 
 ```powershell
-rg -n "LTAI|AccessKeySecret|APPSecret|client_secret\\s*[:=]\\s*['\\\"][^'\\\"]+|BEGIN (RSA|OPENSSH|PRIVATE) KEY|api[_-]?key\\s*[:=]\\s*['\\\"][^'\\\"]+" --glob '!node_modules/**' --glob '!dist/**' --glob '!target/**' . C:\Users\Administrator\Desktop\yiyue
+rg -n "LTAI|AccessKeySecret|APPSecret|client_secret\\s*[:=]\\s*['\\\"][^'\\\"]+|BEGIN (RSA|OPENSSH|PRIVATE) KEY|api[_-]?key\\s*[:=]\\s*['\\\"][^'\\\"]+" --glob '!node_modules/**' --glob '!dist/**' --glob '!target/**' . docs\yiyue
 ```
 
 Result: no matches.

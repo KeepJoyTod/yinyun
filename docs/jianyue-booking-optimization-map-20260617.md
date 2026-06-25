@@ -36,6 +36,6 @@
 
 ## Documentation Optimizations
 
-- Keep maps in both repository docs and `C:\Users\Administrator\Desktop\yiyue`.
+- Keep maps in both repository docs and `docs\yiyue`.
 - Keep evidence files free of credentials and full personal data.
 - Update this map after implementation, verification, and deployment.

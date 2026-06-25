@@ -2,11 +2,16 @@ package org.dromara.yy.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.yy.domain.YyPhotoAsset;
 import org.dromara.yy.domain.bo.YyPhotoAssetBo;
+import org.dromara.yy.domain.bo.YyPhotoResourceSizeBackfillBo;
 import org.dromara.yy.domain.vo.YyPhotoAssetVo;
+import org.dromara.yy.domain.vo.YyPhotoResourceSizeBackfillVo;
 import org.dromara.yy.domain.vo.YyPhotoResourceUsageSummaryVo;
+import org.dromara.yy.mapper.YyPhotoAssetMapper;
 import org.dromara.yy.service.IYyPhotoAssetService;
 import org.dromara.yy.service.IYyPhotoResourceUsageService;
+import org.dromara.yy.service.YyPhotoAssetUrlSigner;
 import org.dromara.system.service.ISysConfigService;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +31,12 @@ public class YyPhotoResourceUsageServiceImpl implements IYyPhotoResourceUsageSer
     private static final String CLEANUP_RETENTION_CONFIG_KEY = "yy.resource.cleanupRetentionDays";
     private static final long DEFAULT_QUOTA_BYTES = 100L * 1024 * 1024 * 1024;
     private static final int DEFAULT_RETENTION_DAYS = 30;
+    private static final int DEFAULT_BACKFILL_LIMIT = 50;
+    private static final int MAX_BACKFILL_LIMIT = 200;
 
     private final IYyPhotoAssetService yyPhotoAssetService;
+    private final YyPhotoAssetMapper yyPhotoAssetMapper;
+    private final YyPhotoAssetUrlSigner photoAssetUrlSigner;
     private final ISysConfigService sysConfigService;
 
     @Override
@@ -72,6 +81,75 @@ public class YyPhotoResourceUsageServiceImpl implements IYyPhotoResourceUsageSer
         summary.setCleanupRetentionConfigKey(CLEANUP_RETENTION_CONFIG_KEY);
         summary.setTypeBreakdown(List.copyOf(breakdownMap.values()));
         return summary;
+    }
+
+    @Override
+    public YyPhotoResourceSizeBackfillVo backfillMissingSize(YyPhotoResourceSizeBackfillBo bo) {
+        int limit = normalizeBackfillLimit(bo == null ? null : bo.getLimit());
+        List<YyPhotoAssetVo> missingAssets = yyPhotoAssetService.queryList(new YyPhotoAssetBo())
+            .stream()
+            .filter(this::isMissingSize)
+            .limit(limit)
+            .toList();
+
+        long attemptedCount = 0L;
+        long updatedCount = 0L;
+        long skippedCount = 0L;
+        long failedCount = 0L;
+
+        for (YyPhotoAssetVo asset : missingAssets) {
+            attemptedCount += 1L;
+            String objectKey = StringUtils.trimToEmpty(asset.getObjectKey());
+            if (StringUtils.isBlank(objectKey)) {
+                skippedCount += 1L;
+                continue;
+            }
+            try {
+                Long sizeBytes = photoAssetUrlSigner.resolveObjectSizeBytes(objectKey);
+                if (sizeBytes == null || sizeBytes <= 0L) {
+                    skippedCount += 1L;
+                    continue;
+                }
+                YyPhotoAsset update = new YyPhotoAsset();
+                update.setId(asset.getId());
+                update.setFileSizeBytes(sizeBytes);
+                if (yyPhotoAssetMapper.updateById(update) > 0) {
+                    updatedCount += 1L;
+                } else {
+                    failedCount += 1L;
+                }
+            } catch (Exception ignored) {
+                failedCount += 1L;
+            }
+        }
+
+        Long remainingMissingSizeCount = getUsageSummary().getMissingSizeCount();
+        YyPhotoResourceSizeBackfillVo result = new YyPhotoResourceSizeBackfillVo();
+        result.setAttemptedCount(attemptedCount);
+        result.setUpdatedCount(updatedCount);
+        result.setSkippedCount(skippedCount);
+        result.setFailedCount(failedCount);
+        result.setRemainingMissingSizeCount(remainingMissingSizeCount);
+        result.setMessage(buildBackfillMessage(updatedCount, skippedCount, failedCount, remainingMissingSizeCount));
+        return result;
+    }
+
+    private boolean isMissingSize(YyPhotoAssetVo asset) {
+        return asset != null && (asset.getFileSizeBytes() == null || asset.getFileSizeBytes() <= 0L);
+    }
+
+    private int normalizeBackfillLimit(Integer limit) {
+        if (limit == null || limit <= 0) {
+            return DEFAULT_BACKFILL_LIMIT;
+        }
+        return Math.min(limit, MAX_BACKFILL_LIMIT);
+    }
+
+    private String buildBackfillMessage(long updatedCount, long skippedCount, long failedCount, Long remainingMissingSizeCount) {
+        return "updated=" + updatedCount
+            + ", skipped=" + skippedCount
+            + ", failed=" + failedCount
+            + ", remaining=" + (remainingMissingSizeCount == null ? 0L : remainingMissingSizeCount);
     }
 
     private long readLongConfig(String key, long defaultValue) {

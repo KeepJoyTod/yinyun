@@ -79,10 +79,10 @@ npm --prefix studio-workbench run build
 ## Local Maps Updated
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\code_map.md
-C:\Users\Administrator\Desktop\yiyue\function_map.md
-C:\Users\Administrator\Desktop\yiyue\api_map.md
-C:\Users\Administrator\Desktop\yiyue\optimization_map.md
+docs\yiyue\code_map.md
+docs\yiyue\function_map.md
+docs\yiyue\api_map.md
+docs\yiyue\optimization_map.md
 ```
 
 ## Boundaries

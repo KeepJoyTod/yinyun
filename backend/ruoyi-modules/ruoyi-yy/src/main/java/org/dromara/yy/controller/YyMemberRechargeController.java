@@ -12,11 +12,15 @@ import org.dromara.yy.domain.bo.YyMemberRechargeCreateBo;
 import org.dromara.yy.domain.vo.YyMemberRechargeOrderVo;
 import org.dromara.yy.service.IYyMemberRechargeService;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Validated
 @RequiredArgsConstructor
@@ -26,23 +30,32 @@ public class YyMemberRechargeController extends BaseController {
 
     private final IYyMemberRechargeService yyMemberRechargeService;
 
+    @SaCheckPermission("yy:customer:list")
+    @GetMapping("/customer/{customerId}/recharge-orders")
+    public R<List<YyMemberRechargeOrderVo>> listRechargeOrders(
+        @NotNull(message = "customerId cannot be null") @PathVariable Long customerId,
+        @RequestParam(defaultValue = "10") int limit
+    ) {
+        return R.ok(yyMemberRechargeService.listRechargeOrders(customerId, limit));
+    }
+
     @SaCheckPermission("yy:customer:edit")
-    @Log(title = "会员手工充值建单", businessType = BusinessType.INSERT)
+    @Log(title = "member manual recharge create", businessType = BusinessType.INSERT)
     @RepeatSubmit
     @PostMapping("/customer/{customerId}/recharge-orders")
     public R<YyMemberRechargeOrderVo> createRechargeOrder(
-        @NotNull(message = "客户ID不能为空") @PathVariable Long customerId,
+        @NotNull(message = "customerId cannot be null") @PathVariable Long customerId,
         @Validated @RequestBody YyMemberRechargeCreateBo bo
     ) {
         return R.ok(yyMemberRechargeService.createRechargeOrder(customerId, bo));
     }
 
     @SaCheckPermission("yy:customer:edit")
-    @Log(title = "会员手工充值确认到账", businessType = BusinessType.UPDATE)
+    @Log(title = "member manual recharge confirm", businessType = BusinessType.UPDATE)
     @RepeatSubmit
     @PostMapping("/recharge-orders/{rechargeOrderId}/confirm")
     public R<YyMemberRechargeOrderVo> confirmRechargeOrder(
-        @NotNull(message = "充值单ID不能为空") @PathVariable Long rechargeOrderId
+        @NotNull(message = "rechargeOrderId cannot be null") @PathVariable Long rechargeOrderId
     ) {
         return R.ok(yyMemberRechargeService.confirmRechargeOrder(rechargeOrderId));
     }

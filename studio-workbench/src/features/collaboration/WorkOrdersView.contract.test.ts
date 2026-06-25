@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import workOrdersSource from './WorkOrdersView.vue?raw'
 import routerSource from '../../app/router/index.ts?raw'
 import { getWorkbenchFeature } from '../../app/router/featureRegistry'
+import workOrdersSource from './WorkOrdersView.vue?raw'
+import composableSource from './useCollaborationWorkOrders.ts?raw'
 
 describe('work orders page contract', () => {
   it('replaces the collaboration work order placeholder with a real route', () => {
@@ -11,18 +12,19 @@ describe('work orders page contract', () => {
     expect(getWorkbenchFeature('collaboration-work-orders')?.permission).toBe('yy:order:list')
   })
 
-  it('reads from the real work order runtime instead of the legacy derived pipeline', () => {
+  it('reads and transitions real work orders through the collaboration owner api', () => {
     expect(workOrdersSource).toContain('useCollaborationWorkOrders')
     expect(workOrdersSource).toContain('transitionWorkOrder')
     expect(workOrdersSource).toContain('yy_work_order')
+    expect(composableSource).toContain('workOrdersApi.listWorkOrders')
+    expect(composableSource).toContain('workOrdersApi.transitionWorkOrder')
     expect(workOrdersSource).not.toContain('buildWorkOrders')
     expect(workOrdersSource).not.toContain('appStore.updateOrderStatus')
   })
 
   it('keeps staff focused on existing work order processing', () => {
     expect(workOrdersSource).toContain('primaryActionLabel')
-    expect(workOrdersSource).toContain('进入关联页面')
-    expect(workOrdersSource).not.toContain('新建预约')
+    expect(workOrdersSource).toContain('selectedWorkOrder.actionPath')
     expect(workOrdersSource).not.toContain('createOrder')
   })
 
@@ -34,6 +36,15 @@ describe('work orders page contract', () => {
     expect(workOrdersSource).toContain('scopedWorkOrders')
     expect(workOrdersSource).toContain(':value="String(store.backendId)"')
     expect(workOrdersSource).toContain('String(item.order.storeBackendId) === storeFilter.value')
-    expect(workOrdersSource).not.toContain('<option value="all">全部门店</option>')
+    expect(workOrdersSource).not.toContain('<option value="all">全部门店')
+  })
+
+  it('loads feature scope and event rows through collaboration owners', () => {
+    expect(workOrdersSource).toContain('FeatureGateStatusCard')
+    expect(workOrdersSource).toContain('v-if="canLoadData"')
+    expect(workOrdersSource).toContain('workOrderEvents')
+    expect(composableSource).toContain("featureKey: 'collaboration-work-orders'")
+    expect(composableSource).toContain('featureGate.loadGate()')
+    expect(composableSource).toContain('workOrdersApi.listWorkOrderEvents')
   })
 })

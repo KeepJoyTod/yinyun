@@ -61,17 +61,17 @@ PYTHON:
 
 涉及预约、排期、订单、抖音来客、简约网对标时，先读取相关地图：
 
-- `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md`
+- `docs\yiyue\code_map.md`
+- `docs\yiyue\api_map.md`
+- `docs\yiyue\liucheng_map.md`
+- `docs\yiyue\callback_map.md`
+- `docs\yiyue\open_platform_setting_map.md`
 
 涉及功能、接口、产品、优化规划时，更新：
 
-- `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
-- `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`
+- `docs\yiyue\function_map.md`
+- `docs\yiyue\optimization_map.md`
+- `docs\yiyue\jianyue_benchmark_map.md`
 
 ## 三层楼架构和规格驱动开工
 
@@ -206,7 +206,7 @@ uv run --no-sync headroom doctor
 使用方式：
 
 - 用 Headroom 压缩长日志、证据文件、历史会话和代码地图，减少重复读取；
-- 业务事实仍以仓库代码、数据库、接口响应、`C:\Users\Administrator\Desktop\yiyue\*.md` 地图和 smoke 证据为准；
+- 业务事实仍以仓库代码、数据库、接口响应、`docs\yiyue\*.md` 地图和 smoke 证据为准；
 - 遇到大量未跟踪 `docs/evidence` 时，先摘要和筛选，不要 `git add .`；
 - Headroom helper 文件位于 `tools/headroom-codex/`，可作为独立工具提交；`.headroom/` 必须保持本地忽略。
 

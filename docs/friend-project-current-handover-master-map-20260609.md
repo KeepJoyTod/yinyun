@@ -4,7 +4,7 @@
 
 ## 结论
 
-`C:\Users\Administrator\Desktop\yiyue\前端优化` 和 `C:\Users\Administrator\Desktop\yiyue\抖音小程序` 属于朋友交接资料目录；工作区里也已经解压出对应参考项目。正式生产开发仍以 `D:\OtherProject\CameraApp\yingyue-cloud-repo` 为唯一主仓库。
+`docs\yiyue\前端优化` 和 `docs\yiyue\抖音小程序` 属于朋友交接资料目录；工作区里也已经解压出对应参考项目。正式生产开发仍以 `D:\OtherProject\CameraApp\yingyue-cloud-repo` 为唯一主仓库。
 
 朋友项目不直接替换正式项目，只吸收三类东西：
 
@@ -24,10 +24,10 @@
 | 层级 | 路径 | 来源 | 定位 | 处理方式 |
 | --- | --- | --- | --- | --- |
 | 正式主仓库 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | 当前影约云 | 生产基线 | 所有正式开发、测试、构建、提交都在这里 |
-| 桌面交接总目录 | `C:\Users\Administrator\Desktop\yiyue` | 本机沉淀 | 平台配置、地图、验收材料 | 保留并同步地图 |
-| 前端优化桌面目录 | `C:\Users\Administrator\Desktop\yiyue\前端优化` | 朋友交接 | 后台 UI / 在线选片参考 | 只读参考 + 地图沉淀 |
+| 桌面交接总目录 | `docs\yiyue` | 本机沉淀 | 平台配置、地图、验收材料 | 保留并同步地图 |
+| 前端优化桌面目录 | `docs\yiyue\前端优化` | 朋友交接 | 后台 UI / 在线选片参考 | 只读参考 + 地图沉淀 |
 | 前端优化解压目录 | `D:\OtherProject\CameraApp\photoshop-master` | 朋友交接 | Vue 3 影楼后台 demo | 吸收 UI 和流程，不迁移架构 |
-| 抖音小程序桌面目录 | `C:\Users\Administrator\Desktop\yiyue\抖音小程序` | 朋友交接 + 本机配置 | 抖音端配置和地图目录 | 不作为源码目录 |
+| 抖音小程序桌面目录 | `docs\yiyue\抖音小程序` | 朋友交接 + 本机配置 | 抖音端配置和地图目录 | 不作为源码目录 |
 | 预约小程序解压目录 | `D:\OtherProject\CameraApp\yuyue-main` | 朋友交接 | Taro 小程序 + demo 后端 | 吸收小程序流程，不迁移 Taro |
 | 正式小程序源码 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp` | 当前影约云 | H5 / 微信 / 抖音统一源码 | 继续作为唯一小程序代码基线 |
 

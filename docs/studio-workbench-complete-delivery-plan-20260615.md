@@ -20,7 +20,7 @@ D:\OtherProject\CameraApp\yingyue-cloud-repo
 桌面镜像目录：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\studio-workbench-complete-delivery-20260615
+docs\yiyue\studio-workbench-complete-delivery-20260615
 ```
 
 技术栈不更换：`Vue 3 + TypeScript + Vite + Tailwind + Vitest` 前端，`Spring Boot + RuoYi-Vue-Plus + PostgreSQL + Redis + Aliyun OSS` 后端，`mobile-uniapp` 继续承接 H5/微信/抖音小程序。`yy_order` 继续作为唯一订单/预约主账本。

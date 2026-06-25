@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.dromara.common.tenant.core.TenantEntity;
 
 import java.io.Serial;
+import java.util.Date;
 
 /**
  * 工单对象 yy_work_order
@@ -47,6 +48,11 @@ public class YyWorkOrder extends TenantEntity {
     private String orderType;
 
     /**
+     * 协作岗位编码：RECEPTION / MAKEUP / PHOTOGRAPHY / RETOUCH / REVIEW / SELECTION_REVIEW / PICKUP
+     */
+    private String stageCode;
+
+    /**
      * 工单状态：PENDING / IN_PROGRESS / COMPLETED / CANCELLED
      */
     private String status;
@@ -65,6 +71,11 @@ public class YyWorkOrder extends TenantEntity {
      * 处理人姓名
      */
     private String handlerName;
+
+    /**
+     * SLA 截止时间
+     */
+    private Date dueTime;
 
     /**
      * 描述

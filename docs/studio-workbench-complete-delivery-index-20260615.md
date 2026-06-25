@@ -1,7 +1,7 @@
 > owner: studio-workbench-complete-delivery-index-20260615
 > canonical_for: 2026-06-15 门店工作台完整交付文档包入口
 > upstream: docs/studio-workbench-complete-delivery-plan-20260615.md
-> downstream: C:\Users\Administrator\Desktop\yiyue\studio-workbench-complete-delivery-20260615
+> downstream: docs\yiyue\studio-workbench-complete-delivery-20260615
 
 # 门店工作台完整交付文档包
 
@@ -35,7 +35,7 @@
 镜像目录：
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\studio-workbench-complete-delivery-20260615
+docs\yiyue\studio-workbench-complete-delivery-20260615
 ```
 
 镜像规则：

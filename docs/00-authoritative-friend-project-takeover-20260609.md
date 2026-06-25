@@ -32,9 +32,9 @@ Production targets:
 
 | Purpose | File |
 | --- | --- |
-| Overall takeover plan | `C:\Users\Administrator\Desktop\yiyue\00-权威入口-朋友项目接手与优化规划.md` |
-| Admin/frontend map | `C:\Users\Administrator\Desktop\yiyue\前端优化\00-权威入口-前端优化地图与计划.md` |
-| Miniapp map | `C:\Users\Administrator\Desktop\yiyue\抖音小程序\00-权威入口-抖音小程序地图与计划.md` |
+| Overall takeover plan | `docs\yiyue\00-权威入口-朋友项目接手与优化规划.md` |
+| Admin/frontend map | `docs\yiyue\前端优化\00-权威入口-前端优化地图与计划.md` |
+| Miniapp map | `docs\yiyue\抖音小程序\00-权威入口-抖音小程序地图与计划.md` |
 
 ## Guardrails
 

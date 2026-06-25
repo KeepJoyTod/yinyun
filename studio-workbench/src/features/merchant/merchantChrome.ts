@@ -24,6 +24,7 @@ export type MerchantQuickAccessCard = {
 
 export const merchantTabs: MerchantTab[] = [
   { key: 'overview', label: '模块总览', path: '/merchant/overview', icon: overviewIcon },
+  { key: 'readiness', label: '闭环脚手架', path: '/merchant/readiness', icon: overviewIcon },
   { key: 'store', label: '门店管理', path: '/merchant/store', icon: storeIcon },
   { key: 'service-groups', label: '服务组管理', path: '/merchant/service-groups', icon: configIcon },
   { key: 'inventory', label: '时段库存', path: '/merchant/inventory', icon: calendarIcon },

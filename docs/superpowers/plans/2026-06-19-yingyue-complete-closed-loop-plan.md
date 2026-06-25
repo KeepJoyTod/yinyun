@@ -39,7 +39,7 @@ The worktree contains many unrelated and untracked changes. Do not revert. Do no
 | B Mobile Customer | uni-app real API flow and no-payment UX | `mobile-uniapp/src/api/customer.ts`, `mobile-uniapp/src/api/home.ts`, `mobile-uniapp/src/pages/product/detail/index.vue`, `mobile-uniapp/src/pages/customer/orders/index.vue` |
 | C Staff Workbench | Dashboard, schedule, appointment order actions, inventory return | `studio-workbench/src/features/dashboard/DashboardView.vue`, `studio-workbench/src/features/orders/OrdersView.vue`, `studio-workbench/src/features/orders/StaffBookingModal.vue`, `studio-workbench/src/shared/api/backend.ts`, `studio-workbench/src/shared/stores/appStore.ts` |
 | D Merchant/Photo | Photo delivery, decoration, micro pages/forms, card products | `PhotoMgmtView.vue`, `MerchantDecorationView.vue`, `MerchantMicroPagesView.vue`, `MerchantMicroFormsView.vue`, `ProductCardManagementView.vue` |
-| E HK2/Douyin/Docs | DOUYIN_LIFE truth table, deploy smoke, maps | `tools/*.ps1`, `docs/evidence/*`, `C:\Users\Administrator\Desktop\yiyue\*.md` |
+| E HK2/Douyin/Docs | DOUYIN_LIFE truth table, deploy smoke, maps | `tools/*.ps1`, `docs/evidence/*`, `docs\yiyue\*.md` |
 
 Main controller reviews and merges in order: A -> B -> C -> D -> E -> UI finish.
 
@@ -483,8 +483,8 @@ Expected: backend and frontend pass.
 - Read/modify if required: `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/channel/douyin/DouyinOpenApiClient.java`
 - Read/modify if required: `tools/run-douyin-life-current-order.ps1`
 - Update: `docs/evidence/douyin-life-hk2-truth-table-20260619.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
+- Update: `docs\yiyue\api_map.md`
+- Update: `docs\yiyue\callback_map.md`
 
 - [ ] **Step 1: Run HK2 current-order smoke**
 
@@ -539,15 +539,15 @@ Write `docs/evidence/douyin-life-hk2-truth-table-20260619.md` with columns:
 - Modify after contracts pass: `studio-workbench/src/features/dashboard/DashboardView.vue`
 - Modify after contracts pass: `studio-workbench/src/features/orders/OrdersView.vue`
 - Modify after contracts pass: `studio-workbench/src/features/merchant/*.vue`
-- Read reference assets: `C:\Users\Administrator\Desktop\yiyue\jianyue-assets\20260617-dashboard`
+- Read reference assets: `docs\yiyue\jianyue-assets\20260617-dashboard`
 
 - [ ] **Step 1: Lock benchmark**
 
 Use the existing local JianYue evidence:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\jianyue-assets\20260617-dashboard\jianyue-dashboard-viewport.png
-C:\Users\Administrator\Desktop\yiyue\jianyue-assets\20260617-dashboard\dom-style-evidence.json
+docs\yiyue\jianyue-assets\20260617-dashboard\jianyue-dashboard-viewport.png
+docs\yiyue\jianyue-assets\20260617-dashboard\dom-style-evidence.json
 ```
 
 Expected:
@@ -594,7 +594,7 @@ Expected: build passes. Capture screenshots only after production deploy or loca
 **Files:**
 - Explicitly stage only files from the completed batch.
 - Update: `docs/evidence/*`
-- Update: `C:\Users\Administrator\Desktop\yiyue\*.md`
+- Update: `docs\yiyue\*.md`
 
 - [ ] **Step 1: Stage explicitly**
 
@@ -667,4 +667,4 @@ Expected:
 - [ ] Card product page supports real create/edit/status actions.
 - [ ] DOUYIN_LIFE sync writes only real slot orders into daily schedule.
 - [ ] HK2 smoke evidence is saved.
-- [ ] Local maps under `C:\Users\Administrator\Desktop\yiyue` are updated.
+- [ ] Local maps under `docs\yiyue` are updated.

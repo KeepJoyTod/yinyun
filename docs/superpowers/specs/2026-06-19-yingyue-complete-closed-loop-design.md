@@ -234,4 +234,4 @@ mobile-uniapp home -> store -> product -> slot -> create order -> pay placeholde
 - 支付按钮存在但明确提示未接入，不产生伪支付状态。
 - 抖音来客真实订单进入统一订单账本，带真实时段的新订单进入排期。
 - 商户装修、微页面、卡产品、客片交付都有真实保存/发布/动作结果。
-- 本地 `C:\Users\Administrator\Desktop\yiyue` 地图能让下一个 AI 直接接手。
+- 本地 `docs\yiyue` 地图能让下一个 AI 直接接手。

@@ -358,6 +358,21 @@ export type MemberBalanceLedgerInfo = {
   remark: string
 }
 
+export type MemberRechargeOrderInfo = {
+  backendId: BackendId
+  customerBackendId: BackendId
+  rechargeOrderNo: string
+  rechargeAmount: number
+  giftAmount: number
+  creditedAmount: number
+  balanceAfter: number
+  status: string
+  channelType: string
+  paidTime: string
+  externalTradeNo: string
+  remark: string
+}
+
 export type NotificationTemplateInfo = {
   backendId: BackendId
   templateCode: string

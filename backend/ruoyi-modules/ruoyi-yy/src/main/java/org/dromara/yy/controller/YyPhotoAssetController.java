@@ -17,8 +17,10 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.yy.domain.bo.YyPhotoAssetBatchUpdateBo;
 import org.dromara.yy.domain.bo.YyPhotoAssetBo;
+import org.dromara.yy.domain.bo.YyPhotoResourceSizeBackfillBo;
 import org.dromara.yy.domain.vo.YyPhotoAssetVo;
 import org.dromara.yy.domain.vo.YyPhotoResourceRowVo;
+import org.dromara.yy.domain.vo.YyPhotoResourceSizeBackfillVo;
 import org.dromara.yy.domain.vo.YyPhotoResourceUsageSummaryVo;
 import org.dromara.yy.service.IYyPhotoAssetService;
 import org.dromara.yy.service.IYyPhotoResourceUsageService;
@@ -63,6 +65,14 @@ public class YyPhotoAssetController extends BaseController {
     @GetMapping("/usage-summary")
     public R<YyPhotoResourceUsageSummaryVo> usageSummary() {
         return R.ok(yyPhotoResourceUsageService.getUsageSummary());
+    }
+
+    @SaCheckPermission("yy:photoAsset:edit")
+    @Log(title = "resource size backfill", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/size-backfill")
+    public R<YyPhotoResourceSizeBackfillVo> sizeBackfill(@RequestBody(required = false) YyPhotoResourceSizeBackfillBo bo) {
+        return R.ok(yyPhotoResourceUsageService.backfillMissingSize(bo));
     }
 
     @SaCheckPermission("yy:photoAsset:list")

@@ -18,9 +18,9 @@
 - 香港2 helper: `D:\OtherProject\CameraApp\yingyue-cloud-repo\tools\invoke-hk2.ps1`
 - 真实账户只读发现脚本：`tools\yingyue-douyin-real-account-discovery.ps1`
 - 当前订单 smoke：`tools\run-douyin-life-current-order.ps1`
-- 项目主文档：`C:\Users\Administrator\Desktop\yiyue\api_map.md`
-- 配置和公网入口：`C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md`
-- 回调路由：`C:\Users\Administrator\Desktop\yiyue\callback_map.md`
+- 项目主文档：`docs\yiyue\api_map.md`
+- 配置和公网入口：`docs\yiyue\open_platform_setting_map.md`
+- 回调路由：`docs\yiyue\callback_map.md`
 
 当前项目已经可以通过香港2确认：
 
@@ -161,7 +161,7 @@
 证据目录优先落在：
 
 - Repo: `D:\OtherProject\CameraApp\yingyue-cloud-repo\docs\evidence\`
-- Local mirror: `C:\Users\Administrator\Desktop\yiyue\`
+- Local mirror: `docs\yiyue\`
 
 ## Security Rules
 

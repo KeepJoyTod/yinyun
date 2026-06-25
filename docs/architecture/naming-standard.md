@@ -105,11 +105,11 @@ node D:\OtherProject\CameraApp\yingyue-cloud-repo\tools\check-file-size-all.mjs
 
 代码地图区域规则：
 
-- 改用户可见功能：更新 `C:\Users\Administrator\Desktop\yiyue\function_map.md`。
-- 改文件 owner、模块拆分、入口位置：更新 `C:\Users\Administrator\Desktop\yiyue\code_map.md`。
-- 改 API、DTO、读写表、外部平台调用：更新 `C:\Users\Administrator\Desktop\yiyue\api_map.md`。
-- 改计划、风险、债务、优先级：更新 `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`。
-- 改简约网对标交互：更新 `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`。
+- 改用户可见功能：更新 `docs\yiyue\function_map.md`。
+- 改文件 owner、模块拆分、入口位置：更新 `docs\yiyue\code_map.md`。
+- 改 API、DTO、读写表、外部平台调用：更新 `docs\yiyue\api_map.md`。
+- 改计划、风险、债务、优先级：更新 `docs\yiyue\optimization_map.md`。
+- 改简约网对标交互：更新 `docs\yiyue\jianyue_benchmark_map.md`。
 
 ## 三层目录约定
 

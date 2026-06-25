@@ -1,7 +1,7 @@
 > owner: domestic-model-current-status-20260615
 > canonical_for: 2026-06-15 国产模型接手前的项目现状、剩余比例、可派发范围和阻塞边界
 > upstream: docs/domestic-model-implementation-pack-20260615.md, docs/domestic-model-tasks/README.md, docs/studio-workbench-feature-code-map-20260615.md
-> downstream: docs/domestic-model-batch-prompt-20260615.md, C:\Users\Administrator\Desktop\yiyue\domestic-model-current-status-20260615.md
+> downstream: docs/domestic-model-batch-prompt-20260615.md, docs\yiyue\domestic-model-current-status-20260615.md
 
 # 国产模型接手前项目现状
 

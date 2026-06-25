@@ -50,11 +50,11 @@ This index is the entry point for the JianYue-aligned booking workbench work. Re
 
 | Local file | Purpose |
 | --- | --- |
-| `C:\Users\Administrator\Desktop\yiyue\code_map.md` | Global project and Douyin code map |
-| `C:\Users\Administrator\Desktop\yiyue\api_map.md` | Douyin/OpenAPI map |
-| `C:\Users\Administrator\Desktop\yiyue\callback_map.md` | SPI/Webhook map |
-| `C:\Users\Administrator\Desktop\yiyue\liucheng_map.md` | Douyin integration flow |
-| `C:\Users\Administrator\Desktop\yiyue\open_platform_setting_map.md` | Open platform setup notes |
+| `docs\yiyue\code_map.md` | Global project and Douyin code map |
+| `docs\yiyue\api_map.md` | Douyin/OpenAPI map |
+| `docs\yiyue\callback_map.md` | SPI/Webhook map |
+| `docs\yiyue\liucheng_map.md` | Douyin integration flow |
+| `docs\yiyue\open_platform_setting_map.md` | Open platform setup notes |
 
 ## Reading Order For A New Worker
 

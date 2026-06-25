@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="flex min-h-full flex-col gap-6">
     <section class="border border-amber-topbar-border bg-amber-content-bg p-6">
       <div class="flex items-end justify-between gap-5 max-[760px]:flex-col max-[760px]:items-start">
@@ -20,7 +20,10 @@
       </div>
     </section>
 
-    <section class="border border-amber-topbar-border bg-[#FBF8F2]/55">
+    <FeatureGateStatusCard :gate="gate" />
+    <p v-if="gateError" class="text-[12px] text-[#8C3E2C]">{{ gateError }}</p>
+
+    <section v-if="canLoadData" class="border border-amber-topbar-border bg-[#FBF8F2]/55">
       <div class="flex flex-wrap items-center gap-2 border-b border-amber-topbar-border p-5">
         <button
           v-for="filter in quickFilters"
@@ -30,7 +33,7 @@
           type="button"
           @click="activeFilter = filter.key"
         >
-          {{ filter.label }} · {{ filter.count }}
+          {{ filter.label }} 路 {{ filter.count }}
         </button>
       </div>
 
@@ -46,7 +49,7 @@
       </div>
     </section>
 
-    <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
+    <section v-if="canLoadData" class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
       <div class="min-w-0 border border-amber-topbar-border bg-amber-content-bg">
         <div class="flex items-center justify-between gap-4 border-b border-amber-topbar-border px-5 py-4 max-[900px]:flex-col max-[900px]:items-start">
           <div class="flex flex-wrap items-center gap-3 max-[560px]:w-full">
@@ -77,7 +80,7 @@
           {{ error }}
         </div>
 
-        <div v-if="loading" class="px-6 py-14 text-center text-[11px] text-amber-text-muted">
+        <div v-if="workOrdersLoading" class="px-6 py-14 text-center text-[11px] text-amber-text-muted">
           正在加载真实工单...
         </div>
         <div v-else-if="filteredWorkOrders.length" class="overflow-x-auto">
@@ -162,7 +165,7 @@
           <dl class="mt-5 space-y-4">
             <div>
               <dt class="font-mono text-[9px] uppercase tracking-[0.16em] text-amber-text-muted">Status</dt>
-              <dd class="mt-1 text-[11px] text-amber-dark">{{ selectedWorkOrder.status }} · {{ selectedWorkOrder.priorityLabel }}</dd>
+              <dd class="mt-1 text-[11px] text-amber-dark">{{ selectedWorkOrder.status }} 路 {{ selectedWorkOrder.priorityLabel }}</dd>
             </div>
             <div>
               <dt class="font-mono text-[9px] uppercase tracking-[0.16em] text-amber-text-muted">下一步</dt>
@@ -179,6 +182,33 @@
               <dd class="mt-1 text-[10.5px] leading-relaxed text-[#B8543B]">{{ selectedWorkOrder.blockReason }}</dd>
             </div>
           </dl>
+
+          <div class="mt-5 border border-amber-topbar-border bg-[#FBF8F2] p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-[11px] font-semibold text-amber-dark">工单事件</div>
+              <button
+                class="yy-action border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-dark hover:bg-white"
+                type="button"
+                :disabled="eventsLoading"
+                @click="loadWorkOrderEvents(selectedWorkOrder.backendId)"
+              >
+                {{ eventsLoading ? '加载中...' : '刷新事件' }}
+              </button>
+            </div>
+            <p v-if="eventsError" class="mt-3 text-[10.5px] text-[#8C3E2C]">{{ eventsError }}</p>
+            <p v-else-if="eventsLoading" class="mt-3 text-[10.5px] text-amber-text-muted">正在加载 yy_work_order_event...</p>
+            <div v-else-if="workOrderEvents.length" class="mt-3 space-y-3">
+              <article v-for="event in workOrderEvents" :key="event.id" class="border border-amber-topbar-border bg-white p-3">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="font-mono text-[10px] text-amber-dark">{{ event.eventType }}</span>
+                  <span class="font-mono text-[9px] text-amber-text-muted">{{ event.createTime }}</span>
+                </div>
+                <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">{{ event.remark || event.eventDetail }}</p>
+                <p v-if="event.operatorName" class="mt-2 text-[9.5px] text-amber-text-muted">{{ event.operatorName }}</p>
+              </article>
+            </div>
+            <p v-else class="mt-3 text-[10.5px] text-amber-text-muted">当前工单暂无事件记录。</p>
+          </div>
 
           <div class="mt-6 grid gap-2">
             <button
@@ -217,6 +247,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { CollaborationStageCode } from '../../shared/api/backend'
+import FeatureGateStatusCard from '../system/FeatureGateStatusCard.vue'
 import { useCollaborationWorkOrders } from './useCollaborationWorkOrders'
 import {
   collaborationWorkOrderStageOptions,
@@ -241,10 +272,17 @@ const {
   ensureWorkbenchStores,
   normalizeStoreFilter,
   workOrders,
-  loading,
+  workOrderEvents,
+  loading: workOrdersLoading,
+  eventsLoading,
   error,
+  eventsError,
+  gate,
+  gateError,
+  canLoadData,
   reload,
   transitionWorkOrder,
+  loadWorkOrderEvents,
 } = useCollaborationWorkOrders()
 
 const scopedWorkOrders = computed(() => {
@@ -291,6 +329,9 @@ const openPrimary = async (item: CollaborationWorkOrderItem) => {
   actionLoadingId.value = item.id
   try {
     await transitionWorkOrder(item)
+    if (selectedWorkOrder.value?.backendId === item.backendId) {
+      await loadWorkOrderEvents(item.backendId)
+    }
   } finally {
     actionLoadingId.value = ''
   }
@@ -327,8 +368,16 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => selectedWorkOrder.value?.backendId,
+  id => {
+    void loadWorkOrderEvents(id)
+  },
+)
+
 onMounted(async () => {
   await ensureWorkbenchStores()
   storeFilter.value = normalizeStoreFilter()
 })
 </script>
+

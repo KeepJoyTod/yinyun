@@ -91,11 +91,13 @@ export type CollaborationLicenseDto = {
   pluginId: BackendId | null
   licenseKey: string
   licenseName: string
+  status: string
   authStatus: string
   enabled: string
   validFrom: string
   validTo: string
   seatCount: number
+  renewAction: string
   remark: string
   createTime: string
   updateTime: string
@@ -107,11 +109,13 @@ export type CollaborationLicensePayload = {
   pluginId?: BackendId | null
   licenseKey: string
   licenseName: string
+  status?: string
   authStatus?: string
   enabled?: string
   validFrom?: string
   validTo?: string
   seatCount?: number
+  renewAction?: string
   remark?: string
 }
 

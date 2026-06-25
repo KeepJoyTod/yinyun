@@ -1,7 +1,7 @@
 > owner: domestic-model-implementation-pack-20260615
 > canonical_for: 国产模型接手影约云剩余工程的任务分级、执行顺序、代码骨架和验收边界
 > upstream: docs/studio-workbench-complete-delivery-plan-20260615.md, docs/studio-workbench-feature-code-map-20260615.md, docs/studio-workbench-optimization-map-20260615.md, docs/evidence/yingyue-delivery-status.json
-> downstream: docs/domestic-model-tasks/*, tools/new-studio-workbench-acceptance-evidence.ps1, C:\Users\Administrator\Desktop\yiyue\domestic-model-implementation-pack-20260615.md
+> downstream: docs/domestic-model-tasks/*, tools/new-studio-workbench-acceptance-evidence.ps1, docs\yiyue\domestic-model-implementation-pack-20260615.md
 
 # 国产模型接手实现包
 

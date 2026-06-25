@@ -762,7 +762,7 @@ Record:
 **Files:**
 
 - Create: `docs/evidence/studio-interaction-refactor-20260616.md`
-- Update: `C:\Users\Administrator\Desktop\yiyue\studio-workbench-interaction-map-20260616.md`
+- Update: `docs\yiyue\studio-workbench-interaction-map-20260616.md`
 
 - [ ] **Step 1: 本地验证**
 

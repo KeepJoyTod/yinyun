@@ -2,7 +2,7 @@
 
 > owner: headroom-codex-local-runner
 > canonical_for: 本机用 Headroom 辅助 Codex/Claude 长项目协作的启动、诊断和安全边界
-> upstream: `D:\OtherProject\CameraApp\headroom-main`, `AGENTS.md`, `C:\Users\Administrator\Desktop\yiyue\*.md`
+> upstream: `D:\OtherProject\CameraApp\headroom-main`, `AGENTS.md`, `docs\yiyue\*.md`
 > downstream: `tools/headroom-codex/*.ps1`
 
 ## 结论
@@ -79,7 +79,7 @@ audit-reads: 1195 sessions, 11139 exec_command calls, 930.3MB shell output
 - 少跑超宽 `git status` / 全目录列表；
 - 用 `rg` 精确过滤；
 - 大证据文件先摘要，不整包塞进上下文；
-- 把长期事实写入 `C:\Users\Administrator\Desktop\yiyue` 地图和仓库 README。
+- 把长期事实写入 `docs\yiyue` 地图和仓库 README。
 
 ## 依赖修复命令
 

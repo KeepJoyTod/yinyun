@@ -18,6 +18,7 @@ describe('workbench feature access', () => {
 
   it('maps merchant operations to booking config and inventory permissions', () => {
     expect(getWorkbenchFeature('merchant-overview')?.permission).toBe('yy:store:list')
+    expect(getWorkbenchFeature('merchant-readiness')?.permission).toBe('yy:store:list')
     expect(getWorkbenchFeature('merchant-service-groups')?.permission).toBe('yy:bookingConfig:list')
     expect(getWorkbenchFeature('merchant-inventory')?.permission).toBe('yy:bookingInventory:list')
   })
@@ -91,6 +92,15 @@ describe('workbench feature access', () => {
     expect(getWorkbenchFeature('report-reviews')?.status).toBe('partial')
     expect(getWorkbenchFeature('settings-roles')?.status).toBe('partial')
     expect(getWorkbenchFeature('settings-logs')?.status).toBe('partial')
+  })
+
+  it('maps new scaffold governance groups to verified existing permissions instead of inventing new codes', () => {
+    expect(getWorkbenchFeature('platform-integration')?.permission).toBe('yy:channel:list')
+    expect(getWorkbenchFeature('platform-notification-center')?.permission).toBe('yy:notification:list')
+    expect(getWorkbenchFeature('account-profile')?.permission).toBe('yy:dashboard:list')
+    expect(getWorkbenchFeature('finance-overview')?.permission).toBe('yy:dashboard:list')
+    expect(getWorkbenchFeature('tool-sample-works')?.permission).toBe('yy:photoAsset:list')
+    expect(getWorkbenchFeature('tool-precision-delivery')?.permission).toBe('yy:notification:list')
   })
 
   it('never promotes a locally unfinished feature from a remote flag', () => {

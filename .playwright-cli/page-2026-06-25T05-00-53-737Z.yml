@@ -1,0 +1,340 @@
+- generic [ref=e75]:
+  - generic [ref=e78]:
+    - generic [ref=e79]:
+      - link:
+        - /url: https://www.yuyue123.cn
+        - img [ref=e80] [cursor=pointer]
+    - menubar [ref=e82]:
+      - generic [ref=e83]:
+        - link "首页" [ref=e84] [cursor=pointer]:
+          - /url: "#/home/dashboard"
+          - menuitem "首页" [ref=e85]:
+            - img [ref=e86]
+            - generic [ref=e88]: 首页
+        - menuitem "商户 " [ref=e89]:
+          - generic [ref=e90] [cursor=pointer]:
+            - img [ref=e91]
+            - generic [ref=e93]: 商户
+            - generic [ref=e94]: 
+        - menuitem "商品 " [expanded] [ref=e95]:
+          - generic [ref=e96] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e99]: 商品
+            - generic [ref=e100]: 
+          - menu [ref=e695]:
+            - link "服务产品" [ref=e696] [cursor=pointer]:
+              - /url: "#/product/service"
+              - menuitem "服务产品" [ref=e697]:
+                - generic [ref=e698]: 服务产品
+            - link "附加产品" [ref=e699] [cursor=pointer]:
+              - /url: "#/product/additional"
+              - menuitem "附加产品" [ref=e700]:
+                - generic [ref=e701]: 附加产品
+            - link "团单产品" [ref=e702] [cursor=pointer]:
+              - /url: "#/product/group"
+              - menuitem "团单产品" [ref=e703]:
+                - generic [ref=e704]: 团单产品
+            - link "冲印产品" [ref=e705] [cursor=pointer]:
+              - /url: "#/product/print"
+              - menuitem "冲印产品" [ref=e706]:
+                - generic [ref=e707]: 冲印产品
+            - link "入册产品" [ref=e708] [cursor=pointer]:
+              - /url: "#/product/album"
+              - menuitem "入册产品" [ref=e709]:
+                - generic [ref=e710]: 入册产品
+            - link "卡项产品" [ref=e711] [cursor=pointer]:
+              - /url: "#/product/card/manage"
+              - menuitem "卡项产品" [ref=e712]:
+                - generic [ref=e713]: 卡项产品
+            - link "抖音产品 new" [ref=e714] [cursor=pointer]:
+              - /url: "#/product/douyin"
+              - menuitem "抖音产品 new" [ref=e715]:
+                - generic [ref=e716]:
+                  - text: 抖音产品
+                  - generic [ref=e717]: new
+            - link "美团产品 new" [ref=e718] [cursor=pointer]:
+              - /url: "#/product/meituan"
+              - menuitem "美团产品 new" [ref=e719]:
+                - generic [ref=e720]:
+                  - text: 美团产品
+                  - generic [ref=e721]: new
+        - menuitem "订单 new " [ref=e101]:
+          - generic [ref=e102] [cursor=pointer]:
+            - img [ref=e103]
+            - generic [ref=e105]:
+              - text: 订单
+              - generic [ref=e106]: new
+            - generic [ref=e107]: 
+        - menuitem "服务 " [ref=e108]:
+          - generic [ref=e109] [cursor=pointer]:
+            - img [ref=e110]
+            - generic [ref=e112]: 服务
+            - generic [ref=e113]: 
+        - menuitem "内部协作 " [ref=e114]:
+          - generic [ref=e115] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e118]: 内部协作
+            - generic [ref=e119]: 
+        - menuitem "资源 " [ref=e120]:
+          - generic [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+            - generic [ref=e124]: 资源
+            - generic [ref=e125]: 
+        - menuitem "会员 " [ref=e126]:
+          - generic [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+            - generic [ref=e130]: 会员
+            - generic [ref=e131]: 
+        - link "工具" [ref=e132] [cursor=pointer]:
+          - /url: "#/tools/center"
+          - menuitem "工具" [ref=e133]:
+            - img [ref=e134]
+            - generic [ref=e136]: 工具
+        - menuitem "相册 " [ref=e137]:
+          - generic [ref=e138] [cursor=pointer]:
+            - img [ref=e139]
+            - generic [ref=e141]: 相册
+            - generic [ref=e142]: 
+        - menuitem "营销 " [ref=e143]:
+          - generic [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+            - generic [ref=e147]: 营销
+            - generic [ref=e148]: 
+        - menuitem "统计 new " [ref=e149]:
+          - generic [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+            - generic [ref=e153]:
+              - text: 统计
+              - generic [ref=e154]: new
+            - generic [ref=e155]: 
+        - menuitem "设置 " [ref=e156]:
+          - generic [ref=e157] [cursor=pointer]:
+            - img [ref=e158]
+            - generic [ref=e160]: 设置
+            - generic [ref=e161]: 
+    - link "应用商城" [ref=e162] [cursor=pointer]:
+      - /url: "#/appstore"
+      - img [ref=e163]
+      - text: 应用商城
+  - generic [ref=e167]:
+    - menubar [ref=e168]:
+      - img [ref=e170] [cursor=pointer]
+      - generic [ref=e174]: 一悦照相馆
+      - generic [ref=e175]:
+        - img [ref=e177] [cursor=pointer]
+        - button "赵丽瑗 " [ref=e183] [cursor=pointer]:
+          - text: 赵丽瑗
+          - generic [ref=e184]: 
+        - button "费用 " [ref=e186] [cursor=pointer]:
+          - text: 费用
+          - generic [ref=e187]: 
+    - generic [ref=e188]:
+      - generic [ref=e1090]:
+        - navigation "Breadcrumb" [ref=e1091]:
+          - generic:
+            - generic [ref=e1092]:
+              - link "商品" [ref=e1093]
+              - text: /
+            - generic [ref=e1094]:
+              - link "服务产品" [ref=e1095]:
+                - link "服务产品" [ref=e1096] [cursor=pointer]:
+                  - /url: "#/product/service"
+              - text: /
+            - link "服务产品详情" [ref=e1098]
+        - generic [ref=e1102]:
+          - img [ref=e1104]
+          - generic [ref=e1105]:
+            - heading "证件照-快照-49元" [level=4] [ref=e1106]
+            - generic [ref=e1108]:
+              - generic [ref=e1109]: 门 店：
+              - generic [ref=e1110]:
+                - generic [ref=e1111]: 滨州吾悦店
+                - generic [ref=e1112]: 滨州万达店
+                - generic [ref=e1113]: 威海智慧谷店
+                - generic [ref=e1114]: 淄博万象汇店
+            - generic [ref=e1115]:
+              - generic [ref=e1116]:
+                - generic [ref=e1117]: 预约限制：
+                - generic [ref=e1118]: 不允许顾客在线自助预约
+              - generic [ref=e1119]:
+                - generic [ref=e1120]: 分 类：
+                - generic [ref=e1122]: 当季火爆
+              - generic [ref=e1124]: 预计耗时：
+              - generic [ref=e1126]: 预付模式： 【品牌统一预约金】收取全款
+              - generic [ref=e1127]:
+                - generic [ref=e1128]: 加选片单价：
+                - generic [ref=e1129]: 0(元)
+              - generic [ref=e1130]:
+                - generic [ref=e1131]: 是否支持在线选片：
+                - generic [ref=e1132]: 不支持
+              - generic [ref=e1133]:
+                - generic [ref=e1134]: 是否支持入册产品：
+                - generic [ref=e1135]: 不支持
+              - generic [ref=e1136]:
+                - generic [ref=e1137]: 到店下单：
+                - generic [ref=e1138]: 不允许顾客到店自助下单
+              - generic [ref=e1139]:
+                - generic [ref=e1140]: 产品详情页展现按钮：
+                - generic [ref=e1141]: 立即预约（默认）
+              - generic [ref=e1142]:
+                - generic [ref=e1143]: 产品渠道：
+                - generic [ref=e1144]:
+                  - text: 微信
+                  - img [ref=e1145]
+        - generic [ref=e1147]:
+          - heading "产品预约直达地址" [level=4] [ref=e1149]:
+            - generic [ref=e1150]: 产品预约直达地址
+          - generic [ref=e1153]:
+            - table [ref=e1155]:
+              - rowgroup [ref=e1160]:
+                - row "门店 预约地址 操作" [ref=e1161]:
+                  - columnheader "门店" [ref=e1162]:
+                    - generic [ref=e1163]: 门店
+                  - columnheader "预约地址" [ref=e1164]:
+                    - generic [ref=e1165]: 预约地址
+                  - columnheader "操作" [ref=e1166]:
+                    - generic [ref=e1167]: 操作
+            - table [ref=e1169]:
+              - rowgroup [ref=e1174]:
+                - row "不限门店 https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696 复制 下载产品预约二维码 场景二维码" [ref=e1175]:
+                  - cell "不限门店" [ref=e1176]:
+                    - generic [ref=e1177]: 不限门店
+                  - cell "https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696" [ref=e1178]:
+                    - generic [ref=e1179]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696
+                  - cell "复制 下载产品预约二维码 场景二维码" [ref=e1180]:
+                    - generic [ref=e1181]:
+                      - button "复制" [ref=e1182] [cursor=pointer]:
+                        - generic [ref=e1183]:
+                          - img [ref=e1184]
+                          - text: 复制
+                      - button "下载产品预约二维码" [ref=e1186] [cursor=pointer]:
+                        - generic [ref=e1187]:
+                          - img [ref=e1188]
+                          - text: 下载产品预约二维码
+                      - button "场景二维码" [ref=e1190] [cursor=pointer]:
+                        - generic [ref=e1191]:
+                          - img [ref=e1192]
+                          - text: 场景二维码
+                - row "滨州吾悦店 https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=5595 复制 下载产品预约二维码 场景二维码" [ref=e1194]:
+                  - cell "滨州吾悦店" [ref=e1195]:
+                    - generic [ref=e1196]: 滨州吾悦店
+                  - cell "https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=5595" [ref=e1197]:
+                    - generic [ref=e1198]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=5595
+                  - cell "复制 下载产品预约二维码 场景二维码" [ref=e1199]:
+                    - generic [ref=e1200]:
+                      - button "复制" [ref=e1201] [cursor=pointer]:
+                        - generic [ref=e1202]:
+                          - img [ref=e1203]
+                          - text: 复制
+                      - button "下载产品预约二维码" [ref=e1205] [cursor=pointer]:
+                        - generic [ref=e1206]:
+                          - img [ref=e1207]
+                          - text: 下载产品预约二维码
+                      - button "场景二维码" [ref=e1209] [cursor=pointer]:
+                        - generic [ref=e1210]:
+                          - img [ref=e1211]
+                          - text: 场景二维码
+                - row "滨州万达店 https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6213 复制 下载产品预约二维码 场景二维码" [ref=e1213]:
+                  - cell "滨州万达店" [ref=e1214]:
+                    - generic [ref=e1215]: 滨州万达店
+                  - cell "https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6213" [ref=e1216]:
+                    - generic [ref=e1217]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6213
+                  - cell "复制 下载产品预约二维码 场景二维码" [ref=e1218]:
+                    - generic [ref=e1219]:
+                      - button "复制" [ref=e1220] [cursor=pointer]:
+                        - generic [ref=e1221]:
+                          - img [ref=e1222]
+                          - text: 复制
+                      - button "下载产品预约二维码" [ref=e1224] [cursor=pointer]:
+                        - generic [ref=e1225]:
+                          - img [ref=e1226]
+                          - text: 下载产品预约二维码
+                      - button "场景二维码" [ref=e1228] [cursor=pointer]:
+                        - generic [ref=e1229]:
+                          - img [ref=e1230]
+                          - text: 场景二维码
+                - row "威海智慧谷店 https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6305 复制 下载产品预约二维码 场景二维码" [ref=e1232]:
+                  - cell "威海智慧谷店" [ref=e1233]:
+                    - generic [ref=e1234]: 威海智慧谷店
+                  - cell "https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6305" [ref=e1235]:
+                    - generic [ref=e1236]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6305
+                  - cell "复制 下载产品预约二维码 场景二维码" [ref=e1237]:
+                    - generic [ref=e1238]:
+                      - button "复制" [ref=e1239] [cursor=pointer]:
+                        - generic [ref=e1240]:
+                          - img [ref=e1241]
+                          - text: 复制
+                      - button "下载产品预约二维码" [ref=e1243] [cursor=pointer]:
+                        - generic [ref=e1244]:
+                          - img [ref=e1245]
+                          - text: 下载产品预约二维码
+                      - button "场景二维码" [ref=e1247] [cursor=pointer]:
+                        - generic [ref=e1248]:
+                          - img [ref=e1249]
+                          - text: 场景二维码
+                - row "淄博万象汇店 https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6385 复制 下载产品预约二维码 场景二维码" [ref=e1251]:
+                  - cell "淄博万象汇店" [ref=e1252]:
+                    - generic [ref=e1253]: 淄博万象汇店
+                  - cell "https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6385" [ref=e1254]:
+                    - generic [ref=e1255]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p#/standard/product-detail?id=65696&sid=6385
+                  - cell "复制 下载产品预约二维码 场景二维码" [ref=e1256]:
+                    - generic [ref=e1257]:
+                      - button "复制" [ref=e1258] [cursor=pointer]:
+                        - generic [ref=e1259]:
+                          - img [ref=e1260]
+                          - text: 复制
+                      - button "下载产品预约二维码" [ref=e1262] [cursor=pointer]:
+                        - generic [ref=e1263]:
+                          - img [ref=e1264]
+                          - text: 下载产品预约二维码
+                      - button "场景二维码" [ref=e1266] [cursor=pointer]:
+                        - generic [ref=e1267]:
+                          - img [ref=e1268]
+                          - text: 场景二维码
+        - generic [ref=e1270]:
+          - heading "产品图片" [level=4] [ref=e1272]:
+            - generic [ref=e1273]: 产品图片
+          - generic [ref=e1277]: 产品详情主图
+        - generic [ref=e1280]:
+          - heading "产品规格&价格" [level=4] [ref=e1282]:
+            - generic [ref=e1283]: 产品规格&价格
+          - table [ref=e1286]:
+            - rowgroup [ref=e1287]:
+              - row "消耗工位 * 原价（元） * 现价（元）" [ref=e1288]:
+                - columnheader "消耗工位" [ref=e1289]
+                - columnheader "* 原价（元）" [ref=e1290]
+                - columnheader "* 现价（元）" [ref=e1291]
+            - rowgroup [ref=e1292]:
+              - row "0 ￥49 ￥49" [ref=e1293]:
+                - cell "0" [ref=e1294]
+                - cell "￥49" [ref=e1295]
+                - cell "￥49" [ref=e1296]
+        - generic [ref=e1297]:
+          - heading "产品关联" [level=4] [ref=e1299]:
+            - generic [ref=e1300]: 产品关联
+          - generic [ref=e1303]:
+            - table [ref=e1305]:
+              - rowgroup [ref=e1312]:
+                - row "产品名称 规格 原价(元) 现价(元) 消耗工位" [ref=e1313]:
+                  - columnheader "产品名称" [ref=e1314]:
+                    - generic [ref=e1315]: 产品名称
+                  - columnheader "规格" [ref=e1316]:
+                    - generic [ref=e1317]: 规格
+                  - columnheader "原价(元)" [ref=e1318]:
+                    - generic [ref=e1319]: 原价(元)
+                  - columnheader "现价(元)" [ref=e1320]:
+                    - generic [ref=e1321]: 现价(元)
+                  - columnheader "消耗工位" [ref=e1322]:
+                    - generic [ref=e1323]: 消耗工位
+            - generic [ref=e1324]:
+              - table:
+                - rowgroup
+              - generic [ref=e1326]: 暂无数据
+        - heading "产品详情" [level=4] [ref=e1329]:
+          - generic [ref=e1330]: 产品详情
+        - generic [ref=e1335]:
+          - button "返回列表" [ref=e1336] [cursor=pointer]
+          - button "复制产品" [ref=e1337] [cursor=pointer]
+          - button "修改" [ref=e1338] [cursor=pointer]
+        - text: 
+      - text:  

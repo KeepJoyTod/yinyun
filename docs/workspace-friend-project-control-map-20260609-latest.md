@@ -17,7 +17,7 @@ Friend projects are reference assets only:
 | Production backend/admin/mobile | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | Only production target |
 | Admin UI reference | `D:\OtherProject\CameraApp\photoshop-master` | Album workspace, online selection, order and schedule UX |
 | Miniapp reference | `D:\OtherProject\CameraApp\yuyue-main` | Taro login, booking, orders, negatives selection |
-| Desktop Douyin folder | `C:\Users\Administrator\Desktop\yiyue\抖音小程序` | Docs/AppID/maps, not importable source |
+| Desktop Douyin folder | `docs\yiyue\抖音小程序` | Docs/AppID/maps, not importable source |
 
 Do not migrate demo runtimes, demo backends, MinIO, public image URLs, old AppIDs, tokens, or secrets.
 

@@ -32,7 +32,7 @@ $env:JIANYUE_PASSWORD='<password>'
 The script:
 
 - exports Jianyue schedule slots into `backend/script/sql/postgres/postgres_jianyue_booking_slot_inventory_seed_YYYYMMDD.sql`;
-- exports Jianyue orders into `C:\Users\Administrator\Desktop\yiyue\postgres_jianyue_orders_import_YYYYMMDD.sql`;
+- exports Jianyue orders into `docs\yiyue\postgres_jianyue_orders_import_YYYYMMDD.sql`;
 - backs up Hong Kong 2 PostgreSQL with `pg_dump`;
 - applies schedule SQL, then order SQL;
 - writes a masked booking-chain snapshot under `docs/evidence`.

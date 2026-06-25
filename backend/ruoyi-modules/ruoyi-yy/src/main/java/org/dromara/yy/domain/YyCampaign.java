@@ -24,8 +24,10 @@ public class YyCampaign extends TenantEntity {
     private String campaignName;
     private String campaignType;
     private Long storeId;
+    private String storeScope;
     private String timeRangeStart;
     private String timeRangeEnd;
+    private String ruleSummary;
     private String status;
 
     @TableLogic

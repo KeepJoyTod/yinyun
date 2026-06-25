@@ -15,9 +15,9 @@ Friend projects are reference assets only:
 | Asset | Path | Use | Production target |
 | --- | --- | --- | --- |
 | Photo studio admin demo | `D:\OtherProject\CameraApp\photoshop-master` | Album workspace, online selection, order filtering, schedule board | `admin-ui` |
-| Desktop admin copy | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | Handover copy | Documentation and reference only |
+| Desktop admin copy | `docs\yiyue\前端优化\photoshop-master` | Handover copy | Documentation and reference only |
 | Taro miniapp demo | `D:\OtherProject\CameraApp\yuyue-main` | Login, booking, orders, negatives selection | `mobile-uniapp` |
-| Desktop miniapp copy | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | Handover copy | Documentation and reference only |
+| Desktop miniapp copy | `docs\yiyue\微信小程序\yuyue-main` | Handover copy | Documentation and reference only |
 
 Do not migrate demo runtimes, demo backends, MinIO, public image URLs, old AppIDs, tokens, or secrets.
 
@@ -145,6 +145,6 @@ Do not migrate: Taro runtime, React components, demo server, mock payment, old A
 Desktop source maps:
 
 ```text
-C:\Users\Administrator\Desktop\yiyue\前端优化\latest-index.md
-C:\Users\Administrator\Desktop\yiyue\抖音小程序\latest-index.md
+docs\yiyue\前端优化\latest-index.md
+docs\yiyue\抖音小程序\latest-index.md
 ```

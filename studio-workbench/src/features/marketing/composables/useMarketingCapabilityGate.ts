@@ -1,5 +1,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { backendApi, type MarketingCapabilityDto } from '../../../shared/api/backend'
+import { appStore } from '../../../shared/stores/appStore'
 import { resolveFeatureGate, type FeatureGateResult } from '../../system/featureGate'
 import { buildFallbackMarketingCapabilities } from '../marketingScaffoldData'
 
@@ -35,8 +36,8 @@ export const useMarketingCapabilityGate = () => {
     try {
       rawCapabilities.value = await backendApi.listMarketingCapabilities()
     } catch (err) {
-      rawCapabilities.value = buildFallbackMarketingCapabilities()
-      error.value = err instanceof Error ? err.message : '营销能力加载失败，已切到本地脚手架。'
+      rawCapabilities.value = appStore.demoMode ? buildFallbackMarketingCapabilities() : []
+      error.value = err instanceof Error ? err.message : '营销能力加载失败'
     } finally {
       loading.value = false
     }

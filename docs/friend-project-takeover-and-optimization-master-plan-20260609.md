@@ -9,9 +9,9 @@
 | 类型 | 路径 | 定位 | 处理 |
 | --- | --- | --- | --- |
 | 正式影约云主仓库 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | 生产开发基线 | 所有正式代码只改这里 |
-| 前端优化参考项目 | `C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master`、`D:\OtherProject\CameraApp\photoshop-master` | 摄影后台 Demo | 吸收 UI、在线选片、相册管理、日程体验 |
-| 小程序参考项目 | `C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main`、`D:\OtherProject\CameraApp\yuyue-main` | Taro 小程序 + Demo 后端 | 吸收登录、预约、订单、底片流程 |
-| 小程序资料目录 | `C:\Users\Administrator\Desktop\yiyue\wechatapp`、`douyinapp`、`抖音小程序` | 地图和验收资料 | 保持为文档目录 |
+| 前端优化参考项目 | `docs\yiyue\前端优化\photoshop-master`、`D:\OtherProject\CameraApp\photoshop-master` | 摄影后台 Demo | 吸收 UI、在线选片、相册管理、日程体验 |
+| 小程序参考项目 | `docs\yiyue\微信小程序\yuyue-main`、`D:\OtherProject\CameraApp\yuyue-main` | Taro 小程序 + Demo 后端 | 吸收登录、预约、订单、底片流程 |
+| 小程序资料目录 | `docs\yiyue\wechatapp`、`douyinapp`、`抖音小程序` | 地图和验收资料 | 保持为文档目录 |
 | 正式多端小程序 | `D:\OtherProject\CameraApp\yingyue-cloud-repo\mobile-uniapp` | H5 / 微信 / 抖音统一源码 | 继续维护 |
 
 核心判断：朋友项目是参考素材，不替换正式影约云。正式后台仍是 RuoYi `admin-ui`，正式客户取片仍是 `mobile-uniapp`，正式核心后端仍是 Spring Boot + `api.evanshine.me`。

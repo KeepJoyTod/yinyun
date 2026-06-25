@@ -24,6 +24,7 @@ public class YyCouponGrantRecord extends TenantEntity {
     private Long customerId;
     private String grantBatchCode;
     private String grantSource;
+    private Integer issueCount;
     private String status;
     private String remark;
 

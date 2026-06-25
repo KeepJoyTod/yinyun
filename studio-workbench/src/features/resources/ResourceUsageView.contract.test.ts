@@ -11,7 +11,21 @@ describe('resource usage contract', () => {
   it('renders quota and breakdown from the dedicated usage owner', () => {
     expect(contractSource).toContain('ResourceUsageSummaryCards')
     expect(contractSource).toContain('ResourceUsageBreakdown')
-    expect(composableSource).toContain('backendApi.getResourceUsageSummary')
+    expect(composableSource).toContain('resourcesApi.getResourceUsageSummary')
+  })
+
+  it('exposes a controlled historical size backfill action', () => {
+    expect(viewSource).toContain('runSizeBackfill')
+    expect(viewSource).toContain('backfillButtonText')
+    expect(composableSource).toContain('resourcesApi.backfillResourceSizes')
+    expect(operationsSource).toContain('buildSizeBackfillResultText')
+  })
+
+  it('loads feature scope before usage reads and backfill writes', () => {
+    expect(viewSource).toContain('FeatureGateStatusCard')
+    expect(viewSource).toContain('v-if="canLoadData"')
+    expect(composableSource).toContain("featureKey: 'resource-usage'")
+    expect(composableSource).toContain('featureGate.loadGate()')
   })
 
   it('keeps partial file size backfill visible to staff', () => {

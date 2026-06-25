@@ -40,6 +40,9 @@ export const workbenchGroups: WorkbenchGroup[] = [
   { key: 'marketing', label: '营销' },
   { key: 'report', label: '统计' },
   { key: 'settings', label: '设置' },
+  { key: 'platform', label: '平台设置' },
+  { key: 'account', label: '账号中心' },
+  { key: 'finance', label: '费用中心' },
 ]
 
 export const workbenchStatusMeta: Record<WorkbenchFeatureStatus, { label: string; navLabel?: string }> = {
@@ -55,6 +58,7 @@ const featurePermissions: Record<string, string> = {
   'dashboard-today': 'yy:dashboard:list',
   'dashboard-tasks': 'yy:dashboard:list',
   'merchant-overview': 'yy:store:list',
+  'merchant-readiness': 'yy:store:list',
   'merchant-store': 'yy:store:list',
   'merchant-service-groups': 'yy:bookingConfig:list',
   'merchant-inventory': 'yy:bookingInventory:list',
@@ -62,6 +66,13 @@ const featurePermissions: Record<string, string> = {
   'merchant-micro-pages': 'yy:store:list',
   'merchant-micro-forms': 'yy:store:list',
   'product-service': 'yy:product:list',
+  'product-catalog': 'yy:product:list',
+  'product-sku': 'yy:product:list',
+  'product-category': 'yy:product:list',
+  'product-relation': 'yy:product:list',
+  'product-booking-rules': 'yy:product:list',
+  'product-channel': 'yy:channel:list',
+  'product-cards': 'yy:product:list',
   'product-addon': 'yy:product:list',
   'product-group': 'yy:product:list',
   'product-print': 'yy:product:list',
@@ -103,6 +114,8 @@ const featurePermissions: Record<string, string> = {
   'tool-pickup-entry': 'yy:store:list',
   'tool-share-links': 'yy:store:list',
   'tool-notifications': 'yy:notification:list',
+  'tool-sample-works': 'yy:photoAsset:list',
+  'tool-precision-delivery': 'yy:notification:list',
   'marketing-center': 'yy:order:list',
   'marketing-coupons': 'yy:order:list',
   'marketing-campaigns': 'yy:order:list',
@@ -122,6 +135,19 @@ const featurePermissions: Record<string, string> = {
   'settings-logs': 'yy:channel:list',
   'settings-channels': 'yy:channel:list',
   'settings-workbench': 'yy:dashboard:list',
+  'platform-brand-info': 'yy:dashboard:list',
+  'platform-integration': 'yy:channel:list',
+  'platform-booking-policy': 'yy:bookingConfig:list',
+  'platform-print-settings': 'yy:bookingConfig:list',
+  'platform-score-settings': 'yy:bookingConfig:list',
+  'platform-email-settings': 'yy:notification:list',
+  'platform-notification-center': 'yy:notification:list',
+  'platform-service-packages': 'yy:dashboard:list',
+  'account-profile': 'yy:dashboard:list',
+  'account-brands': 'yy:dashboard:list',
+  'account-help': 'yy:dashboard:list',
+  'finance-overview': 'yy:dashboard:list',
+  'finance-transactions': 'yy:dashboard:list',
 }
 
 export const workbenchFeatures: WorkbenchFeature[] = [
@@ -130,6 +156,7 @@ export const workbenchFeatures: WorkbenchFeature[] = [
   feature('dashboard-tasks', 'home', '待处理事项', '/dashboard/tasks', 'orders', 'orders', 'ready', '聚合今日待确认、待拍摄、待上传和待交付事项', '今日'),
 
   feature('merchant-overview', 'merchant', '模块总览', '/merchant/overview', 'overview', 'merchant-overview', 'ready', '汇总门店、订单、排期库存和渠道映射状态'),
+  feature('merchant-readiness', 'merchant', '闭环脚手架', '/merchant/readiness', 'overview', 'merchant-readiness', 'building', '汇总商家模块未完成项、阻塞原因和下一步动作'),
   feature('merchant-store', 'merchant', '门店管理', '/merchant/store', 'store', 'store', 'ready', '维护门店资料并查看门店运营状态'),
   feature('merchant-service-groups', 'merchant', '服务组管理', '/merchant/service-groups', 'config', 'service-groups', 'ready', '配置服务组、服务时长和承接容量'),
   feature('merchant-inventory', 'merchant', '时段库存', '/merchant/inventory', 'calendar', 'inventory', 'ready', '查看全渠道预约时段库存和冲突记录'),
@@ -138,6 +165,13 @@ export const workbenchFeatures: WorkbenchFeature[] = [
   feature('merchant-micro-forms', 'merchant', '微表单管理', '/merchant/micro-forms', 'form', 'micro-forms', 'ready', '创建、发布和跟进微表单提交记录'),
 
   feature('product-service', 'product', '服务产品', '/product/service', 'config', 'products', 'ready', '维护可预约套餐、选片规则和上下架状态'),
+  feature('product-catalog', 'product', '商品目录', '/product/catalog', 'overview', 'product-catalog-module', 'building', '聚合 yy_product 与 SKU、展示、预约、关联、渠道和履约配置骨架'),
+  feature('product-sku', 'product', '规格价格', '/product/sku', 'config', 'product-sku-module', 'building', '维护 SKU、价格、工位消耗和线上展示配置骨架'),
+  feature('product-category', 'product', '分类运营', '/product/category', 'filter', 'product-category-module', 'building', '维护商品分类、排序、门店范围和批量运营骨架'),
+  feature('product-relation', 'product', '关联产品', '/product/relation', 'plus', 'product-relation-module', 'building', '维护加购、入册、加修和冲印联动关系骨架'),
+  feature('product-booking-rules', 'product', '预约规则', '/product/booking-rules', 'calendar', 'product-booking-rules-module', 'building', '维护预约门店、服务组、预付模式和限制骨架'),
+  feature('product-channel', 'product', '渠道配置', '/product/channel', 'online-selection', 'product-channel-module', 'building', '维护抖音/美团商品映射补充配置骨架'),
+  feature('product-cards', 'product', '卡项产品', '/product/cards', 'orders', 'product-cards-module', 'building', '维护卡项商品与权益 readiness 骨架'),
   feature('product-addon', 'product', '附加产品', '/product/addon', 'plus', 'derived-product-module', 'derived', '从统一商品账本派生附加产品视图'),
   feature('product-group', 'product', '团单产品', '/product/group', 'orders', 'derived-product-module', 'derived', '从统一商品账本派生团单产品视图'),
   feature('product-print', 'product', '冲印产品', '/product/print', 'photo-mgmt', 'derived-product-module', 'derived', '从统一商品账本派生冲印产品视图'),
@@ -185,6 +219,8 @@ export const workbenchFeatures: WorkbenchFeature[] = [
   feature('tool-pickup-entry', 'tool', '取片入口', '/tools/pickup-entry', 'online-selection', 'share-links', 'ready', '管理客户取片入口和验证方式'),
   feature('tool-share-links', 'tool', '二维码与分享链接', '/tools/share-links', 'enter', 'share-links', 'ready', '生成预约、查单、取片和作品二维码'),
   feature('tool-notifications', 'tool', '通知模板', '/tools/notifications', 'notification', 'notifications', 'ready', '维护短信、微信和平台消息模板'),
+  feature('tool-sample-works', 'tool', '样片作品', '/tools/sample-works', 'photo-mgmt', 'tool-sample-works', 'building', '维护样片作品授权、公开展示策略和发布证据'),
+  feature('tool-precision-delivery', 'tool', '精准投放', '/tools/precision-delivery', 'trend-up', 'tool-precision-delivery', 'building', '维护圈选人群、投放任务和触达结果骨架'),
 
   feature('marketing-center', 'marketing', '营销中心', '/marketing/center', 'trend-up', 'marketing-center-view', 'ready', '查看营销能力、渠道承接和活动订单联动'),
   feature('marketing-coupons', 'marketing', '优惠券', '/marketing/coupons', 'orders', 'marketing-coupons-view', 'ready', '维护券模板、发券记录、券实例和恢复策略脚手架'),
@@ -207,6 +243,22 @@ export const workbenchFeatures: WorkbenchFeature[] = [
   feature('settings-logs', 'settings', '系统日志', '/settings/logs', 'orders', 'logs', 'partial', '查看操作、订单、渠道和异常日志'),
   feature('settings-channels', 'settings', '渠道配置', '/settings/channels', 'config', 'channels', 'ready', '配置微信、抖音、美团和回调能力'),
   feature('settings-workbench', 'settings', '工作台设置', '/settings/workbench', 'settings', 'settings', 'ready', '查看工作台运行模式、安全边界和客户入口隔离'),
+
+  feature('platform-brand-info', 'platform', '品牌信息', '/platform/brand-info', 'overview', 'platform-brand-info', 'building', '维护品牌资料、LOGO、分享展示信息和品牌审计边界'),
+  feature('platform-integration', 'platform', '平台对接', '/platform/integration', 'config', 'platform-integration', 'building', '维护微信、抖音、美团平台授权、Webhook 和 SPI 对接骨架'),
+  feature('platform-booking-policy', 'platform', '预约设置', '/platform/booking-policy', 'calendar', 'platform-booking-policy', 'building', '维护预约费用、自助改期和退单策略骨架'),
+  feature('platform-print-settings', 'platform', '打印设置', '/platform/print-settings', 'config', 'platform-print-settings', 'building', '维护打印模板、输出策略和门店适用范围骨架'),
+  feature('platform-score-settings', 'platform', '评分配置', '/platform/score-settings', 'trend-up', 'platform-score-settings', 'building', '维护评价规则、评分项和差评通知骨架'),
+  feature('platform-email-settings', 'platform', '邮箱设置', '/platform/email-settings', 'notification', 'platform-email-settings', 'building', '维护发件邮箱、SMTP 和失败重试骨架'),
+  feature('platform-notification-center', 'platform', '通知中心', '/platform/notification-center', 'notification', 'platform-notification-center', 'building', '维护通知场景、触达对象和多渠道开关骨架'),
+  feature('platform-service-packages', 'platform', '简约服务中心', '/platform/service-packages', 'config', 'platform-service-packages', 'building', '维护套餐插件授权、资源额度和服务购买记录骨架'),
+
+  feature('account-profile', 'account', '个人中心', '/account/profile', 'overview', 'account-profile', 'building', '维护账号资料、安全设置和绑定信息骨架'),
+  feature('account-brands', 'account', '我的品牌', '/account/brands', 'store', 'account-brands', 'building', '维护品牌授权关系、默认品牌和切换审计骨架'),
+  feature('account-help', 'account', '帮助中心', '/account/help', 'overview', 'account-help', 'building', '维护产品帮助、版本说明和常见问题检索骨架'),
+
+  feature('finance-overview', 'finance', '费用概览', '/finance/overview', 'overview', 'finance-overview', 'building', '维护消费账户、余额、欠费和收益概况骨架'),
+  feature('finance-transactions', 'finance', '收支明细', '/finance/transactions', 'orders', 'finance-transactions', 'building', '维护收支流水、导出、脱敏权限和审计骨架'),
 ]
 
 function feature(

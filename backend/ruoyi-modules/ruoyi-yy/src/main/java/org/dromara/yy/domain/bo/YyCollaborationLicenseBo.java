@@ -17,11 +17,15 @@ public class YyCollaborationLicenseBo {
 
     private String enabled;
 
+    private String status;
+
     private String validFrom;
 
     private String validTo;
 
     private Integer seatCount;
+
+    private String renewAction;
 
     private String remark;
 }

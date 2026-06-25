@@ -6,7 +6,7 @@
 
 **Architecture:** Keep current behavior first, then move logic behind compatibility facades. `yy_order` remains the single order/appointment ledger, `yy_booking_slot_inventory` remains the only schedule/capacity ledger, and `backend.ts` / `appStore.ts` stay as temporary public facades until consumers are migrated. No visual redesign is part of this plan.
 
-**Tech Stack:** Vue 3, TypeScript, Vite, Vitest, Java/RuoYi backend references, PowerShell deploy scripts, local canonical maps under `C:\Users\Administrator\Desktop\yiyue`.
+**Tech Stack:** Vue 3, TypeScript, Vite, Vitest, Java/RuoYi backend references, PowerShell deploy scripts, local canonical maps under `docs\yiyue`.
 
 ---
 
@@ -44,7 +44,7 @@
 - Historical `DOUYIN_LIFE` orders without real `slot_date`, `slot_start_time`, and `slot_end_time` must not enter 今日预约排期.
 - Keep `DOUYIN_LIFE` and `DOUYIN_MINI_APP` separate in APIs, mappings, tests, and UI labels.
 - Do not remove current compatibility routes such as `/orders`, `/schedule`, `/photo-mgmt`, or public `/public/micro-page/:id`.
-- Do not expose or commit secrets from `C:\Users\Administrator\Desktop\yiyue\APPID.txt`, `APPSecret.txt`, `backend\.env.local`, or server env files.
+- Do not expose or commit secrets from `docs\yiyue\APPID.txt`, `APPSecret.txt`, `backend\.env.local`, or server env files.
 - Do not run `git add .`; evidence directories are noisy and must be selected explicitly.
 
 ## File Size Rules
@@ -366,10 +366,10 @@ npm --prefix D:\OtherProject\CameraApp\yingyue-cloud-repo\studio-workbench run b
 
 **Goal:** Make future AI handoff deterministic.
 
-- [ ] Update `C:\Users\Administrator\Desktop\yiyue\code_map.md`.
-- [ ] Update `C:\Users\Administrator\Desktop\yiyue\function_map.md` if user-visible behavior changes.
-- [ ] Update `C:\Users\Administrator\Desktop\yiyue\api_map.md` if API module ownership changes.
-- [ ] Update `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`.
+- [ ] Update `docs\yiyue\code_map.md`.
+- [ ] Update `docs\yiyue\function_map.md` if user-visible behavior changes.
+- [ ] Update `docs\yiyue\api_map.md` if API module ownership changes.
+- [ ] Update `docs\yiyue\optimization_map.md`.
 - [ ] Update `D:\OtherProject\CameraApp\yingyue-cloud-repo\studio-workbench\CLAUDE-HANDOFF.md` or equivalent handoff file after major phase completion.
 
 ## Multi-Agent Dispatch Plan
@@ -422,5 +422,5 @@ The refactor is done when:
 - no TS helper/store/API module exceeds the temporary max without an exception entry;
 - `OrdersView.vue`, `appStore.ts`, `backend.ts`, `DashboardView.vue`, and `PhotoMgmtView.vue` each have one clear responsibility;
 - all current appointment/order/capacity flows pass targeted tests and real smoke;
-- local maps under `C:\Users\Administrator\Desktop\yiyue` describe the new ownership;
+- local maps under `docs\yiyue` describe the new ownership;
 - HK2 deployment evidence exists for any production-facing change.

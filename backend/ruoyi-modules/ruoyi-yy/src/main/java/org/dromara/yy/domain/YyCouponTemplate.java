@@ -27,8 +27,11 @@ public class YyCouponTemplate extends TenantEntity {
     private String storeScope;
     private String productScope;
     private Long faceValueCent;
+    private Long minSpendCent;
     private Integer discountRate;
     private String stackedRule;
+    private String startAt;
+    private String endAt;
     private String restoreOnRefund;
     private String status;
 

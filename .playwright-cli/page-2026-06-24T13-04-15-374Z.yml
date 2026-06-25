@@ -1,0 +1,505 @@
+- generic [ref=e99]:
+  - generic [ref=e102]:
+    - generic [ref=e103]:
+      - link:
+        - /url: https://www.yuyue123.cn
+        - img [ref=e104] [cursor=pointer]
+    - menubar [ref=e106]:
+      - generic [ref=e107]:
+        - link "首页" [ref=e108] [cursor=pointer]:
+          - /url: "#/home/dashboard"
+          - menuitem "首页" [ref=e109]:
+            - img [ref=e110]
+            - generic [ref=e112]: 首页
+        - menuitem "商户 " [ref=e113]:
+          - generic [ref=e114] [cursor=pointer]:
+            - img [ref=e115]
+            - generic [ref=e117]: 商户
+            - generic [ref=e118]: 
+        - menuitem "商品 " [ref=e119]:
+          - generic [ref=e120] [cursor=pointer]:
+            - img [ref=e121]
+            - generic [ref=e123]: 商品
+            - generic [ref=e124]: 
+        - menuitem "订单 new " [ref=e125]:
+          - generic [ref=e126] [cursor=pointer]:
+            - img [ref=e127]
+            - generic [ref=e129]:
+              - text: 订单
+              - generic [ref=e130]: new
+            - generic [ref=e131]: 
+        - menuitem "服务 " [ref=e132]:
+          - generic [ref=e133] [cursor=pointer]:
+            - img [ref=e134]
+            - generic [ref=e136]: 服务
+            - generic [ref=e137]: 
+        - menuitem "内部协作 " [ref=e138]:
+          - generic [ref=e139] [cursor=pointer]:
+            - img [ref=e140]
+            - generic [ref=e142]: 内部协作
+            - generic [ref=e143]: 
+        - menuitem "资源 " [ref=e144]:
+          - generic [ref=e145] [cursor=pointer]:
+            - img [ref=e146]
+            - generic [ref=e148]: 资源
+            - generic [ref=e149]: 
+        - menuitem "会员 " [expanded] [ref=e150]:
+          - generic [ref=e151] [cursor=pointer]:
+            - img [ref=e152]
+            - generic [ref=e154]: 会员
+            - generic [ref=e155]: 
+          - menu [ref=e776]:
+            - link "会员信息" [ref=e777] [cursor=pointer]:
+              - /url: "#/customer/member"
+              - menuitem "会员信息" [ref=e778]:
+                - generic [ref=e779]: 会员信息
+            - link "会员标签" [ref=e780] [cursor=pointer]:
+              - /url: "#/customer/label"
+              - menuitem "会员标签" [ref=e781]:
+                - generic [ref=e782]: 会员标签
+            - link "成长规则" [ref=e783] [cursor=pointer]:
+              - /url: "#/customer/growth"
+              - menuitem "成长规则" [ref=e784]:
+                - generic [ref=e785]: 成长规则
+            - link "积分规则" [ref=e786] [cursor=pointer]:
+              - /url: "#/customer/point"
+              - menuitem "积分规则" [ref=e787]:
+                - generic [ref=e788]: 积分规则
+            - link "会员等级" [ref=e789] [cursor=pointer]:
+              - /url: "#/customer/grade"
+              - menuitem "会员等级" [ref=e790]:
+                - generic [ref=e791]: 会员等级
+            - link "会员储值" [ref=e792] [cursor=pointer]:
+              - /url: "#/customer/recharge"
+              - menuitem "会员储值" [ref=e793]:
+                - generic [ref=e794]: 会员储值
+            - link "充值设置" [ref=e795] [cursor=pointer]:
+              - /url: "#/customer/recharge/config"
+              - menuitem "充值设置" [ref=e796]:
+                - generic [ref=e797]: 充值设置
+        - link "工具" [ref=e156] [cursor=pointer]:
+          - /url: "#/tools/center"
+          - menuitem "工具" [ref=e157]:
+            - img [ref=e158]
+            - generic [ref=e160]: 工具
+        - menuitem "相册 " [ref=e161]:
+          - generic [ref=e162] [cursor=pointer]:
+            - img [ref=e163]
+            - generic [ref=e165]: 相册
+            - generic [ref=e166]: 
+        - menuitem "营销 " [ref=e167]:
+          - generic [ref=e168] [cursor=pointer]:
+            - img [ref=e169]
+            - generic [ref=e171]: 营销
+            - generic [ref=e172]: 
+        - menuitem "统计 new " [ref=e173]:
+          - generic [ref=e174] [cursor=pointer]:
+            - img [ref=e175]
+            - generic [ref=e177]:
+              - text: 统计
+              - generic [ref=e178]: new
+            - generic [ref=e179]: 
+        - menuitem "设置 " [ref=e180]:
+          - generic [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e184]: 设置
+            - generic [ref=e185]: 
+    - link "应用商城" [ref=e186] [cursor=pointer]:
+      - /url: "#/appstore"
+      - img [ref=e187]
+      - text: 应用商城
+  - generic [ref=e191]:
+    - menubar [ref=e192]:
+      - img [ref=e194] [cursor=pointer]
+      - generic [ref=e198]: 一悦照相馆
+      - generic [ref=e199]:
+        - img [ref=e201] [cursor=pointer]
+        - button "赵丽瑗 " [ref=e207] [cursor=pointer]:
+          - text: 赵丽瑗
+          - generic [ref=e208]: 
+        - button "费用 " [ref=e210] [cursor=pointer]:
+          - text: 费用
+          - generic [ref=e211]: 
+    - generic [ref=e212]:
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - generic [ref=e217]:
+            - generic [ref=e218]:
+              - heading "经营概况" [level=3] [ref=e219]:
+                - text: 经营概况
+                - img [ref=e220] [cursor=pointer]
+              - generic [ref=e222]:
+                - generic [ref=e224]:
+                  - textbox "==请选择==" [ref=e225] [cursor=pointer]
+                  - generic [ref=e227] [cursor=pointer]: 
+                - radiogroup [ref=e228]:
+                  - radio "今天" [checked] [ref=e229]:
+                    - radio "今天" [checked] [ref=e230]
+                    - generic [ref=e231] [cursor=pointer]: 今天
+                  - radio "昨天" [ref=e232]:
+                    - radio "昨天" [ref=e233]
+                    - generic [ref=e234] [cursor=pointer]: 昨天
+                  - radio "" [ref=e235]:
+                    - radio "" [ref=e236]
+                    - generic [ref=e237] [cursor=pointer]:
+                      - generic [ref=e238]: 
+                      - text: 
+            - generic [ref=e239]:
+              - generic [ref=e240]:
+                - generic [ref=e241]:
+                  - generic [ref=e242]:
+                    - img [ref=e243]
+                    - text: 实际收入
+                    - img [ref=e245]
+                    - text: 预计收入
+                  - generic [ref=e247]:
+                    - text: ￥***
+                    - generic [ref=e248]: /
+                    - text: ￥***
+                  - paragraph [ref=e249]:
+                    - text: （
+                    - img [ref=e250]
+                    - text: 营业收入 ￥***
+                    - img [ref=e252]
+                    - text: 违约金 ￥***）
+                - generic [ref=e254]:
+                  - generic [ref=e255]: 商品金额
+                  - generic [ref=e256]: ￥***
+                - generic [ref=e257]:
+                  - generic [ref=e258]: 优惠减免
+                  - generic [ref=e259]: ￥***
+                - generic [ref=e260]:
+                  - generic [ref=e261]: 订单金额
+                  - generic [ref=e262]: ￥***
+                - generic [ref=e263]:
+                  - generic [ref=e264]: 退款金额
+                  - generic [ref=e265]: ￥***
+              - generic [ref=e266]:
+                - generic [ref=e267]:
+                  - generic [ref=e268]: 服务订单
+                  - generic [ref=e269]: "***单"
+                  - paragraph [ref=e270]
+                - generic [ref=e271]:
+                  - generic [ref=e272]: 待服务
+                  - generic [ref=e273]: "***单"
+                - generic [ref=e274]:
+                  - generic [ref=e275]: 服务中
+                  - generic [ref=e276]: "***单"
+                - generic [ref=e277]:
+                  - generic [ref=e278]: 已完成
+                  - generic [ref=e279]: "***单"
+                - generic [ref=e280]:
+                  - generic [ref=e281]: 已取消
+                  - generic [ref=e282]: "***单"
+          - generic [ref=e284]:
+            - generic [ref=e285]:
+              - heading "预约概况" [level=3] [ref=e286]
+              - generic [ref=e287]:
+                - generic [ref=e289]:
+                  - textbox "==请选择==" [ref=e290] [cursor=pointer]: 滨州万达店
+                  - generic [ref=e292] [cursor=pointer]: 
+                - generic [ref=e294]:
+                  - textbox "请选择服务组" [ref=e295] [cursor=pointer]: 滨州万达店
+                  - generic [ref=e297] [cursor=pointer]: 
+                - button " 看板" [ref=e298] [cursor=pointer]:
+                  - generic [ref=e299]: 
+                  - text: 看板
+                - button "档期" [ref=e300] [cursor=pointer]:
+                  - generic [ref=e301]:
+                    - img [ref=e302]
+                    - text: 档期
+                - button " 订单" [ref=e304] [cursor=pointer]:
+                  - generic [ref=e305]: 
+                  - text: 订单
+            - generic [ref=e307]:
+              - generic [ref=e308]:
+                - generic [ref=e310] [cursor=pointer]: 
+                - list [ref=e312]:
+                  - listitem [ref=e313] [cursor=pointer]: 周二 05月26日
+                  - listitem [ref=e314] [cursor=pointer]: 周三 05月27日
+                  - listitem [ref=e315] [cursor=pointer]: 周四 05月28日
+                  - listitem [ref=e316] [cursor=pointer]: 周五 05月29日
+                  - listitem [ref=e317] [cursor=pointer]: 周六 05月30日
+                  - listitem [ref=e318] [cursor=pointer]: 周日 05月31日
+                  - listitem [ref=e319] [cursor=pointer]: 周一 06月01日
+                  - listitem [ref=e320] [cursor=pointer]: 周二 06月02日
+                  - listitem [ref=e321] [cursor=pointer]: 周三 06月03日
+                  - listitem [ref=e322] [cursor=pointer]: 周四 06月04日
+                  - listitem [ref=e323] [cursor=pointer]: 周五 06月05日
+                  - listitem [ref=e324] [cursor=pointer]: 周六 06月06日
+                  - listitem [ref=e325] [cursor=pointer]: 周日 06月07日
+                  - listitem [ref=e326] [cursor=pointer]: 周一 06月08日
+                  - listitem [ref=e327] [cursor=pointer]: 周二 06月09日
+                  - listitem [ref=e328] [cursor=pointer]: 周三 06月10日
+                  - listitem [ref=e329] [cursor=pointer]: 周四 06月11日
+                  - listitem [ref=e330] [cursor=pointer]: 周五 06月12日
+                  - listitem [ref=e331] [cursor=pointer]: 周六 06月13日
+                  - listitem [ref=e332] [cursor=pointer]: 周日 06月14日
+                  - listitem [ref=e333] [cursor=pointer]: 周一 06月15日
+                  - listitem [ref=e334] [cursor=pointer]: 周二 06月16日
+                  - listitem [ref=e335] [cursor=pointer]: 周三 06月17日
+                  - listitem [ref=e336] [cursor=pointer]: 周四 06月18日
+                  - listitem [ref=e337] [cursor=pointer]: 周五 06月19日
+                  - listitem [ref=e338] [cursor=pointer]: 周六 06月20日
+                  - listitem [ref=e339] [cursor=pointer]: 周日 06月21日
+                  - listitem [ref=e340] [cursor=pointer]: 周一 06月22日
+                  - listitem [ref=e341] [cursor=pointer]: 周二 06月23日
+                  - listitem [ref=e342] [cursor=pointer]:
+                    - generic [ref=e343]: 今天 06月24日
+                  - listitem [ref=e344] [cursor=pointer]: 周四 06月25日
+                  - listitem [ref=e345] [cursor=pointer]: 周五 06月26日
+                  - listitem [ref=e346] [cursor=pointer]: 周六 06月27日
+                  - listitem [ref=e347] [cursor=pointer]: 周日 06月28日
+                  - listitem [ref=e348] [cursor=pointer]: 周一 06月29日
+                  - listitem [ref=e349] [cursor=pointer]: 周二 06月30日
+                  - listitem [ref=e350] [cursor=pointer]: 周三 07月01日
+                  - listitem [ref=e351] [cursor=pointer]: 周四 07月02日
+                  - listitem [ref=e352] [cursor=pointer]: 周五 07月03日
+                  - listitem [ref=e353] [cursor=pointer]: 周六 07月04日
+                  - listitem [ref=e354] [cursor=pointer]: 周日 07月05日
+                  - listitem [ref=e355] [cursor=pointer]: 周一 07月06日
+                  - listitem [ref=e356] [cursor=pointer]: 周二 07月07日
+                  - listitem [ref=e357] [cursor=pointer]: 周三 07月08日
+                  - listitem [ref=e358] [cursor=pointer]: 周四 07月09日
+                  - listitem [ref=e359] [cursor=pointer]: 周五 07月10日
+                  - listitem [ref=e360] [cursor=pointer]: 周六 07月11日
+                  - listitem [ref=e361] [cursor=pointer]: 周日 07月12日
+                  - listitem [ref=e362] [cursor=pointer]: 周一 07月13日
+                  - listitem [ref=e363] [cursor=pointer]: 周二 07月14日
+                  - listitem [ref=e364] [cursor=pointer]: 周三 07月15日
+                  - listitem [ref=e365] [cursor=pointer]: 周四 07月16日
+                  - listitem [ref=e366] [cursor=pointer]: 周五 07月17日
+                  - listitem [ref=e367] [cursor=pointer]: 周六 07月18日
+                  - listitem [ref=e368] [cursor=pointer]: 周日 07月19日
+                  - listitem [ref=e369] [cursor=pointer]: 周一 07月20日
+                  - listitem [ref=e370] [cursor=pointer]: 周二 07月21日
+                  - listitem [ref=e371] [cursor=pointer]: 周三 07月22日
+                  - listitem [ref=e372] [cursor=pointer]: 周四 07月23日
+                  - listitem [ref=e373] [cursor=pointer]: 周五 07月24日
+                - generic [ref=e375] [cursor=pointer]: 
+              - generic [ref=e377]:
+                - generic [ref=e378]:
+                  - img [ref=e380]
+                  - text: 上午
+                - generic [ref=e382]:
+                  - generic [ref=e387] [cursor=pointer]:
+                    - generic [ref=e388]: 10:00
+                    - generic [ref=e389]: 订单： 1 工位： 1/2
+                  - generic [ref=e394] [cursor=pointer]:
+                    - generic [ref=e395]: 10:30
+                    - generic [ref=e396]: 订单： 1 工位： 1/2
+                  - generic [ref=e401] [cursor=pointer]:
+                    - generic [ref=e402]: 11:00
+                    - generic [ref=e403]: 订单： 1 工位： 1/2
+                  - generic [ref=e408] [cursor=pointer]:
+                    - generic [ref=e409]: 11:30
+                    - generic [ref=e410]: 订单： 1 工位： 1/2
+                - generic [ref=e411]:
+                  - img [ref=e413]
+                  - text: 下午
+                - generic [ref=e415]:
+                  - generic [ref=e420] [cursor=pointer]:
+                    - generic [ref=e421]: 12:00
+                    - generic [ref=e422]: 订单： 0 工位： 0/2
+                  - generic [ref=e427] [cursor=pointer]:
+                    - generic [ref=e428]: 12:30
+                    - generic [ref=e429]: 订单： 0 工位： 0/1
+                  - generic [ref=e434] [cursor=pointer]:
+                    - generic [ref=e435]: 13:00
+                    - generic [ref=e436]: 订单： 0 工位： 0/1
+                  - generic [ref=e441] [cursor=pointer]:
+                    - generic [ref=e442]: 13:30
+                    - generic [ref=e443]: 订单： 0 工位： 0/1
+                  - generic [ref=e448] [cursor=pointer]:
+                    - generic [ref=e449]: 14:00
+                    - generic [ref=e450]: 订单： 1 工位： 1/2
+                  - generic [ref=e455] [cursor=pointer]:
+                    - generic [ref=e456]: 14:30
+                    - generic [ref=e457]: 订单： 1 工位： 1/2
+                  - generic [ref=e462] [cursor=pointer]:
+                    - generic [ref=e463]: 15:00
+                    - generic [ref=e464]: 订单： 0 工位： 0/2
+                  - generic [ref=e468] [cursor=pointer]:
+                    - generic [ref=e469]:
+                      - generic [ref=e470]: 15:30
+                      - generic [ref=e471]: 订单： 2 工位： 2/2
+                    - text: 满
+                  - generic [ref=e475] [cursor=pointer]:
+                    - generic [ref=e476]:
+                      - generic [ref=e477]: 16:00
+                      - generic [ref=e478]: 订单： 2 工位： 2/2
+                    - text: 满
+                  - generic [ref=e482] [cursor=pointer]:
+                    - generic [ref=e483]:
+                      - generic [ref=e484]: 16:30
+                      - generic [ref=e485]: 订单： 2 工位： 2/2
+                    - text: 满
+                  - generic [ref=e490] [cursor=pointer]:
+                    - generic [ref=e491]: 17:00
+                    - generic [ref=e492]: 订单： 0 工位： 0/2
+                  - generic [ref=e497] [cursor=pointer]:
+                    - generic [ref=e498]: 17:30
+                    - generic [ref=e499]: 订单： 1 工位： 1/2
+                - generic [ref=e500]:
+                  - img [ref=e502]
+                  - text: 晚上
+                - generic [ref=e504]:
+                  - generic [ref=e509] [cursor=pointer]:
+                    - generic [ref=e510]: 18:00
+                    - generic [ref=e511]: 订单： 1 工位： 1/2
+                  - generic [ref=e516] [cursor=pointer]:
+                    - generic [ref=e517]: 18:30
+                    - generic [ref=e518]: 订单： 0 工位： 0/1
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - heading "产品分析" [level=3] [ref=e522]
+              - generic [ref=e523]:
+                - generic [ref=e525]:
+                  - textbox "==请选择==" [ref=e526] [cursor=pointer]
+                  - generic [ref=e528] [cursor=pointer]: 
+                - radiogroup [ref=e529]:
+                  - radio "今天" [checked] [ref=e530]:
+                    - radio "今天" [checked] [ref=e531]
+                    - generic [ref=e532] [cursor=pointer]: 今天
+                  - radio "昨天" [ref=e533]:
+                    - radio "昨天" [ref=e534]
+                    - generic [ref=e535] [cursor=pointer]: 昨天
+                  - radio "" [ref=e536]:
+                    - radio "" [ref=e537]
+                    - generic [ref=e538] [cursor=pointer]:
+                      - generic [ref=e539]: 
+                      - text: 
+            - generic [ref=e542]:
+              - generic [ref=e543]:
+                - heading "预约服务产品分布" [level=4] [ref=e544]
+                - generic [ref=e551]:
+                  - table [ref=e553]:
+                    - rowgroup [ref=e558]:
+                      - row "排名 产品名称 预约量" [ref=e559]:
+                        - columnheader "排名" [ref=e560]:
+                          - generic [ref=e561]: 排名
+                        - columnheader "产品名称" [ref=e562]:
+                          - generic [ref=e563]: 产品名称
+                        - columnheader "预约量" [ref=e564]:
+                          - generic [ref=e565]: 预约量
+                  - table [ref=e567]:
+                    - rowgroup [ref=e572]:
+                      - row "团购预约-定金20到店退 7" [ref=e573]:
+                        - cell [ref=e574]
+                        - cell "团购预约-定金20到店退" [ref=e577]:
+                          - generic [ref=e578]: 团购预约-定金20到店退
+                        - cell "7" [ref=e579]:
+                          - generic [ref=e580]: "7"
+                      - row "红底纪念照｜周年纪念照｜情侣纪念照 2" [ref=e581]:
+                        - cell [ref=e582]
+                        - cell "红底纪念照｜周年纪念照｜情侣纪念照" [ref=e585]:
+                          - generic [ref=e586]: 红底纪念照｜周年纪念照｜情侣纪念照
+                        - cell "2" [ref=e587]:
+                          - generic [ref=e588]: "2"
+                      - row "成人精致证件照 2" [ref=e589]:
+                        - cell [ref=e590]
+                        - cell "成人精致证件照" [ref=e593]:
+                          - generic [ref=e594]: 成人精致证件照
+                        - cell "2" [ref=e595]:
+                          - generic [ref=e596]: "2"
+                      - row "儿童精致证件照｜弱光拍摄 1" [ref=e597]:
+                        - cell [ref=e598]
+                        - cell "儿童精致证件照｜弱光拍摄" [ref=e601]:
+                          - generic [ref=e602]: 儿童精致证件照｜弱光拍摄
+                        - cell "1" [ref=e603]:
+                          - generic [ref=e604]: "1"
+                      - row "其他 2" [ref=e605]:
+                        - cell [ref=e606]
+                        - cell "其他" [ref=e609]:
+                          - generic [ref=e610]: 其他
+                        - cell "2" [ref=e611]:
+                          - generic [ref=e612]: "2"
+              - generic [ref=e613]:
+                - heading "下单产品分布" [level=4] [ref=e614]
+                - generic [ref=e621]:
+                  - table [ref=e623]:
+                    - rowgroup [ref=e628]:
+                      - row "排名 产品名称 预约量" [ref=e629]:
+                        - columnheader "排名" [ref=e630]:
+                          - generic [ref=e631]: 排名
+                        - columnheader "产品名称" [ref=e632]:
+                          - generic [ref=e633]: 产品名称
+                        - columnheader "预约量" [ref=e634]:
+                          - generic [ref=e635]: 预约量
+                  - table [ref=e637]:
+                    - rowgroup [ref=e642]:
+                      - row "团购预约-定金20到店退 7" [ref=e643]:
+                        - cell [ref=e644]
+                        - cell "团购预约-定金20到店退" [ref=e647]:
+                          - generic [ref=e648]: 团购预约-定金20到店退
+                        - cell "7" [ref=e649]:
+                          - generic [ref=e650]: "7"
+                      - row "红底纪念照｜周年纪念照｜情侣纪念照 2" [ref=e651]:
+                        - cell [ref=e652]
+                        - cell "红底纪念照｜周年纪念照｜情侣纪念照" [ref=e655]:
+                          - generic [ref=e656]: 红底纪念照｜周年纪念照｜情侣纪念照
+                        - cell "2" [ref=e657]:
+                          - generic [ref=e658]: "2"
+                      - row "成人精致证件照 2" [ref=e659]:
+                        - cell [ref=e660]
+                        - cell "成人精致证件照" [ref=e663]:
+                          - generic [ref=e664]: 成人精致证件照
+                        - cell "2" [ref=e665]:
+                          - generic [ref=e666]: "2"
+                      - row "全家福 1" [ref=e667]:
+                        - cell [ref=e668]
+                        - cell "全家福" [ref=e671]:
+                          - generic [ref=e672]: 全家福
+                        - cell "1" [ref=e673]:
+                          - generic [ref=e674]: "1"
+                      - row "其他 3" [ref=e675]:
+                        - cell [ref=e676]
+                        - cell "其他" [ref=e679]:
+                          - generic [ref=e680]: 其他
+                        - cell "3" [ref=e681]:
+                          - generic [ref=e682]: "3"
+        - generic [ref=e683]:
+          - generic [ref=e687]:
+            - img [ref=e689]
+            - generic [ref=e691]:
+              - heading "简约服务热线" [level=4] [ref=e692]
+              - generic [ref=e693]: "16620013461"
+          - generic [ref=e695]:
+            - heading "用户转化率" [level=4] [ref=e698]
+            - generic [ref=e700]:
+              - tablist [ref=e704]:
+                - tab "今天" [selected] [ref=e706]
+                - tab "近7天" [ref=e707]
+                - tab "近30天" [ref=e708]
+              - generic:
+                - tabpanel "今天"
+          - generic [ref=e713]:
+            - heading "预约地址" [level=4] [ref=e716]
+            - generic [ref=e718]:
+              - paragraph [ref=e719]: https://weixin.yuyue123.cn/wx/?bid=sg9ix50p
+              - button "复制" [ref=e721] [cursor=pointer]
+              - generic [ref=e724]: 预约二维码
+          - generic [ref=e726]:
+            - heading "美团核销地址" [level=4] [ref=e729]
+            - generic [ref=e731]:
+              - paragraph [ref=e732]: https://weixin.yuyue123.cn/wx?bid=sg9ix50p#/order/list
+              - button "复制" [ref=e734] [cursor=pointer]
+              - generic [ref=e737]: 核销二维码
+          - generic [ref=e738]:
+            - generic [ref=e740]:
+              - heading "选片地址" [level=4] [ref=e743]
+              - generic [ref=e745]:
+                - paragraph [ref=e746]: https://brand.yuyue123.cn/choose-mch?bid=sg9ix50p
+                - button "复制" [ref=e748] [cursor=pointer]
+                - generic [ref=e751]: 选片二维码
+            - generic [ref=e753]:
+              - heading "简约服务软件下载" [level=4] [ref=e756]
+              - generic [ref=e758]:
+                - img [ref=e759]
+                - paragraph [ref=e760]: 扫码配套应用程序
+                - button "下载程序" [ref=e762] [cursor=pointer]
+                - separator [ref=e763]
+                - img [ref=e764]
+                - paragraph [ref=e765]: 相馆协作套件应用程序
+                - button "下载程序" [ref=e767] [cursor=pointer]
+      - text:  

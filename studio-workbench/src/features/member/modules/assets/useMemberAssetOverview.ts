@@ -28,6 +28,7 @@ export const useMemberAssetOverview = () => {
   const selectedCards = computed(() => memberStore.cards[String(selectedCustomerId.value)] ?? [])
   const selectedBenefits = computed(() => memberStore.benefits[String(selectedCustomerId.value)] ?? [])
   const selectedCoupons = computed(() => memberStore.coupons[String(selectedCustomerId.value)] ?? [])
+  const selectedRechargeOrders = computed(() => memberStore.rechargeOrders[String(selectedCustomerId.value)] ?? [])
 
   const summaryCards = computed(() => {
     const overview = selectedOverview.value
@@ -49,6 +50,7 @@ export const useMemberAssetOverview = () => {
         memberStore.refreshCards(customerId),
         memberStore.refreshBenefits(customerId),
         memberStore.refreshCoupons(customerId),
+        memberStore.refreshRechargeOrders(customerId),
       ])
     } catch (err) {
       error.value = err instanceof Error ? err.message : '会员资产读取失败'
@@ -99,6 +101,7 @@ export const useMemberAssetOverview = () => {
     selectedCustomer,
     selectedCustomerId,
     selectedOverview,
+    selectedRechargeOrders,
     reloadSelectedCustomer,
     selectCustomer,
     summaryCards,

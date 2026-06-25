@@ -149,4 +149,33 @@ describe('work order runtime', () => {
       remark: '',
     })
   })
+
+  it('prefers backend stage code and due time over inferred runtime values', () => {
+    const [item] = buildCollaborationWorkOrderItems({
+      workOrders: [{
+        id: '4',
+        storeId: '201',
+        orderNo: 'WO-4',
+        orderId: '101',
+        orderType: 'OTHER',
+        stageCode: 'RETOUCH',
+        status: 'PENDING',
+        priority: 'MEDIUM',
+        handlerId: '701',
+        handlerName: '修图C',
+        dueTime: '2026-06-26 18:00:00',
+        description: '不包含可推断岗位的说明',
+        remark: '',
+        createTime: '2026-06-24 13:00:00',
+      }],
+      orders: [order],
+      albums: [album],
+      selectionLinks: [selectionLink],
+      now: new Date('2026-06-25T12:00:00'),
+    })
+
+    expect(item.stage).toBe('RETOUCH')
+    expect(item.execution.dueAt).toBe('2026-06-26T18:00:00')
+    expect(item.execution.overdue).toBe(false)
+  })
 })

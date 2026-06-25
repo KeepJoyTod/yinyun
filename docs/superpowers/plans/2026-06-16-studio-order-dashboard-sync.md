@@ -12,8 +12,8 @@
 
 > owner: studio-order-dashboard-sync-plan-20260616
 > canonical_for: 预约订单、首页经营概况、今日预约、同步订单、订单状态分组的完成计划和交接地图
-> upstream: docs/studio-workbench-complete-delivery-plan-20260615.md, docs/studio-workbench-api-route-map.md, C:\Users\Administrator\Desktop\yiyue\code_map.md, C:\Users\Administrator\Desktop\yiyue\api_map.md
-> downstream: docs/studio-workbench-complete-delivery-index-20260615.md, C:\Users\Administrator\Desktop\yiyue\studio-workbench-order-dashboard-sync-plan-20260616.md
+> upstream: docs/studio-workbench-complete-delivery-plan-20260615.md, docs/studio-workbench-api-route-map.md, docs\yiyue\code_map.md, docs\yiyue\api_map.md
+> downstream: docs/studio-workbench-complete-delivery-index-20260615.md, docs\yiyue\studio-workbench-order-dashboard-sync-plan-20260616.md
 
 ## 当前结论
 

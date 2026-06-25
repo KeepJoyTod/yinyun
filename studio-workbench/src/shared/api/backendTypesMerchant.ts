@@ -1,5 +1,19 @@
 import type { BackendId } from './backendId'
 
+export type MerchantReadinessStatus = 'READY' | 'PARTIAL' | 'BUILDING' | 'BLOCKED' | 'NOT_STARTED'
+export type MerchantReadinessPriority = 'P0' | 'P1' | 'P2'
+
+export type MerchantReadinessItemDto = {
+  moduleKey: string
+  moduleName: string
+  status: MerchantReadinessStatus
+  priority: MerchantReadinessPriority
+  sourceItems: string[]
+  blockers: string[]
+  nextActions: string[]
+  evidenceRefs: string[]
+}
+
 export type DecorationMenuItem = {
   id: string
   label: string

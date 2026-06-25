@@ -34,18 +34,18 @@
 
 后续只保留并持续更新下面 8 份主文档：
 
-1. `C:\Users\Administrator\Desktop\yiyue\code_map.md`
-2. `C:\Users\Administrator\Desktop\yiyue\function_map.md`
-3. `C:\Users\Administrator\Desktop\yiyue\optimization_map.md`
-4. `C:\Users\Administrator\Desktop\yiyue\api_map.md`
-5. `C:\Users\Administrator\Desktop\yiyue\callback_map.md`
-6. `C:\Users\Administrator\Desktop\yiyue\jianyue_benchmark_map.md`
-7. `C:\Users\Administrator\Desktop\yiyue\studio-workbench-master-plan-20260619.md`
-8. `C:\Users\Administrator\Desktop\yiyue\hk2-runbook-20260619.md`
+1. `docs\yiyue\code_map.md`
+2. `docs\yiyue\function_map.md`
+3. `docs\yiyue\optimization_map.md`
+4. `docs\yiyue\api_map.md`
+5. `docs\yiyue\callback_map.md`
+6. `docs\yiyue\jianyue_benchmark_map.md`
+7. `docs\yiyue\studio-workbench-master-plan-20260619.md`
+8. `docs\yiyue\hk2-runbook-20260619.md`
 
 旧规划文档统一归档到：
 
-`C:\Users\Administrator\Desktop\yiyue\archive\legacy-plans\20260619\`
+`docs\yiyue\archive\legacy-plans\20260619\`
 
 归档后只保留索引，不再继续更新旧文件。
 
@@ -64,7 +64,7 @@
 
 范围：
 
-- `C:\Users\Administrator\Desktop\yiyue\` 下的主地图
+- `docs\yiyue\` 下的主地图
 - 旧规划文档归档
 - handoff、runbook、acceptance checklist
 

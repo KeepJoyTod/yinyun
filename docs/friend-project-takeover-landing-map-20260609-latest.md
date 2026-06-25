@@ -9,9 +9,9 @@
 | 类别 | 路径 | 定位 | 处理 |
 | --- | --- | --- | --- |
 | 正式主仓库 | `D:\OtherProject\CameraApp\yingyue-cloud-repo` | 生产基线 | 后端、后台、H5、微信小程序、抖音小程序都在这里落地 |
-| 朋友后台 Demo | `D:\OtherProject\CameraApp\photoshop-master`、`C:\Users\Administrator\Desktop\yiyue\前端优化\photoshop-master` | 摄影后台参考 | 吸收相册工作台、在线选片、订单筛选、日程库存体验 |
-| 朋友小程序 Demo | `D:\OtherProject\CameraApp\yuyue-main`、`C:\Users\Administrator\Desktop\yiyue\微信小程序\yuyue-main` | Taro 小程序参考 | 吸收登录、预约、订单、底片选片流程 |
-| 桌面地图目录 | `C:\Users\Administrator\Desktop\yiyue` | 人工接手资料 | 存放 code map、feature map、优化计划、验收经验 |
+| 朋友后台 Demo | `D:\OtherProject\CameraApp\photoshop-master`、`docs\yiyue\前端优化\photoshop-master` | 摄影后台参考 | 吸收相册工作台、在线选片、订单筛选、日程库存体验 |
+| 朋友小程序 Demo | `D:\OtherProject\CameraApp\yuyue-main`、`docs\yiyue\微信小程序\yuyue-main` | Taro 小程序参考 | 吸收登录、预约、订单、底片选片流程 |
+| 桌面地图目录 | `docs\yiyue` | 人工接手资料 | 存放 code map、feature map、优化计划、验收经验 |
 
 ## 边界
 

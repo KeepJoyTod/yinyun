@@ -3,13 +3,16 @@
     <div class="border border-amber-topbar-border bg-amber-content-bg">
       <div class="grid min-h-[360px] grid-cols-[minmax(0,1fr)_320px] max-[960px]:grid-cols-1">
         <div class="px-10 py-12 max-[720px]:px-6">
-          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-accent">{{ domain }} / Phase 0 Scaffold</p>
+          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-accent">{{ domain }} / {{ phase }} Scaffold</p>
           <h1 class="mt-4 font-sans text-[30px] font-medium text-amber-dark">{{ title }}</h1>
           <p class="mt-4 max-w-[720px] text-[13px] leading-7 text-amber-text-muted">{{ summary }}</p>
 
           <div class="mt-6 flex flex-wrap gap-2">
             <span class="rounded-full border border-amber-topbar-border px-3 py-1 font-mono text-[10px] text-amber-text-muted">
               {{ runtimeStatusLabel }}
+            </span>
+            <span class="rounded-full border border-amber-topbar-border px-3 py-1 font-mono text-[10px] text-amber-text-muted">
+              {{ ownerStatus }}
             </span>
             <span class="rounded-full border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-text-muted">
               {{ accessState }}
@@ -60,11 +63,22 @@
                 <li v-for="item in ledgers" :key="item">{{ item }}</li>
               </ul>
             </article>
+
+            <article
+              v-for="layer in layerCards"
+              :key="layer.title"
+              class="border border-amber-topbar-border bg-amber-content-bg/55 p-4"
+            >
+              <div class="text-[11px] font-semibold text-amber-dark">{{ layer.title }}</div>
+              <ul class="mt-1 space-y-1 font-mono text-[10px] text-amber-text-muted">
+                <li v-for="item in layer.items" :key="item">{{ item }}</li>
+              </ul>
+            </article>
           </div>
         </div>
 
         <aside class="border-l border-amber-topbar-border bg-[#F0E9DD] p-8 max-[960px]:border-l-0 max-[960px]:border-t">
-          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-amber-text-muted">Phase 0 rule</p>
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-amber-text-muted">{{ phase }} rule</p>
           <div class="mt-6 space-y-5">
             <div>
               <p class="text-[11px] text-amber-text-muted">当前状态</p>
@@ -91,27 +105,38 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { WorkbenchFeatureRuntimeStatus } from '../../app/router/featureRegistry'
+import type { WorkbenchFeatureRuntimeStatus, WorkbenchFeatureStatus } from '../../app/router/featureRegistry'
+import type { ModuleScaffoldOwnerLayers, ModuleScaffoldPhase } from './moduleScaffold'
 
 const props = withDefaults(defineProps<{
   domain: string
   title: string
   summary: string
+  phase?: ModuleScaffoldPhase
+  ownerStatus?: WorkbenchFeatureStatus
   owner: string
   nextPhase: string
   routes: string[]
   contracts: string[]
   apis: string[]
   ledgers: string[]
+  ownerLayers?: ModuleScaffoldOwnerLayers
   permissionCode?: string
   runtimeStatus?: WorkbenchFeatureRuntimeStatus
   accessState?: string
   storeScopeLabel?: string
 }>(), {
+  phase: 'Phase 0',
+  ownerStatus: 'building',
   permissionCode: '',
   runtimeStatus: 'building',
   accessState: '待加载门禁',
   storeScopeLabel: '',
+  ownerLayers: () => ({
+    presentation: [],
+    control: [],
+    data: [],
+  }),
 })
 
 const runtimeStatusLabel = computed(() => {
@@ -121,4 +146,10 @@ const runtimeStatusLabel = computed(() => {
   if (props.runtimeStatus === 'partial') return '已接入部分链路'
   return '已挂载脚手架'
 })
+
+const layerCards = computed(() => [
+  { title: '表现层 owner', items: props.ownerLayers.presentation },
+  { title: '控制逻辑层 owner', items: props.ownerLayers.control },
+  { title: '持久数据层 owner', items: props.ownerLayers.data },
+].filter(layer => layer.items.length > 0))
 </script>

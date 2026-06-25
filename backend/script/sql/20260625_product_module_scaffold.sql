@@ -1,0 +1,156 @@
+-- 商品模块全链路脚手架补齐草案。
+-- 只新增 yy_product 伴随配置表，不新增第二套商品主账本，不修改订单/支付表。
+
+create table if not exists yy_product_category (
+    id            bigint(20)    not null                    comment '主键',
+    tenant_id     varchar(20)   default '000000'             comment '租户编号',
+    store_id      bigint(20)    default null                 comment '门店ID',
+    category_code varchar(64)   default ''                   comment '分类编码',
+    category_name varchar(128)  not null                     comment '分类名称',
+    parent_id     bigint(20)    default null                 comment '父分类ID',
+    sort          int           default 0                    comment '排序',
+    status        varchar(32)   default '0'                  comment '状态',
+    create_dept   bigint(20)    default null                 comment '创建部门',
+    create_by     bigint(20)    default null                 comment '创建者',
+    create_time   datetime      default null                 comment '创建时间',
+    update_by     bigint(20)    default null                 comment '更新者',
+    update_time   datetime      default null                 comment '更新时间',
+    del_flag      char(1)       default '0'                  comment '删除标志',
+    remark        varchar(500)  default ''                   comment '备注',
+    primary key (id),
+    key idx_yy_product_category_store (tenant_id, store_id, status)
+) engine=innodb comment='影约云商品分类';
+
+create table if not exists yy_product_sku (
+    id               bigint(20)    not null                  comment '主键',
+    tenant_id        varchar(20)   default '000000'           comment '租户编号',
+    product_id       bigint(20)    not null                  comment '产品ID',
+    spec_name        varchar(128)  default ''                 comment '规格名称',
+    original_price   decimal(10,2) default 0.00               comment '原价',
+    sale_price       decimal(10,2) default 0.00               comment '现价',
+    workstation_cost int           default 0                  comment '消耗工位',
+    on_show          varchar(32)   default 'Y'                comment '线上展示',
+    status           varchar(32)   default '0'                comment '状态',
+    sort             int           default 0                  comment '排序',
+    create_dept      bigint(20)    default null               comment '创建部门',
+    create_by        bigint(20)    default null               comment '创建者',
+    create_time      datetime      default null               comment '创建时间',
+    update_by        bigint(20)    default null               comment '更新者',
+    update_time      datetime      default null               comment '更新时间',
+    del_flag         char(1)       default '0'                comment '删除标志',
+    remark           varchar(500)  default ''                 comment '备注',
+    primary key (id),
+    key idx_yy_product_sku_product (tenant_id, product_id, status)
+) engine=innodb comment='影约云商品SKU';
+
+create table if not exists yy_product_display_config (
+    id                  bigint(20)   not null                 comment '主键',
+    tenant_id           varchar(20)  default '000000'          comment '租户编号',
+    product_id          bigint(20)   not null                 comment '产品ID',
+    show_platform       varchar(128) default ''                comment '展示平台',
+    booking_button_text varchar(64)  default '立即预约'        comment '预约按钮文案',
+    direct_url          varchar(500) default ''                comment '直达地址',
+    qr_scene            varchar(128) default ''                comment '二维码场景',
+    online_booking_flag varchar(32)  default 'Y'               comment '允许在线预约',
+    store_order_flag    varchar(32)  default 'N'               comment '允许到店自助下单',
+    detail_button_mode  varchar(32)  default 'BOOK_NOW'        comment '详情按钮模式',
+    status              varchar(32)  default '0'               comment '状态',
+    create_dept         bigint(20)   default null              comment '创建部门',
+    create_by           bigint(20)   default null              comment '创建者',
+    create_time         datetime     default null              comment '创建时间',
+    update_by           bigint(20)   default null              comment '更新者',
+    update_time         datetime     default null              comment '更新时间',
+    del_flag            char(1)      default '0'               comment '删除标志',
+    remark              varchar(500) default ''                comment '备注',
+    primary key (id),
+    key idx_yy_product_display_product (tenant_id, product_id)
+) engine=innodb comment='影约云商品展示配置';
+
+create table if not exists yy_product_relation (
+    id                bigint(20)   not null                   comment '主键',
+    tenant_id         varchar(20)  default '000000'            comment '租户编号',
+    product_id        bigint(20)   not null                   comment '产品ID',
+    target_product_id bigint(20)   not null                   comment '关联产品ID',
+    relation_type     varchar(32)  not null                   comment '关联类型',
+    price_policy      varchar(128) default ''                  comment '价格策略',
+    sort              int          default 0                   comment '排序',
+    status            varchar(32)  default '0'                 comment '状态',
+    create_dept       bigint(20)   default null                comment '创建部门',
+    create_by         bigint(20)   default null                comment '创建者',
+    create_time       datetime     default null                comment '创建时间',
+    update_by         bigint(20)   default null                comment '更新者',
+    update_time       datetime     default null                comment '更新时间',
+    del_flag          char(1)      default '0'                 comment '删除标志',
+    remark            varchar(500) default ''                  comment '备注',
+    primary key (id),
+    key idx_yy_product_relation_product (tenant_id, product_id, relation_type)
+) engine=innodb comment='影约云商品关联';
+
+create table if not exists yy_product_booking_rule (
+    id                     bigint(20)   not null              comment '主键',
+    tenant_id              varchar(20)  default '000000'       comment '租户编号',
+    product_id             bigint(20)   not null              comment '产品ID',
+    store_id               bigint(20)   default null           comment '门店ID',
+    service_group_ids      varchar(500) default ''             comment '服务组ID列表',
+    duration_minutes       int          default 60             comment '预计耗时',
+    prepay_mode            varchar(32)  default 'BRAND'        comment '预付模式',
+    booking_limit          varchar(255) default ''             comment '预约限制',
+    inventory_binding_status varchar(32) default 'UNBOUND'     comment '库存绑定状态',
+    benefit_binding_status varchar(32)  default 'UNBOUND'      comment '权益绑定状态',
+    status                 varchar(32)  default '0'            comment '状态',
+    create_dept            bigint(20)   default null           comment '创建部门',
+    create_by              bigint(20)   default null           comment '创建者',
+    create_time            datetime     default null           comment '创建时间',
+    update_by              bigint(20)   default null           comment '更新者',
+    update_time            datetime     default null           comment '更新时间',
+    del_flag               char(1)      default '0'            comment '删除标志',
+    remark                 varchar(500) default ''             comment '备注',
+    primary key (id),
+    key idx_yy_product_booking_product (tenant_id, product_id, store_id)
+) engine=innodb comment='影约云商品预约规则';
+
+create table if not exists yy_product_channel_config (
+    id                  bigint(20)   not null                 comment '主键',
+    tenant_id           varchar(20)  default '000000'          comment '租户编号',
+    product_id          bigint(20)   not null                 comment '产品ID',
+    channel_mapping_id  bigint(20)   default null              comment '渠道商品映射ID',
+    channel_type        varchar(32)  not null                 comment '渠道类型',
+    external_product_id varchar(128) default ''                comment '外部商品ID',
+    external_sku_id     varchar(128) default ''                comment '外部SKU',
+    external_poi_id     varchar(128) default ''                comment '外部门店POI',
+    landing_url         varchar(500) default ''                comment '落地页URL',
+    landing_path        varchar(500) default ''                comment '落地页路径',
+    mapping_status      varchar(32)  default 'UNMAPPED'        comment '映射状态',
+    status              varchar(32)  default '0'               comment '状态',
+    create_dept         bigint(20)   default null              comment '创建部门',
+    create_by           bigint(20)   default null              comment '创建者',
+    create_time         datetime     default null              comment '创建时间',
+    update_by           bigint(20)   default null              comment '更新者',
+    update_time         datetime     default null              comment '更新时间',
+    del_flag            char(1)      default '0'               comment '删除标志',
+    remark              varchar(500) default ''                comment '备注',
+    primary key (id),
+    key idx_yy_product_channel_product (tenant_id, product_id, channel_type)
+) engine=innodb comment='影约云商品渠道配置';
+
+create table if not exists yy_product_fulfillment_rule (
+    id                      bigint(20)   not null             comment '主键',
+    tenant_id               varchar(20)  default '000000'      comment '租户编号',
+    product_id              bigint(20)   not null             comment '产品ID',
+    collaboration_config_id bigint(20)   default null          comment '协作配置ID',
+    workflow_code           varchar(64)  default ''            comment '履约流程编码',
+    need_photo              varchar(32)  default 'Y'           comment '需要摄影',
+    need_retouch            varchar(32)  default 'Y'           comment '需要修图',
+    need_pickup             varchar(32)  default 'N'           comment '需要取件',
+    deliver_within_hours    int          default 0             comment '出片时限小时',
+    status                  varchar(32)  default '0'           comment '状态',
+    create_dept             bigint(20)   default null          comment '创建部门',
+    create_by               bigint(20)   default null          comment '创建者',
+    create_time             datetime     default null          comment '创建时间',
+    update_by               bigint(20)   default null          comment '更新者',
+    update_time             datetime     default null          comment '更新时间',
+    del_flag                char(1)      default '0'           comment '删除标志',
+    remark                  varchar(500) default ''            comment '备注',
+    primary key (id),
+    key idx_yy_product_fulfillment_product (tenant_id, product_id)
+) engine=innodb comment='影约云商品履约规则';

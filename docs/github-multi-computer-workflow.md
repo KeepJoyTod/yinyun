@@ -122,7 +122,7 @@ git pull --ff-only
 - 当前分支正确；
 - 没有未提交的别人的改动；
 - 任务包写明允许修改哪些文件；
-- 涉及预约、排期、订单、抖音来客时先读 `AGENTS.md` 和 `C:\Users\Administrator\Desktop\yiyue\*.md` 地图。
+- 涉及预约、排期、订单、抖音来客时先读 `AGENTS.md` 和 `docs\yiyue\*.md` 地图。
 - 涉及 GitHub 多电脑协作时先读 `CONTRIBUTING.md` 和本文件。
 
 ## 每次提交前
