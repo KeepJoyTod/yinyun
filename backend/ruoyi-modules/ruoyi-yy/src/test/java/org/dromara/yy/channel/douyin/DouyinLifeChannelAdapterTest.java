@@ -3321,10 +3321,10 @@ class DouyinLifeChannelAdapterTest {
     }
 
     private String startServer(ExchangeHandler handler) throws IOException {
-        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/", handler::handle);
         server.start();
-        return "http://127.0.0.1:" + server.getAddress().getPort();
+        return "http://localhost:" + server.getAddress().getPort();
     }
 
     private void mockFirstStore(long storeId) {
