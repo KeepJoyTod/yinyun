@@ -1,132 +1,46 @@
 <template>
   <OrdersViewConsoleShell
-      :filtered-count="filteredOrders.length"
-      :total-amount="totalAmount"
-      :order-scope-label="orderScopeLabel"
-      :demo-mode="appStore.demoMode"
-      :syncing-douyin-orders="syncingDouyinOrders"
-      :active-dropdown="activeDropdown"
-      :can-export-orders="canExportOrders"
-      :exporting-orders="exportingOrders"
-      :order-export-title="orderExportTitle"
-      :order-export-sync-notice="orderExportSyncNotice"
-      :unsupported-order-export-filters="unsupportedOrderExportFilters"
-      :last-douyin-life-order-sync="lastDouyinLifeOrderSync"
-      :notice="orderActionNotice"
-      :store-name="storeNameForOrderScope"
-      :store-options="storeOptions"
-      :source-options="sourceOptions"
-      :dropdown-filters="dropdownFilters"
-      :day-cards="dayCommandCards"
-      :conflict-orders="inventoryConflictOrders"
-      :missing-orders="missingInfoOrders"
-      :orders="filteredOrders"
-      :anomaly-filters="anomalyFilterOptions"
-      :quick-filters="quickOrderFilters"
-      :pipeline-cards="orderPipelineCards"
-      :active-filter="activeQuickFilter"
-      :selected-anomalies="anomalyFilters"
-      :search-query="effectiveSearchQuery"
-      :method-options="methodOptions"
-      :method="advanced.method"
-      :time-type="selectedTimeType"
-      :start-date="activeStartDate"
-      :end-date="activeEndDate"
-      :calendar-title="calendarTitle"
-      :calendar-cells="calendarCells"
-      :filter-tags="activeFilterTags"
-      :has-filters="hasActiveFilters"
-      :get-dropdown-caption="getDropdownCaption"
-      :get-calendar-cell-class="getCalendarCellClass"
-      :status-tabs="statusTabItems.map(t => ({ status: t.key, label: t.label, count: t.count }))"
-      :status-tab="statusTab"
-      :table-columns="tableColumns"
-      :status-styles="statusStyles"
-      :empty-title="emptyStateTitle"
-      :empty-hint="emptyStateHint"
-      :pagination-start="paginationStart"
-      :can-advance="order => Boolean(getNextOrderAction(order))"
-      :advancing-id="updatingOrderId"
-      :get-next-label="order => getNextOrderAction(order)?.label ?? ''"
-      :get-next-hint="getNextOrderHint"
-      @open-staff-booking="openStaffBookingModal"
-      @open-schedule="router.push('/dashboard/today')"
-      @sync-douyin-life-orders="syncDouyinLifeOrders"
-      @show-all-orders="showAllOrders"
-      @open-meituan-verify="router.push('/tools/meituan-verify')"
-      @toggle-export-dropdown="activeDropdown = activeDropdown === 'export' ? null : 'export'"
-      @export-orders="exportOrders"
-      @export-coupons="exportCoupons"
-      @export-rights="exportRights"
-      @open-advanced="advancedOpen = true"
-      @select-store="selectOrderStore"
-      @set-filter="selectDropdown"
-      @open-order-filter="activeQuickFilter = $event as QuickOrderFilter"
-      @update-active-filter="activeQuickFilter = $event as QuickOrderFilter"
-      @toggle-anomaly="toggleAnomalyFilter"
-      @update-time-type="selectedTimeType = $event"
-      @set-active-dropdown="activeDropdown = $event"
-      @select-dropdown="selectDropdown"
-      @select-date="selectDate"
-      @reset="resetFilters"
-      @prev-month="prevMonth"
-      @next-month="nextMonth"
-      @open-calendar="openCalendar"
-      @arm-search="armSearchQueryInput"
-      @handle-search="handleSearchInput"
-      @select-status="statusTab = $event"
-      @open-detail="openOrderDetailWithRouteSync"
-      @advance="advanceOrder"
-      @print="openPrintDialog"
-      @show-all="showAllOrders"
-    />
-
+    :filtered-count="filteredOrders.length" :total-amount="totalAmount" :order-scope-label="orderScopeLabel" :demo-mode="appStore.demoMode"
+    :syncing-douyin-orders="syncingDouyinOrders" :active-dropdown="activeDropdown" :can-export-orders="canExportOrders" :exporting-orders="exportingOrders"
+    :order-export-title="orderExportTitle" :order-export-sync-notice="orderExportSyncNotice" :unsupported-order-export-filters="unsupportedOrderExportFilters"
+    :last-douyin-life-order-sync="lastDouyinLifeOrderSync" :notice="orderActionNotice" :store-name="storeNameForOrderScope" :store-options="storeOptions"
+    :source-options="sourceOptions" :dropdown-filters="dropdownFilters" :day-cards="dayCommandCards" :conflict-orders="inventoryConflictOrders"
+    :missing-orders="missingInfoOrders" :orders="filteredOrders" :anomaly-filters="anomalyFilterOptions" :quick-filters="quickOrderFilters"
+    :pipeline-cards="orderPipelineCards" :active-filter="activeQuickFilter" :selected-anomalies="anomalyFilters" :search-query="effectiveSearchQuery"
+    :method-options="methodOptions" :method="advanced.method" :time-type="selectedTimeType" :start-date="activeStartDate" :end-date="activeEndDate"
+    :calendar-title="calendarTitle" :calendar-cells="calendarCells" :filter-tags="activeFilterTags" :has-filters="hasActiveFilters"
+    :get-dropdown-caption="getDropdownCaption" :get-calendar-cell-class="getCalendarCellClass"
+    :status-tabs="statusTabItems.map(t => ({ status: t.key, label: t.label, count: t.count }))" :status-tab="statusTab"
+    :table-columns="tableColumns" :status-styles="statusStyles" :empty-title="emptyStateTitle" :empty-hint="emptyStateHint" :pagination-start="paginationStart"
+    :can-advance="order => Boolean(getNextOrderAction(order))" :advancing-id="updatingOrderId" :get-next-label="order => getNextOrderAction(order)?.label ?? ''"
+    :get-next-hint="getNextOrderHint" @open-staff-booking="openStaffBookingModal" @open-schedule="router.push('/dashboard/today')"
+    @sync-douyin-life-orders="syncDouyinLifeOrders" @show-all-orders="showAllOrders" @open-meituan-verify="router.push('/tools/meituan-verify')"
+    @toggle-export-dropdown="activeDropdown = activeDropdown === 'export' ? null : 'export'" @export-orders="exportOrders" @export-coupons="exportCoupons"
+    @export-rights="exportRights" @open-advanced="advancedOpen = true" @select-store="selectOrderStore" @set-filter="selectDropdown"
+    @open-order-filter="activeQuickFilter = $event as QuickOrderFilter" @update-active-filter="activeQuickFilter = $event as QuickOrderFilter"
+    @toggle-anomaly="toggleAnomalyFilter" @update-time-type="selectedTimeType = $event" @set-active-dropdown="activeDropdown = $event"
+    @select-dropdown="selectDropdown" @select-date="selectDate" @reset="resetFilters" @prev-month="prevMonth" @next-month="nextMonth"
+    @open-calendar="openCalendar" @arm-search="armSearchQueryInput" @handle-search="handleSearchInput" @select-status="statusTab = $event"
+    @open-detail="openOrderDetailWithRouteSync" @advance="advanceOrder" @print="openPrintDialog" @show-all="showAllOrders"
+  />
   <OrdersViewOverlays
-    :advanced-open="advancedOpen"
-    :advanced="advanced"
-    :advanced-store-options="advancedStoreOptions"
-    :source-options="sourceOptions"
-    :payment-options="paymentOptions"
-    :service-options="serviceOptions"
-    :method-options="methodOptions"
-    :status-options="statusOptions"
-    :match-count="filteredOrders.length"
-    :order-detail-drawer-context="orderDetailDrawerContext"
-    :print-dialog-open="printDialogOpen"
-    :print-dialog-order-id="printDialogOrderId"
-    :staff-booking-open="staffBookingOpen"
-    :staff-booking-initial="staffBookingInitial"
-    @update:advanced-open="advancedOpen = $event"
-    @update:advanced="advanced = $event"
-    @toggle-status="toggleAdvancedStatus"
-    @reset-advanced="resetAdvanced"
-    @close-detail="closeOrderDetail"
-    @back-to-slot="goBackToDashboardSlot"
-    @advance="advanceOrder"
-    @refresh-logs="loadOrderOperationLogs"
-    @copy-order-id="selectedOrder && copyField(selectedOrder.id, 'orderId')"
-    @copy="copyField"
-    @update-reschedule-date="rescheduleDraft.date = $event"
-    @update-reschedule-time="rescheduleDraft.time = $event"
-    @update-reschedule-duration-minutes="rescheduleDraft.durationMinutes = $event"
-    @update-reschedule-remark="rescheduleDraft.remark = $event"
-    @apply-reschedule-reason="applyRescheduleReason"
-    @apply-reschedule-slot="applyRescheduleSlot"
-    @submit-reschedule="rescheduleSelectedOrder"
-    @update-cancel-reason="cancelReason = $event"
-    @apply-cancel-reason="applyCancelReason"
-    @submit-cancel="cancelSelectedOrder"
-    @submit-confirm-payment="confirmSelectedOrderPayment"
-    @open-album="goToAlbum"
-    @notify-album="handleOrderAlbumNotify"
-    @confirm-album="handleOrderAlbumConfirm"
-    @deliver-album="handleOrderAlbumDeliver"
-    @open-photo-management="goToPhotoManagement"
-    @copy-channel-diagnostic="copyOrderChannelDiagnostic"
-    @refresh-operation-logs="loadOrderOperationLogs"
-    @close-print-dialog="printDialogOpen = false"
-    @close-staff-booking="staffBookingOpen = false"
-    @staff-booking-created="handleStaffBookingCreated"
+    :advanced-open="advancedOpen" :advanced="advanced" :advanced-store-options="advancedStoreOptions" :source-options="sourceOptions"
+    :payment-options="paymentOptions" :service-options="serviceOptions" :method-options="methodOptions" :status-options="statusOptions"
+    :match-count="filteredOrders.length" :order-detail-drawer-context="orderDetailDrawerContext" :print-dialog-open="printDialogOpen"
+    :print-dialog-order-id="printDialogOrderId" :staff-booking-open="staffBookingOpen" :staff-booking-initial="staffBookingInitial"
+    @update:advanced-open="advancedOpen = $event" @update:advanced="advanced = $event" @toggle-status="toggleAdvancedStatus" @reset-advanced="resetAdvanced"
+    @close-detail="closeOrderDetail" @back-to-slot="goBackToDashboardSlot" @advance="advanceOrder" @refresh-logs="loadOrderOperationLogs"
+    @copy-order-id="selectedOrder && copyField(selectedOrder.id, 'orderId')" @copy="copyField" @submit-copy-order="copySelectedOrder"
+    @update-copy-schedule-mode="updateCopyScheduleMode" @update-copy-date="copyOrderDraft.date = $event" @update-copy-time="copyOrderDraft.time = $event"
+    @update-copy-duration-minutes="copyOrderDraft.durationMinutes = $event" @update-copy-remark="copyOrderDraft.remark = $event"
+    @update-reschedule-date="rescheduleDraft.date = $event" @update-reschedule-time="rescheduleDraft.time = $event"
+    @update-reschedule-duration-minutes="rescheduleDraft.durationMinutes = $event" @update-reschedule-remark="rescheduleDraft.remark = $event"
+    @apply-reschedule-reason="applyRescheduleReason" @apply-reschedule-slot="applyRescheduleSlot" @submit-reschedule="rescheduleSelectedOrder"
+    @update-cancel-reason="cancelReason = $event" @apply-cancel-reason="applyCancelReason" @submit-cancel="cancelSelectedOrder"
+    @submit-confirm-payment="confirmSelectedOrderPayment" @update-refund-reason="refundReason = $event" @submit-refund-request="requestSelectedOrderRefund"
+    @open-album="goToAlbum" @notify-album="handleOrderAlbumNotify" @confirm-album="handleOrderAlbumConfirm" @deliver-album="handleOrderAlbumDeliver"
+    @open-photo-management="goToPhotoManagement" @copy-channel-diagnostic="copyOrderChannelDiagnostic" @refresh-operation-logs="loadOrderOperationLogs"
+    @close-print-dialog="printDialogOpen = false" @close-staff-booking="staffBookingOpen = false" @staff-booking-created="handleStaffBookingCreated"
   />
 </template>
 
@@ -138,6 +52,7 @@ import { appStore, type BookingOrder } from '../../shared/stores/appStore'
 import OrdersViewConsoleShell from './OrdersViewConsoleShell.vue'
 import OrdersViewOverlays from './OrdersViewOverlays.vue'
 import { useOrderConsoleActions } from './composables/useOrderConsoleActions'
+import { useOrderCopyActions } from './composables/useOrderCopyActions'
 import { useOrderCalendar } from './composables/useOrderCalendar'
 import { useOrderDataFetching } from './composables/useOrderDataFetching'
 import { useOrderDetailActions } from './composables/useOrderDetailActions'
@@ -166,11 +81,12 @@ const {
   activeDropdown, advancedOpen, activeQuickFilter, slotRange, slotScopedOrders,
   slotScopedDashboardContext, statusTab, anomalyFilters, syncingFromQuery,
   lastOpenedOrderQuery, cancelReason, cancellingOrderId, updatingOrderId, confirmingPaymentOrderId,
+  refundingOrderId, refundReason, copyingOrderId,
   orderAlbumActionLoading, orderPhotoAccessLoading, orderPhotoAccessError,
   orderPhotoAccessRequestId, orderActionNotice, selectedOrder, reschedulingOrderId,
   rescheduleConflict, syncingDouyinOrders, operationLogsLoading, operationLogsReloadQueued,
   operationLogsNotice, staffBookingOpen, staffBookingInitial, printDialogOpen,
-  printDialogOrderId, rescheduleDraft, cancelReasonOptions, rescheduleReasonOptions,
+  printDialogOrderId, rescheduleDraft, copyOrderDraft, cancelReasonOptions, rescheduleReasonOptions,
   todayKey, orderRange, arrivalRange, activeStartDate, activeEndDate,
   calendarMonth, advanced, dropdownFilters, toggleAdvancedStatus,
 } = useOrdersViewState()
@@ -354,6 +270,21 @@ const { loadSlotScopedOrdersFromQuery } = useOrderDataFetching({
 }, notifyOrderAction)
 
 const {
+  copyField,
+  copyOrderChannelDiagnostic,
+  copySelectedOrder,
+  updateCopyScheduleMode,
+  canReuseSourceSlot,
+} = useOrderCopyActions({
+  selectedOrder,
+  copyingOrderId,
+  copyOrderDraft,
+  copyFieldText,
+  notifyOrderAction,
+  onOrderCopied: order => openOrderDetailWithRouteSync(order),
+})
+
+const {
   tableColumns,
   statusStyles,
   photoDeliveryStageStyles,
@@ -386,10 +317,15 @@ const {
   cancelReasonOptions,
   cancellingOrderId,
   confirmingPaymentOrderId,
+  refundingOrderId,
+  refundReason,
   photoDeliveryStageStyles,
   orderAlbumActionLoading,
   orderPhotoAccessLoading,
   orderPhotoAccessError,
+  copyOrderDraft,
+  copyingOrderId,
+  canReuseSourceSlot,
 })
 
 const {
@@ -403,11 +339,10 @@ const {
   handleOrderAlbumNotify,
   handleOrderAlbumConfirm,
   handleOrderAlbumDeliver,
-  copyField,
-  copyOrderChannelDiagnostic,
   advanceOrder,
   cancelSelectedOrder,
   confirmSelectedOrderPayment,
+  requestSelectedOrderRefund,
   rescheduleSelectedOrder,
 } = useOrderDetailActions({
   router,
@@ -419,6 +354,8 @@ const {
   cancellingOrderId,
   updatingOrderId,
   confirmingPaymentOrderId,
+  refundingOrderId,
+  refundReason,
   reschedulingOrderId,
   rescheduleConflict,
   rescheduleDraft,
@@ -433,7 +370,6 @@ const {
   selectedOrderAlbumActionAvailability,
   reschedulePreviewConflictMessage,
   loadSlotScopedOrdersFromQuery,
-  copyFieldText,
   notifyOrderAction,
 })
 

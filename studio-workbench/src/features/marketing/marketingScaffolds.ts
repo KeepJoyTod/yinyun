@@ -1,4 +1,5 @@
 import { definePhaseModuleScaffold } from '../system/phaseModuleRegistry'
+import { collectScaffoldAcceptanceMeta } from '../system/scaffoldAcceptanceMappings'
 
 const marketingBase = {
   phase: 'Phase 2' as const,
@@ -53,6 +54,7 @@ export const marketingScaffolds = [
     summary: '券模板、发券记录、券实例和恢复策略统一由优惠券 owner 管理。',
     nextPhase: 'Phase 2 继续补真实模板 CRUD、发券、核销和退单恢复。',
     routes: ['/marketing/coupons'],
+    ...collectScaffoldAcceptanceMeta(['B-073', 'B-074', 'B-077']),
     apis: ['marketingApi.getCouponTemplateScaffold()'],
     ledgers: ['yy_coupon_template', 'yy_coupon_instance', 'yy_coupon_grant_record', 'yy_coupon_writeoff_record'],
   }),

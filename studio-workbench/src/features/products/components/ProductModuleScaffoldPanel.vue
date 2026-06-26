@@ -26,6 +26,10 @@ const owners = computed(() => productCatalogStore.owners)
       <section class="product-module__panel">
         <h2>接口契约</h2>
         <dl>
+          <div v-if="module.inventoryCodes.length">
+            <dt>功能清单编号</dt>
+            <dd>{{ module.inventoryCodes.join(' / ') }}</dd>
+          </div>
           <div>
             <dt>入口</dt>
             <dd>{{ module.apiPath }}</dd>
@@ -36,7 +40,7 @@ const owners = computed(() => productCatalogStore.owners)
           </div>
           <div>
             <dt>状态</dt>
-            <dd>配置保存骨架，不触发支付、库存扣减、核销、退款或真实渠道写入</dd>
+            <dd>{{ module.acceptanceLabel }}</dd>
           </div>
         </dl>
       </section>
@@ -47,6 +51,24 @@ const owners = computed(() => productCatalogStore.owners)
           <li v-for="owner in owners" :key="owner.key" :class="{ active: owner.key === module.key }">
             <span>{{ owner.label }}</span>
             <small>{{ owner.apiPath }}</small>
+          </li>
+        </ul>
+      </section>
+
+      <section class="product-module__panel">
+        <h2>边界说明</h2>
+        <ul>
+          <li v-for="item in module.boundaryNotes" :key="item">
+            <span>{{ item }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="product-module__panel">
+        <h2>下一步动作</h2>
+        <ul>
+          <li v-for="item in module.nextActions" :key="item">
+            <span>{{ item }}</span>
           </li>
         </ul>
       </section>

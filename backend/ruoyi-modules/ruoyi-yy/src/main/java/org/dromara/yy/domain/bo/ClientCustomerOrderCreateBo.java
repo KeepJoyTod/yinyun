@@ -3,6 +3,8 @@ package org.dromara.yy.domain.bo;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 客户端自助预约下单请求。
  */
@@ -17,6 +19,8 @@ public class ClientCustomerOrderCreateBo {
 
     private String categoryId;
 
+    private String serviceGroupId;
+
     @NotBlank(message = "客户姓名不能为空")
     private String customerName;
 
@@ -24,6 +28,14 @@ public class ClientCustomerOrderCreateBo {
     private String customerPhone;
 
     private String remark;
+
+    private Map<String, String> customFields;
+
+    private String entitlementCandidateId;
+
+    private String entitlementKind;
+
+    private String entitlementUnavailableReason;
 
     @NotBlank(message = "预约日期不能为空")
     private String appointmentDate;

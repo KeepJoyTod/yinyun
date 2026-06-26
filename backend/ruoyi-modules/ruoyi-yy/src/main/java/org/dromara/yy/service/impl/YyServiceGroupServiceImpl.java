@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * 影约云服务组Service业务层处理
@@ -25,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class YyServiceGroupServiceImpl implements IYyServiceGroupService {
+
+    private static final Set<String> ALLOWED_SERVICE_MODES = Set.of("HORIZONTAL", "VERTICAL");
 
     private final YyServiceGroupMapper baseMapper;
 
@@ -75,6 +79,10 @@ public class YyServiceGroupServiceImpl implements IYyServiceGroupService {
     }
 
     private void validEntityBeforeSave(YyServiceGroup entity) {
+        entity.setServiceMode(StringUtils.defaultIfBlank(entity.getServiceMode(), "HORIZONTAL").trim().toUpperCase(Locale.ROOT));
+        if (!ALLOWED_SERVICE_MODES.contains(entity.getServiceMode())) {
+            throw new ServiceException("服务模式不支持");
+        }
         // 预留容量、唯一编码和门店隔离校验。
     }
 

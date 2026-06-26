@@ -17,9 +17,9 @@ export type CouponIssueDraft = {
   remark: string
 }
 
-const defaultIssueDraft = (templateId = ''): CouponIssueDraft => ({
+const defaultIssueDraft = (templateId = '', customerIds: string[] = []): CouponIssueDraft => ({
   templateId,
-  customerIds: [],
+  customerIds: [...customerIds],
   issueSource: 'MERCHANT_BACKEND',
   issueCount: 1,
   remark: '',
@@ -41,7 +41,7 @@ export const useCouponIssuance = () => {
   const instances = ref<MarketingCouponInstanceDto[]>([])
   const writeoffs = ref<MarketingCouponWriteoffDto[]>([])
 
-  const buildIssueDraft = (templateId = '') => defaultIssueDraft(templateId)
+  const buildIssueDraft = (templateId = '', customerIds: string[] = []) => defaultIssueDraft(templateId, customerIds)
 
   const loadCouponLedger = async (templateId?: string) => {
     if (!templateId) {

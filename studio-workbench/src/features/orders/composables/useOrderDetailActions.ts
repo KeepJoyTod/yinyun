@@ -1,7 +1,7 @@
 import type { Router } from 'vue-router'
 import { watch, type Ref } from 'vue'
 import { appStore, type Album, type BookingOrder } from '../../../shared/stores/appStore'
-import { buildOrderChannelDiagnosticText, getNextOrderAction, isInventoryConflictMessage } from '../orderOperations'
+import { getNextOrderAction, isInventoryConflictMessage } from '../orderOperations'
 import { canConfirmStorePayment } from '../orderPaymentRules'
 import type { AlbumActionAvailability, AlbumActionKey } from '../../albums/photoMgmtOperations'
 
@@ -30,6 +30,8 @@ export function useOrderDetailActions(options: {
   cancellingOrderId: Ref<string>
   updatingOrderId: Ref<string>
   confirmingPaymentOrderId: Ref<string>
+  refundingOrderId: Ref<string>
+  refundReason: Ref<string>
   reschedulingOrderId: Ref<string>
   rescheduleConflict: Ref<string>
   rescheduleDraft: RescheduleDraft
@@ -44,7 +46,6 @@ export function useOrderDetailActions(options: {
   selectedOrderAlbumActionAvailability: Ref<AlbumActionAvailability>
   reschedulePreviewConflictMessage: Ref<string>
   loadSlotScopedOrdersFromQuery: () => Promise<void>
-  copyFieldText: (value: string, key: string) => Promise<boolean>
   notifyOrderAction: (type: NoticeType, message: string) => void
 }) {
   const resetRescheduleDraft = (order: BookingOrder) => {
@@ -268,27 +269,6 @@ export function useOrderDetailActions(options: {
     )
   }
 
-  const copyField = async (value: string, key: string) => {
-    const ok = await options.copyFieldText(value, key)
-    if (ok) {
-      options.notifyOrderAction('success', `已复制${key === 'phone' ? '手机号' : '订单号'}`)
-    } else {
-      options.notifyOrderAction('error', '复制失败，请手动选择文本复制')
-    }
-  }
-
-  const copyOrderChannelDiagnostic = async () => {
-    const order = options.selectedOrder.value
-    if (!order) return
-    const text = buildOrderChannelDiagnosticText(order, appStore.channelSyncLogs)
-    const ok = await options.copyFieldText(text, 'channelDiagnostic')
-    if (ok) {
-      options.notifyOrderAction('success', '已复制渠道排障信息')
-    } else {
-      options.notifyOrderAction('error', '复制失败，请手动选择排障信息复制')
-    }
-  }
-
   const refreshOrderDetailAfterAdvance = async () => {
     await options.loadSlotScopedOrdersFromQuery()
     await loadOrderOperationLogs()
@@ -366,6 +346,36 @@ export function useOrderDetailActions(options: {
     }
   }
 
+  const requestSelectedOrderRefund = async () => {
+    const order = options.selectedOrder.value
+    if (!order || options.refundingOrderId.value) return
+    if (String(order.payment) !== '宸叉敮浠?' || order.refundStatus || String(order.status) === '宸查€€鍗?') {
+      options.notifyOrderAction('error', '当前订单不可申请退款审批')
+      return
+    }
+    const refundAmountCent = Math.round(Number(order.amount || 0) * 100)
+    if (refundAmountCent <= 0) {
+      options.notifyOrderAction('error', '退款金额必须大于 0')
+      return
+    }
+    options.refundingOrderId.value = order.id
+    try {
+      const approval = await appStore.requestOrderRefund({
+        id: order.backendId,
+        refundAmountCent,
+        reason: options.refundReason.value.trim() || '订单详情发起内部退款审批',
+      })
+      await loadOrderOperationLogs()
+      options.notifyOrderAction('success', `退款审批已提交，审批编号 ${approval.id}`)
+      options.refundReason.value = ''
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '退款审批申请失败'
+      options.notifyOrderAction('error', `退款审批申请失败：${message}`)
+    } finally {
+      options.refundingOrderId.value = ''
+    }
+  }
+
   const rescheduleSelectedOrder = async () => {
     const order = options.selectedOrder.value
     if (!order || options.reschedulingOrderId.value) return
@@ -418,13 +428,12 @@ export function useOrderDetailActions(options: {
     handleOrderAlbumNotify,
     handleOrderAlbumConfirm,
     handleOrderAlbumDeliver,
-    copyField,
-    copyOrderChannelDiagnostic,
     refreshOrderDetailAfterAdvance,
     advanceOrder,
     canConfirmPayment: canConfirmStorePayment,
     cancelSelectedOrder,
     confirmSelectedOrderPayment,
+    requestSelectedOrderRefund,
     rescheduleSelectedOrder,
   }
 }

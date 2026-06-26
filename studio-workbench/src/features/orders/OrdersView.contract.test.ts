@@ -17,6 +17,7 @@ import orderLifecycleOperationsSource from './orderLifecycleOperations.ts?raw'
 import orderPaymentRulesSource from './orderPaymentRules.ts?raw'
 import orderStatusOperationsSource from './orderStatusOperations.ts?raw'
 import orderDetailActionSectionsSource from './OrderDetailActionSections.vue?raw'
+import orderCopyPanelSource from './OrderCopyPanel.vue?raw'
 
 describe('orders page contract', () => {
   it('shows a store order operations board before the table', () => {
@@ -94,6 +95,15 @@ describe('orders page contract', () => {
     expect(orderDetailActionSectionsSource).toContain('showConfirmPayment')
     expect(orderDetailActionSectionsSource).toContain('confirmPaymentSaving')
     expect(orderDetailActionSectionsSource).toContain('submitConfirmPayment')
+  })
+
+  it('renders an internal refund approval action in the order detail drawer', () => {
+    expect(orderDetailActionSectionsSource).toContain('data-testid="order-refund-request-panel"')
+    expect(orderDetailActionSectionsSource).toContain('showRefundRequest')
+    expect(orderDetailActionSectionsSource).toContain('submitRefundRequest')
+    expect(orderDetailActionsSource).toContain('requestSelectedOrderRefund')
+    expect(orderDetailActionsSource).toContain('appStore.requestOrderRefund')
+    expect(orderDetailActionsSource).toContain('退款审批已提交')
   })
 
   it('loads real booking inventory for the selected order and reschedule date before showing half-hour slots', () => {
@@ -282,6 +292,18 @@ describe('orders page contract', () => {
   it('strips stale q from slot-scoped deep links before keeping the url shareable', () => {
     expect(orderRouteSyncSource).toContain('slotScopedRouteSearch')
     expect(orderRouteSyncSource).toContain('if (slotScopedRouteSearch.value) syncFiltersToUrl()')
+  })
+
+  it('renders copy order scaffolding in the order detail drawer and view state', () => {
+    expect(ordersSource).toContain('useOrderCopyActions')
+    expect(ordersSource).toContain('copySelectedOrder')
+    expect(ordersSource).toContain('updateCopyScheduleMode')
+    expect(ordersSource).toContain('copyOrderDraft')
+    expect(ordersSource).toContain('copyingOrderId')
+    expect(ordersSource).toContain('@submit-copy-order="copySelectedOrder"')
+    expect(orderDetailActionSectionsSource).toContain('OrderCopyPanel')
+    expect(orderCopyPanelSource).toContain('data-testid="order-copy-panel"')
+    expect(orderCopyPanelSource).toContain('canReuseSourceSlot')
   })
 
 })

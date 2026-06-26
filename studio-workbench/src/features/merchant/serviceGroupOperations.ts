@@ -9,6 +9,7 @@ export type ServiceGroupFormDraft = {
   name: string
   capacity: number
   durationMinutes: number
+  serviceMode: 'HORIZONTAL' | 'VERTICAL'
   status: string
   sort: number
   remark: string
@@ -57,10 +58,8 @@ export const filterServiceGroups = ({
   })
 }
 
-export const resolveServiceMode = (group: ServiceGroupInfo) => {
-  if (group.durationMinutes >= 120 || /婚纱|亲子|形象/.test(group.name)) return '横向服务'
-  return '纵向服务'
-}
+export const resolveServiceMode = (group: ServiceGroupInfo) =>
+  group.serviceMode === 'VERTICAL' ? '纵向服务' : '横向服务'
 
 export const resolveServiceGroupProductHint = (group: ServiceGroupInfo) => {
   if (/证件/.test(group.name)) return '证件照'

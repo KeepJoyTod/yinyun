@@ -4,15 +4,14 @@
       <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Member Assets</span>
       <h2 class="mt-2 text-[18px] font-semibold text-amber-dark">会员资产总览</h2>
       <p class="mt-2 max-w-[760px] text-[11px] leading-relaxed text-amber-text-muted">
-        统一查看会员卡、权益、优惠券、积分、成长值和余额摘要，并保留门店手工充值入口；下方新增消费者只读预览，
-        方便后续逐步接入真实消费者页接口。
+        统一查看会员卡、权益、优惠券、积分、成长值和余额资产，并在同一工作台内提供编辑、删除、预约、发券、交易明细和手工充值入口。
       </p>
     </section>
 
     <section class="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
       <aside class="yy-console-card border border-amber-topbar-border bg-amber-content-bg">
         <div class="border-b border-amber-topbar-border px-5 py-4">
-          <div class="text-[12px] font-semibold text-amber-dark">客户选择</div>
+          <div class="text-[12px] font-semibold text-amber-dark">会员客户</div>
           <input
             v-model="searchQuery"
             class="yy-field-sm mt-3 w-full"
@@ -39,7 +38,7 @@
         </div>
 
         <div v-else class="px-5 py-8 text-[11px] text-amber-text-muted">
-          暂无客户，请先在客户档案中建立会员主体。
+          暂无客户，请先在客户档案中创建会员主体。
         </div>
       </aside>
 
@@ -63,6 +62,20 @@
           class="rounded-md border border-[var(--color-status-danger-border)] bg-[var(--color-status-danger-bg)] px-4 py-3 text-[11px] text-[var(--color-status-danger)]"
         >
           {{ rechargeError }}
+        </div>
+
+        <div
+          v-if="actionSuccess"
+          class="rounded-md border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-4 py-3 text-[11px] text-[var(--color-status-success)]"
+        >
+          {{ actionSuccess }}
+        </div>
+
+        <div
+          v-if="actionError"
+          class="rounded-md border border-[var(--color-status-danger-border)] bg-[var(--color-status-danger-bg)] px-4 py-3 text-[11px] text-[var(--color-status-danger)]"
+        >
+          {{ actionError }}
         </div>
 
         <div v-if="selectedCustomer && selectedOverview" class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -95,6 +108,60 @@
                   累计消费 {{ selectedOverview.totalSpend.toLocaleString('zh-CN') }} / 订单 {{ selectedOverview.totalOrderCount }}
                 </div>
                 <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canEditCustomer"
+                  :title="actionDisabledReason('edit')"
+                  @click="void goToEditCustomer()"
+                >
+                  编辑会员
+                </button>
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canDeleteCustomer || deleting"
+                  :title="actionDisabledReason('remove')"
+                  @click="void deleteCurrentCustomer()"
+                >
+                  {{ deleting ? '删除中...' : '删除会员' }}
+                </button>
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canCreateBooking"
+                  :title="actionDisabledReason('booking')"
+                  @click="void goToBooking()"
+                >
+                  预约
+                </button>
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canOpenCardBatch"
+                  :title="actionDisabledReason('cardBatch')"
+                  @click="void goToCardBatch()"
+                >
+                  办卡
+                </button>
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canIssueCoupon"
+                  :title="actionDisabledReason('issueCoupon')"
+                  @click="void goToIssueCoupon()"
+                >
+                  发券
+                </button>
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-2 text-[11px] text-amber-dark hover:bg-black/5 disabled:text-amber-text-muted"
+                  type="button"
+                  :disabled="!canViewTransactions"
+                  :title="actionDisabledReason('transactions')"
+                  @click="void goToTransactions()"
+                >
+                  查看交易明细
+                </button>
+                <button
                   class="yy-action border border-amber-dark bg-amber-dark px-4 py-2 text-[11px] font-medium text-[#F4EFE6] hover:bg-black disabled:bg-amber-bg disabled:text-amber-text-muted"
                   type="button"
                   :disabled="loading || rechargeSubmitting || !canRecharge"
@@ -106,6 +173,9 @@
             </div>
             <p v-if="rechargeBlockedReason" class="mt-3 text-[10.5px] text-amber-text-muted">
               {{ rechargeBlockedReason }}
+            </p>
+            <p class="mt-2 text-[10.5px] text-amber-text-muted">
+              会员详情动作统一收口到当前 owner；办卡当前只提供带会员上下文的受控跳转，真实卡批次闭环仍待端到端验证。
             </p>
           </div>
 
@@ -122,7 +192,7 @@
                   <div class="mt-1 text-amber-text-muted">{{ card.cardType }} / {{ card.status }}</div>
                   <div class="mt-1 text-amber-text-muted">剩余 {{ card.remainingQuota }} / 总量 {{ card.totalQuota }}</div>
                 </div>
-                <div v-if="!selectedCards.length" class="text-amber-text-muted">暂无会员卡资产</div>
+                <div v-if="!selectedCards.length" class="text-amber-text-muted">暂无会员卡资产。</div>
               </div>
             </article>
 
@@ -138,12 +208,12 @@
                   <div class="mt-1 text-amber-text-muted">{{ benefit.benefitType }} / {{ benefit.status }}</div>
                   <div class="mt-1 text-amber-text-muted">剩余 {{ benefit.remainingAmount }} / 总量 {{ benefit.totalAmount }}</div>
                 </div>
-                <div v-if="!selectedBenefits.length" class="text-amber-text-muted">暂无权益账本</div>
+                <div v-if="!selectedBenefits.length" class="text-amber-text-muted">暂无权益账本。</div>
               </div>
             </article>
 
             <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
-              <div class="text-[12px] font-semibold text-amber-dark">优惠券</div>
+              <div class="text-[12px] font-semibold text-amber-dark">优惠券 / 兑换券</div>
               <div class="mt-3 space-y-3 text-[11px]">
                 <div
                   v-for="coupon in selectedCoupons"
@@ -154,7 +224,7 @@
                   <div class="mt-1 text-amber-text-muted">{{ coupon.couponType }} / {{ coupon.status }}</div>
                   <div class="mt-1 text-amber-text-muted">减免 {{ coupon.discountAmount }} / 门槛 {{ coupon.thresholdAmount }}</div>
                 </div>
-                <div v-if="!selectedCoupons.length" class="text-amber-text-muted">暂无优惠券资产</div>
+                <div v-if="!selectedCoupons.length" class="text-amber-text-muted">暂无优惠券资产。</div>
               </div>
             </article>
           </div>
@@ -171,7 +241,10 @@
                 class="rounded-md border border-amber-topbar-border/70 px-3 py-3"
               >
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div class="font-medium text-amber-dark">{{ order.rechargeOrderNo }}</div>
+                  <div>
+                    <div class="font-medium text-amber-dark">{{ order.rechargeOrderNo }}</div>
+                    <div v-if="order.approvalId" class="mt-1 font-mono text-[10px] text-amber-text-muted">approval #{{ order.approvalId }}</div>
+                  </div>
                   <div class="font-mono text-[10px] uppercase tracking-[0.14em] text-amber-text-muted">{{ order.status }}</div>
                 </div>
                 <div class="mt-2 text-amber-text-muted">
@@ -202,7 +275,7 @@
           v-else
           class="yy-console-card border border-dashed border-amber-topbar-border bg-amber-content-bg px-6 py-10 text-[11px] text-amber-text-muted"
         >
-          {{ loading ? '会员资产加载中...' : '请选择左侧客户查看会员资产。' }}
+          {{ loading ? '会员资产加载中...' : '请先从左侧选择客户查看会员资产。' }}
         </section>
       </div>
     </section>
@@ -222,6 +295,7 @@
 import MemberConsumerAssetPreview from './components/MemberConsumerAssetPreview.vue'
 import MemberRechargeModal from './components/MemberRechargeModal.vue'
 import { useMemberAssetOverview } from './useMemberAssetOverview'
+import { useMemberDetailActions } from './useMemberDetailActions'
 import { useMemberRecharge } from './useMemberRecharge'
 
 const {
@@ -240,6 +314,29 @@ const {
   selectCustomer,
   summaryCards,
 } = useMemberAssetOverview()
+
+const {
+  actionError,
+  actionSuccess,
+  actionDisabledReason,
+  canCreateBooking,
+  canDeleteCustomer,
+  canEditCustomer,
+  canIssueCoupon,
+  canOpenCardBatch,
+  canViewTransactions,
+  deleteCurrentCustomer,
+  deleting,
+  goToBooking,
+  goToCardBatch,
+  goToEditCustomer,
+  goToIssueCoupon,
+  goToTransactions,
+} = useMemberDetailActions({
+  reloadSelectedCustomer,
+  selectedCustomer,
+  selectedCustomerId,
+})
 
 const {
   canRecharge,

@@ -6,6 +6,12 @@ import merchantContentOwnerSource from '../../features/merchant/modules/content/
 import merchantCoreOwnerSource from '../../features/merchant/modules/core/MerchantCoreView.vue?raw'
 import merchantDecorationOwnerSource from '../../features/merchant/modules/decoration/MerchantDecorationModuleView.vue?raw'
 import merchantReadinessOwnerSource from '../../features/merchant/modules/readiness/MerchantReadinessView.vue?raw'
+import merchantReadinessOwnerShellSource from '../../features/merchant/modules/readiness/components/MerchantReadinessOwnerShell.vue?raw'
+import merchantScheduleGovernanceOwnerSource from '../../features/merchant/modules/schedule-governance/MerchantScheduleGovernanceView.vue?raw'
+import merchantChannelReadinessOwnerSource from '../../features/merchant/modules/channel-readiness/MerchantChannelReadinessView.vue?raw'
+import merchantGovernanceOwnerSource from '../../features/merchant/modules/governance/MerchantGovernanceView.vue?raw'
+import merchantDependencyReadinessOwnerSource from '../../features/merchant/modules/dependency-readiness/MerchantDependencyReadinessView.vue?raw'
+import merchantConsumerOpsP1OwnerSource from '../../features/merchant/modules/consumer-ops-p1/MerchantConsumerOpsP1View.vue?raw'
 import merchantOperationsOwnerSource from '../../features/merchant/modules/operations/MerchantOperationsView.vue?raw'
 import merchantProductOwnerSource from '../../features/merchant/modules/product/MerchantProductView.vue?raw'
 import { getWorkbenchGroupLabel, workbenchFeatures, workbenchGroups } from './featureRegistry'
@@ -44,6 +50,11 @@ describe('studio complete navigation contract', () => {
     expect(routerSource).toContain('modules/config/MerchantConfigView.vue')
     expect(routerSource).toContain('modules/decoration/MerchantDecorationModuleView.vue')
     expect(routerSource).toContain('modules/readiness/MerchantReadinessView.vue')
+    expect(routerSource).toContain('modules/schedule-governance/MerchantScheduleGovernanceView.vue')
+    expect(routerSource).toContain('modules/channel-readiness/MerchantChannelReadinessView.vue')
+    expect(routerSource).toContain('modules/governance/MerchantGovernanceView.vue')
+    expect(routerSource).toContain('modules/dependency-readiness/MerchantDependencyReadinessView.vue')
+    expect(routerSource).toContain('modules/consumer-ops-p1/MerchantConsumerOpsP1View.vue')
     expect(routerSource).toContain('modules/content/MerchantContentView.vue')
     expect(routerSource).toContain('modules/product/MerchantProductView.vue')
     expect(routerSource).toContain('modules/operations/MerchantOperationsView.vue')
@@ -51,9 +62,17 @@ describe('studio complete navigation contract', () => {
     expect(merchantConfigOwnerSource).toContain('ServiceGroupsView.vue')
     expect(merchantConfigOwnerSource).toContain('InventoryView.vue')
     expect(merchantDecorationOwnerSource).toContain('MerchantDecorationView.vue')
-    expect(merchantReadinessOwnerSource).toContain('MerchantModuleChrome')
-    expect(merchantReadinessOwnerSource).toContain('MerchantReadinessBoard')
-    expect(merchantReadinessOwnerSource).toContain('useMerchantReadinessState')
+    expect(merchantReadinessOwnerSource).toContain('MerchantReadinessOwnerShell')
+    expect(merchantReadinessOwnerShellSource).toContain('MerchantModuleChrome')
+    expect(merchantReadinessOwnerShellSource).toContain('MerchantReadinessBoard')
+    expect(merchantReadinessOwnerShellSource).toContain('useMerchantReadinessState')
+    expect(merchantScheduleGovernanceOwnerSource).toContain('section-key="schedule"')
+    expect(workbenchFeatures.find(feature => feature.key === 'merchant-schedule-governance')?.status).toBe('ready')
+    expect(merchantChannelReadinessOwnerSource).toContain('section-key="channels"')
+    expect(merchantGovernanceOwnerSource).toContain('section-key="governance"')
+    expect(merchantDependencyReadinessOwnerSource).toContain('section-key="dependencies"')
+    expect(merchantConsumerOpsP1OwnerSource).toContain('useMerchantConsumerOpsP1State')
+    expect(merchantConsumerOpsP1OwnerSource).toContain('consumerOpsP1StatusLabel')
     expect(merchantContentOwnerSource).toContain('MerchantMicroPagesView.vue')
     expect(merchantContentOwnerSource).toContain('MerchantMicroFormsView.vue')
     expect(merchantProductOwnerSource).toContain('DouyinProductsView.vue')
@@ -63,27 +82,37 @@ describe('studio complete navigation contract', () => {
     expect(routerSource).toContain('MerchantMicroFormEditorView.vue')
     expect(routerSource).toContain("redirect: '/merchant/overview'")
     expect(workbenchFeatures.find(feature => feature.key === 'merchant-overview')?.component).toBe('merchant-overview')
+    expect(workbenchFeatures.find(feature => feature.key === 'merchant-consumer-ops-p1')?.component).toBe('merchant-consumer-ops-p1')
+    expect(workbenchFeatures.find(feature => feature.key === 'merchant-consumer-ops-p1')?.status).toBe('building')
   })
 
-  it('marks derived product modules with real status instead of ready', () => {
-    for (const key of ['product-addon', 'product-group', 'product-print', 'product-meituan']) {
+  it('keeps scaffold-compatible product routes on the derived product owner without overclaiming ready', () => {
+    for (const key of ['product-addon', 'product-group', 'product-print']) {
       const feature = workbenchFeatures.find(feature => feature.key === key)
       expect(feature?.component).toBe('derived-product-module')
-      expect(feature?.status).toBe('derived')
+      expect(feature?.status).toBe('building')
     }
+    expect(workbenchFeatures.find(feature => feature.key === 'product-meituan')?.component).toBe('derived-product-module')
+    expect(workbenchFeatures.find(feature => feature.key === 'product-meituan')?.status).toBe('derived')
     expect(workbenchFeatures.find(feature => feature.key === 'product-douyin')?.status).toBe('ready')
   })
 
   it('marks derived order routes and partial routes with real status', () => {
-    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign', 'order-forms']) {
+    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign']) {
       expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('derived')
     }
+    expect(workbenchFeatures.find(feature => feature.key === 'order-forms')?.component).toBe('order-form-submissions')
+    expect(workbenchFeatures.find(feature => feature.key === 'order-forms')?.status).toBe('ready')
     expect(workbenchFeatures.find(feature => feature.key === 'order-verification')?.status).toBe('partial')
+    expect(workbenchFeatures.find(feature => feature.key === 'order-card-batch')?.component).toBe('order-card-batch')
+    expect(workbenchFeatures.find(feature => feature.key === 'order-card-batch')?.status).toBe('building')
   })
 
   it('marks member, marketing, and report routes with their current Phase 3 status', () => {
     expect(workbenchFeatures.find(feature => feature.key === 'member-accounts')?.component).toBe('member-assets')
     expect(workbenchFeatures.find(feature => feature.key === 'member-accounts')?.status).toBe('ready')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-transaction-safety')?.component).toBe('member-transaction-safety')
+    expect(workbenchFeatures.find(feature => feature.key === 'member-transaction-safety')?.status).toBe('building')
     expect(workbenchFeatures.find(feature => feature.key === 'member-tags')?.component).toBe('derived-member-module')
     expect(workbenchFeatures.find(feature => feature.key === 'member-tags')?.status).toBe('derived')
     expect(workbenchFeatures.find(feature => feature.key === 'member-consumption')?.component).toBe('member-transactions')
@@ -93,10 +122,14 @@ describe('studio complete navigation contract', () => {
       expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('ready')
     }
 
-    for (const key of ['report-store-daily', 'report-store-monthly', 'report-products', 'report-employees', 'report-retouch', 'report-finance', 'report-customers', 'report-channels', 'report-conversion']) {
+    for (const key of ['report-store-daily', 'report-store-monthly', 'report-products', 'report-employees', 'report-retouch', 'report-customers', 'report-channels', 'report-conversion']) {
       expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('derived')
     }
+    expect(workbenchFeatures.find(feature => feature.key === 'report-finance')?.component).toBe('report-finance-reconciliation')
+    expect(workbenchFeatures.find(feature => feature.key === 'report-finance')?.status).toBe('building')
     expect(workbenchFeatures.find(feature => feature.key === 'report-reviews')?.status).toBe('partial')
+    expect(workbenchFeatures.find(feature => feature.key === 'report-order-analysis')?.component).toBe('report-order-analysis')
+    expect(workbenchFeatures.find(feature => feature.key === 'report-order-analysis')?.status).toBe('building')
   })
 
   it('uses dedicated marketing owners instead of one derived placeholder', () => {
@@ -114,11 +147,16 @@ describe('studio complete navigation contract', () => {
     for (const key of [
       'platform-brand-info',
       'platform-integration',
+      'platform-login-risk',
+      'platform-open-api',
+      'platform-task-center',
       'platform-booking-policy',
       'platform-print-settings',
       'platform-score-settings',
+      'platform-meituan-review-trace',
       'platform-email-settings',
       'platform-notification-center',
+      'platform-backup-recovery',
       'platform-service-packages',
       'account-profile',
       'account-brands',
@@ -129,6 +167,11 @@ describe('studio complete navigation contract', () => {
       expect(workbenchFeatures.find(feature => feature.key === key)?.status).toBe('building')
     }
     expect(routerSource).toContain('PlatformBrandInfoView.vue')
+    expect(routerSource).toContain('PlatformLoginRiskView.vue')
+    expect(routerSource).toContain('PlatformOpenApiView.vue')
+    expect(routerSource).toContain('PlatformTaskCenterView.vue')
+    expect(routerSource).toContain('PlatformBackupRecoveryView.vue')
+    expect(routerSource).toContain('PlatformMeituanReviewTraceView.vue')
     expect(routerSource).toContain('AccountProfileView.vue')
     expect(routerSource).toContain('FinanceOverviewView.vue')
   })

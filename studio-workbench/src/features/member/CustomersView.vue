@@ -290,15 +290,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { appStore, type BookingOrder, type CustomerInfo } from '../../shared/stores/appStore'
 import NoticeBanner from '../../shared/components/feedback/NoticeBanner.vue'
 import { useNotice } from '../../shared/composables/useNotice'
-
 const router = useRouter()
-
+const route = useRoute()
 type QuickCustomerFilter = 'all' | 'premium' | 'new' | 'revisit'
-
 const loading = ref(false)
 const saving = ref(false)
 const modalOpen = ref(false)
@@ -314,7 +312,6 @@ const searchQuery = ref('')
 const sourceFilter = ref('all')
 const levelFilter = ref('all')
 const activeCustomerFilter = ref<QuickCustomerFilter>('all')
-
 const form = reactive({
   name: '',
   mobile: '',
@@ -325,7 +322,6 @@ const form = reactive({
   tags: '',
   remark: '',
 })
-
 const isPremium = (customer: CustomerInfo) => customer.totalSpend >= 1000
 const isNewCustomer = (customer: CustomerInfo) => customer.totalOrderCount <= 1
 const needsRevisit = (customer: CustomerInfo) => customer.totalSpend >= 300 || customer.tags.includes('待回访') || customer.tags.includes('高复购')
@@ -340,7 +336,6 @@ const reload = async () => {
     loading.value = false
   }
 }
-
 const resetForm = () => {
   editingId.value = null
   form.name = ''
@@ -352,12 +347,10 @@ const resetForm = () => {
   form.tags = ''
   form.remark = ''
 }
-
 const openCreate = () => {
   resetForm()
   modalOpen.value = true
 }
-
 const openEdit = (customer: CustomerInfo) => {
   editingId.value = customer.backendId
   form.name = customer.name
@@ -369,6 +362,14 @@ const openEdit = (customer: CustomerInfo) => {
   form.tags = customer.tags.join(',')
   form.remark = customer.remark
   modalOpen.value = true
+}
+
+const maybeOpenEditFromRoute = () => {
+  const mode = String(route.query.mode ?? '')
+  const customerId = String(route.query.customerId ?? '')
+  if (mode !== 'edit' || !customerId || !customers.value.length) return
+  const matched = customers.value.find(customer => String(customer.backendId) === customerId)
+  if (matched) openEdit(matched)
 }
 
 const submit = async () => {
@@ -491,5 +492,8 @@ const goToOrderFromDetail = () => {
   goToOrders(selectedCustomer.value)
 }
 
-onMounted(reload)
+onMounted(async () => {
+  await reload()
+  maybeOpenEditFromRoute()
+})
 </script>

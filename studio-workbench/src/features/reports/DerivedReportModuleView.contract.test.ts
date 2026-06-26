@@ -4,24 +4,27 @@ import { getWorkbenchFeature } from '../../app/router/featureRegistry'
 import viewSource from './DerivedReportModuleView.vue?raw'
 
 describe('derived report module pages contract', () => {
-  const featureKeys = [
-    'report-store-daily',
-    'report-store-monthly',
-    'report-products',
-    'report-employees',
-    'report-retouch',
-    'report-finance',
-    'report-customers',
-    'report-reviews',
-    'report-channels',
-    'report-conversion',
-  ]
+  const featureExpectations = {
+    'report-store-daily': { component: 'derived-report-module', status: 'derived' },
+    'report-store-monthly': { component: 'derived-report-module', status: 'derived' },
+    'report-products': { component: 'derived-report-module', status: 'derived' },
+    'report-employees': { component: 'derived-report-module', status: 'derived' },
+    'report-retouch': { component: 'derived-report-module', status: 'derived' },
+    'report-finance': { component: 'report-finance-reconciliation', status: 'building' },
+    'report-customers': { component: 'derived-report-module', status: 'derived' },
+    'report-reviews': { component: 'derived-report-module', status: 'partial' },
+    'report-channels': { component: 'derived-report-module', status: 'derived' },
+    'report-conversion': { component: 'derived-report-module', status: 'derived' },
+    'report-order-analysis': { component: 'report-order-analysis', status: 'building' },
+  } as const
 
-  it('replaces all report placeholders with one real derived report route', () => {
+  it('keeps derived reports on the shared route while allowing real report owners to break out', () => {
     expect(routerSource).toContain('DerivedReportModuleView.vue')
-    for (const key of featureKeys) {
-      expect(getWorkbenchFeature(key)?.component).toBe('derived-report-module')
-      expect(getWorkbenchFeature(key)?.status).toBe(key === 'report-reviews' ? 'partial' : 'derived')
+    expect(routerSource).toContain('ReportFinanceReconciliationView.vue')
+    expect(routerSource).toContain('OrderAnalysisReportView.vue')
+    for (const [key, expectation] of Object.entries(featureExpectations)) {
+      expect(getWorkbenchFeature(key)?.component).toBe(expectation.component)
+      expect(getWorkbenchFeature(key)?.status).toBe(expectation.status)
       expect(getWorkbenchFeature(key)?.permission).toBeTruthy()
     }
   })

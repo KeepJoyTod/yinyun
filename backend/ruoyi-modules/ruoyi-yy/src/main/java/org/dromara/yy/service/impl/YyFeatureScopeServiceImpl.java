@@ -1,10 +1,14 @@
 package org.dromara.yy.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.yy.domain.YyRiskApproval;
 import org.dromara.yy.domain.vo.YyFeatureScopeVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
+import org.dromara.yy.mapper.YyRiskApprovalMapper;
 import org.dromara.yy.service.IYyFeatureScopeService;
+import org.dromara.yy.service.IYyRiskApprovalService;
 import org.dromara.yy.service.IYyServiceProductionService;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +32,12 @@ public class YyFeatureScopeServiceImpl implements IYyFeatureScopeService {
     private static final String LICENSE_NOT_APPLICABLE = "not_applicable";
     private static final String PLUGIN_NOT_APPLICABLE = "not_applicable";
     private static final String APPROVAL_NOT_APPLICABLE = "not_applicable";
+    private static final String APPROVAL_NOT_REQUIRED = "not_required";
+    private static final String APPROVAL_REQUIRED = "required";
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private final IYyServiceProductionService yyServiceProductionService;
+    private final YyRiskApprovalMapper riskApprovalMapper;
 
     @Override
     public List<YyFeatureScopeVo> listFeatureScopes(List<String> featureKeys) {
@@ -43,9 +50,13 @@ public class YyFeatureScopeServiceImpl implements IYyFeatureScopeService {
             : List.of();
         List<YyFeatureScopeVo> results = new ArrayList<>(normalized.size());
         for (String featureKey : normalized) {
-            results.add(COLLABORATION_OPEN_SETTINGS.equals(featureKey)
-                ? buildCollaborationOpenSettingsScope(collaborationLicenses)
-                : buildNotApplicableScope(featureKey));
+            if (COLLABORATION_OPEN_SETTINGS.equals(featureKey)) {
+                results.add(buildCollaborationOpenSettingsScope(collaborationLicenses));
+            } else if (isRiskApprovalFeature(featureKey)) {
+                results.add(buildRiskApprovalScope(featureKey));
+            } else {
+                results.add(buildNotApplicableScope(featureKey));
+            }
         }
         return results;
     }
@@ -79,6 +90,36 @@ public class YyFeatureScopeServiceImpl implements IYyFeatureScopeService {
         vo.setLicenseState(LICENSE_NOT_APPLICABLE);
         vo.setGateCopy("当前能力授权聚合尚未接入，本次返回 not_applicable 门禁态。");
         return vo;
+    }
+
+    private YyFeatureScopeVo buildRiskApprovalScope(String featureKey) {
+        YyFeatureScopeVo vo = baseScope(featureKey);
+        vo.setLicenseState(LICENSE_NOT_APPLICABLE);
+        vo.setApprovalState(hasPendingRiskApproval(featureKey) ? APPROVAL_REQUIRED : APPROVAL_NOT_REQUIRED);
+        vo.setGateCopy("High-risk operation gate is backed by yy_risk_approval.");
+        return vo;
+    }
+
+    private boolean isRiskApprovalFeature(String featureKey) {
+        return "merchant-schedule-governance".equals(featureKey)
+            || "merchant-governance".equals(featureKey)
+            || "order-refund".equals(featureKey)
+            || "member-recharge".equals(featureKey);
+    }
+
+    private boolean hasPendingRiskApproval(String featureKey) {
+        String businessType = switch (featureKey) {
+            case "merchant-schedule-governance" -> IYyRiskApprovalService.BUSINESS_SLOT_CLOSE_WITH_PAID_ORDER;
+            case "order-refund" -> IYyRiskApprovalService.BUSINESS_ORDER_REFUND;
+            case "member-recharge" -> IYyRiskApprovalService.BUSINESS_MEMBER_RECHARGE_CONFIRM;
+            default -> "";
+        };
+        var wrapper = Wrappers.<YyRiskApproval>lambdaQuery()
+            .eq(YyRiskApproval::getStatus, IYyRiskApprovalService.STATUS_PENDING);
+        if (StringUtils.isNotBlank(businessType)) {
+            wrapper.eq(YyRiskApproval::getBusinessType, businessType);
+        }
+        return riskApprovalMapper.selectCount(wrapper) > 0;
     }
 
     private YyFeatureScopeVo baseScope(String featureKey) {

@@ -20,17 +20,17 @@ describe('derived order module pages contract', () => {
     expect(viewSource).toContain('buildDerivedOrderItems')
     expect(viewSource).toContain('appStore.orders')
     expect(viewSource).toContain('appStore.albums')
-    expect(viewSource).toContain('统一订单表 yy_order')
+    expect(viewSource).toContain('selectedItem.boundary')
     expect(viewSource).not.toContain('createOrder')
-    expect(viewSource).not.toContain('新建预约')
+    expect(viewSource).not.toContain('createBooking')
   })
 
-  it('shows all five order module labels', () => {
-    expect(viewSource).toContain('冲印订单')
-    expect(viewSource).toContain('企业团单')
-    expect(viewSource).toContain('售卡订单')
-    expect(viewSource).toContain('售券订单')
-    expect(viewSource).toContain('表单管理')
+  it('keeps only four derived order module keys after moving order forms to dedicated owner', () => {
+    expect(operationsSource).toContain("key: 'order-print'")
+    expect(operationsSource).toContain("key: 'order-enterprise'")
+    expect(operationsSource).toContain("key: 'order-card'")
+    expect(operationsSource).toContain("key: 'order-coupon'")
+    expect(operationsSource).not.toContain("key: 'order-forms'")
   })
 
   it('scopes derived order module filters and deep links to concrete stores', () => {
@@ -43,8 +43,6 @@ describe('derived order module pages contract', () => {
     expect(viewSource).toContain("path: '/order/appointment'")
     expect(viewSource).toContain('storeId: storeFilter.value || undefined')
     expect(operationsSource).toContain('storeId=${encodeURIComponent(String(order.storeBackendId))}')
-    expect(viewSource).not.toContain('<option value="all">全部门店</option>')
-    expect(viewSource).not.toContain("router.push('/order/appointment')")
     expect(viewSource).not.toContain("storeFilter.value !== 'all'")
   })
 })

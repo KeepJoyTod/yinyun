@@ -4,6 +4,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.yy.domain.bo.ClientBookingIntentRequest;
 import org.dromara.yy.domain.bo.YyOrderBo;
+import org.dromara.yy.domain.bo.YyOrderCopyBo;
 import org.dromara.yy.domain.bo.YyStaffBookingCreateBo;
 import org.dromara.yy.domain.vo.ClientBookingIntentVo;
 import org.dromara.yy.domain.vo.ClientOrderLinkVo;
@@ -85,6 +86,7 @@ public interface IYyOrderService {
      * 店员工作台新增预约并占用统一时段库存。
      */
     YyOrderVo createStaffBooking(YyStaffBookingCreateBo bo);
+    YyOrderVo copyOrder(Long sourceOrderId, YyOrderCopyBo bo);
 
     /**
      * 新增预约订单

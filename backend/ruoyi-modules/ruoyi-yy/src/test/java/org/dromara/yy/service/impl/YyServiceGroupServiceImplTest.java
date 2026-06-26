@@ -73,6 +73,15 @@ class YyServiceGroupServiceImplTest {
         assertEquals("portrait", inserted.getGroupCode());
         assertEquals(3, inserted.getCapacity());
         assertEquals(60, inserted.getDurationMinutes());
+        assertEquals("VERTICAL", inserted.getServiceMode());
+    }
+
+    @Test
+    void insertByBoShouldRejectUnsupportedServiceMode() {
+        YyServiceGroupBo bo = payload();
+        bo.setServiceMode("timeline");
+
+        assertThrows(ServiceException.class, () -> service().insertByBo(bo));
     }
 
     @Test
@@ -93,6 +102,7 @@ class YyServiceGroupServiceImplTest {
         bo.setGroupName("Portrait");
         bo.setCapacity(3);
         bo.setDurationMinutes(60);
+        bo.setServiceMode("VERTICAL");
         bo.setStatus("ACTIVE");
         bo.setSort(10);
         bo.setRemark("owner contract");

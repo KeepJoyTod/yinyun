@@ -1,10 +1,15 @@
 import { apiRequest } from './request'
 import type {
+  PlatformAsyncTaskDto,
+  PlatformBackupRecoveryDto,
   PlatformBookingPolicyDto,
   PlatformBrandInfoDto,
   PlatformEmailSettingsDto,
   PlatformIntegrationStatusDto,
+  PlatformLoginRiskPolicyDto,
+  PlatformMeituanReviewTraceDto,
   PlatformNotificationRuleDto,
+  PlatformOpenApiAppDto,
   PlatformPrintSettingsDto,
   PlatformScoreSettingsDto,
   PlatformServicePackageStatusDto,
@@ -48,6 +53,52 @@ const fallbackNotifications: PlatformNotificationRuleDto[] = [
   },
 ]
 
+const fallbackLoginRiskPolicies: PlatformLoginRiskPolicyDto[] = [
+  {
+    policyCode: 'STAFF_LOGIN_RISK',
+    policyName: 'Staff login risk baseline',
+    riskDimension: 'DEVICE/IP/MFA',
+    guardScope: '员工工作台登录',
+    status: 'scaffold',
+    nextActions: [{ actionKey: 'enable_device_fingerprint', label: 'Enable device fingerprint', enabled: false, reason: 'Demo fallback' }],
+  },
+]
+
+const fallbackOpenApiApps: PlatformOpenApiAppDto[] = [
+  {
+    appCode: 'ERP-SANDBOX',
+    appName: 'ERP sandbox app',
+    authMode: 'API_KEY + SIGNATURE',
+    rateLimitLabel: '60 req/min',
+    sandboxBaseUrl: 'https://sandbox.api.evanshine.me/open',
+    status: 'scaffold',
+    nextActions: [{ actionKey: 'issue_api_key', label: 'Issue API key', enabled: false, reason: 'Demo fallback' }],
+  },
+]
+
+const fallbackAsyncTasks: PlatformAsyncTaskDto[] = [
+  {
+    taskType: 'EXPORT',
+    taskName: 'Order export queue',
+    queueName: 'platform-export',
+    latestRunStatus: 'NOT_CONNECTED',
+    retentionPolicy: '7 days',
+    status: 'scaffold',
+    nextActions: [{ actionKey: 'bind_task_worker', label: 'Bind worker', enabled: false, reason: 'Demo fallback' }],
+  },
+]
+
+const fallbackBackupRecoveryPlans: PlatformBackupRecoveryDto[] = [
+  {
+    planCode: 'PITR-PRIMARY',
+    planName: 'Primary DB backup plan',
+    backupScope: 'PostgreSQL + object storage',
+    recoveryTarget: 'RPO <= 15m / RTO <= 4h',
+    status: 'scaffold',
+    nextActions: [{ actionKey: 'run_drill', label: 'Run recovery drill', enabled: false, reason: 'Demo fallback' }],
+  },
+]
+
 const fallbackServicePackages: PlatformServicePackageStatusDto[] = [
   {
     packageCode: 'YY-BASE',
@@ -55,6 +106,17 @@ const fallbackServicePackages: PlatformServicePackageStatusDto[] = [
     versionLabel: 'Phase 1',
     status: 'scaffold',
     nextActions: [{ actionKey: 'renew_or_upgrade', label: 'Renew or upgrade', enabled: false, reason: 'Demo fallback' }],
+  },
+]
+
+const fallbackMeituanReviewTraces: PlatformMeituanReviewTraceDto[] = [
+  {
+    pluginCode: 'MEITUAN_REVIEW_TRACE',
+    pluginName: 'Meituan negative-review trace',
+    reviewChannel: 'MEITUAN',
+    traceStatus: 'PLUGIN_NOT_OPENED',
+    status: 'scaffold',
+    nextActions: [{ actionKey: 'open_plugin', label: 'Open plugin', enabled: false, reason: 'Demo fallback' }],
   },
 ]
 
@@ -107,6 +169,50 @@ const mapNotification = (row: Record<string, any>): PlatformNotificationRuleDto 
   nextActions: mapActions(row.nextActions),
 })
 
+const mapLoginRiskPolicy = (row: Record<string, any>): PlatformLoginRiskPolicyDto => ({
+  policyCode: text(row.policyCode),
+  policyName: text(row.policyName || row.policyCode),
+  riskDimension: text(row.riskDimension),
+  guardScope: text(row.guardScope),
+  latestEventTime: text(row.latestEventTime),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  nextActions: mapActions(row.nextActions),
+})
+
+const mapOpenApiApp = (row: Record<string, any>): PlatformOpenApiAppDto => ({
+  appCode: text(row.appCode),
+  appName: text(row.appName || row.appCode),
+  authMode: text(row.authMode),
+  rateLimitLabel: text(row.rateLimitLabel),
+  sandboxBaseUrl: text(row.sandboxBaseUrl),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  nextActions: mapActions(row.nextActions),
+})
+
+const mapAsyncTask = (row: Record<string, any>): PlatformAsyncTaskDto => ({
+  taskType: text(row.taskType),
+  taskName: text(row.taskName || row.taskType),
+  queueName: text(row.queueName),
+  latestRunStatus: text(row.latestRunStatus),
+  retentionPolicy: text(row.retentionPolicy),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  nextActions: mapActions(row.nextActions),
+})
+
+const mapBackupRecovery = (row: Record<string, any>): PlatformBackupRecoveryDto => ({
+  planCode: text(row.planCode),
+  planName: text(row.planName || row.planCode),
+  backupScope: text(row.backupScope),
+  recoveryTarget: text(row.recoveryTarget),
+  lastDrillTime: text(row.lastDrillTime),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  nextActions: mapActions(row.nextActions),
+})
+
 const mapServicePackage = (row: Record<string, any>): PlatformServicePackageStatusDto => ({
   packageCode: text(row.packageCode),
   packageName: text(row.packageName || row.packageCode),
@@ -114,6 +220,17 @@ const mapServicePackage = (row: Record<string, any>): PlatformServicePackageStat
   expireTime: text(row.expireTime),
   boundStoreIds: text(row.boundStoreIds),
   seatCount: Number(row.seatCount ?? 0),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  nextActions: mapActions(row.nextActions),
+})
+
+const mapMeituanReviewTrace = (row: Record<string, any>): PlatformMeituanReviewTraceDto => ({
+  pluginCode: text(row.pluginCode),
+  pluginName: text(row.pluginName || row.pluginCode),
+  reviewChannel: text(row.reviewChannel),
+  traceStatus: text(row.traceStatus),
+  latestSyncTime: text(row.latestSyncTime),
   status: normalizeStatus(row.status),
   evidence: mapEvidence(row.evidence),
   nextActions: mapActions(row.nextActions),
@@ -137,6 +254,24 @@ export const platformApi = {
     return readOrFallback(
       async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/integrations')).map(mapIntegration),
       fallbackIntegrations.map(item => ({ ...item })),
+    )
+  },
+  async listPlatformLoginRiskPolicies(): Promise<PlatformLoginRiskPolicyDto[]> {
+    return readOrFallback(
+      async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/login-risk-policies')).map(mapLoginRiskPolicy),
+      fallbackLoginRiskPolicies.map(item => ({ ...item })),
+    )
+  },
+  async listPlatformOpenApiApps(): Promise<PlatformOpenApiAppDto[]> {
+    return readOrFallback(
+      async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/open-api-apps')).map(mapOpenApiApp),
+      fallbackOpenApiApps.map(item => ({ ...item })),
+    )
+  },
+  async listPlatformAsyncTasks(): Promise<PlatformAsyncTaskDto[]> {
+    return readOrFallback(
+      async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/async-tasks')).map(mapAsyncTask),
+      fallbackAsyncTasks.map(item => ({ ...item })),
     )
   },
   async listPlatformBookingPolicies(): Promise<PlatformBookingPolicyDto[]> {
@@ -183,6 +318,12 @@ export const platformApi = {
       fallbackNotifications.map(item => ({ ...item })),
     )
   },
+  async listPlatformBackupRecoveryPlans(): Promise<PlatformBackupRecoveryDto[]> {
+    return readOrFallback(
+      async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/backup-recovery-plans')).map(mapBackupRecovery),
+      fallbackBackupRecoveryPlans.map(item => ({ ...item })),
+    )
+  },
   async listPlatformServicePackages(storeId?: string): Promise<PlatformServicePackageStatusDto[]> {
     return readOrFallback(
       async () => (await apiRequest<Record<string, any>[]>(
@@ -191,6 +332,12 @@ export const platformApi = {
         { storeId },
       )).map(mapServicePackage),
       fallbackServicePackages.map(item => ({ ...item })),
+    )
+  },
+  async listPlatformMeituanReviewTraces(): Promise<PlatformMeituanReviewTraceDto[]> {
+    return readOrFallback(
+      async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/meituan-review-traces')).map(mapMeituanReviewTrace),
+      fallbackMeituanReviewTraces.map(item => ({ ...item })),
     )
   },
 }

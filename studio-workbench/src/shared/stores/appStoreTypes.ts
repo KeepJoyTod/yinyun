@@ -82,6 +82,17 @@ export type CardProductItem = {
 
 export type BookingOrderStatus = '待确认' | '已确认' | '已到店' | '服务中' | '拍摄中' | '选片中' | '已完成' | '已取消' | '已退单'
 export type PaymentStatus = '待支付' | '已支付' | '部分支付' | '已退款'
+export type OrderAttributeFieldType = 'TEXT' | 'TEXTAREA' | 'PHONE' | 'DATE' | 'NUMBER' | 'SELECT' | 'CHECKBOX'
+
+export type OrderAttributeValue = {
+  fieldCode: string
+  fieldLabel: string
+  fieldType: OrderAttributeFieldType | string
+  required: boolean
+  options: string[]
+  sort: number
+  value: string | string[] | null
+}
 
 export type BookingOrder = {
   backendId: BackendId
@@ -114,6 +125,8 @@ export type BookingOrder = {
   externalSkuId?: string
   inventoryStatus?: string
   conflictReason?: string
+  orderAttributeJson?: string
+  orderAttributes?: OrderAttributeValue[]
 }
 
 export type AlbumStatus = '选片中' | '已交付' | '待客户选片'
@@ -206,6 +219,7 @@ export type ServiceGroupInfo = {
   name: string
   capacity: number
   durationMinutes: number
+  serviceMode: 'HORIZONTAL' | 'VERTICAL' | string
   status: string
   sort: number
   remark: string
@@ -361,6 +375,7 @@ export type MemberBalanceLedgerInfo = {
 export type MemberRechargeOrderInfo = {
   backendId: BackendId
   customerBackendId: BackendId
+  approvalId?: BackendId | null
   rechargeOrderNo: string
   rechargeAmount: number
   giftAmount: number

@@ -12,20 +12,24 @@ import type {
   DashboardProductRankingRowDto,
   DouyinLifeOrderSyncResult,
   EmployeeDto,
+  OrderAttributeTemplateDto,
   MicroFormSubmissionDto,
   NotificationLogDto,
   NotificationTemplateDto,
   OperationLogDto,
   PhotoAccessLog,
   ReportSnapshot,
-  RetouchProviderDto,
-  RetouchTaskDto,
-  CollaborationPolicyDto,
+  RiskApprovalDto,
   ServiceGroupDto,
-  ServiceLicenseBindingDto,
   WorkOrderDto,
   WorkOrderEventDto,
 } from './backendTypes'
+export {
+  mapCollaborationPolicyRow,
+  mapRetouchProviderRow,
+  mapRetouchTaskRow,
+  mapServiceLicenseBindingRow,
+} from './backendServiceProductionRowMappers'
 
 export const mapServiceGroupRow = (row: Record<string, any>): ServiceGroupDto => ({
   id: normalizeBackendId(row.id),
@@ -34,8 +38,30 @@ export const mapServiceGroupRow = (row: Record<string, any>): ServiceGroupDto =>
   groupName: String(row.groupName ?? ''),
   capacity: Number(row.capacity ?? 0),
   durationMinutes: Number(row.durationMinutes ?? 0),
+  serviceMode: String(row.serviceMode ?? 'HORIZONTAL'),
   status: String(row.status ?? ''),
   sort: Number(row.sort ?? 0),
+  remark: String(row.remark ?? ''),
+})
+
+export const mapOrderAttributeTemplateRow = (row: Record<string, any>): OrderAttributeTemplateDto => ({
+  id: normalizeBackendId(row.id),
+  storeId: normalizeBackendId(row.storeId),
+  fieldCode: String(row.fieldCode ?? ''),
+  fieldLabel: String(row.fieldLabel ?? ''),
+  fieldType: String(row.fieldType ?? 'TEXT'),
+  required: String(row.required ?? '0'),
+  optionsJson: String(row.optionsJson ?? ''),
+  options: (() => {
+    try {
+      const parsed = JSON.parse(String(row.optionsJson ?? '[]'))
+      return Array.isArray(parsed) ? parsed.map(item => String(item ?? '')).filter(Boolean) : []
+    } catch {
+      return []
+    }
+  })(),
+  sort: Number(row.sort ?? 0),
+  status: String(row.status ?? 'ACTIVE'),
   remark: String(row.remark ?? ''),
 })
 
@@ -76,6 +102,28 @@ export const mapBookingInventoryRow = (row: Record<string, any>): BookingInvento
   conflictCount: Number(row.conflictCount ?? 0),
   status: String(row.status ?? ''),
   remark: String(row.remark ?? ''),
+})
+
+export const mapRiskApprovalRow = (row: Record<string, any>): RiskApprovalDto => ({
+  id: normalizeBackendId(row.id),
+  tenantId: String(row.tenantId ?? ''),
+  storeId: optionalBackendId(row.storeId) ?? null,
+  businessType: String(row.businessType ?? '') as RiskApprovalDto['businessType'],
+  businessId: optionalBackendId(row.businessId) ?? null,
+  businessNo: String(row.businessNo ?? ''),
+  status: String(row.status ?? '') as RiskApprovalDto['status'],
+  title: String(row.title ?? ''),
+  reason: String(row.reason ?? ''),
+  payloadJson: String(row.payloadJson ?? ''),
+  applicantUserId: optionalBackendId(row.applicantUserId) ?? null,
+  applicantName: String(row.applicantName ?? ''),
+  approverUserId: optionalBackendId(row.approverUserId) ?? null,
+  approverName: String(row.approverName ?? ''),
+  approveTime: String(row.approveTime ?? ''),
+  rejectReason: String(row.rejectReason ?? ''),
+  resultSummary: String(row.resultSummary ?? ''),
+  createTime: String(row.createTime ?? ''),
+  updateTime: String(row.updateTime ?? ''),
 })
 
 export const mapEmployeeRow = (row: Record<string, any>): EmployeeDto => ({
@@ -395,83 +443,3 @@ export const mapScheduleGridRow = (row: Record<string, any>): DashboardScheduleG
     slotsByDate,
   }
 }
-
-export const mapRetouchTaskRow = (row: Record<string, any>): RetouchTaskDto => ({
-  id: normalizeBackendId(row.id),
-  tenantId: String(row.tenantId ?? ''),
-  storeId: optionalBackendId(row.storeId) ?? null,
-  storeName: String(row.storeName ?? ''),
-  orderId: optionalBackendId(row.orderId) ?? null,
-  orderNo: String(row.orderNo ?? ''),
-  albumId: optionalBackendId(row.albumId) ?? null,
-  albumName: String(row.albumName ?? ''),
-  providerId: optionalBackendId(row.providerId) ?? null,
-  providerName: String(row.providerName ?? ''),
-  taskNo: String(row.taskNo ?? ''),
-  status: String(row.status ?? 'WAIT_ASSIGN'),
-  acceptanceStatus: String(row.acceptanceStatus ?? 'PENDING'),
-  quoteAmountCent: Number(row.quoteAmountCent ?? 0),
-  dueTime: String(row.dueTime ?? ''),
-  submittedTime: String(row.submittedTime ?? ''),
-  completedTime: String(row.completedTime ?? ''),
-  sourceStage: String(row.sourceStage ?? ''),
-  customerName: String(row.customerName ?? ''),
-  serviceName: String(row.serviceName ?? ''),
-  blockReason: String(row.blockReason ?? ''),
-  remark: String(row.remark ?? ''),
-  createTime: String(row.createTime ?? ''),
-  updateTime: String(row.updateTime ?? ''),
-})
-
-export const mapRetouchProviderRow = (row: Record<string, any>): RetouchProviderDto => ({
-  id: normalizeBackendId(row.id),
-  tenantId: String(row.tenantId ?? ''),
-  providerCode: String(row.providerCode ?? ''),
-  providerName: String(row.providerName ?? ''),
-  contactName: String(row.contactName ?? ''),
-  contactPhone: String(row.contactPhone ?? ''),
-  supportedStoreIds: String(row.supportedStoreIds ?? ''),
-  serviceScope: String(row.serviceScope ?? ''),
-  quoteMode: String(row.quoteMode ?? 'PER_PHOTO'),
-  settlementMode: String(row.settlementMode ?? 'MONTHLY'),
-  applicationStatus: String(row.applicationStatus ?? 'PENDING'),
-  status: String(row.status ?? 'ACTIVE'),
-  ratingScore: Number(row.ratingScore ?? 0),
-  slaHours: Number(row.slaHours ?? 0),
-  remark: String(row.remark ?? ''),
-  createTime: String(row.createTime ?? ''),
-  updateTime: String(row.updateTime ?? ''),
-})
-
-export const mapCollaborationPolicyRow = (row: Record<string, any>): CollaborationPolicyDto => ({
-  id: optionalBackendId(row.id),
-  tenantId: String(row.tenantId ?? ''),
-  policyCode: String(row.policyCode ?? 'DEFAULT'),
-  reviewFlowEnabled: String(row.reviewFlowEnabled ?? '1'),
-  productInfoMaskMode: String(row.productInfoMaskMode ?? 'MASK_PHOTO_ONLY'),
-  enabledStoreIds: String(row.enabledStoreIds ?? ''),
-  fallbackAction: String(row.fallbackAction ?? 'RETURN_TO_STORE'),
-  transferEnabled: String(row.transferEnabled ?? '1'),
-  autoDispatchMode: String(row.autoDispatchMode ?? 'STORE_ONLY'),
-  genderMakeupEnabled: String(row.genderMakeupEnabled ?? '0'),
-  femaleMakeupRatio: Number(row.femaleMakeupRatio ?? 1.5),
-  remark: String(row.remark ?? ''),
-  createTime: String(row.createTime ?? ''),
-  updateTime: String(row.updateTime ?? ''),
-})
-
-export const mapServiceLicenseBindingRow = (row: Record<string, any>): ServiceLicenseBindingDto => ({
-  id: normalizeBackendId(row.id),
-  tenantId: String(row.tenantId ?? ''),
-  licenseKey: String(row.licenseKey ?? ''),
-  planName: String(row.planName ?? ''),
-  status: String(row.status ?? 'ACTIVE'),
-  expireTime: String(row.expireTime ?? ''),
-  boundStoreIds: String(row.boundStoreIds ?? ''),
-  seatCount: Number(row.seatCount ?? 0),
-  activatedTime: String(row.activatedTime ?? ''),
-  renewAction: String(row.renewAction ?? 'RENEW'),
-  remark: String(row.remark ?? ''),
-  createTime: String(row.createTime ?? ''),
-  updateTime: String(row.updateTime ?? ''),
-})

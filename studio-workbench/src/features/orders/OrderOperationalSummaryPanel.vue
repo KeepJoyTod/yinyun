@@ -109,6 +109,14 @@
         返回时段看板
       </button>
       <button
+        class="yy-action rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-[11px] font-medium text-sky-900 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
+        type="button"
+        :disabled="copySaving"
+        @click="emit('copyOrder')"
+      >
+        {{ copySaving ? '复制中...' : '复制订单' }}
+      </button>
+      <button
         class="yy-action rounded-md border border-amber-topbar-border bg-white px-3 py-2 text-[11px] font-medium text-amber-dark hover:bg-black/5"
         type="button"
         @click="emit('copyOrderId')"
@@ -137,12 +145,14 @@ defineProps<{
   canAdvance: boolean
   advancing: boolean
   showBackToSlot: boolean
+  copySaving: boolean
 }>()
 
 const emit = defineEmits<{
   refreshLogs: []
   advance: [order: BookingOrder]
   backToSlot: []
+  copyOrder: []
   copyOrderId: []
 }>()
 </script>

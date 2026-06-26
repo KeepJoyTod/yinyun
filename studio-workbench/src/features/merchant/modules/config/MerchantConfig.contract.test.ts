@@ -8,6 +8,7 @@ describe('merchant config module scaffold', () => {
   it('owns config entry, scope bar, state, and operations files', () => {
     const source = `${wrapperSource}\n${scopeBarSource}\n${stateSource}\n${operationsSource}`
     expect(source).toContain('ServiceGroupsView')
+    expect(wrapperSource).toContain('OrderAttributesView')
     expect(source).toContain('useMerchantConfigState')
     expect(source).toContain('yy-filter-bar')
     expect(source).toContain('serviceGroupOperations')

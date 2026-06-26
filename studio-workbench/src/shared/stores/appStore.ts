@@ -61,28 +61,36 @@ export type {
   StoreInfo,
   StudioInfo,
 } from './appStoreTypes'
+import { buildWorkbenchStoreNames, currentMonthOrderQuery, emptySelectionStats, mapStudio, todayKey } from './appStoreTransforms'
+import { createAppDerived } from './appStoreDerived'
 import {
-  buildWorkbenchStoreNames,
-  currentMonthOrderQuery,
-  emptySelectionStats,
-  mapStudio,
-  todayKey,
-} from './appStoreTransforms'
+  deleteAlbumPhotoAction,
+  findSelectionLinkAction,
+  generateSelectionLinkAction,
+  markAlbumPhotosSelectedAction,
+  renameAlbumPhotoAction,
+  sortAlbumPhotosAction,
+  uploadAlbumPhotosAction,
+} from './appStoreAlbumActions'
 import { albumsStore } from './albumsStore'
-import { isMissingArrivalSchedule } from './orderIssueRules'
 import { channelStore } from './channelStore'
 import { customersStore } from './customersStore'
 import { operationLogStore } from './operationLogStore'
+import { isMissingArrivalSchedule } from './orderIssueRules'
 import { productStore } from './productStore'
 import { settingsStore } from './settingsStore'
 import {
   confirmOrderPaymentAction,
+  copyOrderAction,
   createOrderAction,
   findOrderInCaches,
   rememberOrderForOperations as rememberOrderForOperationCaches,
+  requestOrderRefundAction,
   rescheduleOrderAction,
+  type StaffOrderCopyInput,
   type StaffOrderConfirmPaymentInput,
   type StaffOrderCreateInput,
+  type StaffOrderRefundRequestInput,
   type StaffOrderRescheduleInput,
   updateOrderStatusAction,
 } from './orderActionStore'
@@ -114,6 +122,7 @@ import {
   useDemoDataAction,
 } from './workbenchLifecycleStore'
 import {
+  deleteCustomerFacade,
   deleteServiceGroupFacade,
   loadChannelProductMappingsFacade,
   loadChannelSyncLogsFacade,
@@ -311,6 +320,7 @@ export const appStore = reactive({
     name: string
     capacity: number
     durationMinutes: number
+    serviceMode: 'HORIZONTAL' | 'VERTICAL'
     status: string
     sort: number
     remark: string
@@ -375,6 +385,10 @@ export const appStore = reactive({
     remark: string
   }) {
     return saveCustomerFacade(this, input)
+  },
+
+  async deleteCustomer(id: BackendId) {
+    return deleteCustomerFacade(this, id)
   },
 
   async loadCustomerRecentOrders(customerBackendId: BackendId, limit = 5) {
@@ -491,6 +505,10 @@ export const appStore = reactive({
     return createOrderAction(this, input)
   },
 
+  async copyOrder(input: StaffOrderCopyInput) {
+    return copyOrderAction(this, input)
+  },
+
   async updateOrderStatus(orderId: string, status: BookingOrderStatus, remark?: string) {
     return updateOrderStatusAction(this, orderId, status, remark)
   },
@@ -501,6 +519,10 @@ export const appStore = reactive({
 
   async confirmOrderPayment(input: StaffOrderConfirmPaymentInput) {
     return confirmOrderPaymentAction(this, input)
+  },
+
+  async requestOrderRefund(input: StaffOrderRefundRequestInput) {
+    return requestOrderRefundAction(this, input)
   },
 
   async updateProduct(data: ProductConfig) {
@@ -529,63 +551,34 @@ export const appStore = reactive({
     phone?: string
     product?: string
   }) {
-    this.syncAlbumsToOwner()
-    const link = this.demoMode
-      ? albumsStore.generateSelectionLinkDemo(input, this.orders)
-      : await albumsStore.generateSelectionLink(input, this.orders)
-    this.syncAlbumsFromOwner()
-    return link
+    return generateSelectionLinkAction(this, input)
   },
 
   async uploadAlbumPhotos(albumId: string, files: File[]) {
-    this.syncAlbumsToOwner()
-    const photos = this.demoMode
-      ? albumsStore.uploadAlbumPhotosDemo(albumId, files)
-      : await albumsStore.uploadAlbumPhotos(albumId, files)
-    this.syncAlbumsFromOwner()
-    return photos
+    return uploadAlbumPhotosAction(this, albumId, files)
   },
 
   async sortAlbumPhotos(albumId: string) {
-    this.syncAlbumsToOwner()
-    if (this.demoMode) return
-    await albumsStore.sortAlbumPhotos(albumId)
-    this.syncAlbumsFromOwner()
+    return sortAlbumPhotosAction(this, albumId)
   },
 
   async renameAlbumPhoto(albumId: string, photoId: string, displayName: string) {
-    this.syncAlbumsToOwner()
-    const next = this.demoMode
-      ? albumsStore.renameAlbumPhotoDemo(albumId, photoId, displayName)
-      : await albumsStore.renameAlbumPhoto(albumId, photoId, displayName, this.orders)
-    this.syncAlbumsFromOwner()
-    return next
+    return renameAlbumPhotoAction(this, albumId, photoId, displayName)
   },
 
   async markAlbumPhotosSelected(albumId: string, updates: { photoId: string; selected: boolean }[]) {
-    this.syncAlbumsToOwner()
-    const updatedPhotos = this.demoMode
-      ? albumsStore.markAlbumPhotosSelectedDemo(albumId, updates)
-      : await albumsStore.markAlbumPhotosSelected(albumId, updates)
-    this.syncAlbumsFromOwner()
-    return updatedPhotos
+    return markAlbumPhotosSelectedAction(this, albumId, updates)
   },
 
   async deleteAlbumPhoto(albumId: string, photoId: string) {
-    this.syncAlbumsToOwner()
-    const next = this.demoMode
-      ? albumsStore.deleteAlbumPhotoDemo(albumId, photoId)
-      : await albumsStore.deleteAlbumPhoto(albumId, photoId, this.orders)
-    this.syncAlbumsFromOwner()
-    return next
+    return deleteAlbumPhotoAction(this, albumId, photoId)
   },
 
   findSelectionLink(id: string) {
-    return this.selectionLinks.find(l => l.id === id || l.token === id || l.display.endsWith(id) || l.url.endsWith(id))
+    return findSelectionLinkAction(this, id)
   },
 })
-
-export const appDerived = {
+export const legacyAppDerived = {
   storeNames: computed(() => buildWorkbenchStoreNames(appStore.stores)),
   activeProducts: computed(() => appStore.products.filter(p => p.active)),
   productSpecOptions: computed(() =>
@@ -603,3 +596,4 @@ export const appDerived = {
     }
   }),
 }
+export const appDerived = createAppDerived(appStore)

@@ -1,6 +1,62 @@
-# 影约云优化地图
+﻿# 影约云优化地图
 
 更新时间：2026-06-24
+
+## 2026-06-26 platform-async-task-ledger
+
+### 已完成优化
+- 财务对账导出任务从 JVM 内存骨架推进到 `yy_async_task` 统一异步任务账本，任务元数据可被平台任务中心读取。
+- `/platform/task-center` 对应后端聚合不再只展示固定 scaffold：存在真实账本时按任务类型展示最新状态、保留策略和 `yy_async_task` 证据。
+- 初始化 SQL 已补齐 MySQL/PostgreSQL 结构，后续其他报表导出 owner 可复用同一任务账本。
+
+### 仍需注意
+- 本轮只完成任务元数据账本和只读聚合，不包含真实文件生成、对象存储、下载鉴权、重试队列、过期清理或跨实例 worker。
+
+## 2026-06-26 product-function-inventory-84-scaffold-acceptance
+
+### 已完成优化
+- 把产品功能清单里 21 项“脚手架”条目统一收口到共享 scaffold 元数据，不再让页面各自散写边界说明。
+- `ModuleScaffoldView` 已补 `inventoryCodes / acceptanceLabel / boundaryNotes / nextActions`，验收时可以直接看到“这条是谁、缺什么、下一步做什么”。
+- 商品、会员、营销、平台和客户端 P1 已按 canonical owner 固定映射。
+
+### 仍需注意
+- 当前完成的是“脚手架验收完成”，不是生产闭环 `ready`。
+- 本轮按要求未执行测试、build 或部署；验证范围仅限代码与文档收口。
+
+## 2026-06-25 consumer-merchant-p1-scaffold
+
+### 已完成优化
+- P1 已具备脚手架 owner：消费者预约增强、卡券权益、会员资产、核销码、评价入口和商户运营缺口聚合可以进入后续拆包。
+- 前端消费者页、工作台聚合页、API facade、后端 controller/service/VO 和契约/流程文档已按三层楼归档。
+
+### 下一轮建议
+- 消费者预约增强真实契约已补第一段：`serviceGroupId` 下单透传并校验门店归属，`customFields` 写入订单属性快照，`entitlement*` 仅创建 scaffold 预占草稿；可用券/权益真实试算、核销、扣减、释放预占和退款回滚仍待后续。
+- 再补评价与通知：评价表/API、审核状态、评价报表入账、下载通知发送与失败重试。
+- 最后补商户运营动作：订单属性落库、保存并接待事务、打印模板权限、发券宝插件授权、成长规则。
+
+### 仍需注意
+- 当前 P1 仍不代表生产闭环；真实权益核销、支付退款、储值消费、通知 SDK 和财务对账归 P0/P2 后续任务。
+
+## 2026-06-25 product-function-inventory-recheck
+
+### 已完成优化
+- 复核产品功能清单内全部“待实现”条目，排除已有后台 owner、读侧、脚手架或局部写链路的条目，更新为“当前项目部分实现”。
+- 在 `docs/product-function-inventory(产品功能清单).md` 新增 `8.1` 与 `8.2`，沉淀真正待开发清单和分 `P0/P1/P2/P3` 的实施完成计划。
+- 复核后真正待开发功能收敛为：权益预占、组合支付、储值消费、会员提现、复制订单、异步任务中心、订购分析、登录与设备风控、开放 API、美团差评溯源、数据备份与恢复。
+
+### 仍需注意
+- `C-016` 与 `X-011` 同属组合支付，`B-069` 与 `X-010` 同属会员/储值提现，后续实施时应合并任务包，避免重复建账。
+- 本次未执行测试、构建、部署或真实第三方写操作，验证范围仅限文档检索和状态复核。
+
+## 2026-06-25 product-function-gap-plan
+
+### 已完成优化
+- 新增 `docs/product-function-gap-plan-20260625.md`，结合简约网参考后台只读观察和本仓库产品清单、功能地图、路由状态，汇总当前未完善功能。
+- 缺口按 P0/P1/P2/P3 分组，覆盖档期并发、支付退款权益一致性、审批审计、渠道插件、商品全链路、会员储值、报表对账、平台费用中心、开放 API、通知、文件生命周期和企业级稳定性。
+
+### 仍需注意
+- 本次是只读评估和计划落盘，没有改业务代码，没有执行参考站保存、支付、退款、核销、发券、充值、提现等写操作。
+- 后续把任一缺口从 `building/partial/derived` 升级为 `ready` 前，必须补真实接口、权限、审计、数据表/mapper、回滚和目标 smoke 证据。
 
 ## 2026-06-25 merchant-readiness-scaffold
 
@@ -8,22 +64,37 @@
 - 商户未完成项从散落在产品清单和多个派生页面的描述，收敛为 `/merchant/readiness` 一个只读入口。
 - readiness 状态、优先级、证据、阻塞原因和下一步动作统一由后端 DTO 返回，页面不再散写判断。
 - 前端新增独立 `merchant/modules/readiness` owner，避免继续往 `MerchantOverviewView.vue`、`MerchantConfigView.vue` 或历史 facade 堆逻辑。
+- `schedule-governance`、`channel-readiness`、`governance`、`dependency-readiness` 已拆成独立 owner wrapper，共享 `MerchantReadinessOwnerShell`，后续能逐个替换真实实现。
 
 ### 仍需注意
 - 本次按要求未执行测试流程、未构建、未部署，只能算模块化脚手架落地。
 - 当前后端 readiness 数据是只读契约聚合，不是从真实审批、插件、报表任务、权益预占账本动态计算。
 - 后续把 `BLOCKED/PARTIAL/BUILDING` 提升为 `READY` 前，必须补真实接口、权限、审计、数据表/mapper、回滚和生产 smoke 证据。
 
+## 2026-06-25 transaction-safety-scaffold
+
+### 已完成优化
+- P0 交易资金安全第一批已从脚手架推进到本地适配器闭环，覆盖权益预占、组合支付、储值消费、会员提现四个高风险功能点。
+- 前端新增独立 owner：`/member/transaction-safety`，避免继续把交易安全能力散落在充值页、订单页和历史 facade 中。
+- 后端新增独立 controller/service/ledger owner，并把提现审批纳入 `yy_risk_approval`，避免重复建审批账本。
+- 已新增本地动作闭环：权益预占释放/核销、组合支付确认/失败、储值消费确认/逆向、提现审批后标记出款。
+- 组合支付确认会更新订单支付状态、插入本地支付流水并核销预占；退款审批通过会释放预占、逆向已确认储值消费并回补余额。
+
+### 仍需继续
+- 真实微信/抖音/美团支付确认、真实退款、真实提现出款、短信通知和平台回调验签仍未落地。
+- 预占超时释放执行器已补齐本地 worker 和手动触发入口，真实权益扣减引擎仍未接入。
+- 财务对账、监管报表、异常补偿和审计导出仍需后续任务包继续补齐。
+
 ## 2026-06-24 dashboard-wave1-module-split
 
-### 宸插畬鎴愪紭鍖?
-- Dashboard Wave 1 宸叉寜 owner 妯℃澘鏀跺彛锛?`DashboardView.vue` 鍙綔涓鸿杽澹筹紝棣栭〉缂栨帓銆佸鍑恒€佽矾鐢便€乭ome state 宸叉敹鍙ｅ埌 `modules/home/*`銆?
-- `YyDashboardServiceImpl.java` 宸蹭粠 940 琛屾媶鍒?300 琛屽唴锛屽苟鏂板 `order-query / metrics / schedule / export` 鍥涗釜鍚庣 owner锛屽悗绔?file-size guard 宸查€氳繃銆?
-- Dashboard 鍓嶅悗绔叕寮€澶栬鏈敼锛?`DashboardView.vue`銆乣backend.ts`銆乣appStore.ts`銆乣YyDashboardController`銆乣IYyDashboardService` 缁х画鍏煎銆?
+### 已完成优化
+- Dashboard Wave 1 已按 owner 模板收口：`DashboardView.vue` 只作薄壳，首页编排、导出、路由和 home state 已收口到 `modules/home/*`。
+- `YyDashboardServiceImpl.java` 已从 940 行拆到 300 行内，并新增 `order-query / metrics / schedule / export` 四个后端 owner，后端 `file-size guard` 已通过。
+- Dashboard 前后端公开外观未改：`DashboardView.vue`、`backend.ts`、`appStore.ts`、`YyDashboardController`、`IYyDashboardService` 继续兼容。
 
-### 浠嶉渶娉ㄦ剰
-- Wave 1 鍙敹鍙?dashboard 锛屼笅涓€鎵?Wave 2/3 浠嶉渶缁х画澶勭悊 `appStoreTransforms.ts` 鍜屽叾浠栧ぇ owner锛屽綋鍓嶄笅涓€浼樺厛绾ф槸 `YyClientPhotoServiceImpl`銆乣YyPhotoAssetServiceImpl`銆乣YyClientPublicApiServiceImpl`銆乣YyMerchantMicroPageServiceImpl`銆?
-- Dashboard helper test 宸茶ˉ榻愶紝浣嗛〉闈㈢┖鐧借矾寰勭殑娴忚鍣?smoke 浠嶅睘鍚庣画 UX/楠屾敹浠诲姟鑼冨洿銆?
+### 仍需注意
+- Wave 1 只收口 dashboard，下一批 Wave 2/3 仍需继续处理 `appStoreTransforms.ts` 和其他大 owner，当前下一优先级是 `YyClientPhotoServiceImpl`、`YyPhotoAssetServiceImpl`、`YyClientPublicApiServiceImpl`、`YyMerchantMicroPageServiceImpl`。
+- Dashboard helper test 已补齐，但页面空白路径的浏览器 smoke 仍属后续 UX / 验收任务范围。
 
 ## 2026-06-24 marketing-phase2-merchant-closed-loop
 
@@ -166,11 +237,11 @@
 - 旧工单没有 `stage_code/due_time` 时，前端仍会兼容推断；迁移后建议补一次历史数据回填脚本。
 ## 2026-06-25 member-recharge-read-side
 
-### 宸插畬鎴愪紭鍖?
+### 已完成优化
 - 先补齐充值单读侧可见性，避免“能写充值、看不到最近充值单”的操作割裂。
 - 充值历史继续挂在既有 `member/accounts` owner 下，不单独再造一个 stored-value 页面或第二套本地聚合口径。
 
-### 鍚庣画寤鸿
+### 后续建议
 - 下一包优先补 `PENDING/PENDING_APPROVAL` 的人工补确认、审批轨迹和退款冲正，而不是继续堆页面占位。
 - 若后续要做正式储值中心，可复用本次的 `listMemberRechargeOrders` 事实链，避免重复读取 `yy_member_recharge_order`。
 
@@ -211,3 +282,67 @@
 ### 仍需注意
 - 本轮没有执行 SQL、没有跑测试、没有做真实登录态验收。
 - 不代表真实生产验收完成；上线前必须补目标测试、迁移审核、真实租户 smoke 和渠道/支付/权益边界验收。
+## 2026-06-25 P0 交易安全第一包
+
+### 状态更新
+- P0 第一包已部分落地：库存治理、内部退款申请、高风险审批账本、会员充值审批前置、feature-scope 审批态、交易安全本地适配器均已有代码和目标测试。
+- 退款闭环仍限于内部状态：审批通过后更新 `yy_order` 与 `yy_payment_record` 退款字段，全额退款释放已确认库存，并联动释放权益预占、逆向已确认储值消费和回补余额；不调用真实第三方退款。
+
+### 下一步
+- 补 `SLOT_CLOSE_WITH_PAID_ORDER` 审批通过后的自动应用关档执行器和审计详情页。
+- 为退款审批增加重复申请幂等键、部分退款状态拆分和真实第三方退款适配器。
+- 会员充值审批通过后增加审批轨迹展示，并补财务对账口径。
+- 高风险审批后续如需企业流程，再桥接 RuoYi workflow/WarmFlow。
+
+## 2026-06-25 merchant-store-schedule-close-gap
+
+### 已完成优化
+- `B-011` 已收口为真实后台闭环：门店页“订单属性”跳到 `/merchant/order-attributes`，模板 CRUD、录单保存、订单详情编辑共用 `yy_order.order_attribute_json` 快照。
+- `B-013` 已去掉 heuristics：服务组实体和前端表单都改为显式 `serviceMode`，`VERTICAL` 模式下录单与订单改期统一做重叠阻塞。
+- `B-016` 已补审批自动执行：`SLOT_CLOSE_WITH_PAID_ORDER` approve 后自动激活 `yy_schedule_exception_rule` 并批量应用库存动作；reject 只改规则状态。
+
+### 仍需注意
+- `B-093/B-094` 继续留在后续消费者端/资源链路包，本轮不把后台配置接到 `mobile-uniapp`。
+- `VERTICAL` 仍复用单账本 `yy_booking_slot_inventory`，如果后续出现多资源并发排他，需要单独补第二层调度规则，而不是直接堆前端判断。
+## 2026-06-25 order-copy-closed-loop
+
+### 已完成优化
+- B-037 复制订单已从“待实现”推进为“业务闭环已落地”。
+- 订单详情页可直接复制新单，后端会重建 `yy_order` 并按需确认库存。
+
+### 涓嬩竴杞缓璁?
+- 复制订单后续只补异步任务中心、权益迁移和审计口径，不再把它当成纯 scaffold。
+
+## 2026-06-25 order-card-batch-scaffold
+
+### 当前状态
+- 先把 `B-043` 从“未开通提示”升级成工作台内的真实脚手架 owner，减少高风险动作长期停留在路由不可达状态。
+- 前端新增 `/order/card-batch`，统一展示申请表单、审批边界和最近申请列表，避免继续把批量开卡混在派生只读页。
+- 后端复用 `yy_risk_approval` 承接 `CARD_BATCH_ORDER_APPLY`，不新增第二套批量卡项订单表，先把审批账本和审计入口固定下来。
+
+### 下一步
+- 接真实批量生成卡项订单、权益发放、失败回滚和审批通过后的执行器。
+
+## 2026-06-26 order-analysis-scaffold
+
+### 当前状态
+- `R-013 订购分析` 已补成独立 owner 和专用只读接口，不再继续挂在共享派生报表页里。
+- 当前先把订购、支付、退款、渠道四类口径统一收口到 `yy_order + yy_payment_record`，避免页面侧继续复制统计规则。
+
+### 仍需注意
+- 当前仍是脚手架，不包含导出任务、财务对账、第三方退款确认、下载过期和异步审计。
+- 订单与支付字段冲突时，现阶段优先以支付流水为准；后续若补真实对账，需要再定义更细的冲正和部分退款口径。
+
+### 下一步
+- 把 `R-013` 与 `P-010 异步任务中心`、`R-014 报表导出任务` 串起来，统一导出/重试/过期/审计边界。
+- 在交易账本稳定后，再补更细的支付方式、退款原因、渠道对账差异和门店横向对比。
+## 2026-06-26 report-finance-reconciliation
+
+### 当前状态
+- `/report/finance` 已升级为财务对账报表 owner，不再挂共享派生报表页。
+- 本包完成订单视角和资金流水视角的本地只读对账，并接入异步导出任务骨架。
+- 差异项已覆盖订单实付与支付流水差异、未支付订单、未释放权益预占。
+
+### 仍需注意
+- 当前导出任务在 JVM 内存中维护，重启后不保留；生产级任务账本、下载文件、过期清理和失败重试仍需继续补。
+- 当前不接真实第三方回单或外部退款结果，只对本地账本事实做对账展示。

@@ -74,6 +74,7 @@ create table if not exists yy_order (
     slot_end_time varchar(16) default '',
     inventory_status varchar(32) default '',
     conflict_reason varchar(255) default '',
+    order_attribute_json text,
     create_dept bigint default null,
     create_by bigint default null,
     create_time timestamp,
@@ -405,6 +406,203 @@ create unique index if not exists uk_yy_booking_slot_inventory_key
 create index if not exists idx_yy_booking_slot_inventory_query
     on yy_booking_slot_inventory (tenant_id, store_id, biz_date, start_time, status);
 
+create table if not exists yy_schedule_exception_rule (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint not null,
+    service_group_id bigint default null,
+    start_date varchar(16) not null,
+    end_date varchar(16) not null,
+    start_time varchar(16) not null,
+    end_time varchar(16) not null,
+    action_type varchar(32) not null,
+    capacity int default null,
+    reason varchar(500) default '',
+    status varchar(32) default 'ACTIVE',
+    approval_id bigint default null,
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create index if not exists idx_yy_schedule_exception_rule_scope
+    on yy_schedule_exception_rule (tenant_id, store_id, service_group_id, start_date, end_date, status)
+    where del_flag = '0';
+
+create table if not exists yy_risk_approval (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    business_type varchar(64) not null,
+    business_id bigint default null,
+    business_no varchar(128) default '',
+    status varchar(32) default 'PENDING',
+    title varchar(128) default '',
+    reason varchar(500) default '',
+    payload_json text,
+    applicant_user_id bigint default null,
+    applicant_name varchar(64) default '',
+    approver_user_id bigint default null,
+    approver_name varchar(64) default '',
+    approve_time timestamp,
+    reject_reason varchar(500) default '',
+    result_summary varchar(500) default '',
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create index if not exists idx_yy_risk_approval_status
+    on yy_risk_approval (tenant_id, status, business_type, create_time)
+    where del_flag = '0';
+
+create index if not exists idx_yy_risk_approval_business
+    on yy_risk_approval (tenant_id, business_type, business_id)
+    where del_flag = '0';
+
+create table if not exists yy_entitlement_reservation (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    customer_id bigint not null,
+    order_id bigint default null,
+    reservation_no varchar(64) not null,
+    reservation_type varchar(32) default 'BENEFIT',
+    target_type varchar(32) default 'MEMBER_ASSET',
+    target_snapshot varchar(255) default '',
+    quantity numeric(12,2) default 1.00,
+    reservation_amount numeric(12,2) default 0.00,
+    status varchar(32) default 'RESERVED',
+    idempotency_key varchar(64) default '',
+    expire_time timestamp,
+    released_time timestamp,
+    execution_mode varchar(32) default 'SCAFFOLD',
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_entitlement_reservation_no
+    on yy_entitlement_reservation (tenant_id, reservation_no)
+    where del_flag = '0';
+
+create index if not exists idx_yy_entitlement_reservation_scope
+    on yy_entitlement_reservation (tenant_id, customer_id, order_id, status, create_time)
+    where del_flag = '0';
+
+create table if not exists yy_composite_payment_order (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    customer_id bigint not null,
+    order_id bigint default null,
+    composite_no varchar(64) not null,
+    total_amount numeric(12,2) default 0.00,
+    external_amount numeric(12,2) default 0.00,
+    stored_value_amount numeric(12,2) default 0.00,
+    cash_amount numeric(12,2) default 0.00,
+    discount_amount numeric(12,2) default 0.00,
+    waive_amount numeric(12,2) default 0.00,
+    status varchar(32) default 'DRAFT',
+    settle_status varchar(32) default 'PENDING',
+    execution_mode varchar(32) default 'SCAFFOLD',
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_composite_payment_no
+    on yy_composite_payment_order (tenant_id, composite_no)
+    where del_flag = '0';
+
+create index if not exists idx_yy_composite_payment_scope
+    on yy_composite_payment_order (tenant_id, customer_id, order_id, status, create_time)
+    where del_flag = '0';
+
+create table if not exists yy_stored_value_consume_order (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    customer_id bigint not null,
+    order_id bigint default null,
+    consume_no varchar(64) not null,
+    consume_amount numeric(12,2) default 0.00,
+    balance_snapshot numeric(12,2) default 0.00,
+    status varchar(32) default 'FROZEN',
+    reversal_status varchar(32) default 'NONE',
+    execution_mode varchar(32) default 'SCAFFOLD',
+    confirmed_time timestamp,
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_stored_value_consume_no
+    on yy_stored_value_consume_order (tenant_id, consume_no)
+    where del_flag = '0';
+
+create index if not exists idx_yy_stored_value_consume_scope
+    on yy_stored_value_consume_order (tenant_id, customer_id, order_id, status, create_time)
+    where del_flag = '0';
+
+create table if not exists yy_member_withdraw_order (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    customer_id bigint not null,
+    withdraw_no varchar(64) not null,
+    withdraw_amount numeric(12,2) default 0.00,
+    balance_snapshot numeric(12,2) default 0.00,
+    approval_id bigint default null,
+    account_name varchar(64) default '',
+    account_no_masked varchar(64) default '',
+    channel_type varchar(32) default 'BANK_TRANSFER',
+    status varchar(32) default 'PENDING_APPROVAL',
+    execution_mode varchar(32) default 'SCAFFOLD',
+    paid_time timestamp,
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_member_withdraw_no
+    on yy_member_withdraw_order (tenant_id, withdraw_no)
+    where del_flag = '0';
+
+create index if not exists idx_yy_member_withdraw_scope
+    on yy_member_withdraw_order (tenant_id, customer_id, status, create_time)
+    where del_flag = '0';
+
 create table if not exists yy_channel_sync_log (
     id bigint not null,
     tenant_id varchar(20) default '000000',
@@ -497,6 +695,7 @@ create table if not exists yy_service_group (
     group_name varchar(128) not null,
     capacity int default 1,
     duration_minutes int default 30,
+    service_mode varchar(32) default 'HORIZONTAL',
     status char(1) default '0',
     sort int default 0,
     create_dept bigint default null,
@@ -509,6 +708,34 @@ create table if not exists yy_service_group (
     primary key (id),
     unique (tenant_id, store_id, group_code)
 );
+
+create table if not exists yy_order_attribute_template (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint not null,
+    field_code varchar(64) not null,
+    field_label varchar(64) not null,
+    field_type varchar(32) not null,
+    required char(1) default '0',
+    options_json text,
+    sort int default 0,
+    status varchar(32) default 'ACTIVE',
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    remark varchar(500) default null,
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_order_attr_tpl
+    on yy_order_attribute_template (tenant_id, store_id, field_code)
+    where del_flag = '0';
+
+alter table if exists yy_order add column if not exists order_attribute_json text;
+alter table if exists yy_service_group add column if not exists service_mode varchar(32) default 'HORIZONTAL';
 
 create table if not exists yy_schedule_rule (
     id bigint not null,
@@ -643,6 +870,45 @@ create table if not exists yy_report_snapshot (
     remark varchar(500) default null,
     primary key (id)
 );
+
+create table if not exists yy_async_task (
+    id bigint not null,
+    tenant_id varchar(20) default '000000',
+    store_id bigint default null,
+    task_no varchar(64) not null,
+    task_type varchar(64) not null,
+    task_name varchar(128) default '',
+    queue_name varchar(64) default '',
+    status varchar(32) default 'PENDING',
+    run_status varchar(32) default '',
+    business_type varchar(64) default '',
+    business_id bigint default null,
+    date_from varchar(16) default '',
+    date_to varchar(16) default '',
+    download_url varchar(512) default '',
+    started_time timestamp,
+    finished_time timestamp,
+    expire_time timestamp,
+    error_message varchar(512) default '',
+    audit_note varchar(512) default '',
+    remark varchar(512) default '',
+    create_dept bigint default null,
+    create_by bigint default null,
+    create_time timestamp,
+    update_by bigint default null,
+    update_time timestamp,
+    del_flag char(1) default '0',
+    primary key (id)
+);
+
+create unique index if not exists uk_yy_async_task_no
+    on yy_async_task (tenant_id, task_no);
+
+create index if not exists idx_yy_async_task_type_status
+    on yy_async_task (tenant_id, task_type, status, create_time);
+
+create index if not exists idx_yy_async_task_store_time
+    on yy_async_task (tenant_id, store_id, create_time);
 
 create table if not exists yy_mobile_channel_config (
     id bigint not null,

@@ -19,6 +19,12 @@ describe('workbench feature access', () => {
   it('maps merchant operations to booking config and inventory permissions', () => {
     expect(getWorkbenchFeature('merchant-overview')?.permission).toBe('yy:store:list')
     expect(getWorkbenchFeature('merchant-readiness')?.permission).toBe('yy:store:list')
+    expect(getWorkbenchFeature('merchant-schedule-governance')?.permission).toBe('yy:bookingInventory:list')
+    expect(getWorkbenchFeature('merchant-schedule-governance')?.status).toBe('ready')
+    expect(getWorkbenchFeature('merchant-channel-readiness')?.permission).toBe('yy:store:list')
+    expect(getWorkbenchFeature('merchant-governance')?.permission).toBe('yy:store:list')
+    expect(getWorkbenchFeature('merchant-dependency-readiness')?.permission).toBe('yy:store:list')
+    expect(getWorkbenchFeature('merchant-consumer-ops-p1')?.permission).toBe('yy:store:list')
     expect(getWorkbenchFeature('merchant-service-groups')?.permission).toBe('yy:bookingConfig:list')
     expect(getWorkbenchFeature('merchant-inventory')?.permission).toBe('yy:bookingInventory:list')
   })
@@ -29,6 +35,12 @@ describe('workbench feature access', () => {
     expect(accounts?.permission).toBe('yy:customer:list')
     expect(canAccessWorkbenchFeature(accounts, ['yy:customer:list'])).toBe(true)
     expect(canAccessWorkbenchFeature(accounts, [])).toBe(false)
+
+    const transactionSafety = getWorkbenchFeature('member-transaction-safety')
+    expect(transactionSafety?.status).toBe('building')
+    expect(transactionSafety?.permission).toBe('yy:customer:list')
+    expect(canAccessWorkbenchFeature(transactionSafety, ['yy:customer:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(transactionSafety, [])).toBe(false)
 
     const tags = getWorkbenchFeature('member-tags')
     expect(tags?.status).toBe('derived')
@@ -63,7 +75,7 @@ describe('workbench feature access', () => {
   })
 
   it('maps derived order modules to unified order permissions', () => {
-    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign', 'order-forms']) {
+    for (const key of ['order-print', 'order-enterprise', 'order-card', 'order-coupon', 'order-campaign']) {
       const feature = getWorkbenchFeature(key)
       expect(feature?.status).toBe('derived')
       expect(feature?.permission).toBe('yy:order:list')
@@ -72,10 +84,26 @@ describe('workbench feature access', () => {
     }
   })
 
+  it('maps order form submissions to the dedicated order owner route', () => {
+    const feature = getWorkbenchFeature('order-forms')
+    expect(feature?.status).toBe('ready')
+    expect(feature?.permission).toBe('yy:order:list')
+    expect(canAccessWorkbenchFeature(feature, ['yy:order:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
+  })
+
+  it('maps batch card creation to verified order add permission', () => {
+    const feature = getWorkbenchFeature('order-card-batch')
+    expect(feature?.status).toBe('building')
+    expect(feature?.permission).toBe('yy:order:add')
+    expect(canAccessWorkbenchFeature(feature, ['yy:order:add'])).toBe(true)
+    expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
+  })
+
   it('maps derived product modules to product and channel permissions', () => {
     for (const key of ['product-addon', 'product-group', 'product-print']) {
       const feature = getWorkbenchFeature(key)
-      expect(feature?.status).toBe('derived')
+      expect(feature?.status).toBe('building')
       expect(feature?.permission).toBe('yy:product:list')
       expect(canAccessWorkbenchFeature(feature, ['yy:product:list'])).toBe(true)
     }
@@ -94,9 +122,22 @@ describe('workbench feature access', () => {
     expect(getWorkbenchFeature('settings-logs')?.status).toBe('partial')
   })
 
+  it('maps order analysis scaffold to the verified report permission', () => {
+    const feature = getWorkbenchFeature('report-order-analysis')
+    expect(feature?.status).toBe('building')
+    expect(feature?.permission).toBe('yy:report:list')
+    expect(canAccessWorkbenchFeature(feature, ['yy:report:list'])).toBe(true)
+    expect(canAccessWorkbenchFeature(feature, [])).toBe(false)
+  })
+
   it('maps new scaffold governance groups to verified existing permissions instead of inventing new codes', () => {
     expect(getWorkbenchFeature('platform-integration')?.permission).toBe('yy:channel:list')
+    expect(getWorkbenchFeature('platform-login-risk')?.permission).toBe('yy:dashboard:list')
+    expect(getWorkbenchFeature('platform-open-api')?.permission).toBe('yy:channel:list')
+    expect(getWorkbenchFeature('platform-task-center')?.permission).toBe('yy:dashboard:list')
     expect(getWorkbenchFeature('platform-notification-center')?.permission).toBe('yy:notification:list')
+    expect(getWorkbenchFeature('platform-backup-recovery')?.permission).toBe('yy:dashboard:list')
+    expect(getWorkbenchFeature('platform-meituan-review-trace')?.permission).toBe('yy:channel:list')
     expect(getWorkbenchFeature('account-profile')?.permission).toBe('yy:dashboard:list')
     expect(getWorkbenchFeature('finance-overview')?.permission).toBe('yy:dashboard:list')
     expect(getWorkbenchFeature('tool-sample-works')?.permission).toBe('yy:photoAsset:list')
@@ -110,7 +151,7 @@ describe('workbench feature access', () => {
     expect(getEffectiveFeatureStatus(building, { 'local-building': 'ready' })).toBe('building')
     expect(getEffectiveFeatureStatus(ready, { 'order-appointment': 'building' })).toBe('building')
     expect(getEffectiveFeatureStatus(ready, { 'order-appointment': 'hidden' })).toBe('hidden')
-    expect(getEffectiveFeatureStatus(getWorkbenchFeature('order-forms'), {})).toBe('derived')
+    expect(getEffectiveFeatureStatus(getWorkbenchFeature('order-forms'), {})).toBe('ready')
     expect(getEffectiveFeatureStatus(getWorkbenchFeature('settings-logs'), {})).toBe('partial')
   })
 

@@ -14,6 +14,8 @@
       :cancel-reason-options="context.cancelReasonOptions"
       :cancel-saving="context.cancelSaving"
       :confirm-payment-saving="context.confirmPaymentSaving"
+      :refund-reason="context.refundReason"
+      :refund-saving="context.refundSaving"
       :can-advance="context.canAdvance"
       :can-confirm-album="context.canConfirmAlbum"
       :can-deliver-album="context.canDeliverAlbum"
@@ -37,6 +39,13 @@
       :photo-stage="context.photoStage"
       :photo-stage-class="context.photoStageClass"
       :product="context.product"
+      :copy-date="context.copyDate"
+      :copy-duration-minutes="context.copyDurationMinutes"
+      :copy-remark="context.copyRemark"
+      :copy-saving="context.copySaving"
+      :copy-schedule-mode="context.copyScheduleMode"
+      :copy-time="context.copyTime"
+      :can-reuse-source-slot="context.canReuseSourceSlot"
       :reschedule-conflict="context.rescheduleConflict"
       :reschedule-date="context.rescheduleDate"
       :reschedule-duration-minutes="context.rescheduleDurationMinutes"
@@ -48,6 +57,7 @@
       :reschedule-slot-options="context.rescheduleSlotOptions"
       :reschedule-time="context.rescheduleTime"
       :show-confirm-payment="context.showConfirmPayment"
+      :show-refund-request="context.showRefundRequest"
       :show-back-to-slot="context.showBackToSlot"
       :slot-time-label="context.slotTimeLabel"
       :source-context="context.sourceContext"
@@ -66,6 +76,7 @@
       @confirm-album="emit('confirmAlbum')"
       @copy="(value, key) => emit('copy', value, key)"
       @copy-channel-diagnostic="emit('copyChannelDiagnostic')"
+      @submit-copy-order="emit('submitCopyOrder')"
       @copy-order-id="emit('copyOrderId')"
       @deliver-album="emit('deliverAlbum')"
       @notify-album="emit('notifyAlbum')"
@@ -75,8 +86,15 @@
       @refresh-operation-logs="emit('refreshOperationLogs')"
       @submit-cancel="emit('submitCancel')"
       @submit-confirm-payment="emit('submitConfirmPayment')"
+      @submit-refund-request="emit('submitRefundRequest')"
       @submit-reschedule="emit('submitReschedule')"
       @update-cancel-reason="emit('updateCancelReason', $event)"
+      @update-copy-schedule-mode="emit('updateCopyScheduleMode', $event)"
+      @update-copy-date="emit('updateCopyDate', $event)"
+      @update-copy-time="emit('updateCopyTime', $event)"
+      @update-copy-duration-minutes="emit('updateCopyDurationMinutes', $event)"
+      @update-copy-remark="emit('updateCopyRemark', $event)"
+      @update-refund-reason="emit('updateRefundReason', $event)"
       @update-reschedule-date="emit('updateRescheduleDate', $event)"
       @update-reschedule-duration-minutes="emit('updateRescheduleDurationMinutes', $event)"
       @update-reschedule-remark="emit('updateRescheduleRemark', $event)"
@@ -127,6 +145,13 @@ export type OrderDetailDrawerHostContext = {
   paymentTone: StatusBadgeTone
   copiedField: string
   flowSteps: OrderFlowStep[]
+  copyScheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  copyDate: string
+  copyTime: string
+  copyDurationMinutes: number
+  copyRemark: string
+  copySaving: boolean
+  canReuseSourceSlot: boolean
   rescheduleDate: string
   rescheduleTime: string
   rescheduleDurationMinutes: number
@@ -148,6 +173,9 @@ export type OrderDetailDrawerHostContext = {
   cancelDisabled: boolean
   showConfirmPayment: boolean
   confirmPaymentSaving: boolean
+  showRefundRequest: boolean
+  refundSaving: boolean
+  refundReason: string
   album: Album | null
   photoStage: OrderPhotoDeliveryStage
   photoStageClass: string
@@ -177,8 +205,14 @@ const emit = defineEmits<{
   backToSlot: []
   advance: [order: BookingOrder]
   refreshLogs: []
+  submitCopyOrder: []
   copyOrderId: []
   copy: [value: string, key: string]
+  updateCopyScheduleMode: [value: 'REUSE_SLOT' | 'UNDECIDED']
+  updateCopyDate: [value: string]
+  updateCopyTime: [value: string]
+  updateCopyDurationMinutes: [value: number]
+  updateCopyRemark: [value: string]
   updateRescheduleDate: [value: string]
   updateRescheduleTime: [value: string]
   updateRescheduleDurationMinutes: [value: number]
@@ -190,6 +224,8 @@ const emit = defineEmits<{
   applyCancelReason: [reason: string]
   submitCancel: []
   submitConfirmPayment: []
+  submitRefundRequest: []
+  updateRefundReason: [value: string]
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

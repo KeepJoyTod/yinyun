@@ -10,6 +10,7 @@ import org.dromara.yy.domain.YyOrder;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 影约云预约订单视图对象 yy_order
@@ -206,6 +207,16 @@ public class YyOrderVo implements Serializable {
      */
     @ExcelProperty(value = "库存冲突原因")
     private String conflictReason;
+
+    /**
+     * 订单属性快照和值
+     */
+    private String orderAttributeJson;
+
+    /**
+     * 订单属性结构化值
+     */
+    private List<YyOrderAttributeValueVo> orderAttributes;
 
     /**
      * 渠道外部状态

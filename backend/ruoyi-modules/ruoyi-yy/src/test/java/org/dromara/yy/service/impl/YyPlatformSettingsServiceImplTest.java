@@ -1,11 +1,19 @@
 package org.dromara.yy.service.impl;
 
+import org.dromara.yy.domain.YyAsyncTask;
 import org.dromara.yy.domain.vo.YyChannelAccountVo;
+import org.dromara.yy.domain.vo.YyChannelSyncLogVo;
 import org.dromara.yy.domain.vo.YyNotificationTemplateVo;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
+import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
+import org.dromara.yy.domain.vo.YyPlatformLoginRiskPolicyVo;
+import org.dromara.yy.domain.vo.YyPlatformMeituanReviewTraceVo;
 import org.dromara.yy.domain.vo.YyPlatformNotificationRuleVo;
+import org.dromara.yy.domain.vo.YyPlatformOpenApiAppVo;
 import org.dromara.yy.domain.vo.YyPlatformServicePackageStatusVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
+import org.dromara.yy.mapper.YyAsyncTaskMapper;
 import org.dromara.yy.service.IYyChannelAccountService;
 import org.dromara.yy.service.IYyChannelSyncLogService;
 import org.dromara.yy.service.IYyNotificationLogService;
@@ -45,6 +53,8 @@ class YyPlatformSettingsServiceImplTest {
 
     @Mock
     private IYyServiceProductionService yyServiceProductionService;
+    @Mock
+    private YyAsyncTaskMapper yyAsyncTaskMapper;
 
     @InjectMocks
     private YyPlatformSettingsServiceImpl service;
@@ -85,6 +95,66 @@ class YyPlatformSettingsServiceImplTest {
     }
 
     @Test
+    void listLoginRiskPoliciesShouldExposeScaffoldPolicies() {
+        List<YyPlatformLoginRiskPolicyVo> result = service.listLoginRiskPolicies();
+
+        assertEquals("STAFF_LOGIN_RISK", result.get(0).getPolicyCode());
+        assertEquals("scaffold", result.get(0).getStatus());
+        assertEquals(false, result.get(0).getNextActions().get(0).getEnabled());
+    }
+
+    @Test
+    void listOpenApiAppsShouldExposeSandboxScaffold() {
+        List<YyPlatformOpenApiAppVo> result = service.listOpenApiApps();
+
+        assertEquals("ERP-SANDBOX", result.get(0).getAppCode());
+        assertEquals("API_KEY + SIGNATURE", result.get(0).getAuthMode());
+        assertEquals("scaffold", result.get(0).getStatus());
+    }
+
+    @Test
+    void listAsyncTasksShouldExposeTaskCenterScaffold() {
+        when(yyAsyncTaskMapper.selectList(any())).thenReturn(List.of());
+
+        List<YyPlatformAsyncTaskVo> result = service.listAsyncTasks();
+
+        assertEquals("EXPORT", result.get(0).getTaskType());
+        assertEquals("platform-export", result.get(0).getQueueName());
+        assertEquals("scaffold", result.get(0).getStatus());
+    }
+
+    @Test
+    void listAsyncTasksShouldReadPersistedAsyncTaskLedger() {
+        YyAsyncTask task = new YyAsyncTask();
+        task.setTaskNo("FIN-REC-1");
+        task.setTaskType("REPORT_FINANCE_RECONCILIATION_EXPORT");
+        task.setTaskName("Finance reconciliation export");
+        task.setQueueName("platform-export");
+        task.setStatus("COMPLETED");
+        task.setRunStatus("COMPLETED");
+        task.setAuditNote("created from finance report");
+        task.setCreateTime(new Date());
+        when(yyAsyncTaskMapper.selectList(any())).thenReturn(List.of(task));
+
+        List<YyPlatformAsyncTaskVo> result = service.listAsyncTasks();
+
+        assertEquals("REPORT_FINANCE_RECONCILIATION_EXPORT", result.get(0).getTaskType());
+        assertEquals("platform-export", result.get(0).getQueueName());
+        assertEquals("COMPLETED", result.get(0).getLatestRunStatus());
+        assertEquals("ready", result.get(0).getStatus());
+        assertEquals("yy_async_task", result.get(0).getEvidence().get(0).getSourceType());
+    }
+
+    @Test
+    void listBackupRecoveryPlansShouldExposeRecoveryScaffold() {
+        List<YyPlatformBackupRecoveryVo> result = service.listBackupRecoveryPlans();
+
+        assertEquals("PITR-PRIMARY", result.get(0).getPlanCode());
+        assertEquals("PostgreSQL + object storage", result.get(0).getBackupScope());
+        assertEquals("scaffold", result.get(0).getStatus());
+    }
+
+    @Test
     void listServicePackagesShouldReadLicenseBindingLedger() {
         YyServiceLicenseBindingVo license = new YyServiceLicenseBindingVo();
         license.setLicenseKey("LIC-001");
@@ -99,5 +169,26 @@ class YyPlatformSettingsServiceImplTest {
         assertEquals("Advanced", result.get(0).getPackageName());
         assertEquals("ready", result.get(0).getStatus());
         verify(yyServiceProductionService).queryLicenseBindings(eq(1001L));
+    }
+
+    @Test
+    void listMeituanReviewTracesShouldReuseExistingChannelEvidence() {
+        YyChannelAccountVo account = new YyChannelAccountVo();
+        account.setChannelType("MEITUAN");
+        account.setStatus("ACTIVE");
+        YyChannelSyncLogVo log = new YyChannelSyncLogVo();
+        log.setChannelType("MEITUAN");
+        log.setApiName("review_trace_probe");
+        log.setSuccess("Y");
+        log.setRequestId("req-1");
+        log.setCreateTime(new Date());
+        when(yyChannelAccountService.queryList(any())).thenReturn(List.of(account));
+        when(yyChannelSyncLogService.queryList(any())).thenReturn(List.of(log));
+
+        List<YyPlatformMeituanReviewTraceVo> result = service.listMeituanReviewTraces();
+
+        assertEquals("MEITUAN_REVIEW_TRACE", result.get(0).getPluginCode());
+        assertEquals("AUTH_READY_BUT_REVIEW_SYNC_MISSING", result.get(0).getTraceStatus());
+        assertEquals("scaffold", result.get(0).getStatus());
     }
 }

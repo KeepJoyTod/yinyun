@@ -11,12 +11,14 @@ import org.dromara.yy.domain.YyMemberBalanceLedger;
 import org.dromara.yy.domain.YyMemberRechargeOrder;
 import org.dromara.yy.domain.bo.YyMemberRechargeCreateBo;
 import org.dromara.yy.domain.vo.YyMemberRechargeOrderVo;
+import org.dromara.yy.domain.vo.YyRiskApprovalVo;
 import org.dromara.yy.mapper.YyCustomerMapper;
 import org.dromara.yy.mapper.YyEmployeeMapper;
 import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyMemberAccountMapper;
 import org.dromara.yy.mapper.YyMemberBalanceLedgerMapper;
 import org.dromara.yy.mapper.YyMemberRechargeOrderMapper;
+import org.dromara.yy.service.IYyRiskApprovalService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +61,9 @@ class YyMemberRechargeServiceImplTest {
     @Mock
     private YyMemberRechargeOrderMapper memberRechargeOrderMapper;
 
+    @Mock
+    private IYyRiskApprovalService riskApprovalService;
+
     @InjectMocks
     private YyMemberRechargeServiceImpl service;
 
@@ -74,10 +79,14 @@ class YyMemberRechargeServiceImplTest {
 
         try (MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             loginHelper.when(LoginHelper::isLogin).thenReturn(false);
+            YyRiskApprovalVo approval = new YyRiskApprovalVo();
+            approval.setId(7001L);
+            when(riskApprovalService.createPending(any())).thenReturn(approval);
 
             YyMemberRechargeOrderVo result = service.createRechargeOrder(101L, bo);
 
             assertEquals("PENDING_APPROVAL", result.getStatus());
+            assertEquals(7001L, result.getApprovalId());
             verify(memberRechargeOrderMapper).insert(any(YyMemberRechargeOrder.class));
             verify(memberAccountMapper).updateById(any(YyMemberAccount.class));
         }

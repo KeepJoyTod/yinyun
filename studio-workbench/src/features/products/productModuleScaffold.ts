@@ -1,3 +1,5 @@
+import { collectScaffoldAcceptanceMeta } from '../system/scaffoldAcceptanceMappings'
+
 export type ProductModuleScaffoldKey =
   | 'catalog'
   | 'sku'
@@ -15,6 +17,10 @@ export type ProductModuleScaffold = {
   owner: string
   readiness: string
   chips: string[]
+  inventoryCodes: string[]
+  acceptanceLabel: string
+  boundaryNotes: string[]
+  nextActions: string[]
 }
 
 export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductModuleScaffold> = {
@@ -26,6 +32,7 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/catalog',
     readiness: '脚手架补齐/待真实验收',
     chips: ['yy_product 主账本', '聚合 DTO', 'readiness'],
+    ...collectScaffoldAcceptanceMeta(['B-018', 'B-020', 'B-022']),
   },
   sku: {
     key: 'sku',
@@ -35,6 +42,7 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/sku',
     readiness: '脚手架补齐/待真实验收',
     chips: ['SKU CRUD', '价格配置', '线上展示'],
+    ...collectScaffoldAcceptanceMeta(['B-019']),
   },
   category: {
     key: 'category',
@@ -44,6 +52,7 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/category',
     readiness: '分类与批量运营骨架补齐/批量写入待验收',
     chips: ['分类', '排序', '门店范围'],
+    ...collectScaffoldAcceptanceMeta(['B-023', 'B-024', 'B-025']),
   },
   relation: {
     key: 'relation',
@@ -53,6 +62,7 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/relation',
     readiness: '脚手架补齐/待真实验收',
     chips: ['加购', '入册', '冲印联动'],
+    ...collectScaffoldAcceptanceMeta(['B-021']),
   },
   'booking-rules': {
     key: 'booking-rules',
@@ -62,6 +72,7 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/booking-rules',
     readiness: '脚手架补齐/待真实验收',
     chips: ['服务组', '预付模式', '绑定状态'],
+    ...collectScaffoldAcceptanceMeta(['B-022']),
   },
   channel: {
     key: 'channel',
@@ -71,6 +82,16 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/channel',
     readiness: '渠道插件配置骨架已补齐/真实授权待验收',
     chips: ['抖音', '美团', '映射状态'],
+    inventoryCodes: [],
+    acceptanceLabel: '渠道配置脚手架完成 / 待真实授权验收',
+    boundaryNotes: [
+      '只保存本地映射补充配置，不调用抖音或美团真实写接口。',
+      '真实授权、商品同步、核销和 logid 证据仍待独立任务包。',
+    ],
+    nextActions: [
+      '补真实渠道授权、商品同步与映射 smoke。',
+      '补渠道核销和异常证据链验收。',
+    ],
   },
   cards: {
     key: 'cards',
@@ -80,5 +101,6 @@ export const productModuleScaffolds: Record<ProductModuleScaffoldKey, ProductMod
     owner: 'features/products/cards',
     readiness: '脚手架补齐/待真实验收',
     chips: ['计次卡', '储值卡', '权益 readiness'],
+    ...collectScaffoldAcceptanceMeta(['B-028']),
   },
 }

@@ -1,5 +1,6 @@
 import type { BackendId } from './backendId'
 import type { CollaborationStageCode } from './backendTypesCollaboration'
+import type { OrderAttributeFieldType } from './backendTypesCore'
 
 export type ProductPayload = {
   storeId?: BackendId | null
@@ -22,9 +23,33 @@ export type ServiceGroupPayload = {
   groupName: string
   capacity: number
   durationMinutes: number
+  serviceMode: 'HORIZONTAL' | 'VERTICAL'
   status: string
   sort: number
   remark: string
+}
+
+export type OrderAttributeValuePayload = {
+  fieldCode: string
+  fieldLabel: string
+  fieldType: OrderAttributeFieldType
+  required: boolean
+  options: string[]
+  sort: number
+  value: string | string[] | null
+}
+
+export type OrderAttributeTemplatePayload = {
+  id?: BackendId
+  storeId: BackendId
+  fieldCode: string
+  fieldLabel: string
+  fieldType: OrderAttributeFieldType
+  required: boolean
+  options: string[]
+  sort: number
+  status: string
+  remark?: string
 }
 
 export type OrderCreatePayload = {
@@ -46,6 +71,15 @@ export type OrderCreatePayload = {
   submitMode?: 'SAVE' | 'SAVE_AND_RECEIVE'
   payStatus?: string
   status?: string
+  orderAttributes?: OrderAttributeValuePayload[]
+  remark?: string
+}
+
+export type OrderUpdatePayload = {
+  id: BackendId
+  storeId?: BackendId
+  orderNo?: string
+  orderAttributes?: OrderAttributeValuePayload[]
   remark?: string
 }
 
@@ -67,10 +101,26 @@ export type OrderReschedulePayload = {
   remark?: string
 }
 
+export type OrderCopyPayload = {
+  sourceOrderId: BackendId
+  scheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  arrivalTime?: string
+  slotDate?: string
+  slotStartTime?: string
+  slotEndTime?: string
+  remark?: string
+}
+
 export type OrderPaymentConfirmPayload = {
   id: BackendId
   amountCent: number
   remark: string
+}
+
+export type OrderRefundRequestPayload = {
+  id: BackendId
+  refundAmountCent: number
+  reason: string
 }
 
 export type BookingInventoryUpdatePayload = {
@@ -83,6 +133,31 @@ export type BookingInventoryUpdatePayload = {
   endTime: string
   capacity: number
   status: string
+  remark?: string
+}
+
+export type ScheduleGovernancePayload = {
+  storeId: BackendId
+  serviceGroupId?: BackendId | null
+  beginBizDate: string
+  endBizDate: string
+  startTime: string
+  endTime: string
+  actionType: 'CLOSE' | 'REOPEN' | 'CAPACITY_OVERRIDE'
+  capacity?: number | null
+  reason?: string
+}
+
+export type RiskApprovalListQuery = {
+  storeId?: BackendId
+  businessType?: string
+  businessId?: BackendId
+  status?: string
+  pageNum?: number
+  pageSize?: number
+}
+
+export type RiskApprovalDecisionPayload = {
   remark?: string
 }
 

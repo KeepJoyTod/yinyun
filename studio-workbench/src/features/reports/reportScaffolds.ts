@@ -52,14 +52,6 @@ const reportDefinitions: ReportModuleDefinition[] = [
     ledgers: ['yy_photo_album', 'yy_photo_asset', 'yy_report_snapshot'],
   },
   {
-    featureKey: 'report-finance',
-    title: '收支统计',
-    route: '/report/finance',
-    summary: '收支统计继续从统一订单账本和报表快照派生。',
-    nextPhase: 'Phase 2 继续补费用中心对账口径和真实资金账本映射。',
-    ledgers: ['yy_order', 'yy_report_snapshot'],
-  },
-  {
     featureKey: 'report-customers',
     title: '客户分析',
     route: '/report/customers',
@@ -94,27 +86,107 @@ const reportDefinitions: ReportModuleDefinition[] = [
   },
 ]
 
-export const reportScaffolds = reportDefinitions.map(definition =>
-  definePhaseModuleScaffold({
-    featureKey: definition.featureKey,
-    phase: 'Phase 2',
-    ownerStatus: definition.status ?? 'derived',
-    domain: '统计',
-    title: definition.title,
-    summary: definition.summary,
-    owner: 'studio-workbench/src/features/reports',
-    nextPhase: definition.nextPhase,
-    routes: [definition.route],
-    contracts: [
-      'docs/contracts/full-product-closed-loop-contract.md',
-      'studio-workbench/src/features/reports/DerivedReportModuleView.vue',
+export const orderAnalysisScaffold = definePhaseModuleScaffold({
+  featureKey: 'report-order-analysis',
+  phase: 'Phase 2',
+  ownerStatus: 'building',
+  domain: '统计',
+  title: '订购分析',
+  summary: '基于统一订单账本与支付流水搭建订购、支付、退款和渠道口径脚手架。',
+  owner: 'studio-workbench/src/features/reports',
+  nextPhase: 'Phase 2 继续补真实支付流水对账、导出和任务中心联动。',
+  routes: ['/report/order-analysis'],
+  contracts: [
+    'docs/contracts/order-analysis-scaffold-contract-20260626.md',
+    'studio-workbench/src/features/reports/OrderAnalysisReportView.vue',
+  ],
+  apis: ['backendApi.getOrderAnalysisOverview()', 'GET /yy/reportOrderAnalysis/overview'],
+  ledgers: ['yy_order', 'yy_payment_record'],
+  ownerLayers: {
+    presentation: ['studio-workbench/src/features/reports/OrderAnalysisReportView.vue'],
+    control: [
+      'studio-workbench/src/features/reports/composables/useOrderAnalysisReport.ts',
+      'studio-workbench/src/shared/api/backendReportsApi.ts',
     ],
-    apis: ['appStore.ensureReportDataLoaded()', 'GET /yy/reportSnapshot/list'],
-    ledgers: definition.ledgers,
-    ownerLayers: {
-      presentation: ['studio-workbench/src/features/reports/DerivedReportModuleView.vue'],
-      control: ['studio-workbench/src/features/reports/derivedReportModules.ts', 'studio-workbench/src/shared/stores/appStore.ts'],
-      data: definition.ledgers,
-    },
-  }),
-)
+    data: ['yy_order', 'yy_payment_record'],
+  },
+})
+
+export const reportFinanceReconciliationScaffold = definePhaseModuleScaffold({
+  featureKey: 'report-finance',
+  phase: 'Phase 2',
+  ownerStatus: 'building',
+  domain: '统计',
+  title: '财务对账报表',
+  summary: '按订单视角和资金流水视角统一核对订单、支付、退款、储值、提现、优惠减免和权益预占口径。',
+  owner: 'studio-workbench/src/features/reports',
+  nextPhase: '接入持久化异步任务账本、对象存储下载、真实三方支付/退款/提现回单和跨实例任务队列。',
+  routes: ['/report/finance'],
+  contracts: [
+    'docs/contracts/report-finance-reconciliation-contract-20260626.md',
+    'studio-workbench/src/features/reports/ReportFinanceReconciliationView.vue',
+  ],
+  apis: [
+    'backendApi.getReportFinanceReconciliation()',
+    'backendApi.createReportFinanceExportTask()',
+    'GET /yy/reportFinanceReconciliation/overview',
+    'POST /yy/reportFinanceReconciliation/export',
+    'GET /yy/reportFinanceReconciliation/export/tasks',
+  ],
+  ledgers: [
+    'yy_order',
+    'yy_payment_record',
+    'yy_member_balance_ledger',
+    'yy_stored_value_consume_order',
+    'yy_member_withdraw_order',
+    'yy_composite_payment_order',
+    'yy_entitlement_reservation',
+  ],
+  ownerLayers: {
+    presentation: ['studio-workbench/src/features/reports/ReportFinanceReconciliationView.vue'],
+    control: [
+      'studio-workbench/src/features/reports/composables/useReportFinanceReconciliation.ts',
+      'studio-workbench/src/shared/api/backendReportsApi.ts',
+      'backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyReportFinanceReconciliationController.java',
+      'backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyReportFinanceReconciliationServiceImpl.java',
+    ],
+    data: [
+      'yy_order',
+      'yy_payment_record',
+      'yy_member_balance_ledger',
+      'yy_stored_value_consume_order',
+      'yy_member_withdraw_order',
+      'yy_composite_payment_order',
+      'yy_entitlement_reservation',
+    ],
+  },
+})
+
+export const reportScaffolds = [
+  ...reportDefinitions.map(definition =>
+    definePhaseModuleScaffold({
+      featureKey: definition.featureKey,
+      phase: 'Phase 2',
+      ownerStatus: definition.status ?? 'derived',
+      domain: '统计',
+      title: definition.title,
+      summary: definition.summary,
+      owner: 'studio-workbench/src/features/reports',
+      nextPhase: definition.nextPhase,
+      routes: [definition.route],
+      contracts: [
+        'docs/contracts/full-product-closed-loop-contract.md',
+        'studio-workbench/src/features/reports/DerivedReportModuleView.vue',
+      ],
+      apis: ['appStore.ensureReportDataLoaded()', 'GET /yy/reportSnapshot/list'],
+      ledgers: definition.ledgers,
+      ownerLayers: {
+        presentation: ['studio-workbench/src/features/reports/DerivedReportModuleView.vue'],
+        control: ['studio-workbench/src/features/reports/derivedReportModules.ts', 'studio-workbench/src/shared/stores/appStore.ts'],
+        data: definition.ledgers,
+      },
+    }),
+  ),
+  orderAnalysisScaffold,
+  reportFinanceReconciliationScaffold,
+]

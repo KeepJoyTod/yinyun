@@ -1,4 +1,5 @@
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { appStore, type CustomerInfo } from '../../../../shared/stores/appStore'
 import { memberStore } from '../../../../shared/stores/memberStore'
 import type { BackendId } from '../../../../shared/api/backendId'
@@ -6,6 +7,7 @@ import type { BackendId } from '../../../../shared/api/backendId'
 const money = (value: number) => `¥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 export const useMemberAssetOverview = () => {
+  const route = useRoute()
   const loading = ref(false)
   const error = ref('')
   const searchQuery = ref('')
@@ -75,7 +77,11 @@ export const useMemberAssetOverview = () => {
     try {
       await appStore.ensureCustomersLoaded()
       if (!customers.value.length) return
-      const nextId = selectedCustomerId.value || filteredCustomers.value[0]?.backendId || customers.value[0]?.backendId
+      const routeCustomerId = String(route.query.customerId ?? '')
+      const matchedRouteCustomer = routeCustomerId
+        ? customers.value.find(customer => String(customer.backendId) === routeCustomerId)?.backendId
+        : ''
+      const nextId = matchedRouteCustomer || selectedCustomerId.value || filteredCustomers.value[0]?.backendId || customers.value[0]?.backendId
       if (!nextId) return
       selectedCustomerId.value = nextId
       await loadSelectedCustomer(nextId)

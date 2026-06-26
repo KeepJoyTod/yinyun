@@ -1,5 +1,6 @@
 import type { BackendId } from '../../shared/api/backendId'
 import type { BookingInventorySlot } from '../../shared/stores/appStore'
+import type { OrderAttributeValue } from '../../shared/stores/appStoreTypes'
 import type { ServiceGroupInfo, StoreInfo } from '../../shared/stores/appStoreTypes'
 import type { StaffOrderCreateInput } from '../../shared/stores/orderActionStore'
 import { formatDate, normalizeClock } from '../../shared/stores/appStoreTransforms'
@@ -36,6 +37,7 @@ export type StaffBookingDraft = {
   notifyEnabled: boolean
   payStatus: 'UNPAID' | 'PAID'
   status: 'PENDING' | 'CONFIRMED'
+  orderAttributes?: OrderAttributeValue[]
   remark: string
   sourceSubmissionId?: BackendId
 }
@@ -166,5 +168,6 @@ export const buildStaffOrderCreateInput = (
   submitMode: params.submitMode,
   payStatus: draft.payStatus,
   status: draft.status,
+  orderAttributes: draft.orderAttributes,
   remark: draft.remark,
 })

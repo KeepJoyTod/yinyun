@@ -14,8 +14,11 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.yy.domain.bo.YyBookingSlotInventoryBo;
+import org.dromara.yy.domain.bo.YyScheduleGovernanceBo;
 import org.dromara.yy.domain.vo.YyBookingSlotInventoryVo;
+import org.dromara.yy.domain.vo.YyScheduleGovernancePreviewVo;
 import org.dromara.yy.service.IYyBookingSlotInventoryService;
+import org.dromara.yy.service.IYyScheduleGovernanceService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +34,7 @@ import java.util.List;
 public class YyBookingSlotInventoryController extends BaseController {
 
     private final IYyBookingSlotInventoryService yyBookingSlotInventoryService;
+    private final IYyScheduleGovernanceService yyScheduleGovernanceService;
 
     @SaCheckPermission("yy:bookingInventory:list")
     @GetMapping("/list")
@@ -58,5 +62,21 @@ public class YyBookingSlotInventoryController extends BaseController {
     @PutMapping
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody YyBookingSlotInventoryBo bo) {
         return toAjax(yyBookingSlotInventoryService.updateByBo(bo));
+    }
+
+    @SaCheckPermission("yy:bookingInventory:list")
+    @Log(title = "预约时段治理预览", businessType = BusinessType.OTHER)
+    @RepeatSubmit
+    @PostMapping("/governance/preview")
+    public R<YyScheduleGovernancePreviewVo> previewGovernance(@Validated @RequestBody YyScheduleGovernanceBo bo) {
+        return R.ok(yyScheduleGovernanceService.preview(bo));
+    }
+
+    @SaCheckPermission("yy:bookingInventory:edit")
+    @Log(title = "预约时段治理", businessType = BusinessType.UPDATE)
+    @RepeatSubmit
+    @PostMapping("/governance/apply")
+    public R<YyScheduleGovernancePreviewVo> applyGovernance(@Validated @RequestBody YyScheduleGovernanceBo bo) {
+        return R.ok(yyScheduleGovernanceService.apply(bo));
     }
 }

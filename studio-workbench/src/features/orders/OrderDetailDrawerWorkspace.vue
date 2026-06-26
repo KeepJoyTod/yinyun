@@ -26,9 +26,11 @@
           :can-advance="canAdvance"
           :advancing="advancing"
           :show-back-to-slot="showBackToSlot"
+          :copy-saving="copySaving"
           @refresh-logs="$emit('refreshLogs')"
           @advance="$emit('advanceOrder', $event)"
           @back-to-slot="$emit('backToSlot')"
+          @copy-order="$emit('submitCopyOrder')"
           @copy-order-id="$emit('copyField', order.id, 'orderId')"
         />
 
@@ -41,6 +43,8 @@
         />
 
         <OrderFlowChipGrid :steps="orderFlowSteps" />
+
+        <OrderAttributeOrderSection :order="order" />
 
         <OrderDetailActionSections
           :order="order"
@@ -65,6 +69,16 @@
           :cancel-disabled="order.status === '已取消' || order.status === '已退单'"
           :show-confirm-payment="order.payment === '待支付' && order.status !== '已取消' && order.status !== '已退单' && !order.refundStatus && order.source !== '抖音来客' && order.channelType !== 'DOUYIN_LIFE'"
           :confirm-payment-saving="false"
+          :show-refund-request="false"
+          :refund-saving="false"
+          refund-reason=""
+          :copy-schedule-mode="copyScheduleMode"
+          :copy-date="copyDate"
+          :copy-time="copyTime"
+          :copy-duration-minutes="copyDurationMinutes"
+          :copy-remark="copyRemark"
+          :copy-saving="copySaving"
+          :can-reuse-source-slot="canReuseSourceSlot"
           @update-reschedule-date="$emit('updateRescheduleDate', $event)"
           @update-reschedule-time="$emit('updateRescheduleTime', $event)"
           @update-reschedule-duration-minutes="$emit('updateRescheduleDurationMinutes', $event)"
@@ -76,6 +90,12 @@
           @apply-cancel-reason="$emit('applyCancelReason', $event)"
           @submit-cancel="$emit('submitCancel')"
           @submit-confirm-payment="$emit('submitConfirmPayment')"
+          @update-copy-schedule-mode="$emit('updateCopyScheduleMode', $event)"
+          @update-copy-date="$emit('updateCopyDate', $event)"
+          @update-copy-time="$emit('updateCopyTime', $event)"
+          @update-copy-duration-minutes="$emit('updateCopyDurationMinutes', $event)"
+          @update-copy-remark="$emit('updateCopyRemark', $event)"
+          @submit-copy-order="$emit('submitCopyOrder')"
         />
 
         <OrderAlbumSection
@@ -123,6 +143,7 @@ import type { Album, BookingInventorySlot, BookingOrder, ChannelSyncLogInfo, Pro
 import type { AlbumActionAvailability, PhotoAccessLogRow } from '../albums/photoMgmtOperations'
 import OrderActionNoticePanel from './OrderActionNoticePanel.vue'
 import OrderAlbumSection from './OrderAlbumSection.vue'
+import OrderAttributeOrderSection from './OrderAttributeOrderSection.vue'
 import OrderDetailActionSections from './OrderDetailActionSections.vue'
 import OrderDetailAuxiliarySections from './OrderDetailAuxiliarySections.vue'
 import OrderDetailDrawerShell from './OrderDetailDrawerShell.vue'
@@ -158,6 +179,13 @@ defineProps<{
   operationLogsStateText: string
   canAdvance: boolean
   copiedField: string
+  copyScheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  copyDate: string
+  copyTime: string
+  copyDurationMinutes: number
+  copyRemark: string
+  copySaving: boolean
+  canReuseSourceSlot: boolean
   orderFlowSteps: OrderFlowStep[]
   rescheduleDraft: RescheduleDraft
   rescheduleReasonOptions: string[]
@@ -208,6 +236,12 @@ defineEmits<{
   applyCancelReason: [reason: string]
   submitCancel: []
   submitConfirmPayment: []
+  updateCopyScheduleMode: [value: 'REUSE_SLOT' | 'UNDECIDED']
+  updateCopyDate: [value: string]
+  updateCopyTime: [value: string]
+  updateCopyDurationMinutes: [value: number]
+  updateCopyRemark: [value: string]
+  submitCopyOrder: []
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

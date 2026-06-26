@@ -47,7 +47,7 @@ describe('store page contract', () => {
     expect(storeSource).toContain("path: '/order/appointment'")
     expect(storeSource).toContain("path: '/merchant/service-groups'")
     expect(storeSource).toContain("path: '/product/service'")
-    expect(storeSource).toContain("path: '/order/forms'")
+    expect(storeSource).toContain("path: '/merchant/order-attributes'")
     expect(storeSource).toContain('storeId: store.backendId')
   })
 

@@ -2,6 +2,7 @@ package org.dromara.yy.service.impl;
 
 import org.dromara.yy.domain.vo.YyFeatureScopeVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
+import org.dromara.yy.mapper.YyRiskApprovalMapper;
 import org.dromara.yy.service.IYyServiceProductionService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class YyFeatureScopeServiceImplTest {
 
     @Mock
     private IYyServiceProductionService yyServiceProductionService;
+
+    @Mock
+    private YyRiskApprovalMapper riskApprovalMapper;
 
     @InjectMocks
     private YyFeatureScopeServiceImpl service;
@@ -80,6 +84,18 @@ class YyFeatureScopeServiceImplTest {
         assertEquals("not_applicable", result.getApprovalState());
         assertNull(result.getLicenseSummary());
         verify(yyServiceProductionService, never()).queryLicenseBindings(null);
+    }
+
+    @Test
+    void riskApprovalFeatureShouldReturnRequiredWhenPendingApprovalExists() {
+        when(riskApprovalMapper.selectCount(org.mockito.ArgumentMatchers.any())).thenReturn(1L);
+
+        YyFeatureScopeVo result = service.listFeatureScopes(List.of("order-refund")).get(0);
+
+        assertEquals("order-refund", result.getFeatureKey());
+        assertEquals("not_applicable", result.getLicenseState());
+        assertEquals("not_applicable", result.getPluginState());
+        assertEquals("required", result.getApprovalState());
     }
 
     @Test

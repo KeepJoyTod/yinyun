@@ -13,7 +13,12 @@
 ### 表现层
 
 - `studio-workbench/src/features/merchant/modules/readiness/MerchantReadinessView.vue`
+- `studio-workbench/src/features/merchant/modules/readiness/components/MerchantReadinessOwnerShell.vue`
 - `studio-workbench/src/features/merchant/modules/readiness/components/MerchantReadinessBoard.vue`
+- `studio-workbench/src/features/merchant/modules/schedule-governance/MerchantScheduleGovernanceView.vue`
+- `studio-workbench/src/features/merchant/modules/channel-readiness/MerchantChannelReadinessView.vue`
+- `studio-workbench/src/features/merchant/modules/governance/MerchantGovernanceView.vue`
+- `studio-workbench/src/features/merchant/modules/dependency-readiness/MerchantDependencyReadinessView.vue`
 - `studio-workbench/src/features/merchant/merchantChrome.ts`
 - `studio-workbench/src/app/router/featureRegistry.ts`
 - `studio-workbench/src/app/router/index.ts`
@@ -67,10 +72,18 @@
 
 | moduleKey | owner | priority | sourceItems |
 | --- | --- | --- | --- |
-| `schedule-governance` | `merchant/modules/schedule-governance` 后续 owner | P0 | `B-016`, `B-017`, `X-013` |
-| `channel-readiness` | `merchant/modules/channel-readiness` 后续 owner | P1 | `B-026`, `B-027`, `B-045`, `B-046` |
-| `governance` | `merchant/modules/governance` 后续 owner | P0 | `P-003`, `P-004`, `P-005`, `P-006` |
-| `dependency-readiness` | `merchant/modules/dependency-readiness` 后续 owner | P1 | `X-001`, `X-002`, `X-003`, `X-004`, `B-068`, `B-069`, `R-014`, `R-015` |
+| `schedule-governance` | `studio-workbench/src/features/merchant/modules/schedule-governance` | P0 | `B-016`, `B-017`, `X-013` |
+| `channel-readiness` | `studio-workbench/src/features/merchant/modules/channel-readiness` | P1 | `B-026`, `B-027`, `B-045`, `B-046` |
+| `governance` | `studio-workbench/src/features/merchant/modules/governance` | P0 | `P-003`, `P-004`, `P-005`, `P-006` |
+| `dependency-readiness` | `studio-workbench/src/features/merchant/modules/dependency-readiness` | P1 | `X-001`, `X-002`, `X-003`, `X-004`, `B-068`, `B-069`, `R-014`, `R-015` |
+
+## 路由
+
+- `/merchant/readiness`
+- `/merchant/schedule-governance`
+- `/merchant/channel-readiness`
+- `/merchant/governance`
+- `/merchant/dependency-readiness`
 
 ## 边界
 

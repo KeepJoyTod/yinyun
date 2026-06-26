@@ -53,6 +53,11 @@ public class YyServiceGroupBo extends BaseEntity {
     private Integer durationMinutes;
 
     /**
+     * 服务模式
+     */
+    private String serviceMode;
+
+    /**
      * 状态
      */
     private String status;

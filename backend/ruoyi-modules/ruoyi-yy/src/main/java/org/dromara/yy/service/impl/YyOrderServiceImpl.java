@@ -14,6 +14,7 @@ import org.dromara.yy.domain.YyChannelOrderMapping;
 import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.bo.ClientBookingIntentRequest;
 import org.dromara.yy.domain.bo.YyOrderBo;
+import org.dromara.yy.domain.bo.YyOrderCopyBo;
 import org.dromara.yy.domain.bo.YyStaffBookingCreateBo;
 import org.dromara.yy.domain.vo.ClientBookingIntentVo;
 import org.dromara.yy.domain.vo.ClientOrderLinkVo;
@@ -27,6 +28,7 @@ import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPhotoAlbumMapper;
 import org.dromara.yy.mapper.YyPhotoAssetMapper;
+import org.dromara.yy.mapper.YyServiceGroupMapper;
 import org.dromara.yy.service.IYyBookingSlotInventoryService;
 import org.dromara.yy.service.IYyCustomerService;
 import org.dromara.yy.service.IYyOrderService;
@@ -80,6 +82,7 @@ public class YyOrderServiceImpl implements IYyOrderService {
     private final YyPhotoAssetMapper photoAssetMapper;
     private final YyEmployeeMapper employeeMapper;
     private final YyEmployeeStoreMapper employeeStoreMapper;
+    private final YyServiceGroupMapper serviceGroupMapper;
     private final IYyCustomerService customerService;
     private final IYyPhotoAlbumService photoAlbumService;
     private final IYyBookingSlotInventoryService bookingSlotInventoryService;
@@ -103,6 +106,7 @@ public class YyOrderServiceImpl implements IYyOrderService {
     public YyOrderVo queryById(Long id) {
         YyOrderVo vo = baseMapper.selectVoById(id);
         if (vo != null) {
+            fillOrderAttributes(List.of(vo));
             fillPhotoAlbumCount(List.of(vo));
         }
         return vo;
@@ -113,6 +117,7 @@ public class YyOrderServiceImpl implements IYyOrderService {
         LambdaQueryWrapper<YyOrder> lqw = buildQueryWrapper(bo);
         Page<YyOrderVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         fillChannelStatus(result.getRecords());
+        fillOrderAttributes(result.getRecords());
         fillPhotoAlbumCount(result.getRecords());
         return TableDataInfo.build(result);
     }
@@ -121,6 +126,7 @@ public class YyOrderServiceImpl implements IYyOrderService {
     public List<YyOrderVo> queryList(YyOrderBo bo) {
         List<YyOrderVo> list = baseMapper.selectVoList(buildQueryWrapper(bo));
         fillChannelStatus(list);
+        fillOrderAttributes(list);
         fillPhotoAlbumCount(list);
         return list;
     }
@@ -132,7 +138,9 @@ public class YyOrderServiceImpl implements IYyOrderService {
     @Override
     public Boolean insertByBo(YyOrderBo bo) {
         YyOrder add = BeanUtil.toBean(bo, YyOrder.class);
+        applyOrderAttributeSnapshot(add, bo.getOrderAttributes());
         validEntityBeforeSave(add);
+        validateVerticalServiceOverlap(add, null);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
             bo.setId(add.getId());
@@ -146,10 +154,30 @@ public class YyOrderServiceImpl implements IYyOrderService {
     public YyOrderVo createStaffBooking(YyStaffBookingCreateBo bo) {
         YyOrderBookingFactory.StaffBookingDraft draft = YyOrderBookingFactory.createStaffBooking(bo);
         YyOrder order = draft.order();
+        applyOrderAttributeSnapshot(order, bo.getOrderAttributes());
         validEntityBeforeSave(order);
+        validateVerticalServiceOverlap(order, null);
 
         if (baseMapper.insert(order) <= 0) {
             throw new ServiceException("新增预约失败，请稍后重试");
+        }
+        syncCustomerOnCreate(order);
+        if (draft.scheduled()) {
+            bookingSlotInventoryService.confirmPaidOrderSlot(order);
+        }
+        return queryById(order.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public YyOrderVo copyOrder(Long sourceOrderId, YyOrderCopyBo bo) {
+        YyOrder source = requireOrder(sourceOrderId);
+        YyOrderCopyFactory.CopyDraft draft = YyOrderCopyFactory.createCopy(source, bo);
+        YyOrder order = draft.order();
+        validEntityBeforeSave(order);
+        validateVerticalServiceOverlap(order, null);
+        if (baseMapper.insert(order) <= 0) {
+            throw new ServiceException("Create copied order failed, please retry");
         }
         syncCustomerOnCreate(order);
         if (draft.scheduled()) {
@@ -499,7 +527,11 @@ public class YyOrderServiceImpl implements IYyOrderService {
             update.setInventoryStatus("");
             update.setConflictReason("");
         }
+        if (bo.getOrderAttributes() != null) {
+            applyOrderAttributeSnapshot(update, bo.getOrderAttributes());
+        }
         validEntityBeforeSave(update);
+        validateVerticalServiceOverlap(update, existing.getId());
         boolean flag = baseMapper.updateById(update) > 0;
         if (flag) {
             handleInventoryAfterOrderUpdate(existing, update, slotChanged, bookingSlotInventoryService);
@@ -526,6 +558,80 @@ public class YyOrderServiceImpl implements IYyOrderService {
         if (entity.getRefundAmountCent() == null) {
             entity.setRefundAmountCent(0L);
         }
+        if (entity.getOrderAttributeJson() == null) {
+            entity.setOrderAttributeJson("");
+        }
+    }
+
+    private void applyOrderAttributeSnapshot(YyOrder order, List<org.dromara.yy.domain.bo.YyOrderAttributeValueBo> values) {
+        String json = YyOrderAttributeSnapshotSupport.normalizeToJson(values);
+        if (json != null) {
+            order.setOrderAttributeJson(json);
+        }
+    }
+
+    private void fillOrderAttributes(List<YyOrderVo> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return;
+        }
+        for (YyOrderVo order : orders) {
+            order.setOrderAttributes(YyOrderAttributeSnapshotSupport.parse(order.getOrderAttributeJson()));
+        }
+    }
+
+    private void validateVerticalServiceOverlap(YyOrder order, Long excludeOrderId) {
+        if (!isVerticalServiceGroup(order) || StringUtils.isBlank(order.getSlotDate())
+            || StringUtils.isBlank(order.getSlotStartTime()) || StringUtils.isBlank(order.getSlotEndTime())
+            || order.getStoreId() == null || order.getServiceGroupId() == null) {
+            return;
+        }
+        int startMinutes = toMinutes(order.getSlotStartTime());
+        int endMinutes = toMinutes(order.getSlotEndTime());
+        if (!isValidRange(startMinutes, endMinutes)) {
+            return;
+        }
+        List<YyOrder> sameDayOrders = baseMapper.selectList(Wrappers.<YyOrder>lambdaQuery()
+            .eq(YyOrder::getStoreId, order.getStoreId())
+            .eq(YyOrder::getServiceGroupId, order.getServiceGroupId())
+            .eq(YyOrder::getSlotDate, order.getSlotDate())
+            .ne(excludeOrderId != null, YyOrder::getId, excludeOrderId)
+            .notIn(YyOrder::getStatus, List.of("CANCELLED", "REFUNDED"))
+            .eq(YyOrder::getDelFlag, "0"));
+        for (YyOrder existing : sameDayOrders) {
+            int existingStart = toMinutes(existing.getSlotStartTime());
+            int existingEnd = toMinutes(existing.getSlotEndTime());
+            if (!isValidRange(existingStart, existingEnd)) {
+                continue;
+            }
+            if (startMinutes < existingEnd && endMinutes > existingStart) {
+                throw new ServiceException("纵向服务时段重叠，请改选其他时间");
+            }
+        }
+    }
+
+    private boolean isVerticalServiceGroup(YyOrder order) {
+        if (order.getServiceGroupId() == null) {
+            return false;
+        }
+        org.dromara.yy.domain.YyServiceGroup group = serviceGroupMapper.selectById(order.getServiceGroupId());
+        return group != null && "VERTICAL".equalsIgnoreCase(StringUtils.trimToEmpty(group.getServiceMode()));
+    }
+
+    private static int toMinutes(String clock) {
+        String text = StringUtils.trimToEmpty(clock);
+        String[] parts = text.split(":");
+        if (parts.length < 2) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+        } catch (NumberFormatException ignored) {
+            return -1;
+        }
+    }
+
+    private static boolean isValidRange(int startMinutes, int endMinutes) {
+        return startMinutes >= 0 && endMinutes > startMinutes;
     }
 
     private void syncCustomerOnCreate(YyOrder order) {

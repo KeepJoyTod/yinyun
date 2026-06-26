@@ -15,6 +15,7 @@ import org.dromara.yy.domain.YyCustomer;
 import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.YyPhotoAlbum;
 import org.dromara.yy.domain.YyProduct;
+import org.dromara.yy.domain.YyServiceGroup;
 import org.dromara.yy.domain.YyStore;
 import org.dromara.yy.service.impl.YyClientCustomerTokenCodec.CustomerIdentity;
 import org.dromara.yy.domain.bo.ClientCustomerBindPhoneBo;
@@ -22,16 +23,20 @@ import org.dromara.yy.domain.bo.ClientCustomerLoginBo;
 import org.dromara.yy.domain.bo.ClientCustomerOrderCancelBo;
 import org.dromara.yy.domain.bo.ClientCustomerOrderCreateBo;
 import org.dromara.yy.domain.bo.ClientCustomerOrderRescheduleBo;
+import org.dromara.yy.domain.bo.YyEntitlementReservationCreateBo;
+import org.dromara.yy.domain.bo.YyOrderAttributeValueBo;
 import org.dromara.yy.mapper.YyBookingSlotInventoryMapper;
 import org.dromara.yy.mapper.YyChannelOrderMappingMapper;
 import org.dromara.yy.mapper.YyCustomerMapper;
 import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPhotoAlbumMapper;
 import org.dromara.yy.mapper.YyProductMapper;
+import org.dromara.yy.mapper.YyServiceGroupMapper;
 import org.dromara.yy.mapper.YyStoreMapper;
 import org.dromara.yy.service.IYyBookingSlotInventoryService;
 import org.dromara.yy.service.IYyClientPublicApiService;
 import org.dromara.yy.service.IYyCustomerService;
+import org.dromara.yy.service.IYyTransactionSafetyService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,8 +76,10 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
     private final YyPhotoAlbumMapper photoAlbumMapper;
     private final YyChannelOrderMappingMapper channelOrderMappingMapper;
     private final YyCustomerMapper customerMapper;
+    private final YyServiceGroupMapper serviceGroupMapper;
     private final IYyCustomerService customerService;
     private final IYyBookingSlotInventoryService bookingSlotInventoryService;
+    private final IYyTransactionSafetyService transactionSafetyService;
 
     @Value("${yy.client-public.default-tenant-id:000000}")
     private String defaultTenantId = "000000";
@@ -378,8 +385,10 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
     private Map<String, Object> doCreateCustomerOrder(ClientCustomerOrderCreateBo bo, String authenticatedPhone) {
         Long storeId = parseLong(bo.getStoreId(), "门店不能为空");
         Long productId = parseLong(bo.getSkuId(), "商品规格不能为空");
+        Long serviceGroupId = parseOptionalLong(bo.getServiceGroupId(), "serviceGroupId invalid");
         YyStore store = requireStore(storeId);
         YyProduct product = requireProduct(productId);
+        validateServiceGroup(serviceGroupId, store.getId());
         if (!Objects.equals(product.getStoreId(), store.getId())) {
             throw new ServiceException("商品不属于当前门店");
         }
@@ -419,12 +428,15 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
         order.setSlotDate(slotDate);
         order.setSlotStartTime(range.start());
         order.setSlotEndTime(range.end());
+        order.setServiceGroupId(serviceGroupId);
+        order.setOrderAttributeJson(buildP1OrderAttributeJson(bo));
         order.setWorkstationNo("");
-        order.setRemark(StringUtils.substring(StringUtils.trimToEmpty(bo.getRemark()), 0, 500));
+        order.setRemark(buildP1CustomerOrderRemark(bo));
         if (orderMapper.insert(order) <= 0) {
             throw new ServiceException("订单创建失败");
         }
         customerService.upsertByMobile(customerName, phone, "CLIENT_PUBLIC", BigDecimal.ZERO, now, "客户公开端预约");
+        createP1EntitlementReservationIfNeeded(bo, order, findCustomerIdByPhone(phone));
         return toCustomerOrderMap(order);
     }
 
@@ -471,6 +483,16 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
             throw new ServiceException("门店不存在或已停用");
         }
         return store;
+    }
+
+    private void validateServiceGroup(Long serviceGroupId, Long storeId) {
+        if (serviceGroupId == null) {
+            return;
+        }
+        YyServiceGroup group = serviceGroupMapper.selectById(serviceGroupId);
+        if (group == null || !Objects.equals(group.getStoreId(), storeId) || !isActive(group.getStatus())) {
+            throw new ServiceException("serviceGroupId unavailable");
+        }
     }
 
     private boolean isPublicCustomerStore(YyStore store) {
@@ -655,6 +677,17 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
         return parsed;
     }
 
+    private Long parseOptionalLong(String value, String message) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        Long parsed = tryParseLong(value);
+        if (parsed == null) {
+            throw new ServiceException(message);
+        }
+        return parsed;
+    }
+
     private Long tryParseLong(String value) {
         try {
             return StringUtils.isBlank(value) ? null : Long.parseLong(value);
@@ -721,6 +754,76 @@ public class YyClientPublicApiServiceImpl implements IYyClientPublicApiService {
         }
         String combined = StringUtils.isBlank(existing) ? next : existing + "\n" + next;
         return StringUtils.substring(combined, 0, 500);
+    }
+
+    private String buildP1CustomerOrderRemark(ClientCustomerOrderCreateBo bo) {
+        String remark = StringUtils.substring(StringUtils.trimToEmpty(bo.getRemark()), 0, 320);
+        List<String> p1Notes = new java.util.ArrayList<>();
+        int customFieldCount = bo.getCustomFields() == null ? 0 : bo.getCustomFields().size();
+        if (customFieldCount > 0) {
+            p1Notes.add("P1 custom fields saved to orderAttributeJson count=" + customFieldCount);
+        }
+        if (StringUtils.isNotBlank(bo.getEntitlementCandidateId())
+            || StringUtils.isNotBlank(bo.getEntitlementKind())
+            || StringUtils.isNotBlank(bo.getEntitlementUnavailableReason())) {
+            p1Notes.add("P1 entitlement scaffold candidateId="
+                + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementCandidateId()), 0, 64)
+                + ", kind=" + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementKind()), 0, 32)
+                + ", unavailableReason=" + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementUnavailableReason()), 0, 80));
+        }
+        return appendRemark(remark, String.join("; ", p1Notes));
+    }
+
+    private String buildP1OrderAttributeJson(ClientCustomerOrderCreateBo bo) {
+        if (bo.getCustomFields() == null || bo.getCustomFields().isEmpty()) {
+            return null;
+        }
+        List<YyOrderAttributeValueBo> values = bo.getCustomFields().entrySet().stream()
+            .filter(entry -> StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue()))
+            .limit(20)
+            .map(entry -> {
+                YyOrderAttributeValueBo value = new YyOrderAttributeValueBo();
+                String key = StringUtils.substring(StringUtils.trimToEmpty(entry.getKey()), 0, 61);
+                value.setFieldCode("p1_" + key);
+                value.setFieldLabel(key);
+                value.setFieldType("TEXT");
+                value.setRequired(false);
+                value.setSort(0);
+                value.setValue(StringUtils.substring(StringUtils.trimToEmpty(entry.getValue()), 0, 500));
+                return value;
+            })
+            .toList();
+        return values.isEmpty() ? null : YyOrderAttributeSnapshotSupport.normalizeToJson(values);
+    }
+
+    private Long findCustomerIdByPhone(String phone) {
+        YyCustomer customer = customerMapper.selectOne(Wrappers.<YyCustomer>lambdaQuery()
+            .eq(YyCustomer::getMobile, phone)
+            .orderByDesc(YyCustomer::getId)
+            .last("limit 1"));
+        return customer == null ? null : customer.getId();
+    }
+
+    private void createP1EntitlementReservationIfNeeded(ClientCustomerOrderCreateBo bo, YyOrder order, Long customerId) {
+        if (customerId == null || StringUtils.isBlank(bo.getEntitlementCandidateId())
+            || StringUtils.isNotBlank(bo.getEntitlementUnavailableReason())) {
+            return;
+        }
+        YyEntitlementReservationCreateBo reservation = new YyEntitlementReservationCreateBo();
+        reservation.setStoreId(order.getStoreId());
+        reservation.setCustomerId(customerId);
+        reservation.setOrderId(order.getId());
+        reservation.setReservationType("P1_BOOKING");
+        reservation.setTargetType(StringUtils.defaultIfBlank(StringUtils.trimToEmpty(bo.getEntitlementKind()), "ENTITLEMENT"));
+        reservation.setTargetSnapshot("candidateId=" + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementCandidateId()), 0, 64)
+            + ";kind=" + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementKind()), 0, 32)
+            + ";orderNo=" + StringUtils.substring(StringUtils.trimToEmpty(order.getOrderNo()), 0, 64));
+        reservation.setQuantity(BigDecimal.ONE);
+        reservation.setReservationAmount(BigDecimal.ZERO);
+        reservation.setExpireMinutes(30);
+        reservation.setIdempotencyKey("P1-" + order.getId() + "-" + StringUtils.substring(StringUtils.trimToEmpty(bo.getEntitlementCandidateId()), 0, 64));
+        reservation.setRemark("P1 booking entitlement reservation scaffold; no writeoff or deduction executed.");
+        transactionSafetyService.createEntitlementReservation(reservation);
     }
 
     private record TimeRange(String start, String end) {

@@ -11,6 +11,36 @@
     <MarketingCapabilityGateCard v-if="couponCapability" :capability="couponCapability" />
     <p v-if="error" class="text-[10.5px] text-[var(--color-status-danger)]">{{ error }}</p>
 
+    <section class="yy-console-card border border-amber-topbar-border bg-amber-content-bg">
+      <div class="border-b border-amber-topbar-border px-5 py-4">
+        <div class="text-[13px] font-semibold text-amber-dark">脚手架验收范围</div>
+        <div class="mt-1 text-[10.5px] text-amber-text-muted">B-073 / B-074 / B-077 统一收口到营销券 owner，不新建第二套优惠码、兑换券或退单恢复页面。</div>
+      </div>
+      <div class="grid gap-4 p-5 lg:grid-cols-3">
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
+          <div class="text-[11px] font-semibold text-amber-dark">B-073 优惠码</div>
+          <div class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+            当前只展示规则和 owner 边界，不执行真实传播、生成、核销和统计闭环。
+          </div>
+        </article>
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
+          <div class="text-[11px] font-semibold text-amber-dark">B-074 兑换券</div>
+          <div class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+            当前只展示发放和活动绑定骨架，不执行真实兑换、核销和回滚。
+          </div>
+        </article>
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg/50 p-4">
+          <div class="text-[11px] font-semibold text-amber-dark">B-077 退单后券恢复策略</div>
+          <div class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+            当前只展示恢复策略 scaffold，不执行真实退单后的发券恢复与审计闭环。
+          </div>
+        </article>
+      </div>
+      <div class="border-t border-amber-topbar-border px-5 py-4 text-[10.5px] leading-relaxed text-amber-text-muted">
+        下一步：补真实优惠码生成、兑换券发放、退单恢复、活动绑定和与订单/核销账本的联动验收。
+      </div>
+    </section>
+
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
       <CouponTemplateTable
         :templates="templates"
@@ -57,6 +87,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { appStore } from '../../shared/stores/appStore'
 import CouponInstanceTable from './components/CouponInstanceTable.vue'
 import CouponIssueDrawer from './components/CouponIssueDrawer.vue'
@@ -67,6 +98,7 @@ import { useCouponIssuance, type CouponIssueDraft } from './composables/useCoupo
 import { useCouponTemplates, type CouponTemplateDraft } from './composables/useCouponTemplates'
 import { useMarketingCapabilityGate } from './composables/useMarketingCapabilityGate'
 
+const route = useRoute()
 const {
   loading: templateLoading,
   submitting: templateSubmitting,
@@ -100,6 +132,7 @@ const issueDraft = ref<CouponIssueDraft>(buildIssueDraft())
 
 const couponCapability = computed(() => capabilityMap.value.get('COUPON_TEMPLATE'))
 const error = computed(() => capabilityError.value || couponError.value || issueError.value)
+const routeCustomerId = computed(() => String(route.query.customerId ?? ''))
 
 const openTemplateDrawer = (templateId = '') => {
   editingTemplateId.value = templateId
@@ -109,7 +142,7 @@ const openTemplateDrawer = (templateId = '') => {
 
 const openIssueDrawer = (templateId: string) => {
   selectedTemplateId.value = templateId
-  issueDraft.value = buildIssueDraft(templateId)
+  issueDraft.value = buildIssueDraft(templateId, routeCustomerId.value ? [routeCustomerId.value] : [])
   issueDrawerOpen.value = true
 }
 
@@ -136,5 +169,8 @@ watch(selectedTemplateId, value => {
 onMounted(async () => {
   if (!appStore.initialized && !appStore.loading) await appStore.bootstrap().catch(() => undefined)
   if (!appStore.customers.length) await appStore.ensureCustomersLoaded().catch(() => undefined)
+  if (routeCustomerId.value && selectedTemplateId.value) {
+    issueDraft.value = buildIssueDraft(selectedTemplateId.value, [routeCustomerId.value])
+  }
 })
 </script>

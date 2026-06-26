@@ -28,7 +28,7 @@ const defaultForm = (): MemberRechargeFormModel => ({
 })
 
 const formatMoney = (value: number) =>
-  `￥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  `¥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 const hasRechargePermission = () =>
   studioAccessStore.menuPermissions.includes('*:*:*')
@@ -116,7 +116,8 @@ export const useMemberRecharge = (options: UseMemberRechargeOptions) => {
       ])
 
       if (result.status === 'PENDING_APPROVAL') {
-        successMessage.value = `已创建待审批充值单，到账金额 ${formatMoney(result.creditedAmount)}，审批前不会入账。`
+        const approvalText = result.approvalId ? `，审批编号 ${result.approvalId}` : ''
+        successMessage.value = `已创建待审批充值单${approvalText}；到账金额 ${formatMoney(result.creditedAmount)}，审批前不会入账。`
       } else {
         successMessage.value = `已为 ${options.selectedCustomer.value?.name ?? '会员'} 充值 ${formatMoney(result.creditedAmount)}。`
       }

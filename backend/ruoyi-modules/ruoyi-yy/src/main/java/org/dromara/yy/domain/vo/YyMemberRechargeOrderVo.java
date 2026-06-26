@@ -20,6 +20,7 @@ public class YyMemberRechargeOrderVo implements Serializable {
     private BigDecimal creditedAmount;
     private BigDecimal balanceAfter;
     private String status;
+    private Long approvalId;
     private String channelType;
     private String paidTime;
     private String externalTradeNo;

@@ -42,4 +42,22 @@ class YyPlatformSettingsControllerTest {
 
         verify(platformSettingsService).listServicePackages(eq(1001L));
     }
+
+    @Test
+    void loginRiskPoliciesShouldDelegateToPlatformFacade() {
+        YyPlatformSettingsController controller = new YyPlatformSettingsController(platformSettingsService);
+
+        controller.loginRiskPolicies();
+
+        verify(platformSettingsService).listLoginRiskPolicies();
+    }
+
+    @Test
+    void meituanReviewTracesShouldDelegateToPlatformFacade() {
+        YyPlatformSettingsController controller = new YyPlatformSettingsController(platformSettingsService);
+
+        controller.meituanReviewTraces();
+
+        verify(platformSettingsService).listMeituanReviewTraces();
+    }
 }

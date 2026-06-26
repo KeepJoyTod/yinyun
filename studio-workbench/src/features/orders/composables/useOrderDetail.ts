@@ -13,6 +13,7 @@ import {
   getOrderChannelSyncLogs,
   getOrderRescheduleInventorySlot,
 } from '../orderOperations'
+import { hasVerticalServiceOverlap } from '../orderSlotOperations'
 import { buildAlbumActionAvailability, summarizePhotoAccessLogs } from '../../albums/photoMgmtOperations'
 import type { BookingOrder, BookingInventorySlot } from '../../../shared/stores/appStore'
 
@@ -179,6 +180,20 @@ export function useOrderDetail(
   const reschedulePreviewConflictMessage = computed(() => {
     const order = state.selectedOrder.value
     if (!order) return ''
+    const serviceGroup = appStore.serviceGroups.find(group => group.backendId === order.serviceGroupBackendId)
+    if (serviceGroup?.serviceMode === 'VERTICAL') {
+      const hasOverlap = hasVerticalServiceOverlap(appStore.orders, {
+        storeBackendId: String(order.storeBackendId || ''),
+        serviceGroupBackendId: String(order.serviceGroupBackendId || ''),
+        date: state.rescheduleDraft.date,
+        startTime: state.rescheduleDraft.time,
+        durationMinutes: Number(state.rescheduleDraft.durationMinutes || serviceGroup.durationMinutes || 30),
+        excludeOrderBackendId: String(order.backendId || ''),
+      })
+      if (hasOverlap) {
+        return '纵向服务与同服务组已占用时段重叠，请改选其他时间段。'
+      }
+    }
     return buildOrderRescheduleConflictMessage(order, appStore.bookingInventory, state.rescheduleDraft)
   })
 

@@ -25,6 +25,11 @@ export type MerchantQuickAccessCard = {
 export const merchantTabs: MerchantTab[] = [
   { key: 'overview', label: '模块总览', path: '/merchant/overview', icon: overviewIcon },
   { key: 'readiness', label: '闭环脚手架', path: '/merchant/readiness', icon: overviewIcon },
+  { key: 'schedule-governance', label: '档期治理', path: '/merchant/schedule-governance', icon: calendarIcon },
+  { key: 'channel-readiness', label: '渠道承接', path: '/merchant/channel-readiness', icon: selectionIcon },
+  { key: 'governance', label: '商家治理', path: '/merchant/governance', icon: configIcon },
+  { key: 'dependency-readiness', label: '依赖闭环', path: '/merchant/dependency-readiness', icon: ordersIcon },
+  { key: 'consumer-ops-p1', label: '消费者运营 P1', path: '/merchant/consumer-ops-p1', icon: overviewIcon },
   { key: 'store', label: '门店管理', path: '/merchant/store', icon: storeIcon },
   { key: 'service-groups', label: '服务组管理', path: '/merchant/service-groups', icon: configIcon },
   { key: 'inventory', label: '时段库存', path: '/merchant/inventory', icon: calendarIcon },

@@ -9,11 +9,11 @@ import {
   type MerchantReadinessSectionKey,
 } from '../merchantReadinessOperations'
 
-export const useMerchantReadinessState = () => {
+export const useMerchantReadinessState = (initialSection: MerchantReadinessSectionKey = 'summary') => {
   const loading = ref(false)
   const errorMessage = ref('')
   const selectedStoreId = ref('')
-  const activeSection = ref<MerchantReadinessSectionKey>('summary')
+  const activeSection = ref<MerchantReadinessSectionKey>(initialSection)
   const summaryItems = ref<MerchantReadinessItemDto[]>([])
   const scheduleItems = ref<MerchantReadinessItemDto[]>([])
   const channelItems = ref<MerchantReadinessItemDto[]>([])

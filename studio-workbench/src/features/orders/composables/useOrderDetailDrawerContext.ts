@@ -14,6 +14,14 @@ type RescheduleDraft = {
   remark: string
 }
 
+type CopyOrderDraft = {
+  scheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  date: string
+  time: string
+  durationMinutes: number
+  remark: string
+}
+
 type SlotRange = {
   start: string
 }
@@ -50,6 +58,8 @@ export const useOrderDetailDrawerContext = (options: {
   cancelReasonOptions: string[]
   cancellingOrderId: RefLike<string>
   confirmingPaymentOrderId: RefLike<string>
+  refundingOrderId: RefLike<string>
+  refundReason: RefLike<string>
   selectedOrderAlbum: RefLike<OrderDetailDrawerHostContext['album']>
   selectedOrderPhotoStage: RefLike<OrderDetailDrawerHostContext['photoStage']>
   photoDeliveryStageStyles: Record<string, string>
@@ -66,6 +76,9 @@ export const useOrderDetailDrawerContext = (options: {
   selectedOrderSyncLogs: RefLike<OrderDetailDrawerHostContext['syncLogs']>
   selectedOrderTimeline: RefLike<OrderDetailDrawerHostContext['timeline']>
   operationLogsStateText: RefLike<string>
+  copyOrderDraft: CopyOrderDraft
+  copyingOrderId: RefLike<string>
+  canReuseSourceSlot: RefLike<boolean>
 }) => computed<OrderDetailDrawerHostContext>(() => {
   const order = options.selectedOrder.value
   return {
@@ -85,6 +98,13 @@ export const useOrderDetailDrawerContext = (options: {
     paymentTone: order ? options.paymentTone(order.payment) : 'neutral',
     copiedField: options.copiedField.value,
     flowSteps: options.orderFlowSteps.value,
+    copyScheduleMode: options.copyOrderDraft.scheduleMode,
+    copyDate: options.copyOrderDraft.date,
+    copyTime: options.copyOrderDraft.time,
+    copyDurationMinutes: options.copyOrderDraft.durationMinutes,
+    copyRemark: options.copyOrderDraft.remark,
+    copySaving: order ? options.copyingOrderId.value === order.id : false,
+    canReuseSourceSlot: options.canReuseSourceSlot.value,
     rescheduleDate: options.rescheduleDraft.date,
     rescheduleTime: options.rescheduleDraft.time,
     rescheduleDurationMinutes: options.rescheduleDraft.durationMinutes,
@@ -106,6 +126,9 @@ export const useOrderDetailDrawerContext = (options: {
     cancelDisabled: order ? order.status === '已取消' || order.status === '已退单' : true,
     showConfirmPayment: canConfirmStorePayment(order),
     confirmPaymentSaving: order ? options.confirmingPaymentOrderId.value === order.id : false,
+    showRefundRequest: Boolean(order && String(order.payment) === '宸叉敮浠?' && !order.refundStatus && String(order.status) !== '宸查€€鍗?'),
+    refundSaving: order ? options.refundingOrderId.value === order.id : false,
+    refundReason: options.refundReason.value,
     album: options.selectedOrderAlbum.value,
     photoStage: options.selectedOrderPhotoStage.value,
     photoStageClass: options.photoDeliveryStageStyles[options.selectedOrderPhotoStage.value.key],

@@ -4,14 +4,14 @@ import { getWorkbenchFeature } from '../../app/router/featureRegistry'
 import viewSource from './DerivedProductModuleView.vue?raw'
 
 describe('derived product module pages contract', () => {
-  const featureKeys = ['product-addon', 'product-group', 'product-print', 'product-meituan']
-
   it('replaces the remaining product placeholders with one real derived product module route', () => {
     expect(routerSource).toContain('DerivedProductModuleView.vue')
-    for (const key of featureKeys) {
+    for (const key of ['product-addon', 'product-group', 'product-print']) {
       expect(getWorkbenchFeature(key)?.component).toBe('derived-product-module')
-      expect(getWorkbenchFeature(key)?.status).toBe('derived')
+      expect(getWorkbenchFeature(key)?.status).toBe('building')
     }
+    expect(getWorkbenchFeature('product-meituan')?.component).toBe('derived-product-module')
+    expect(getWorkbenchFeature('product-meituan')?.status).toBe('derived')
     expect(getWorkbenchFeature('product-addon')?.permission).toBe('yy:product:list')
     expect(getWorkbenchFeature('product-group')?.permission).toBe('yy:product:list')
     expect(getWorkbenchFeature('product-print')?.permission).toBe('yy:product:list')

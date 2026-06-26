@@ -44,6 +44,36 @@
           </div>
         </article>
       </div>
+
+      <div class="grid gap-4 border-t border-amber-topbar-border p-5 lg:grid-cols-2">
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-4">
+          <div class="text-[11px] font-semibold text-amber-dark">功能清单编号</div>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span
+              v-for="code in module.inventoryCodes"
+              :key="code"
+              class="rounded-full border border-amber-topbar-border px-2 py-1 font-mono text-[10px] text-amber-text-muted"
+            >
+              {{ code }}
+            </span>
+          </div>
+          <div class="mt-4 text-[10.5px] text-amber-text-muted">{{ module.acceptanceLabel }}</div>
+        </article>
+
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-4">
+          <div class="text-[11px] font-semibold text-amber-dark">边界说明</div>
+          <ul class="mt-2 space-y-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+            <li v-for="item in module.boundaryNotes" :key="item">{{ item }}</li>
+          </ul>
+        </article>
+
+        <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-4 lg:col-span-2">
+          <div class="text-[11px] font-semibold text-amber-dark">下一步动作</div>
+          <ul class="mt-2 space-y-2 text-[10.5px] leading-relaxed text-amber-text-muted">
+            <li v-for="item in module.nextActions" :key="item">{{ item }}</li>
+          </ul>
+        </article>
+      </div>
     </section>
 
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">

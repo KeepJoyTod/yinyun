@@ -3,23 +3,8 @@ import {
   type AlbumDto,
   type AlbumPhotoDto,
   type BookingInventoryDto,
-  type ChannelAcceptanceCaseDto,
-  type ChannelProductMappingDto,
-  type ChannelSyncHealthDto,
-  type ChannelSyncLogDto,
   type CustomerDto,
   type EmployeeDto,
-  type MemberBalanceLedgerDto,
-  type MemberBenefitDto,
-  type MemberCardDto,
-  type MemberCouponDto,
-  type MemberGrowthLedgerDto,
-  type MemberOverviewDto,
-  type MemberPointsLedgerDto,
-  type MemberRechargeOrderDto,
-  type NotificationLogDto,
-  type NotificationTemplateDto,
-  type OperationLogDto,
   type OrderDto,
   type OrderListQuery,
   type PhotoAccessLog,
@@ -38,26 +23,10 @@ import type {
   BookingInventorySlot,
   BookingOrder,
   BookingOrderStatus,
-  ChannelProductMappingInfo,
-  ChannelSyncLogInfo,
   CustomerInfo,
-  DouyinAcceptanceCaseInfo,
-  DouyinSyncHealthInfo,
   EmployeeInfo,
-  MemberBalanceLedgerInfo,
-  MemberBenefitInfo,
-  MemberCardInfo,
-  MemberCouponInfo,
-  MemberGrowthLedgerInfo,
-  MemberOverviewInfo,
-  MemberPointsLedgerInfo,
-  MemberRechargeOrderInfo,
-  NotificationLogInfo,
-  NotificationTemplateInfo,
-  OperationLogInfo,
   PaymentStatus,
   PhotoAccessLogInfo,
-  ProductConfig,
   ReportSnapshotInfo,
   SelectionLink,
   SelectionLinkStatus,
@@ -66,6 +35,25 @@ import type {
   StudioInfo,
 } from './appStoreTypes'
 export { mapProduct, parseMoneyToCents, productPayload } from './productStoreTransforms'
+export {
+  mapMemberBalanceLedger,
+  mapMemberBenefit,
+  mapMemberCard,
+  mapMemberCoupon,
+  mapMemberGrowthLedger,
+  mapMemberOverview,
+  mapMemberPointsLedger,
+  mapMemberRechargeOrder,
+} from './appStoreTransformsMember'
+export {
+  mapChannelProductMapping,
+  mapChannelSyncLog,
+  mapDouyinAcceptanceCase,
+  mapDouyinSyncHealth,
+  mapNotificationLog,
+  mapNotificationTemplate,
+  mapOperationLog,
+} from './appStoreTransformsDiagnostics'
 
 export const emptySelectionStats = (): SelectionStatsDto => ({
   activeCount: 0,
@@ -202,9 +190,6 @@ export const splitTags = (value: string | null | undefined) =>
     .map(item => item.trim())
     .filter(Boolean)
 
-const sameId = (left: string | number | undefined | null, right: string | number | undefined | null) =>
-  String(left ?? '') === String(right ?? '')
-
 export const mapStore = (dto: StoreDto): StoreInfo => ({
   backendId: dto.id,
   id: dto.storeCode,
@@ -255,6 +240,8 @@ export const mapOrder = (dto: OrderDto, stores: StoreInfo[]): BookingOrder => {
     externalSkuId: dto.externalSkuId || '',
     inventoryStatus: dto.inventoryStatus || '',
     conflictReason: dto.conflictReason || '',
+    orderAttributeJson: dto.orderAttributeJson || '',
+    orderAttributes: dto.orderAttributes || [],
   }
 }
 
@@ -353,6 +340,7 @@ export const mapServiceGroup = (dto: ServiceGroupDto, stores: StoreInfo[]): Serv
     name: dto.groupName,
     capacity: dto.capacity,
     durationMinutes: dto.durationMinutes,
+    serviceMode: dto.serviceMode || 'HORIZONTAL',
     status: dto.status || 'ACTIVE',
     sort: dto.sort,
     remark: dto.remark,
@@ -415,261 +403,4 @@ export const mapCustomer = (dto: CustomerDto): CustomerInfo => ({
   lastOrderTime: dto.lastOrderTime || '',
   tags: splitTags(dto.tags),
   remark: dto.remark,
-})
-
-export const mapMemberOverview = (dto: MemberOverviewDto): MemberOverviewInfo => ({
-  customerBackendId: dto.customerId,
-  customerName: dto.customerName,
-  mobile: dto.mobile,
-  memberLevel: dto.memberLevel || '普通',
-  tagSummary: dto.tagSummary || '',
-  totalOrderCount: dto.totalOrderCount,
-  totalSpend: dto.totalSpendAmount,
-  activeCardCount: dto.activeCardCount,
-  activeCouponCount: dto.activeCouponCount,
-  activeBenefitCount: dto.activeBenefitCount,
-  pointsBalance: dto.pointsBalance,
-  growthValue: dto.growthValue,
-  balanceAmount: dto.balanceAmount,
-  pendingRechargeCount: dto.pendingRechargeCount,
-  lastTradeTime: dto.lastTradeTime || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberCard = (dto: MemberCardDto): MemberCardInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  cardName: dto.cardName,
-  cardType: dto.cardType,
-  status: dto.status,
-  totalQuota: dto.totalQuota,
-  usedQuota: dto.usedQuota,
-  remainingQuota: dto.remainingQuota,
-  balanceAmount: dto.balanceAmount,
-  effectiveFrom: dto.effectiveFrom || '',
-  effectiveTo: dto.effectiveTo || '',
-  sourceOrderBackendId: dto.sourceOrderId ?? undefined,
-  remark: dto.remark || '',
-})
-
-export const mapMemberBenefit = (dto: MemberBenefitDto): MemberBenefitInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  benefitName: dto.benefitName,
-  benefitType: dto.benefitType,
-  status: dto.status,
-  totalAmount: dto.totalAmount,
-  usedAmount: dto.usedAmount,
-  remainingAmount: dto.remainingAmount,
-  sourceType: dto.sourceType,
-  sourceBackendId: dto.sourceId ?? undefined,
-  expireTime: dto.expireTime || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberCoupon = (dto: MemberCouponDto): MemberCouponInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  couponName: dto.couponName,
-  couponType: dto.couponType,
-  status: dto.status,
-  discountAmount: dto.discountAmount,
-  thresholdAmount: dto.thresholdAmount,
-  sourceType: dto.sourceType,
-  sourceBackendId: dto.sourceId ?? undefined,
-  expireTime: dto.expireTime || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberPointsLedger = (dto: MemberPointsLedgerDto): MemberPointsLedgerInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  changeType: dto.changeType,
-  changeAmount: dto.changeAmount,
-  balanceAfter: dto.balanceAfter,
-  sourceType: dto.sourceType,
-  sourceBackendId: dto.sourceId ?? undefined,
-  happenedAt: dto.happenedAt || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberGrowthLedger = (dto: MemberGrowthLedgerDto): MemberGrowthLedgerInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  changeType: dto.changeType,
-  changeAmount: dto.changeAmount,
-  balanceAfter: dto.balanceAfter,
-  sourceType: dto.sourceType,
-  sourceBackendId: dto.sourceId ?? undefined,
-  happenedAt: dto.happenedAt || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberBalanceLedger = (dto: MemberBalanceLedgerDto): MemberBalanceLedgerInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  changeType: dto.changeType,
-  changeAmount: dto.changeAmount,
-  balanceAfter: dto.balanceAfter,
-  sourceType: dto.sourceType,
-  sourceBackendId: dto.sourceId ?? undefined,
-  happenedAt: dto.happenedAt || '',
-  remark: dto.remark || '',
-})
-
-export const mapMemberRechargeOrder = (dto: MemberRechargeOrderDto): MemberRechargeOrderInfo => ({
-  backendId: dto.id,
-  customerBackendId: dto.customerId,
-  rechargeOrderNo: dto.rechargeOrderNo,
-  rechargeAmount: dto.rechargeAmount,
-  giftAmount: dto.giftAmount,
-  creditedAmount: dto.creditedAmount,
-  balanceAfter: dto.balanceAfter,
-  status: dto.status,
-  channelType: dto.channelType,
-  paidTime: dto.paidTime || '',
-  externalTradeNo: dto.externalTradeNo || '',
-  remark: dto.remark || '',
-})
-
-export const mapNotificationTemplate = (dto: NotificationTemplateDto): NotificationTemplateInfo => ({
-  backendId: dto.id,
-  templateCode: dto.templateCode,
-  scene: dto.scene,
-  channelType: dto.channelType,
-  title: dto.title,
-  content: dto.content,
-  providerTemplateId: dto.providerTemplateId,
-  enabled: dto.enabled || '1',
-  remark: dto.remark,
-})
-
-export const mapNotificationLog = (dto: NotificationLogDto, stores: StoreInfo[]): NotificationLogInfo => {
-  const store = stores.find(item => item.backendId === dto.storeId)
-  return {
-    backendId: dto.id,
-    storeName: store?.name ?? (dto.storeId ? `门店 #${dto.storeId}` : '全局模板'),
-    templateBackendId: dto.templateId ?? undefined,
-    channelType: dto.channelType,
-    receiver: dto.receiver,
-    sendStatus: dto.sendStatus,
-    requestId: dto.requestId,
-    errorMessage: dto.errorMessage,
-    sentTime: dto.sentTime || '',
-    rawPayload: dto.rawPayload,
-    remark: dto.remark,
-  }
-}
-
-const isSuccessValue = (value: string | number | boolean | null | undefined) => {
-  const normalized = String(value ?? '').toLowerCase()
-  return value === true || ['1', 'true', 'success', '成功', 'yes', 'y'].includes(normalized)
-}
-
-const isRetryableValue = (value: string | number | boolean | null | undefined) => {
-  const normalized = String(value ?? '').toLowerCase()
-  return value === true || ['1', 'true', 'yes', 'retryable', '可重试'].includes(normalized)
-}
-
-export const mapOperationLog = (dto: OperationLogDto): OperationLogInfo => ({
-  backendId: dto.operId,
-  title: dto.title || '系统操作',
-  action: dto.method || dto.requestMethod || '未记录方法',
-  operator: dto.operName || '系统',
-  operatorType: dto.operatorType,
-  deptName: dto.deptName || '未标记部门',
-  requestMethod: dto.requestMethod || 'GET',
-  url: dto.operUrl || '',
-  ip: dto.operIp || '',
-  status: dto.status === 0 ? 'SUCCESS' : 'FAILED',
-  errorMessage: dto.errorMsg || '',
-  requestPayload: dto.operParam || '',
-  responsePayload: dto.jsonResult || '',
-  happenedAt: dto.operTime || '',
-  durationMs: dto.costTime,
-})
-
-export const mapChannelSyncLog = (dto: ChannelSyncLogDto, stores: StoreInfo[]): ChannelSyncLogInfo => {
-  const store = stores.find(item => item.backendId === dto.storeId)
-  const success = isSuccessValue(dto.success)
-  return {
-    backendId: dto.id,
-    storeName: store?.name ?? (dto.storeId ? `门店 #${dto.storeId}` : '全部门店'),
-    channelType: dto.channelType || 'UNKNOWN',
-    apiName: dto.apiName || '未记录接口',
-    requestId: dto.requestId,
-    status: success ? 'SUCCESS' : 'FAILED',
-    errorMessage: dto.errorMessage,
-    durationMs: dto.durationMs,
-    retryable: isRetryableValue(dto.retryable),
-    remark: dto.remark,
-  }
-}
-
-const isActiveMappingStatus = (value: string | null | undefined) => {
-  const normalized = String(value ?? '').trim().toLowerCase()
-  if (!normalized) return false
-  return ['0', '1', 'active', 'enabled', 'enable', 'normal', 'online', 'ready', 'valid', '启用', '正常'].includes(normalized)
-}
-
-export const mapChannelProductMapping = (
-  dto: ChannelProductMappingDto,
-  stores: StoreInfo[],
-  products: ProductConfig[],
-): ChannelProductMappingInfo => {
-  const store = stores.find(item => dto.storeId != null && item.backendId === dto.storeId)
-  const product = products.find(item => sameId(item.backendId, dto.productId) || sameId(item.id, dto.productId))
-  const requiredFields = [
-    dto.externalProductId,
-    dto.externalSkuId,
-    dto.externalPoiId,
-    dto.landingUrl || dto.landingPath,
-  ]
-  return {
-    backendId: dto.id,
-    productBackendId: dto.productId || undefined,
-    storeBackendId: dto.storeId || undefined,
-    storeName: store?.name ?? (dto.storeId ? `门店 #${dto.storeId}` : '全部门店'),
-    productName: product?.name ?? (dto.productId ? `本地产品 #${dto.productId}` : '未绑定本地产品'),
-    channelType: dto.channelType || 'UNKNOWN',
-    externalProductId: dto.externalProductId,
-    externalSkuId: dto.externalSkuId,
-    externalPoiId: dto.externalPoiId,
-    landingUrl: dto.landingUrl,
-    landingPath: dto.landingPath,
-    externalName: dto.externalName,
-    mappingStatus: dto.mappingStatus || '未配置',
-    remark: dto.remark,
-    ready: ['DOUYIN_LIFE', 'MEITUAN'].includes(dto.channelType)
-      && isActiveMappingStatus(dto.mappingStatus)
-      && requiredFields.every(Boolean),
-  }
-}
-
-export const mapDouyinAcceptanceCase = (dto: ChannelAcceptanceCaseDto): DouyinAcceptanceCaseInfo => ({
-  caseKey: dto.caseKey,
-  label: dto.label,
-  apiName: dto.apiName,
-  publicUrl: dto.publicUrl,
-  endpoint: dto.endpoint,
-  logidSource: dto.logidSource,
-  status: dto.status,
-  statusText: dto.statusText,
-  requestId: dto.requestId,
-  success: dto.success,
-  errorMessage: dto.errorMessage,
-  createTime: dto.createTime,
-  hint: dto.hint,
-})
-
-export const mapDouyinSyncHealth = (dto: ChannelSyncHealthDto): DouyinSyncHealthInfo => ({
-  channelType: dto.channelType || 'DOUYIN_LIFE',
-  healthStatus: dto.healthStatus || 'UNKNOWN',
-  message: dto.message,
-  failedEventCount: dto.failedEventCount,
-  retryableEventCount: dto.retryableEventCount,
-  deadEventCount: dto.deadEventCount,
-  latestLogId: dto.latestLogId,
-  latestWebhookTime: dto.latestWebhookTime,
-  latestAutoSyncTime: dto.latestAutoSyncTime,
 })

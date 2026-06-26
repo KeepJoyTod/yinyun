@@ -43,6 +43,7 @@ const serviceGroupToPayload = (payload: ServiceGroupPayload) => ({
   groupName: payload.groupName,
   capacity: payload.capacity,
   durationMinutes: payload.durationMinutes,
+  serviceMode: payload.serviceMode,
   status: payload.status,
   sort: payload.sort,
   remark: payload.remark,

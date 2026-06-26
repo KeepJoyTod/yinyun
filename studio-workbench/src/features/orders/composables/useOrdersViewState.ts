@@ -5,6 +5,13 @@ import type { QuickOrderFilter, OrderSlotRange } from '../orderOperations'
 import type { OrderAdvancedFilters, OrderDropdownFilter } from './useOrderFilters'
 
 export type StaffBookingInitial = { storeName: string; date?: string; startTime?: string; endTime?: string }
+export type CopyOrderDraft = {
+  scheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  date: string
+  time: string
+  durationMinutes: number
+  remark: string
+}
 
 export function useOrdersViewState() {
   const searchQuery = ref('')
@@ -29,6 +36,9 @@ export function useOrdersViewState() {
   const cancellingOrderId = ref('')
   const updatingOrderId = ref('')
   const confirmingPaymentOrderId = ref('')
+  const refundingOrderId = ref('')
+  const refundReason = ref('')
+  const copyingOrderId = ref('')
   const orderAlbumActionLoading = ref<'' | 'notify' | 'confirm' | 'deliver'>('')
   const orderPhotoAccessLoading = ref(false)
   const orderPhotoAccessError = ref('')
@@ -47,6 +57,13 @@ export function useOrdersViewState() {
   const printDialogOpen = ref(false)
   const printDialogOrderId = ref<string | null>(null)
   const rescheduleDraft = reactive({ date: '', time: '', durationMinutes: 60, remark: '' })
+  const copyOrderDraft = reactive<CopyOrderDraft>({
+    scheduleMode: 'REUSE_SLOT',
+    date: '',
+    time: '',
+    durationMinutes: 60,
+    remark: '',
+  })
   const cancelReasonOptions = ['客户主动取消', '客户未到店', '重复预约/录入错误', '门店容量调整']
   const rescheduleReasonOptions = ['客户要求改期', '客户迟到顺延', '门店调整时段', '原时段满员改期']
 
@@ -105,13 +122,13 @@ export function useOrdersViewState() {
     slotRange, slotScopedOrders, slotScopedDashboardContext,
     statusTab, anomalyFilters, ordersTableScrollRef,
     syncingFromQuery, lastAllOrdersQueryKey, lastOpenedOrderQuery,
-    cancelReason, cancellingOrderId, updatingOrderId, confirmingPaymentOrderId,
+    cancelReason, cancellingOrderId, updatingOrderId, confirmingPaymentOrderId, refundingOrderId, refundReason, copyingOrderId,
     orderAlbumActionLoading, orderPhotoAccessLoading, orderPhotoAccessError, orderPhotoAccessRequestId,
     orderActionNotice, selectedOrder, exportingOrders,
     reschedulingOrderId, rescheduleConflict, syncingDouyinOrders,
     operationLogsLoading, operationLogsReloadQueued, operationLogsNotice,
     staffBookingOpen, staffBookingInitial, printDialogOpen, printDialogOrderId,
-    rescheduleDraft, cancelReasonOptions, rescheduleReasonOptions,
+    rescheduleDraft, copyOrderDraft, cancelReasonOptions, rescheduleReasonOptions,
     today, todayKey, defaultOrderStart, orderRange, arrivalRange,
     activeStartDate, activeEndDate, calendarMonth, advanced, dropdownFilters,
     toggleAdvancedStatus,

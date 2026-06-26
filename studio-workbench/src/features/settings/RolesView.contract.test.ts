@@ -37,7 +37,7 @@ describe('rolesOperations helper', () => {
   })
 
   it('returns empty when all permissions satisfied', () => {
-    const allPerms = ['yy:dashboard:list', 'yy:order:list', 'yy:order:add', 'yy:bookingInventory:list', 'yy:photoAlbum:list', 'yy:photoAccessLog:list', 'yy:photoAsset:list', 'yy:employee:list', 'yy:channel:list', 'yy:store:list', 'yy:bookingConfig:list', 'yy:product:list', 'yy:customer:list', 'yy:notification:list', 'yy:workOrder:list']
+    const allPerms = ['yy:dashboard:list', 'yy:order:list', 'yy:order:add', 'yy:bookingInventory:list', 'yy:photoAlbum:list', 'yy:photoAccessLog:list', 'yy:photoAsset:list', 'yy:employee:list', 'yy:channel:list', 'yy:store:list', 'yy:bookingConfig:list', 'yy:product:list', 'yy:customer:list', 'yy:notification:list', 'yy:workOrder:list', 'yy:report:list']
     const result = computeMissingPermissions(allPerms, false)
     expect(result).toEqual([])
   })

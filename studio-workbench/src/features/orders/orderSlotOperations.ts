@@ -166,6 +166,40 @@ const addMinutesToClock = (clock: string, minutes: number) => {
   return start + Math.max(15, Number(minutes) || 60)
 }
 
+export const hasVerticalServiceOverlap = (
+  orders: BookingOrder[],
+  params: {
+    storeBackendId?: string
+    serviceGroupBackendId?: string
+    date?: string
+    startTime?: string
+    endTime?: string
+    durationMinutes?: number
+    excludeOrderBackendId?: string
+  },
+) => {
+  if (!params.storeBackendId || !params.serviceGroupBackendId || !params.date || !params.startTime) return false
+  const draftStart = toClockMinutes(params.startTime)
+  const draftEnd = params.endTime
+    ? toClockMinutes(params.endTime)
+    : addMinutesToClock(params.startTime, params.durationMinutes ?? 60)
+  if (!Number.isFinite(draftStart) || !Number.isFinite(draftEnd) || draftEnd <= draftStart) return false
+
+  return orders.some(order => {
+    if (params.excludeOrderBackendId && String(order.backendId) === String(params.excludeOrderBackendId)) return false
+    if (String(order.storeBackendId) !== String(params.storeBackendId)) return false
+    if (String(order.serviceGroupBackendId) !== String(params.serviceGroupBackendId)) return false
+    if (order.arrivalDate !== params.date) return false
+    const isClosedOrder = order.status === '已取消' || order.status === '已退单'
+    const isRefundedPayment = order.payment === '已退款'
+    if (isClosedOrder || isRefundedPayment) return false
+    const currentStart = toClockMinutes(order.arrivalClock || '')
+    const currentEnd = addMinutesToClock(order.arrivalClock || '', params.durationMinutes ?? 60)
+    if (!Number.isFinite(currentStart) || !Number.isFinite(currentEnd)) return false
+    return draftStart < currentEnd && draftEnd > currentStart
+  })
+}
+
 const matchesOrderInventoryDimension = (order: BookingOrder, slot: BookingInventorySlot) => {
   if (order.serviceGroupBackendId && slot.serviceGroupBackendId && slot.serviceGroupBackendId !== order.serviceGroupBackendId) {
     return false

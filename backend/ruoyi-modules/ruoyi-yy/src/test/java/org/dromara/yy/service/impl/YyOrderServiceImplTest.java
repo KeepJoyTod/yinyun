@@ -10,12 +10,15 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.yy.domain.YyEmployee;
 import org.dromara.yy.domain.YyEmployeeStore;
-import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.YyChannelOrderMapping;
+import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.YyPhotoAlbum;
 import org.dromara.yy.domain.YyPhotoAsset;
+import org.dromara.yy.domain.YyServiceGroup;
 import org.dromara.yy.domain.bo.ClientBookingIntentRequest;
 import org.dromara.yy.domain.bo.YyOrderBo;
+import org.dromara.yy.domain.bo.YyOrderAttributeValueBo;
+import org.dromara.yy.domain.bo.YyOrderCopyBo;
 import org.dromara.yy.domain.bo.YyStaffBookingCreateBo;
 import org.dromara.yy.domain.vo.ClientBookingIntentVo;
 import org.dromara.yy.domain.vo.ClientOrderLinkVo;
@@ -29,6 +32,7 @@ import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPhotoAlbumMapper;
 import org.dromara.yy.mapper.YyPhotoAssetMapper;
+import org.dromara.yy.mapper.YyServiceGroupMapper;
 import org.dromara.yy.service.IYyCustomerService;
 import org.dromara.yy.service.IYyBookingSlotInventoryService;
 import org.dromara.yy.service.IYyPhotoAlbumService;
@@ -52,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -78,6 +83,9 @@ class YyOrderServiceImplTest {
 
     @Mock
     private YyEmployeeStoreMapper employeeStoreMapper;
+
+    @Mock
+    private YyServiceGroupMapper serviceGroupMapper;
 
     @Mock
     private IYyCustomerService customerService;
@@ -141,6 +149,7 @@ class YyOrderServiceImplTest {
         bo.setSlotEndTime("11:30");
         bo.setStatus("PENDING");
         bo.setPayStatus("UNPAID");
+        bo.setOrderAttributes(List.of(orderAttribute("customerNote", "客户备注", "TEXT", "需要加急")));
         bo.setRemark("前台电话预约");
         when(orderMapper.insert(any(YyOrder.class))).thenAnswer(invocation -> {
             YyOrder entity = invocation.getArgument(0);
@@ -160,6 +169,7 @@ class YyOrderServiceImplTest {
             return created;
         });
         when(photoAlbumMapper.selectList(any())).thenReturn(List.of());
+        when(serviceGroupMapper.selectById(900000000000010100L)).thenReturn(serviceGroup("HORIZONTAL"));
 
         YyOrderVo result = service.createStaffBooking(bo);
 
@@ -176,6 +186,7 @@ class YyOrderServiceImplTest {
         assertEquals("2026-06-13", inserted.getSlotDate());
         assertEquals("11:00", inserted.getSlotStartTime());
         assertEquals("11:30", inserted.getSlotEndTime());
+        assertTrue(inserted.getOrderAttributeJson().contains("customerNote"));
         verify(bookingSlotInventoryService).confirmPaidOrderSlot(inserted);
         verify(customerService).upsertByMobile(
             eq("手动预约客户"),
@@ -218,6 +229,7 @@ class YyOrderServiceImplTest {
             return created;
         });
         when(photoAlbumMapper.selectList(any())).thenReturn(List.of());
+        when(serviceGroupMapper.selectById(900000000000010100L)).thenReturn(serviceGroup("HORIZONTAL"));
 
         service.createStaffBooking(bo);
 
@@ -227,6 +239,137 @@ class YyOrderServiceImplTest {
         assertNull(captor.getValue().getSlotStartTime());
         assertNull(captor.getValue().getSlotEndTime());
         verify(bookingSlotInventoryService, never()).confirmPaidOrderSlot(any(YyOrder.class));
+    }
+
+    @Tag("dev")
+    @Test
+    void copyOrderShouldCreatePendingLocalOrderAndReserveInventoryWhenReuseSlot() {
+        Date arrivalTime = new Date(1781463600000L);
+        YyOrder source = baseOrder(990001L, "YY202606150001");
+        source.setStoreId(900000000000000100L);
+        source.setServiceGroupId(900000000000010100L);
+        source.setCustomerName("源客户");
+        source.setCustomerPhone("13800000000");
+        source.setWorkstationNo("A01");
+        source.setTotalAmountCent(8800L);
+        source.setOrderAttributeJson("[{\"fieldCode\":\"note\",\"value\":\"源备注\"}]");
+        source.setRemark("源备注");
+        when(orderMapper.selectById(990001L)).thenReturn(source);
+        when(orderMapper.insert(any(YyOrder.class))).thenAnswer(invocation -> {
+            YyOrder entity = invocation.getArgument(0);
+            entity.setId(990002L);
+            return 1;
+        });
+        when(orderMapper.selectVoById(any())).thenAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            YyOrderVo created = new YyOrderVo();
+            created.setId(id);
+            created.setOrderNo("YY-COPY-" + id);
+            created.setStatus("PENDING");
+            created.setPayStatus("UNPAID");
+            return created;
+        });
+        when(photoAlbumMapper.selectList(any())).thenReturn(List.of());
+
+        YyOrderCopyBo bo = new YyOrderCopyBo();
+        bo.setScheduleMode("REUSE_SLOT");
+        bo.setArrivalTime(arrivalTime);
+        bo.setSlotDate("2026-06-16");
+        bo.setSlotStartTime("18:00");
+        bo.setSlotEndTime("18:30");
+        bo.setRemark("新备注");
+
+        YyOrderVo result = service.copyOrder(990001L, bo);
+
+        assertEquals("YY-COPY-990002", result.getOrderNo());
+        ArgumentCaptor<YyOrder> captor = ArgumentCaptor.forClass(YyOrder.class);
+        verify(orderMapper).insert(captor.capture());
+        YyOrder inserted = captor.getValue();
+        assertEquals("LOCAL", inserted.getSource());
+        assertEquals("LOCAL", inserted.getChannelType());
+        assertEquals("STAFF_COPY", inserted.getBookingMethod());
+        assertEquals("PENDING", inserted.getStatus());
+        assertEquals("UNPAID", inserted.getPayStatus());
+        assertEquals(arrivalTime, inserted.getArrivalTime());
+        assertEquals("2026-06-16", inserted.getSlotDate());
+        assertEquals("18:00", inserted.getSlotStartTime());
+        assertEquals("18:30", inserted.getSlotEndTime());
+        assertEquals(8800L, inserted.getTotalAmountCent());
+        assertEquals(0L, inserted.getPaidAmountCent());
+        assertEquals("", inserted.getRefundStatus());
+        assertEquals(0L, inserted.getRefundAmountCent());
+        assertEquals("", inserted.getExternalOrderId());
+        assertEquals("", inserted.getExternalProductId());
+        assertEquals("", inserted.getExternalSkuId());
+        assertEquals("", inserted.getExternalPoiId());
+        assertEquals("A01", inserted.getWorkstationNo());
+        assertTrue(inserted.getRemark().contains("Copied from order YY202606150001/990001"));
+        assertTrue(inserted.getRemark().contains("新备注"));
+        assertTrue(inserted.getOrderAttributeJson().contains("note"));
+        verify(bookingSlotInventoryService).confirmPaidOrderSlot(inserted);
+        verify(customerService).upsertByMobile(
+            eq("源客户"),
+            eq("13800000000"),
+            eq("LOCAL"),
+            eq(BigDecimal.ZERO),
+            any(Date.class),
+            anyString()
+        );
+    }
+
+    @Tag("dev")
+    @Test
+    void copyOrderShouldCreateUndecidedOrderWithoutInventoryReservation() {
+        YyOrder source = baseOrder(990011L, "YY202606150011");
+        source.setStoreId(900000000000000100L);
+        source.setServiceGroupId(900000000000010100L);
+        source.setCustomerName("待定客户");
+        source.setCustomerPhone("13800000001");
+        source.setOrderAttributeJson("[{\"fieldCode\":\"note\",\"value\":\"待定备注\"}]");
+        source.setRemark("待定备注");
+        when(orderMapper.selectById(990011L)).thenReturn(source);
+        when(orderMapper.insert(any(YyOrder.class))).thenAnswer(invocation -> {
+            YyOrder entity = invocation.getArgument(0);
+            entity.setId(990012L);
+            return 1;
+        });
+        when(orderMapper.selectVoById(any())).thenAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            YyOrderVo created = new YyOrderVo();
+            created.setId(id);
+            created.setOrderNo("YY-COPY-" + id);
+            created.setStatus("PENDING");
+            created.setPayStatus("UNPAID");
+            return created;
+        });
+        when(photoAlbumMapper.selectList(any())).thenReturn(List.of());
+
+        YyOrderCopyBo bo = new YyOrderCopyBo();
+        bo.setScheduleMode("UNDECIDED");
+        bo.setRemark("仅复制备注");
+
+        YyOrderVo result = service.copyOrder(990011L, bo);
+
+        assertEquals("YY-COPY-990012", result.getOrderNo());
+        ArgumentCaptor<YyOrder> captor = ArgumentCaptor.forClass(YyOrder.class);
+        verify(orderMapper).insert(captor.capture());
+        YyOrder inserted = captor.getValue();
+        assertNull(inserted.getArrivalTime());
+        assertNull(inserted.getSlotDate());
+        assertNull(inserted.getSlotStartTime());
+        assertNull(inserted.getSlotEndTime());
+        assertEquals("LOCAL", inserted.getSource());
+        assertEquals("STAFF_COPY", inserted.getBookingMethod());
+        assertTrue(inserted.getRemark().contains("Copied from order YY202606150011/990011"));
+        verify(bookingSlotInventoryService, never()).confirmPaidOrderSlot(any(YyOrder.class));
+        verify(customerService).upsertByMobile(
+            eq("待定客户"),
+            eq("13800000001"),
+            eq("LOCAL"),
+            eq(BigDecimal.ZERO),
+            any(Date.class),
+            anyString()
+        );
     }
 
     @Tag("dev")
@@ -261,6 +404,7 @@ class YyOrderServiceImplTest {
             return created;
         });
         when(photoAlbumMapper.selectList(any())).thenReturn(List.of());
+        when(serviceGroupMapper.selectById(900000000000010100L)).thenReturn(serviceGroup("HORIZONTAL"));
 
         service.createStaffBooking(bo);
 
@@ -678,6 +822,61 @@ class YyOrderServiceImplTest {
         assertNull(captor.getValue().getSlotEndTime());
         verify(bookingSlotInventoryService, never()).releaseConfirmedOrderSlot(any(YyOrder.class));
         verify(bookingSlotInventoryService, never()).confirmPaidOrderSlot(any(YyOrder.class));
+    }
+
+    @Tag("dev")
+    @Test
+    void updateByBoShouldPersistOrderAttributeSnapshot() {
+        YyOrder existing = paidOrderWithSlot();
+        when(orderMapper.selectById(990001L)).thenReturn(existing);
+        when(orderMapper.updateById(any(YyOrder.class))).thenReturn(1);
+        when(serviceGroupMapper.selectById(700001L)).thenReturn(serviceGroup("HORIZONTAL"));
+
+        YyOrderBo bo = new YyOrderBo();
+        bo.setId(990001L);
+        bo.setStoreId(900001L);
+        bo.setOrderNo("YY-PAID-001");
+        bo.setSource("DOUYIN_LIFE");
+        bo.setStatus("CONFIRMED");
+        bo.setOrderAttributes(List.of(orderAttribute("memo", "备注", "TEXTAREA", "改期后优先安排")));
+
+        assertTrue(service.updateByBo(bo));
+
+        ArgumentCaptor<YyOrder> captor = ArgumentCaptor.forClass(YyOrder.class);
+        verify(orderMapper).updateById(captor.capture());
+        assertTrue(captor.getValue().getOrderAttributeJson().contains("memo"));
+        assertTrue(captor.getValue().getOrderAttributeJson().contains("改期后优先安排"));
+    }
+
+    @Tag("dev")
+    @Test
+    void createStaffBookingShouldRejectVerticalOverlap() {
+        YyStaffBookingCreateBo bo = new YyStaffBookingCreateBo();
+        bo.setStoreId(900000000000000100L);
+        bo.setServiceGroupId(900000000000010100L);
+        bo.setCustomerName("纵向服务客户");
+        bo.setCustomerPhone("13800000008");
+        bo.setArrivalTime(new Date(1781377200000L));
+        bo.setSlotDate("2026-06-13");
+        bo.setSlotStartTime("11:00");
+        bo.setSlotEndTime("12:00");
+        bo.setStatus("PENDING");
+        bo.setPayStatus("UNPAID");
+        when(serviceGroupMapper.selectById(900000000000010100L)).thenReturn(serviceGroup("VERTICAL"));
+
+        YyOrder overlap = new YyOrder();
+        overlap.setId(940000000000000001L);
+        overlap.setStoreId(900000000000000100L);
+        overlap.setServiceGroupId(900000000000010100L);
+        overlap.setSlotDate("2026-06-13");
+        overlap.setSlotStartTime("11:30");
+        overlap.setSlotEndTime("12:30");
+        overlap.setStatus("CONFIRMED");
+        overlap.setDelFlag("0");
+        when(orderMapper.selectList(any())).thenReturn(List.of(overlap));
+
+        assertThrows(org.dromara.common.core.exception.ServiceException.class, () -> service.createStaffBooking(bo));
+        verify(orderMapper, never()).insert(any(YyOrder.class));
     }
 
     @Tag("dev")
@@ -1154,6 +1353,27 @@ class YyOrderServiceImplTest {
         return employeeStore;
     }
 
+    private static YyOrder baseOrder(Long id, String orderNo) {
+        YyOrder order = new YyOrder();
+        order.setId(id);
+        order.setTenantId("000000");
+        order.setOrderNo(orderNo);
+        order.setSource("DOUYIN_LIFE");
+        order.setChannelType("DOUYIN_LIFE");
+        order.setStatus("CONFIRMED");
+        order.setPayStatus("PAID");
+        order.setTotalAmountCent(0L);
+        order.setPaidAmountCent(0L);
+        order.setRefundStatus("");
+        order.setRefundAmountCent(0L);
+        order.setExternalOrderId("");
+        order.setExternalProductId("");
+        order.setExternalSkuId("");
+        order.setExternalPoiId("");
+        order.setInventoryStatus("");
+        return order;
+    }
+
     private static YyOrder paidOrderWithSlot() {
         YyOrder order = new YyOrder();
         order.setId(990001L);
@@ -1199,6 +1419,24 @@ class YyOrderServiceImplTest {
         order.setSlotEndTime("10:30");
         order.setInventoryStatus("CONFIRMED");
         return order;
+    }
+
+    private static YyOrderAttributeValueBo orderAttribute(String code, String label, String fieldType, String value) {
+        YyOrderAttributeValueBo attribute = new YyOrderAttributeValueBo();
+        attribute.setFieldCode(code);
+        attribute.setFieldLabel(label);
+        attribute.setFieldType(fieldType);
+        attribute.setRequired(false);
+        attribute.setSort(10);
+        attribute.setValue(value);
+        return attribute;
+    }
+
+    private static YyServiceGroup serviceGroup(String serviceMode) {
+        YyServiceGroup group = new YyServiceGroup();
+        group.setId(700001L);
+        group.setServiceMode(serviceMode);
+        return group;
     }
 
     private static void assertContainsAny(String actual, String... expectedItems) {

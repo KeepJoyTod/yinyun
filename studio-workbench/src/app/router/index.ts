@@ -3,20 +3,24 @@ import { getStoredApiToken } from '../../shared/api/request'
 import { getStaffSession } from '../../shared/auth/staffSession'
 import { ensureStudioAccess, studioAccessStore } from '../../shared/stores/studioAccessStore'
 import {
-  canAccessWorkbenchFeature,
-  getEffectiveFeatureStatus,
-  getWorkbenchFeature,
   getWorkbenchGroupLabel,
   workbenchFeatures,
 } from './featureRegistry'
+import { resolveWorkbenchProtectedRoute } from './routeGuard'
 
 const componentLoaders = {
   dashboard: () => import('../../features/dashboard/DashboardView.vue'),
   orders: () => import('../../features/orders/OrdersView.vue'),
   'staff-booking-entry': () => import('../../features/merchant/modules/operations/MerchantOperationsView.vue'),
+  'order-card-batch': () => import('../../features/orders/card-batch/OrderCardBatchView.vue'),
   schedule: () => import('../../features/schedule/ScheduleView.vue'),
   'merchant-overview': () => import('../../features/merchant/modules/core/MerchantCoreView.vue'),
   'merchant-readiness': () => import('../../features/merchant/modules/readiness/MerchantReadinessView.vue'),
+  'merchant-schedule-governance': () => import('../../features/merchant/modules/schedule-governance/MerchantScheduleGovernanceView.vue'),
+  'merchant-channel-readiness': () => import('../../features/merchant/modules/channel-readiness/MerchantChannelReadinessView.vue'),
+  'merchant-governance': () => import('../../features/merchant/modules/governance/MerchantGovernanceView.vue'),
+  'merchant-dependency-readiness': () => import('../../features/merchant/modules/dependency-readiness/MerchantDependencyReadinessView.vue'),
+  'merchant-consumer-ops-p1': () => import('../../features/merchant/modules/consumer-ops-p1/MerchantConsumerOpsP1View.vue'),
   store: () => import('../../features/stores/StoreView.vue'),
   'service-groups': () => import('../../features/merchant/modules/config/MerchantConfigView.vue'),
   decoration: () => import('../../features/merchant/modules/decoration/MerchantDecorationModuleView.vue'),
@@ -38,6 +42,7 @@ const componentLoaders = {
   'product-card-catalog': () => import('../../features/products/ProductCardCatalogView.vue'),
   customers: () => import('../../features/member/CustomersView.vue'),
   'member-assets': () => import('../../features/member/modules/assets/MemberAssetsView.vue'),
+  'member-transaction-safety': () => import('../../features/member/modules/transaction-safety/MemberTransactionSafetyView.vue'),
   'member-transactions': () => import('../../features/member/modules/transactions/MemberTransactionsView.vue'),
   'derived-member-module': () => import('../../features/member/DerivedMemberModuleView.vue'),
   'marketing-center-view': () => import('../../features/marketing/MarketingCenterView.vue'),
@@ -45,10 +50,12 @@ const componentLoaders = {
   'marketing-campaigns-view': () => import('../../features/marketing/MarketingCampaignsView.vue'),
   'marketing-participations-view': () => import('../../features/marketing/MarketingParticipationsView.vue'),
   'derived-report-module': () => import('../../features/reports/DerivedReportModuleView.vue'),
+  'report-finance-reconciliation': () => import('../../features/reports/ReportFinanceReconciliationView.vue'),
+  'report-order-analysis': () => import('../../features/reports/OrderAnalysisReportView.vue'),
   albums: () => import('../../features/albums/PhotoMgmtView.vue'),
   selection: () => import('../../features/selection/OnlineSelectionView.vue'),
   'campaign-orders': () => import('../../features/orders/CampaignOrdersView.vue'),
-  'order-form-submissions': () => import('../../features/merchant/modules/operations/MerchantOperationsView.vue'),
+  'order-form-submissions': () => import('../../features/orders/modules/form-submissions/OrderFormSubmissionsOwnerView.vue'),
   'derived-order-module': () => import('../../features/orders/DerivedOrderModuleView.vue'),
   'service-retouch-center': () => import('../../features/service-production/RetouchCenterView.vue'),
   'service-retouch-providers': () => import('../../features/service-production/RetouchProvidersView.vue'),
@@ -66,7 +73,7 @@ const componentLoaders = {
   'resource-tags': () => import('../../features/resources/ResourceTagsView.vue'),
   'resource-usage': () => import('../../features/resources/ResourceUsageView.vue'),
   'share-links': () => import('../../features/tools/ShareLinksView.vue'),
-  notifications: () => import('../../features/merchant/modules/operations/MerchantOperationsView.vue'),
+  notifications: () => import('../../features/platform-settings/PlatformNotificationCenterView.vue'),
   'tool-sample-works': () => import('../../features/tools/SampleWorksView.vue'),
   'tool-precision-delivery': () => import('../../features/tools/PrecisionDeliveryView.vue'),
   employees: () => import('../../features/settings/EmployeesView.vue'),
@@ -77,11 +84,16 @@ const componentLoaders = {
   settings: () => import('../../features/settings/SettingsView.vue'),
   'platform-brand-info': () => import('../../features/platform-settings/PlatformBrandInfoView.vue'),
   'platform-integration': () => import('../../features/platform-settings/PlatformIntegrationView.vue'),
+  'platform-login-risk': () => import('../../features/platform-settings/PlatformLoginRiskView.vue'),
+  'platform-open-api': () => import('../../features/platform-settings/PlatformOpenApiView.vue'),
+  'platform-task-center': () => import('../../features/platform-settings/PlatformTaskCenterView.vue'),
   'platform-booking-policy': () => import('../../features/platform-settings/PlatformBookingPolicyView.vue'),
   'platform-print-settings': () => import('../../features/platform-settings/PlatformPrintSettingsView.vue'),
   'platform-score-settings': () => import('../../features/platform-settings/PlatformScoreSettingsView.vue'),
+  'platform-meituan-review-trace': () => import('../../features/platform-settings/PlatformMeituanReviewTraceView.vue'),
   'platform-email-settings': () => import('../../features/platform-settings/PlatformEmailSettingsView.vue'),
   'platform-notification-center': () => import('../../features/platform-settings/PlatformNotificationCenterView.vue'),
+  'platform-backup-recovery': () => import('../../features/platform-settings/PlatformBackupRecoveryView.vue'),
   'platform-service-packages': () => import('../../features/platform-settings/PlatformServicePackagesView.vue'),
   'account-profile': () => import('../../features/account-center/AccountProfileView.vue'),
   'account-brands': () => import('../../features/account-center/AccountBrandsView.vue'),
@@ -152,6 +164,17 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/merchant/order-attributes',
+    name: 'merchant-order-attributes',
+    component: componentLoaders['service-groups'],
+    meta: {
+      section: '商户',
+      title: '订单属性配置',
+      featureKey: 'merchant-service-groups',
+      featureStatus: 'ready',
+    },
+  },
+  {
     path: '/tools/photo/sample',
     redirect: '/tools/sample-works',
   },
@@ -209,16 +232,11 @@ router.beforeEach(async to => {
   }
 
   const featureKey = typeof to.meta.featureKey === 'string' ? to.meta.featureKey : ''
-  if (!featureKey) return true
-  const feature = getWorkbenchFeature(featureKey)
-  const status = getEffectiveFeatureStatus(feature, studioAccessStore.featureStatuses)
-  if (
-    status === 'hidden'
-    || !canAccessWorkbenchFeature(feature, studioAccessStore.menuPermissions)
-  ) {
-    return { path: '/403' }
-  }
-  return true
+  return resolveWorkbenchProtectedRoute(
+    featureKey,
+    studioAccessStore.featureStatuses,
+    studioAccessStore.menuPermissions,
+  )
 })
 
 export default router

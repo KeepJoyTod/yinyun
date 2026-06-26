@@ -46,10 +46,17 @@
             <input v-model.number="form.durationMinutes" class="h-10 border border-amber-topbar-border bg-[#F4EFE6] px-3 text-[13px] text-amber-dark outline-none" min="0" step="5" type="number" />
           </label>
           <label class="grid gap-2 text-[12px] text-amber-text-muted">
+            服务模式
+            <select v-model="form.serviceMode" class="h-10 border border-amber-topbar-border bg-[#F4EFE6] px-3 text-[13px] text-amber-dark outline-none">
+              <option value="HORIZONTAL">横向服务</option>
+              <option value="VERTICAL">纵向服务</option>
+            </select>
+          </label>
+          <label class="grid gap-2 text-[12px] text-amber-text-muted">
             排序
             <input v-model.number="form.sort" class="h-10 border border-amber-topbar-border bg-[#F4EFE6] px-3 text-[13px] text-amber-dark outline-none" min="0" type="number" />
           </label>
-          <label class="grid gap-2 text-[12px] text-amber-text-muted">
+          <label class="grid gap-2 text-[12px] text-amber-text-muted sm:col-span-2">
             备注
             <input v-model="form.remark" class="h-10 border border-amber-topbar-border bg-[#F4EFE6] px-3 text-[13px] text-amber-dark outline-none" type="text" />
           </label>

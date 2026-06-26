@@ -25,6 +25,7 @@ export type ServiceGroupInput = {
   name: string
   capacity: number
   durationMinutes: number
+  serviceMode: 'HORIZONTAL' | 'VERTICAL'
   status: string
   sort: number
   remark: string
@@ -102,6 +103,7 @@ export const settingsStore = reactive({
       name: requireValue(input.name, '请输入服务组名称'),
       capacity: Number(input.capacity) || 0,
       durationMinutes: Number(input.durationMinutes) || 0,
+      serviceMode: input.serviceMode || 'HORIZONTAL',
       status: input.status || 'ACTIVE',
       sort: Number(input.sort) || 0,
       remark: input.remark.trim(),
@@ -120,6 +122,7 @@ export const settingsStore = reactive({
       groupName: requireValue(input.name, '请输入服务组名称'),
       capacity: Number(input.capacity) || 0,
       durationMinutes: Number(input.durationMinutes) || 0,
+      serviceMode: input.serviceMode || 'HORIZONTAL',
       status: input.status || 'ACTIVE',
       sort: Number(input.sort) || 0,
       remark: input.remark.trim(),
@@ -281,6 +284,7 @@ export const settingsStore = reactive({
         name: '证件照快拍组',
         capacity: 6,
         durationMinutes: 30,
+        serviceMode: 'HORIZONTAL',
         status: 'ACTIVE',
         sort: 10,
         remark: '覆盖证件照与快修交付',
@@ -293,6 +297,7 @@ export const settingsStore = reactive({
         name: '形象照主棚',
         capacity: 3,
         durationMinutes: 90,
+        serviceMode: 'VERTICAL',
         status: 'ACTIVE',
         sort: 20,
         remark: '适合职业形象照与简历头像',
@@ -305,6 +310,7 @@ export const settingsStore = reactive({
         name: '交付与取片组',
         capacity: 2,
         durationMinutes: 20,
+        serviceMode: 'HORIZONTAL',
         status: 'ACTIVE',
         sort: 30,
         remark: '以预约交付和补片为主',

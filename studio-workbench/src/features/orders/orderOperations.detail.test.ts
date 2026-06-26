@@ -667,4 +667,34 @@ describe('order detail operations helpers', () => {
       hint: '订单已取消，库存已释放；如需重新安排请新建预约或从操作日志追溯原因',
     }))
   })
+
+  it('labels copy order operations with schedule mode evidence', () => {
+    const order = makeOrder({
+      backendId: '9001',
+      id: 'YY202606150001',
+    })
+    const operationLogs = [
+      makeOperationLog({
+        backendId: 'op-copy',
+        title: '澶嶅埗棰勭害璁㈠崟',
+        operator: '搴楀憳A',
+        action: 'POST /yy/order/9001/copy',
+        url: '/yy/order/9001/copy',
+        happenedAt: '2026-06-15 13:00:00',
+        requestPayload: '{"scheduleMode":"UNDECIDED","remark":"copy"}',
+      }),
+    ]
+
+    expect(buildOrderOperationEvidenceCards(order, operationLogs)).toEqual([
+      expect.objectContaining({
+        key: 'operation-evidence-op-copy',
+        action: '复制订单',
+        primaryDetail: expect.stringContaining('待定档期'),
+      }),
+    ])
+    expect(buildOrderDetailTimeline(order, null, [], operationLogs)).toContainEqual(expect.objectContaining({
+      key: 'operation-op-copy',
+      hint: expect.stringContaining('复制方式'),
+    }))
+  })
 })

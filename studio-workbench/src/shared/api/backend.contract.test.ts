@@ -3,6 +3,7 @@ import backendAccountApiSource from '/src/shared/api/backendAccountApi.ts?raw'
 import backendAlbumsApiSource from '/src/shared/api/backendAlbumsApi.ts?raw'
 import backendAuditApiSource from '/src/shared/api/backendAuditApi.ts?raw'
 import backendAssetsApiSource from '/src/shared/api/backendAssetsApi.ts?raw'
+import backendCardBatchOrderApiSource from '/src/shared/api/backendCardBatchOrderApi.ts?raw'
 import backendDashboardApiSource from '/src/shared/api/backendDashboardApi.ts?raw'
 import backendFeatureScopeApiSource from '/src/shared/api/backendFeatureScopeApi.ts?raw'
 import backendFinanceApiSource from '/src/shared/api/backendFinanceApi.ts?raw'
@@ -31,6 +32,7 @@ import backendScheduleRulesApiSource from '/src/shared/api/backendScheduleRulesA
 import backendServiceProductionApiSource from '/src/shared/api/backendServiceProductionApi.ts?raw'
 import backendToolsApiSource from '/src/shared/api/backendToolsApi.ts?raw'
 import backendTypesAccountSource from '/src/shared/api/backendTypesAccount.ts?raw'
+import backendTypesCardBatchOrderSource from '/src/shared/api/backendTypesCardBatchOrder.ts?raw'
 import backendTypesDashboardSource from '/src/shared/api/backendTypesDashboard.ts?raw'
 import backendTypesAccessSource from '/src/shared/api/backendTypesAccess.ts?raw'
 import backendTypesFinanceSource from '/src/shared/api/backendTypesFinance.ts?raw'
@@ -42,11 +44,14 @@ import backendTypesCoreSource from '/src/shared/api/backendTypesCore.ts?raw'
 import backendTypesMerchantSource from '/src/shared/api/backendTypesMerchant.ts?raw'
 import backendTypesPayloadsSource from '/src/shared/api/backendTypesPayloads.ts?raw'
 import backendTypesPlatformSource from '/src/shared/api/backendTypesPlatform.ts?raw'
+import backendTypesReportsSource from '/src/shared/api/backendTypesReports.ts?raw'
+import backendTypesServiceProductionSource from '/src/shared/api/backendTypesServiceProduction.ts?raw'
 import backendTypesToolsSource from '/src/shared/api/backendTypesTools.ts?raw'
+import backendTypesWorkbenchSource from '/src/shared/api/backendTypesWorkbench.ts?raw'
 import backendWorkOrdersApiSource from '/src/shared/api/backendWorkOrdersApi.ts?raw'
 
-const backendContractSource = `${backendSource}\n${backendAccountApiSource}\n${backendAlbumsApiSource}\n${backendAuditApiSource}\n${backendAssetsApiSource}\n${backendDashboardApiSource}\n${backendFeatureScopeApiSource}\n${backendFinanceApiSource}\n${backendInventoryApiSource}\n${backendMarketingApiSource}\n${backendMarketingCampaignsApiSource}\n${backendMarketingCapabilitiesApiSource}\n${backendMarketingCouponsApiSource}\n${backendMarketingParticipationsApiSource}\n${backendMasterDataApiSource}\n${backendMemberApiSource}\n${backendMerchantConfigApiSource}\n${backendMerchantContentApiSource}\n${backendMerchantOpsApiSource}\n${backendMerchantReadinessApiSource}\n${backendOrdersApiSource}\n${backendPaymentsApiSource}\n${backendPlatformApiSource}\n${backendProductsApiSource}\n${backendReportsApiSource}\n${backendResourcesApiSource}\n${backendScheduleRulesApiSource}\n${backendServiceProductionApiSource}\n${backendToolsApiSource}\n${backendWorkOrdersApiSource}\n${backendQueryMappersSource}\n${backendRowMappersSource}`
-const backendTypesContractSource = `${backendTypesSource}\n${backendTypesCoreSource}\n${backendTypesAccessSource}\n${backendTypesPayloadsSource}\n${backendTypesMerchantSource}\n${backendTypesPlatformSource}\n${backendTypesAccountSource}\n${backendTypesFinanceSource}\n${backendTypesToolsSource}\n${backendTypesMarketingSource}\n${backendTypesMemberSource}\n${backendTypesPhase1Source}\n${backendTypesDashboardSource}`
+const backendContractSource = `${backendSource}\n${backendAccountApiSource}\n${backendAlbumsApiSource}\n${backendAuditApiSource}\n${backendAssetsApiSource}\n${backendCardBatchOrderApiSource}\n${backendDashboardApiSource}\n${backendFeatureScopeApiSource}\n${backendFinanceApiSource}\n${backendInventoryApiSource}\n${backendMarketingApiSource}\n${backendMarketingCampaignsApiSource}\n${backendMarketingCapabilitiesApiSource}\n${backendMarketingCouponsApiSource}\n${backendMarketingParticipationsApiSource}\n${backendMasterDataApiSource}\n${backendMemberApiSource}\n${backendMerchantConfigApiSource}\n${backendMerchantContentApiSource}\n${backendMerchantOpsApiSource}\n${backendMerchantReadinessApiSource}\n${backendOrdersApiSource}\n${backendPaymentsApiSource}\n${backendPlatformApiSource}\n${backendProductsApiSource}\n${backendReportsApiSource}\n${backendResourcesApiSource}\n${backendScheduleRulesApiSource}\n${backendServiceProductionApiSource}\n${backendToolsApiSource}\n${backendWorkOrdersApiSource}\n${backendQueryMappersSource}\n${backendRowMappersSource}`
+const backendTypesContractSource = `${backendTypesSource}\n${backendTypesCoreSource}\n${backendTypesAccessSource}\n${backendTypesWorkbenchSource}\n${backendTypesServiceProductionSource}\n${backendTypesPayloadsSource}\n${backendTypesMerchantSource}\n${backendTypesPlatformSource}\n${backendTypesAccountSource}\n${backendTypesCardBatchOrderSource}\n${backendTypesFinanceSource}\n${backendTypesToolsSource}\n${backendTypesMarketingSource}\n${backendTypesMemberSource}\n${backendTypesPhase1Source}\n${backendTypesDashboardSource}\n${backendTypesReportsSource}`
 const backendTypesNormalized = backendTypesContractSource.replace(/\r\n/g, '\n')
 
 describe('studio backend api contract', () => {
@@ -79,6 +84,22 @@ describe('studio backend api contract', () => {
     expect(backendSource).toContain('...merchantContentApi')
   })
 
+  it('exposes order analysis scaffold on the shared reports facade', () => {
+    expect(backendContractSource).toContain('/yy/reportOrderAnalysis/overview')
+    expect(backendTypesSource).toContain("export type * from './backendTypesReports'")
+    expect(backendTypesNormalized).toContain('export type OrderAnalysisQuery = {')
+    expect(backendTypesNormalized).toContain('export type OrderAnalysisScaffoldDto = {')
+  })
+
+  it('exposes finance reconciliation and async export on the shared reports facade', () => {
+    expect(backendContractSource).toContain('/yy/reportFinanceReconciliation/overview')
+    expect(backendContractSource).toContain('/yy/reportFinanceReconciliation/export')
+    expect(backendContractSource).toContain('/yy/reportFinanceReconciliation/export/tasks')
+    expect(backendTypesNormalized).toContain('export type ReportFinanceReconciliationQuery = {')
+    expect(backendTypesNormalized).toContain('export type ReportFinanceReconciliationDto = {')
+    expect(backendTypesNormalized).toContain('export type ReportFinanceExportTaskDto = {')
+  })
+
   it('splits phase1 payment, inventory, and audit slices while keeping backendApi compatibility', () => {
     expect(backendSource).toContain('...paymentsApi')
     expect(backendSource).toContain('...inventoryApi')
@@ -93,6 +114,15 @@ describe('studio backend api contract', () => {
     expect(backendTypesNormalized).toContain('export type BookingInventoryListQuery = {')
     expect(backendTypesNormalized).toContain('export type OperationLogListQuery = {')
     expect(backendTypesNormalized).toContain('export type ChannelSyncLogListQuery = {')
+  })
+
+  it('aggregates card batch order approval scaffold on the shared facade', () => {
+    expect(backendSource).toContain('...cardBatchOrderApi')
+    expect(backendSource).toContain("export type * from './backendTypes'")
+    expect(backendContractSource).toContain("'/yy/card-batch-orders'")
+    expect(backendTypesSource).toContain("export type * from './backendTypesCardBatchOrder'")
+    expect(backendTypesNormalized).toContain('export type CardBatchOrderDto = {')
+    expect(backendTypesNormalized).toContain('export type CardBatchOrderCreatePayload = {')
   })
 
   it('moves dashboard read models into a dedicated dashboard api slice', () => {
@@ -178,6 +208,11 @@ describe('studio backend api contract', () => {
     expect(backendContractSource).toContain('/yy/member/recharge-orders/${rechargeOrderId}/confirm')
   })
 
+  it('aggregates customer delete api on the shared facade', () => {
+    expect(backendMasterDataApiSource).toContain('async deleteCustomer(id: BackendId)')
+    expect(backendContractSource).toContain("`/yy/customer/${id}`")
+  })
+
   it('aggregates service production apis on the shared facade', () => {
     expect(backendTypesContractSource).toContain('export type RetouchTaskDto = {')
     expect(backendTypesContractSource).toContain('export type RetouchProviderDto = {')
@@ -199,6 +234,8 @@ describe('studio backend api contract', () => {
     expect(backendTypesSource).toContain("export type * from './backendTypesAccount'")
     expect(backendTypesSource).toContain("export type * from './backendTypesFinance'")
     expect(backendTypesSource).toContain("export type * from './backendTypesTools'")
+    expect(backendTypesSource).toContain("export type * from './backendTypesWorkbench'")
+    expect(backendTypesSource).toContain("export type * from './backendTypesServiceProduction'")
     expect(backendTypesNormalized).toContain('export type PlatformBrandInfoDto = {')
     expect(backendTypesNormalized).toContain('export type AccountProfileDto = {')
     expect(backendTypesNormalized).toContain('export type FinanceOverviewDto = {')
@@ -222,11 +259,21 @@ describe('studio backend api contract', () => {
     expect(backendPlatformApiSource).toContain('getPlatformBrandInfo')
     expect(backendPlatformApiSource).toContain('listPlatformServicePackages')
     expect(backendPlatformApiSource).toContain("'/yy/platform-settings/integrations'")
+    expect(backendPlatformApiSource).toContain("'/yy/platform-settings/login-risk-policies'")
+    expect(backendPlatformApiSource).toContain("'/yy/platform-settings/open-api-apps'")
+    expect(backendPlatformApiSource).toContain("'/yy/platform-settings/async-tasks'")
     expect(backendPlatformApiSource).toContain("'/yy/platform-settings/notifications'")
+    expect(backendPlatformApiSource).toContain("'/yy/platform-settings/backup-recovery-plans'")
     expect(backendPlatformApiSource).toContain("'/yy/platform-settings/service-packages'")
+    expect(backendPlatformApiSource).toContain("'/yy/platform-settings/meituan-review-traces'")
     expect(backendTypesNormalized).toContain('export type PlatformIntegrationStatusDto =')
+    expect(backendTypesNormalized).toContain('export type PlatformLoginRiskPolicyDto = {')
+    expect(backendTypesNormalized).toContain('export type PlatformOpenApiAppDto = {')
+    expect(backendTypesNormalized).toContain('export type PlatformAsyncTaskDto = {')
     expect(backendTypesNormalized).toContain('export type PlatformNotificationRuleDto =')
+    expect(backendTypesNormalized).toContain('export type PlatformBackupRecoveryDto = {')
     expect(backendTypesNormalized).toContain('export type PlatformServicePackageStatusDto =')
+    expect(backendTypesNormalized).toContain('export type PlatformMeituanReviewTraceDto = {')
     expect(backendToolsApiSource).toContain('listToolSampleWorks')
     expect(backendToolsApiSource).toContain('publishToolSampleWork')
     expect(backendToolsApiSource).toContain('getPrecisionDeliverySummary')
@@ -234,5 +281,12 @@ describe('studio backend api contract', () => {
     expect(backendToolsApiSource).toContain("'/yy/tool-center/sample-works'")
     expect(backendToolsApiSource).toContain("'/yy/tool-center/precision-delivery/summary'")
     expect(backendToolsApiSource).toContain("'/yy/tool-center/precision-delivery/tasks'")
+  })
+
+  it('exposes copy order api and payload contracts', () => {
+    expect(backendOrdersApiSource).toContain('copyOrder(payload: OrderCopyPayload)')
+    expect(backendOrdersApiSource).toContain('/yy/order/${payload.sourceOrderId}/copy')
+    expect(backendTypesPayloadsSource).toContain('export type OrderCopyPayload = {')
+    expect(backendTypesNormalized).toContain('export type OrderCopyPayload = {')
   })
 })

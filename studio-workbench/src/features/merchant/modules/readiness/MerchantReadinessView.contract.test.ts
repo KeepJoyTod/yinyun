@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import merchantReadinessViewSource from './MerchantReadinessView.vue?raw'
+import merchantReadinessOwnerShellSource from './components/MerchantReadinessOwnerShell.vue?raw'
 import merchantReadinessBoardSource from './components/MerchantReadinessBoard.vue?raw'
 import merchantReadinessOperationsSource from './merchantReadinessOperations.ts?raw'
 import merchantReadinessStateSource from './composables/useMerchantReadinessState.ts?raw'
 
 describe('merchant readiness scaffold contract', () => {
   it('keeps the readiness page wired to one module chrome and board owner', () => {
-    expect(merchantReadinessViewSource).toContain('MerchantModuleChrome')
-    expect(merchantReadinessViewSource).toContain('MerchantReadinessBoard')
-    expect(merchantReadinessViewSource).toContain('useMerchantReadinessState')
+    expect(merchantReadinessViewSource).toContain('MerchantReadinessOwnerShell')
+    expect(merchantReadinessOwnerShellSource).toContain('MerchantModuleChrome')
+    expect(merchantReadinessOwnerShellSource).toContain('MerchantReadinessBoard')
+    expect(merchantReadinessOwnerShellSource).toContain('useMerchantReadinessState')
   })
 
   it('keeps the readiness board and operations split from the page shell', () => {

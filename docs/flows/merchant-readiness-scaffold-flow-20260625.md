@@ -10,7 +10,7 @@
 
 ```mermaid
 flowchart TD
-  A["第一层 表现层: /merchant/readiness"] --> B["useMerchantReadinessState"]
+  A["第一层 表现层: /merchant/readiness 与四个 owner 子入口"] --> B["useMerchantReadinessState"]
   A --> C["MerchantReadinessBoard"]
   B --> D["backendApi / merchantReadinessApi"]
   D --> E["GET /yy/merchant/readiness/summary"]
@@ -37,6 +37,13 @@ flowchart TD
 - 前端接口失败：`useMerchantReadinessState.errorMessage` 接收错误，`MerchantReadinessBoard` 展示失败态和重试按钮。
 - 无门店上下文：页面仍按全局 readiness 展示，不发起任何真实写操作。
 - 缺真实表或真实状态源：后端返回 `BLOCKED`、`PARTIAL` 或 `BUILDING`，不得返回 `READY`。
+
+## 独立 owner 入口
+
+- `/merchant/schedule-governance`：只读消费 `schedule` section，对应 `B-016`、`B-017`、`X-013`。
+- `/merchant/channel-readiness`：只读消费 `channels` section，对应 `B-026`、`B-027`、`B-045`、`B-046`。
+- `/merchant/governance`：只读消费 `governance` section，对应 `P-003`、`P-004`、`P-005`、`P-006`。
+- `/merchant/dependency-readiness`：只读消费 `dependencies` section，对应 `X-001`、`X-002`、`X-003`、`X-004`、`B-068`、`B-069`、`R-014`、`R-015`。
 
 ## 验收边界
 

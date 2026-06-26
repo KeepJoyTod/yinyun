@@ -30,4 +30,9 @@ describe('member transactions view contract', () => {
     expect(transactionsContractSource).toContain('appStore.loadCustomerRecentOrders')
     expect(viewSource).not.toContain('buildDerivedMemberItems')
   })
+
+  it('can initialize the selected customer from route query', () => {
+    expect(composableSource).toContain('route.query.customerId')
+    expect(composableSource).toContain('matchedRouteCustomer')
+  })
 })

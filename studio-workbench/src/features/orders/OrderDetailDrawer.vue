@@ -25,9 +25,11 @@
         :can-advance="canAdvance"
         :advancing="advancing"
         :show-back-to-slot="showBackToSlot"
+        :copy-saving="copySaving"
         @refresh-logs="emit('refreshLogs')"
         @advance="emit('advance', order)"
         @back-to-slot="emit('backToSlot')"
+        @copy-order="emit('submitCopyOrder')"
         @copy-order-id="emit('copyOrderId')"
       />
 
@@ -40,6 +42,8 @@
       />
 
       <OrderFlowChipGrid :steps="flowSteps" />
+
+      <OrderAttributeOrderSection :order="order" />
 
       <OrderDetailActionSections
         :order="order"
@@ -64,6 +68,22 @@
         :cancel-disabled="cancelDisabled"
         :show-confirm-payment="showConfirmPayment"
         :confirm-payment-saving="confirmPaymentSaving"
+        :show-refund-request="showRefundRequest"
+        :refund-saving="refundSaving"
+        :refund-reason="refundReason"
+        :copy-schedule-mode="copyScheduleMode"
+        :copy-date="copyDate"
+        :copy-time="copyTime"
+        :copy-duration-minutes="copyDurationMinutes"
+        :copy-remark="copyRemark"
+        :copy-saving="copySaving"
+        :can-reuse-source-slot="canReuseSourceSlot"
+        @update-copy-schedule-mode="emit('updateCopyScheduleMode', $event)"
+        @update-copy-date="emit('updateCopyDate', $event)"
+        @update-copy-time="emit('updateCopyTime', $event)"
+        @update-copy-duration-minutes="emit('updateCopyDurationMinutes', $event)"
+        @update-copy-remark="emit('updateCopyRemark', $event)"
+        @submit-copy-order="emit('submitCopyOrder')"
         @update-reschedule-date="emit('updateRescheduleDate', $event)"
         @update-reschedule-time="emit('updateRescheduleTime', $event)"
         @update-reschedule-duration-minutes="emit('updateRescheduleDurationMinutes', $event)"
@@ -75,6 +95,8 @@
         @apply-cancel-reason="emit('applyCancelReason', $event)"
         @submit-cancel="emit('submitCancel')"
         @submit-confirm-payment="emit('submitConfirmPayment')"
+        @submit-refund-request="emit('submitRefundRequest')"
+        @update-refund-reason="emit('updateRefundReason', $event)"
       />
 
       <OrderAlbumSection
@@ -127,6 +149,7 @@ import type {
 } from '../../shared/stores/appStore'
 import OrderActionNoticePanel from './OrderActionNoticePanel.vue'
 import OrderAlbumSection from './OrderAlbumSection.vue'
+import OrderAttributeOrderSection from './OrderAttributeOrderSection.vue'
 import OrderDetailActionSections from './OrderDetailActionSections.vue'
 import OrderDetailAuxiliarySections from './OrderDetailAuxiliarySections.vue'
 import OrderDetailDrawerShell from './OrderDetailDrawerShell.vue'
@@ -174,6 +197,13 @@ defineProps<{
   reschedulePreviewConflictMessage: string
   rescheduleConflict: string
   rescheduleSaving: boolean
+  copyScheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  copyDate: string
+  copyTime: string
+  copyDurationMinutes: number
+  copyRemark: string
+  copySaving: boolean
+  canReuseSourceSlot: boolean
   isRescheduleSlotSelected: (slot: BookingInventorySlot) => boolean
   buildRescheduleSlotMeta: (slot: BookingInventorySlot) => string
   sourceContext: OrderSourceContext
@@ -185,6 +215,9 @@ defineProps<{
   cancelDisabled: boolean
   showConfirmPayment: boolean
   confirmPaymentSaving: boolean
+  showRefundRequest: boolean
+  refundSaving: boolean
+  refundReason: string
   album: Album | null
   photoStage: OrderPhotoDeliveryStage
   photoStageClass: string
@@ -216,13 +249,21 @@ const emit = defineEmits<{
   updateRescheduleTime: [value: string]
   updateRescheduleDurationMinutes: [value: number]
   updateRescheduleRemark: [value: string]
+  updateCopyScheduleMode: [value: 'REUSE_SLOT' | 'UNDECIDED']
+  updateCopyDate: [value: string]
+  updateCopyTime: [value: string]
+  updateCopyDurationMinutes: [value: number]
+  updateCopyRemark: [value: string]
   applyRescheduleReason: [reason: string]
   applyRescheduleSlot: [slot: BookingInventorySlot]
+  submitCopyOrder: []
   submitReschedule: []
   updateCancelReason: [value: string]
   applyCancelReason: [reason: string]
   submitCancel: []
   submitConfirmPayment: []
+  submitRefundRequest: []
+  updateRefundReason: [value: string]
   openAlbum: [albumId: string]
   notifyAlbum: []
   confirmAlbum: []

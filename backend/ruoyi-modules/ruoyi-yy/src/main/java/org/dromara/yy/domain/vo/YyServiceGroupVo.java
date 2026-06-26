@@ -44,6 +44,9 @@ public class YyServiceGroupVo implements Serializable {
     @ExcelProperty(value = "服务时长")
     private Integer durationMinutes;
 
+    @ExcelProperty(value = "服务模式")
+    private String serviceMode;
+
     @ExcelProperty(value = "状态")
     private String status;
 

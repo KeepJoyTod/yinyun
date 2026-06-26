@@ -52,6 +52,8 @@ describe('merchant service groups contract', () => {
     expect(serviceGroupsSource).toContain('openEdit')
     expect(serviceGroupsSource).toContain('form.durationMinutes')
     expect(serviceGroupsSource).toContain('form.capacity')
+    expect(serviceGroupsSource).toContain('form.serviceMode')
+    expect(serviceGroupsSource).toContain('serviceMode: form.serviceMode')
   })
 
   it('keeps the schedule drawer and inventory deep link flow', () => {

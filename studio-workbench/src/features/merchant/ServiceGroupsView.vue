@@ -141,6 +141,7 @@ const form = reactive<ServiceGroupFormDraft>({
   name: '',
   capacity: 0,
   durationMinutes: 0,
+  serviceMode: 'HORIZONTAL',
   status: 'ACTIVE',
   sort: 0,
   remark: '',
@@ -200,6 +201,7 @@ const resetForm = () => {
   form.name = ''
   form.capacity = 3
   form.durationMinutes = 60
+  form.serviceMode = 'HORIZONTAL'
   form.status = 'ACTIVE'
   form.sort = 10
   form.remark = ''
@@ -217,6 +219,7 @@ const openEdit = (group: ServiceGroupInfo) => {
   form.name = group.name
   form.capacity = group.capacity
   form.durationMinutes = group.durationMinutes
+  form.serviceMode = group.serviceMode === 'VERTICAL' ? 'VERTICAL' : 'HORIZONTAL'
   form.status = group.status
   form.sort = group.sort
   form.remark = group.remark
@@ -242,6 +245,7 @@ const toggleGroupStatus = async (group: ServiceGroupInfo) => {
       name: group.name,
       capacity: group.capacity,
       durationMinutes: group.durationMinutes,
+      serviceMode: group.serviceMode === 'VERTICAL' ? 'VERTICAL' : 'HORIZONTAL',
       status: group.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE',
       sort: group.sort,
       remark: group.remark,
@@ -282,6 +286,7 @@ const submit = async () => {
       name: form.name,
       capacity: form.capacity,
       durationMinutes: form.durationMinutes,
+      serviceMode: form.serviceMode,
       status: form.status,
       sort: form.sort,
       remark: form.remark,

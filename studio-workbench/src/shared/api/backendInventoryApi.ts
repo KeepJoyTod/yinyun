@@ -1,11 +1,13 @@
-import { apiRequestRaw } from './request'
+import { apiRequest, apiRequestRaw } from './request'
 import { pageQuery } from './backendQueryMappers'
-import { mapBookingInventoryRow } from './backendRowMappers'
+import { mapBookingInventoryRow, mapRiskApprovalRow } from './backendRowMappers'
 import { extractRuoyiRows, type RuoyiTableResponse } from './yingyueAdapter'
 import type {
   BookingInventoryDto,
   BookingInventoryListQuery,
   BookingInventoryUpdatePayload,
+  ScheduleGovernancePayload,
+  ScheduleGovernancePreviewDto,
 } from './backendTypes'
 
 type RuoyiResponse<T> = {
@@ -59,4 +61,32 @@ export const createInventoryApi = (deps: InventoryApiDeps) => ({
     deps.setBookingInventory(deps.getBookingInventory().map(item => (item.id === updated.id ? updated : item)))
     return updated
   },
+  async previewScheduleGovernance(payload: ScheduleGovernancePayload) {
+    const response = await apiRequest<Record<string, any>>('/yy/bookingSlotInventory/governance/preview', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    return mapScheduleGovernancePreview(response)
+  },
+  async applyScheduleGovernance(payload: ScheduleGovernancePayload) {
+    const response = await apiRequest<Record<string, any>>('/yy/bookingSlotInventory/governance/apply', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    const preview = mapScheduleGovernancePreview(response)
+    if (preview.slots.length) {
+      deps.setBookingInventory(preview.slots)
+    }
+    return preview
+  },
+})
+
+const mapScheduleGovernancePreview = (row: Record<string, any>): ScheduleGovernancePreviewDto => ({
+  affectedSlotCount: Number(row.affectedSlotCount ?? 0),
+  paidSlotCount: Number(row.paidSlotCount ?? 0),
+  conflictSlotCount: Number(row.conflictSlotCount ?? 0),
+  approvalRequired: Boolean(row.approvalRequired),
+  message: String(row.message ?? ''),
+  approval: row.approval && typeof row.approval === 'object' ? mapRiskApprovalRow(row.approval) : null,
+  slots: Array.isArray(row.slots) ? row.slots.map((slot: Record<string, any>) => mapBookingInventoryRow(slot)) : [],
 })

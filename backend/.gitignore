@@ -47,6 +47,7 @@ nbdist/
 !.env.example
 *.xml.versionsBackup
 *.swp
+/*.bat
 
 !*/build/*.java
 !*/build/*.html

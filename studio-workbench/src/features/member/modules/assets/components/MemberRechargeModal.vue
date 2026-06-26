@@ -7,14 +7,14 @@
     >
       <div class="w-full max-w-[560px] overflow-hidden rounded-md border border-amber-topbar-border bg-amber-content-bg shadow-2xl">
         <div class="border-b border-amber-topbar-border px-6 py-5">
-          <span class="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-text-muted">Member Recharge</span>
-          <h3 class="mt-1 text-[17px] font-sans text-amber-dark">门店手工充值</h3>
+          <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-amber-text-muted">Member Recharge</span>
+          <h3 class="mt-1 font-sans text-[17px] text-amber-dark">门店手工充值</h3>
           <p class="mt-2 text-[10.5px] leading-relaxed text-amber-text-muted">
-            为当前会员创建充值单并立即确认到账，写入会员余额总账和余额流水。
+            为当前会员创建充值单。含赠送或需复核的充值会先生成 MEMBER_RECHARGE_CONFIRM 审批，审批通过后才允许确认到账。
           </p>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 px-6 py-5 max-[720px]:grid-cols-1">
+        <div class="grid grid-cols-2 gap-4 px-6 py-5 max-[720px]:grid-cols-1" data-testid="member-recharge-approval-copy">
           <label class="flex flex-col gap-1 text-[10px] text-amber-text-muted">
             会员客户
             <input :value="customerName" class="yy-field-md bg-black/[0.02]" disabled type="text" />
@@ -38,14 +38,14 @@
           </label>
           <label class="col-span-2 flex flex-col gap-1 text-[10px] text-amber-text-muted max-[720px]:col-span-1">
             外部流水号
-            <input v-model="form.externalTradeNo" class="yy-field-md" placeholder="选填，登记门店收款流水或小票号" type="text" />
+            <input v-model="form.externalTradeNo" class="yy-field-md" placeholder="可选，登记门店收款流水或小票号" type="text" />
           </label>
           <label class="col-span-2 flex flex-col gap-1 text-[10px] text-amber-text-muted max-[720px]:col-span-1">
             备注
             <textarea
               v-model="form.remark"
               class="min-h-[100px] border border-amber-topbar-border bg-white px-3 py-2 text-[11px] text-amber-dark focus:outline-none"
-              placeholder="选填，例如活动充值、店员补录、赠送原因"
+              placeholder="可选，例如活动充值、店员补录、赠送原因"
             />
           </label>
         </div>
@@ -65,7 +65,7 @@
             :disabled="submitting"
             @click="$emit('submit')"
           >
-            {{ submitting ? '充值中...' : '确认充值' }}
+            {{ submitting ? '提交中...' : '提交充值' }}
           </button>
         </div>
       </div>

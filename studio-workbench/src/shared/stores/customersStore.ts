@@ -102,6 +102,21 @@ export const customersStore = reactive({
     return next
   },
 
+  deleteCustomerDemo(id: BackendId) {
+    this.customers = this.customers.filter(item => item.backendId !== id)
+    const nextRecentOrders = { ...this.customerRecentOrders }
+    delete nextRecentOrders[id]
+    this.customerRecentOrders = nextRecentOrders
+  },
+
+  async deleteCustomer(id: BackendId) {
+    await backendApi.deleteCustomer(id)
+    this.customers = this.customers.filter(item => item.backendId !== id)
+    const nextRecentOrders = { ...this.customerRecentOrders }
+    delete nextRecentOrders[id]
+    this.customerRecentOrders = nextRecentOrders
+  },
+
   loadDemo(today: string, orders: BookingOrder[]) {
     this.customers = [
       {

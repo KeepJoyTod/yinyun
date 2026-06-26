@@ -1,8 +1,13 @@
 import { ref } from 'vue'
 import { backendApi } from '../../../shared/api/backend'
 import type {
+  PlatformAsyncTaskDto,
   PlatformIntegrationStatusDto,
+  PlatformLoginRiskPolicyDto,
+  PlatformMeituanReviewTraceDto,
   PlatformNotificationRuleDto,
+  PlatformOpenApiAppDto,
+  PlatformBackupRecoveryDto,
   PlatformServicePackageStatusDto,
 } from '../../../shared/api/backend'
 
@@ -37,8 +42,23 @@ const createPlatformSettingsList = <T>(loader: Loader<T>) => {
 export const usePlatformIntegrationList = () =>
   createPlatformSettingsList<PlatformIntegrationStatusDto>(() => backendApi.listPlatformIntegrations())
 
+export const usePlatformLoginRiskList = () =>
+  createPlatformSettingsList<PlatformLoginRiskPolicyDto>(() => backendApi.listPlatformLoginRiskPolicies())
+
+export const usePlatformOpenApiList = () =>
+  createPlatformSettingsList<PlatformOpenApiAppDto>(() => backendApi.listPlatformOpenApiApps())
+
+export const usePlatformAsyncTaskList = () =>
+  createPlatformSettingsList<PlatformAsyncTaskDto>(() => backendApi.listPlatformAsyncTasks())
+
 export const usePlatformNotificationList = () =>
   createPlatformSettingsList<PlatformNotificationRuleDto>(() => backendApi.listPlatformNotificationCenters())
 
+export const usePlatformBackupRecoveryList = () =>
+  createPlatformSettingsList<PlatformBackupRecoveryDto>(() => backendApi.listPlatformBackupRecoveryPlans())
+
 export const usePlatformServicePackageList = () =>
   createPlatformSettingsList<PlatformServicePackageStatusDto>(() => backendApi.listPlatformServicePackages())
+
+export const usePlatformMeituanReviewTraceList = () =>
+  createPlatformSettingsList<PlatformMeituanReviewTraceDto>(() => backendApi.listPlatformMeituanReviewTraces())

@@ -52,6 +52,11 @@ public class YyServiceGroup extends TenantEntity {
     private Integer durationMinutes;
 
     /**
+     * 服务模式
+     */
+    private String serviceMode;
+
+    /**
      * 状态
      */
     private String status;

@@ -1,4 +1,5 @@
 import type { ChannelProductMappingInfo, ProductConfig } from '../../shared/stores/appStore'
+import { collectScaffoldAcceptanceMeta } from '../system/scaffoldAcceptanceMappings'
 
 export type DerivedProductFeatureKey =
   | 'product-addon'
@@ -14,6 +15,10 @@ export type DerivedProductModule = {
   title: string
   eyebrow: string
   description: string
+  inventoryCodes: string[]
+  acceptanceLabel: string
+  boundaryNotes: string[]
+  nextActions: string[]
   addLabel?: string
   priceLabel?: string
   quantityLabel?: string
@@ -77,6 +82,7 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '附加产品',
     eyebrow: 'Addon Products',
     description: '从统一产品表 yy_product 的选片规则派生加片、加急和造型等附加产品视图，不建立第二套附加产品账本。',
+    ...collectScaffoldAcceptanceMeta(['B-023']),
     emptyTitle: '当前没有可派生附加产品',
     emptyHint: '服务产品配置加片单价、精修张数和说明后，会自动派生加片类附加产品。',
     source: 'product',
@@ -94,6 +100,7 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '团单产品',
     eyebrow: 'Group Products',
     description: '从统一产品表 yy_product 派生企业、团体和多人拍摄产品视图，方便店员查看承接规则和后续订单来源。',
+    ...collectScaffoldAcceptanceMeta(['B-024']),
     emptyTitle: '当前没有企业或团体产品',
     emptyHint: '产品名称、规格或说明包含企业、团体、团单、多人、公司等关键词时，会自动归入这里。',
     source: 'product',
@@ -109,6 +116,7 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '冲印产品',
     eyebrow: 'Print Products',
     description: '从统一产品表 yy_product 派生冲印、加洗、相纸、打印和证照交付产品视图，生产和交付仍回到统一订单处理。',
+    ...collectScaffoldAcceptanceMeta(['B-025']),
     emptyTitle: '当前没有冲印或打印产品',
     emptyHint: '产品名称、规格或说明包含冲印、加洗、打印、相纸、证照等关键词时，会自动归入这里。',
     source: 'product',
@@ -124,6 +132,14 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '入册产品',
     eyebrow: 'Album Products',
     description: '从统一产品表 yy_product 归集相册、入册、成册和精修入册类产品，沿用统一商品账本，不单独新建第二套入册产品台账。',
+    inventoryCodes: [],
+    acceptanceLabel: '脚手架验收完成 / 待真实验收',
+    boundaryNotes: [
+      '当前只承接入册商品读写和履约配置，不把它当作 21 项脚手架之一重复登记。',
+    ],
+    nextActions: [
+      '继续复用现有入册商品 owner 和履约证据面板。',
+    ],
     addLabel: '新增入册产品',
     priceLabel: '入册金额',
     quantityLabel: '入册数量',
@@ -144,6 +160,14 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '商品卡目录',
     eyebrow: 'Card Product Catalog',
     description: '从统一产品表 yy_product 归集计次卡、储值卡和权益卡，售卖订单仍进入统一订单账本。',
+    inventoryCodes: [],
+    acceptanceLabel: '脚手架验收完成 / 待真实验收',
+    boundaryNotes: [
+      '商品卡目录属于既有真实入口，本轮不把它当作 21 项脚手架新增映射。',
+    ],
+    nextActions: [
+      '继续通过 product-cards owner 展示卡项 readiness。',
+    ],
     addLabel: '新增卡项',
     priceLabel: '卡项金额',
     quantityLabel: '权益数量',
@@ -166,6 +190,14 @@ const moduleConfigs: DerivedProductModule[] = [
     title: '美团产品',
     eyebrow: 'Meituan Products',
     description: '查看美团商品、SKU、POI 与影约云本地产品的映射状态。真实支付和核销由美团渠道处理，同步后进入 yy_order。',
+    inventoryCodes: [],
+    acceptanceLabel: '渠道映射只读走查 / 待真实授权验收',
+    boundaryNotes: [
+      '美团产品不在本轮 21 项脚手架范围内，仅保留现有渠道映射只读边界。',
+    ],
+    nextActions: [
+      '后续单独处理真实授权与渠道同步验收。',
+    ],
     emptyTitle: '当前没有美团产品映射',
     emptyHint: '美团渠道授权和商品映射完成后，/yy/channelProductMapping/list 的 MEITUAN 记录会显示在这里。',
     source: 'channel',

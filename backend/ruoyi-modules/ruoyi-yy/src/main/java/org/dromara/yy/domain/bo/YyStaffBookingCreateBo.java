@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import java.util.List;
 
 import java.util.Date;
 
@@ -53,6 +54,8 @@ public class YyStaffBookingCreateBo {
     private String payStatus;
 
     private String workstationNo;
+
+    private List<YyOrderAttributeValueBo> orderAttributes;
 
     private String remark;
 }

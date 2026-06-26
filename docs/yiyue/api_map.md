@@ -1,6 +1,40 @@
-# 影约云 API 地图
+﻿# 影约云 API 地图
 
 更新时间：2026-06-24
+
+## 2026-06-26 product-function-inventory-84-scaffold-acceptance
+
+### 统一口径
+- 本轮 21 项脚手架验收继续复用既有 facade，不新增真实高风险写接口。
+- 共享 scaffold 展示字段统一为：`status`、`updatedAt?`、`evidence?`、`nextActions?`。
+
+### 复用的 API owner
+- 客户端 P1：`/api/customer/experience-p1/booking-options`、`/api/customer/experience-p1/asset-summary`
+- 商品：`/yy/productCatalog/{productId}`、`/yy/productSku/*`、`/yy/productRelation/*`、`/yy/productBookingRule/*`、`/yy/productChannelConfig/*`、`/yy/productCatalog/{productId}/benefit-binding`
+- 营销券：`marketingApi.getCouponTemplateScaffold()`
+- 平台设置：`backendApi.listPlatformBookingPolicies()`、`backendApi.listPlatformPrintSettings()`、`backendApi.listPlatformScoreSettings()`、`backendApi.getPlatformEmailSettings()`、`backendApi.listPlatformNotificationCenters()`
+
+### 边界
+- 不新增真实支付、库存扣减、权益扣减/回滚、退款、渠道授权写接口。
+- `B-085` 保留 `/tools/notifications` 入口，但 canonical API owner 固定为平台通知中心 facade。
+
+## 2026-06-25 consumer-merchant-p1-scaffold
+
+### 客户端 P1 脚手架
+
+| 方法 | 路径 | owner | 说明 |
+|---|---|---|---|
+| GET | `/api/customer/experience-p1/booking-options` | `YyClientExperienceP1Controller` | 返回服务组、资料项、权益候选、资产摘要和脚手架提示，不写真实订单权益 |
+| GET | `/api/customer/experience-p1/asset-summary` | `YyClientExperienceP1Controller` | 返回会员资产摘要空态 |
+| GET | `/api/customer/experience-p1/order-verification/{orderId}` | `YyClientExperienceP1Controller` | 返回核销码展示策略和不可展示原因 |
+| POST | `/api/customer/experience-p1/review-drafts` | `YyClientExperienceP1Controller` | 返回评价脚手架提交结果，不写评价表 |
+| POST | `/api/customer/orders` | `YyClientPublicApiServiceImpl` | 消费者预约下单新增 `serviceGroupId/customFields/entitlement*` 可选字段；`serviceGroupId` 会校验存在、启用且属于当前门店；`customFields` 写入 `yy_order.order_attribute_json`；可用权益候选仅创建 `yy_entitlement_reservation` scaffold 预占草稿，不做真实核销/扣减 |
+
+### 商户端 P1 聚合
+
+| 方法 | 路径 | 权限 | owner | 说明 |
+|---|---|---|---|---|
+| GET | `/yy/merchant/consumer-ops-p1/overview` | `yy:store:list` | `YyMerchantConsumerOpsP1Controller` | 返回 P1 缺口、现有 owner、数据边界和交付标准 |
 
 ## 2026-06-25 merchant-readiness-scaffold
 
@@ -28,22 +62,53 @@
 
 ### 边界
 - 只读接口，不新增真实写链路，不调用抖音/美团写接口。
+- `/merchant/schedule-governance`、`/merchant/channel-readiness`、`/merchant/governance`、`/merchant/dependency-readiness` 均复用上述只读接口，不新增独立写 API。
 
 ## 2026-06-24 dashboard-wave1-module-split
 
-### 鍓嶇 API owner
+### 前端 API owner
 - `studio-workbench/src/shared/api/backendDashboardApi.ts`
   - `GET /yy/dashboard/overview`
   - `GET /yy/dashboard/finance`
   - `GET /yy/dashboard/order-status-stats`
   - `GET /yy/dashboard/trend-stats`
   - `GET /yy/dashboard/today-slots`
+
+## 2026-06-25 merchant-store-schedule-close-gap
+
+### 前端 owner / API facade
+- `studio-workbench/src/features/merchant/OrderAttributesView.vue`
+- `studio-workbench/src/features/merchant/modules/schedule-governance/MerchantScheduleGovernanceView.vue`
+- `studio-workbench/src/features/merchant/modules/governance/MerchantGovernanceView.vue`
+- `studio-workbench/src/shared/api/backendOrderAttributeApi.ts`
+- `studio-workbench/src/shared/api/backendRiskApprovalApi.ts`
+
+### 写接口
+- `GET /yy/orderAttributeTemplate/list`
+- `POST /yy/orderAttributeTemplate`
+- `PUT /yy/orderAttributeTemplate`
+- `DELETE /yy/orderAttributeTemplate/{id}`
+- `POST /yy/order/staff-booking`
+  - 新增请求字段：`orderAttributes`
+- `PUT /yy/order`
+  - 新增保存能力：订单详情回写 `orderAttributes`，落 `yy_order.order_attribute_json`
+- `POST /yy/bookingSlotInventory/governance/preview`
+- `POST /yy/bookingSlotInventory/governance/apply`
+  - `CLOSE` 命中已付费时段时创建 `SLOT_CLOSE_WITH_PAID_ORDER` 审批和 `yy_schedule_exception_rule(status=PENDING_APPROVAL)`
+- `GET /yy/riskApproval/list`
+- `POST /yy/riskApproval/{id}/approve`
+- `POST /yy/riskApproval/{id}/reject`
+  - `SLOT_CLOSE_WITH_PAID_ORDER` 审批通过后自动应用到库存；驳回只改规则状态，不改库存
+
+### 边界
+- 本包只收口后台配置和审批闭环，不接 `mobile-uniapp` 消费者写链路。
+- 服务模式后端仍共用单账本 `yy_booking_slot_inventory`，不新增第二套排期表。
   - `GET /yy/dashboard/product-ranking`
   - `GET /yy/dashboard/conversion`
   - `GET /yy/dashboard/schedule-grid`
   - `POST /yy/dashboard/export`
 
-### 鍚庣 control owner
+### 后端 control owner
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyDashboardController.java`
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyDashboardServiceImpl.java`
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/dashboard/YyDashboardOrderQuerySupport.java`
@@ -51,7 +116,7 @@
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/dashboard/YyDashboardScheduleAssembler.java`
 - `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/dashboard/YyDashboardExportAssembler.java`
 
-### 鏁版嵁杈圭晫
+### 数据边界
 - `yy_order` 浠嶆槸棣栭〉缁忚惀銆佽浆鍖栥€佷骇鍝佹帓琛屽拰瀵煎嚭鐨勫敮涓€璁㈠崟璐︽湰
 - `yy_booking_slot_inventory` 浠嶆槸浠婃棩棰勭害銆佹帓鏈熺綉鏍煎拰瀵煎嚭鏃舵瀹归噺鐨勫敮涓€鏃舵璐︽湰
 - `yy_store` 鐢ㄤ簬闂ㄥ簵鍚嶇О鏄犲皠鍜岄棬搴楄寖鍥磋仛鍚?
@@ -94,6 +159,21 @@
 - 账号中心：`studio-workbench/src/shared/api/backendAccountApi.ts`
 - 费用中心：`studio-workbench/src/shared/api/backendFinanceApi.ts`
 - 工具中心：`studio-workbench/src/shared/api/backendToolsApi.ts`
+
+### 2026-06-25 平台与企业级脚手架接口
+- 前端 facade：`studio-workbench/src/shared/api/backendPlatformApi.ts`
+- DTO：
+  - `PlatformLoginRiskPolicyDto`
+  - `PlatformOpenApiAppDto`
+  - `PlatformAsyncTaskDto`
+  - `PlatformBackupRecoveryDto`
+  - `PlatformMeituanReviewTraceDto`
+- 后端接口：
+  - `GET /yy/platform-settings/login-risk-policies`
+  - `GET /yy/platform-settings/open-api-apps`
+  - `GET /yy/platform-settings/async-tasks`
+  - `GET /yy/platform-settings/backup-recovery-plans`
+  - `GET /yy/platform-settings/meituan-review-traces`
 
 ### 工具中心 DTO
 - `ToolSampleWorkDto`
@@ -146,7 +226,12 @@
 - 平台设置：
   - `GET/PUT /yy/platform/brand-info`
   - `GET /yy/platform/integration`
+  - `GET /yy/platform/login-risk`
+  - `GET /yy/platform/open-api`
+  - `GET /yy/platform/task-center`
   - `GET/PUT /yy/platform/booking-policy`
+  - `GET /yy/platform/backup-recovery`
+  - `GET /yy/platform/meituan-review-trace`
   - `GET/PUT /yy/platform/email-settings`
 - 账号中心：
   - `GET/PUT /yy/account/profile`
@@ -514,3 +599,183 @@
 ### 边界
 - 渠道配置只保存本地映射补充配置，不调用抖音/美团真实写接口。
 - readiness 只读返回商品可接入状态，不触发订单、支付、库存、权益写操作。
+## 2026-06-25 P0 交易安全第一包
+
+### 库存治理
+- `POST /yy/bookingSlotInventory/governance/preview`
+  - 权限：`yy:bookingInventory:list`
+  - 请求：`storeId/serviceGroupId/beginBizDate/endBizDate/startTime/endTime/actionType/capacity/reason`
+  - 返回：影响时段数、已约时段数、冲突时段数、是否需要审批、审批单、时段列表。
+- `POST /yy/bookingSlotInventory/governance/apply`
+  - 权限：`yy:bookingInventory:edit`
+  - 边界：`CLOSE` 命中已付费时段时只生成 `SLOT_CLOSE_WITH_PAID_ORDER` 审批；未命中已付费时段时批量更新 `yy_booking_slot_inventory.status/capacity/remark`。
+
+### 高风险审批
+- `GET /yy/riskApproval/list`
+  - 权限：`yy:store:list`
+  - 查询：`storeId/businessType/businessId/status/pageNum/pageSize`
+- `POST /yy/riskApproval/{id}/approve`
+  - 权限：`yy:store:edit`
+  - 边界：审批 `ORDER_REFUND` 时只更新内部退款状态；审批 `MEMBER_RECHARGE_CONFIRM` 时充值单从 `PENDING_APPROVAL` 转 `PENDING`。
+- `POST /yy/riskApproval/{id}/reject`
+  - 权限：`yy:store:edit`
+
+### 内部退款申请
+- `POST /yy/order/{id}/refund/request`
+  - 权限：`yy:order:edit`
+  - 请求：`refundAmountCent/reason`
+  - 边界：只创建 `ORDER_REFUND` 审批，不调用微信/抖音/美团真实退款 API。
+## 2026-06-25 transaction-safety-scaffold
+
+### 交易安全 owner API
+- `GET /yy/transaction-safety/entitlement-reservations`
+  - 权限：`yy:customer:list`
+  - 查询：`storeId/customerId/orderId/status/limit`
+  - 返回：权益预占草稿列表，含 `reservationNo/status/expireTime/targetSnapshot`
+- `POST /yy/transaction-safety/entitlement-reservations`
+  - 权限：`yy:customer:edit`
+  - 请求：`storeId/customerId/orderId/reservationType/targetType/targetSnapshot/quantity/reservationAmount/expireMinutes`
+  - 边界：只建预占账本，不做真实权益扣减
+- `POST /yy/transaction-safety/entitlement-reservations/{id}/release`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：预占状态从 `RESERVED` 推进到 `RELEASED`，记录 `releasedTime/executionMode/remark`
+- `POST /yy/transaction-safety/entitlement-reservations/{id}/fulfill`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：预占状态从 `RESERVED` 推进到 `FULFILLED`
+- `GET /yy/transaction-safety/composite-payments`
+  - 权限：`yy:customer:list`
+  - 查询：`storeId/customerId/orderId/status/limit`
+- `POST /yy/transaction-safety/composite-payments`
+  - 权限：`yy:customer:edit`
+  - 请求：`storeId/customerId/orderId/totalAmount/externalAmount/storedValueAmount/cashAmount/discountAmount/waiveAmount`
+  - 边界：只记录组合支付拆账草稿，不做真实收款确认
+- `POST /yy/transaction-safety/composite-payments/{id}/confirm`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：组合支付 `CONFIRMED/SETTLED`，订单 `payStatus=PAID`，新增 `yy_payment_record` 本地流水，并核销订单下 `RESERVED` 权益预占
+  - 边界：本地适配器确认，不代表真实微信/抖音/美团回调已联调
+- `POST /yy/transaction-safety/composite-payments/{id}/fail`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：组合支付 `FAILED/FAILED`，释放订单下 `RESERVED` 权益预占
+- `GET /yy/transaction-safety/stored-value-consumes`
+  - 权限：`yy:customer:list`
+  - 查询：`storeId/customerId/orderId/status/limit`
+- `POST /yy/transaction-safety/stored-value-consumes`
+  - 权限：`yy:customer:edit`
+  - 请求：`storeId/customerId/orderId/consumeAmount`
+  - 边界：只做余额快照校验和冻结状态机，不直接扣减余额
+- `POST /yy/transaction-safety/stored-value-consumes/{id}/confirm`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：储值消费 `CONFIRMED`，扣减 `yy_member_account.balance_amount`，新增 `yy_member_balance_ledger`
+- `POST /yy/transaction-safety/stored-value-consumes/{id}/reverse`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：储值消费 `REVERSED`，已确认消费会回补余额并新增逆向余额流水
+- `GET /yy/transaction-safety/withdraw-orders`
+  - 权限：`yy:customer:list`
+  - 查询：`storeId/customerId/orderId/status/limit`
+- `POST /yy/transaction-safety/withdraw-orders`
+  - 权限：`yy:customer:edit`
+  - 请求：`storeId/customerId/withdrawAmount/accountName/accountNo`
+  - 边界：只创建提现申请和 `MEMBER_WITHDRAW_APPLY` 审批，不做真实出款
+- `POST /yy/transaction-safety/withdraw-orders/{id}/mark-paid`
+  - 权限：`yy:customer:edit`
+  - 请求：`reason/localAdapterRef`
+  - 写入：仅允许 `APPROVED` 提现单标记 `PAID`，扣减会员余额并新增提现余额流水
+  - 边界：本地适配器出款标记，不代表真实银行/微信提现回单已联调
+
+### 相关账本
+- `yy_entitlement_reservation`
+- `yy_composite_payment_order`
+- `yy_stored_value_consume_order`
+- `yy_member_withdraw_order`
+
+## 2026-06-25 order-card-batch-scaffold
+
+- `GET /yy/card-batch-orders`
+  - 作用：查询最近批量开卡申请脚手架记录。
+  - 参数：`storeId`、`status`、`keyword`、`limit`。
+  - 返回：申请号、卡项名称、卡项类型、批次数量、目标客户数、预估总额、审批状态、审批结果摘要。
+  - 边界：只读取 `yy_risk_approval` 中 `businessType=CARD_BATCH_ORDER_APPLY` 的记录。
+- `POST /yy/card-batch-orders`
+  - 作用：创建批量开卡审批申请。
+  - 请求：门店、卡项名称/类型、批次、目标客户、单价、目标人群、执行策略、审批原因。
+  - 返回：审批申请 DTO，回显申请号和当前 `PENDING` 状态。
+  - 边界：只创建 `yy_risk_approval` 申请，不生成真实卡项订单，不写会员资产账本。
+## 2026-06-25 order-copy-closed-loop
+
+### 前端 API owner
+- `studio-workbench/src/shared/api/backendOrdersApi.ts`
+  - `POST /yy/order/${payload.sourceOrderId}/copy`
+
+### 后端 API owner
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyOrderController.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/IYyOrderService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyOrderServiceImpl.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyOrderCopyFactory.java`
+
+### 璇锋眰/鍝嶅簲
+- `scheduleMode`
+- `arrivalTime`
+- `slotDate`
+- `slotStartTime`
+- `slotEndTime`
+- `remark`
+- 鍝嶅簲锛?`YyOrderVo`
+
+### 边界
+- `REUSE_SLOT` 瑕佹眰瀹屾暣妗ｆ湡骞跺啀娆℃牎楠屽簱瀛樸€?
+- `UNDECIDED` 涓嶅啓妗ｆ湡锛屼笉瑙︽憚搴撳瓨纭銆?
+- 澶嶅埗鍚庣殑鏂拌鍗曚繚鎸?`LOCAL` / `STAFF_COPY`锛屽苟閲嶇疆鏀粯銆侀€€娆俱€佸閮ㄥ崟鍙峰拰搴撳瓨鎸佹湁鐮併€?
+
+## 2026-06-26 order-analysis-scaffold
+
+- `GET /yy/reportOrderAnalysis/overview`
+  - 作用：返回订购分析脚手架的概览、漏斗、渠道拆分和退款拆分。
+  - 参数：`storeId?`、`dateFrom?`、`dateTo?`
+  - 默认：未传按本月。
+  - 返回：
+    - `overview.orderedCount`
+    - `overview.paidOrderCount`
+    - `overview.paidAmountCent`
+    - `overview.refundOrderCount`
+    - `overview.refundAmountCent`
+    - `overview.pendingAttentionCount`
+    - `overview.boundaryNote`
+    - `funnel[].stageKey/stageLabel/orderCount/amountCent/conversionRate`
+    - `channels[].channelKey/channelLabel/orderCount/paidAmountCent/refundAmountCent/pendingCount`
+    - `refunds[].refundStatus/orderCount/refundAmountCent/note`
+  - 边界：
+    - 只读接口。
+    - 优先读取 `yy_payment_record`，无流水时回退 `yy_order`。
+    - 不代表财务对账或第三方退款闭环已完成。
+
+## 2026-06-26 report-finance-reconciliation
+
+- `GET /yy/reportFinanceReconciliation/overview`
+  - 作用：返回财务对账报表的概览、订单视角账本、资金流水视角账本、差异项和导出任务。
+  - 参数：`storeId?`、`dateFrom?`、`dateTo?`
+  - 权限：`yy:report:list`
+  - 读取：`yy_order`、`yy_payment_record`、`yy_member_balance_ledger`、`yy_stored_value_consume_order`、`yy_member_withdraw_order`、`yy_composite_payment_order`、`yy_entitlement_reservation`
+- `POST /yy/reportFinanceReconciliation/export`
+  - 作用：创建财务对账异步导出任务骨架。
+  - 参数：`storeId?`、`dateFrom?`、`dateTo?`
+  - 权限：`yy:report:export`
+  - 返回：`taskId/status/dateFrom/dateTo/downloadUrl/expireTime/auditNote`
+- `GET /yy/reportFinanceReconciliation/export/tasks`
+  - 作用：查询财务对账导出任务列表，优先读取统一异步任务账本 `yy_async_task`，无持久化记录时回退当前 JVM 内存骨架。
+  - 权限：`yy:report:list`
+  - 边界：当前已持久化任务元数据，不等于真实 worker、对象存储下载、跨实例失败重试和过期清理已完成。
+
+## 2026-06-26 platform-async-task-ledger
+
+- `GET /yy/platform-settings/async-tasks`
+  - 作用：平台任务中心聚合读取统一异步任务账本。
+  - 权限：`yy:platform:query`
+  - 读取：`yy_async_task`
+  - 返回：按 `taskType` 聚合后的 `taskType/taskName/queueName/latestRunStatus/retentionPolicy/status/evidence/nextActions`。
+  - 边界：财务对账导出已能进入任务中心；真实 worker、对象存储下载、失败重试、过期清理和任务详情抽屉仍待后续任务包。

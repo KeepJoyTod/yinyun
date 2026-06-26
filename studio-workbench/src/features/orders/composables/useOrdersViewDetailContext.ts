@@ -3,6 +3,7 @@ import type { StatusBadgeTone } from '../../../shared/components/data/StatusBadg
 import type { BookingOrder } from '../../../shared/stores/appStore'
 import type { OrderDetailDrawerHostContext } from '../OrderDetailDrawerHost.vue'
 import { useOrderDetail } from './useOrderDetail'
+import type { CopyOrderDraft } from './useOrdersViewState'
 import { useOrderDetailDrawerContext } from './useOrderDetailDrawerContext'
 
 type RefLike<T> = Ref<T> | { value: T }
@@ -37,10 +38,15 @@ export function useOrdersViewDetailContext(options: {
   cancelReasonOptions: string[]
   cancellingOrderId: RefLike<string>
   confirmingPaymentOrderId: RefLike<string>
+  refundingOrderId: RefLike<string>
+  refundReason: RefLike<string>
   photoDeliveryStageStyles: Record<string, string>
   orderAlbumActionLoading: RefLike<OrderDetailDrawerHostContext['albumActionLoading']>
   orderPhotoAccessLoading: RefLike<boolean>
   orderPhotoAccessError: RefLike<string>
+  copyOrderDraft: CopyOrderDraft
+  copyingOrderId: RefLike<string>
+  canReuseSourceSlot: RefLike<boolean>
 }) {
   const detail = useOrderDetail({
     selectedOrder: options.selectedOrder,
@@ -81,6 +87,8 @@ export function useOrdersViewDetailContext(options: {
     cancelReasonOptions: options.cancelReasonOptions,
     cancellingOrderId: options.cancellingOrderId,
     confirmingPaymentOrderId: options.confirmingPaymentOrderId,
+    refundingOrderId: options.refundingOrderId,
+    refundReason: options.refundReason,
     selectedOrderAlbum: detail.selectedOrderAlbum,
     selectedOrderPhotoStage: detail.selectedOrderPhotoStage,
     photoDeliveryStageStyles: options.photoDeliveryStageStyles,
@@ -97,6 +105,9 @@ export function useOrdersViewDetailContext(options: {
     selectedOrderSyncLogs: detail.selectedOrderSyncLogs,
     selectedOrderTimeline: detail.selectedOrderTimeline,
     operationLogsStateText: detail.operationLogsStateText,
+    copyOrderDraft: options.copyOrderDraft,
+    copyingOrderId: options.copyingOrderId,
+    canReuseSourceSlot: options.canReuseSourceSlot,
   })
 
   return {

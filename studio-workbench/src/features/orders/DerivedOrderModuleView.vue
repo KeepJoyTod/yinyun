@@ -170,7 +170,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { appStore } from '../../shared/stores/appStore'
 import { buildDerivedOrderItems, getDerivedOrderModule, type DerivedOrderItem, type DerivedOrderStage } from './derivedOrderModules'
 
-const moduleLabelExamples = '冲印订单 企业团单 售卡订单 售券订单 表单管理'
+const moduleLabelExamples = '冲印订单 企业团单 售卡订单 售券订单'
 void moduleLabelExamples
 
 type QuickFilter = 'all' | 'paid' | 'pending' | 'issue'
@@ -185,10 +185,12 @@ const selectedItem = ref<DerivedOrderItem | null>(null)
 const module = computed(() => getDerivedOrderModule(String(route.meta.featureKey || route.name || 'order-print')))
 const items = computed(() => buildDerivedOrderItems(module.value, appStore.orders, appStore.albums))
 const concreteStoreOptions = computed(() => appStore.stores.filter(store => Boolean(store.backendId)))
+
 const normalizeStoreFilter = (preferred = storeFilter.value) => {
   const matched = concreteStoreOptions.value.find(store => String(store.backendId) === preferred)
   return String(matched?.backendId ?? concreteStoreOptions.value[0]?.backendId ?? '')
 }
+
 const ensureWorkbenchStores = async () => {
   while (appStore.loading) {
     await new Promise(resolve => setTimeout(resolve, 25))
@@ -205,7 +207,7 @@ const filteredItems = computed(() => {
   return scopedItems.value.filter(item => {
     if (activeFilter.value === 'paid' && item.order.payment !== '已支付') return false
     if (activeFilter.value === 'pending' && item.order.payment === '已支付') return false
-    if (activeFilter.value === 'issue' && item.stage !== '资料异常') return false
+    if (activeFilter.value === 'issue' && item.stage !== 'ISSUE') return false
     if (!storeFilter.value || String(item.order.storeBackendId) !== storeFilter.value) return false
     if (!query) return true
     const haystack = `${item.order.id} ${item.order.customer} ${item.order.phone} ${item.order.store} ${item.order.service} ${item.order.source} ${item.stageLabel}`.toLowerCase()
@@ -217,7 +219,7 @@ const quickFilters = computed(() => [
   { key: 'all' as const, label: '全部', count: scopedItems.value.length },
   { key: 'paid' as const, label: '已支付', count: scopedItems.value.filter(item => item.order.payment === '已支付').length },
   { key: 'pending' as const, label: '待跟进', count: scopedItems.value.filter(item => item.order.payment !== '已支付').length },
-  { key: 'issue' as const, label: '资料异常', count: scopedItems.value.filter(item => item.stage === '资料异常').length },
+  { key: 'issue' as const, label: '资料异常', count: scopedItems.value.filter(item => item.stage === 'ISSUE').length },
 ])
 
 const cards = computed(() => {
@@ -245,10 +247,10 @@ const openUnifiedOrders = () => {
 }
 
 const stageClass = (stage: DerivedOrderStage) => {
-  if (stage === '资料异常') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
-  if (stage === '待生产') return 'bg-[#F6EBDD] text-[#8C5A2C]'
-  if (stage === '待核销') return 'bg-[#1A1814] text-[#F4EFE6]'
-  if (stage === '已支付') return 'bg-[#EBF4ED] text-[#2D7A4D]'
+  if (stage === 'ISSUE') return 'bg-[#B8543B]/10 text-[#8C3E2C]'
+  if (stage === 'PRODUCTION') return 'bg-[#F6EBDD] text-[#8C5A2C]'
+  if (stage === 'VERIFY') return 'bg-[#1A1814] text-[#F4EFE6]'
+  if (stage === 'PAID') return 'bg-[#EBF4ED] text-[#2D7A4D]'
   return 'border border-amber-topbar-border bg-[#FBF8F2] text-amber-text-muted'
 }
 

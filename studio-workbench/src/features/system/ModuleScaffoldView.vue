@@ -8,6 +8,9 @@
           <p class="mt-4 max-w-[720px] text-[13px] leading-7 text-amber-text-muted">{{ summary }}</p>
 
           <div class="mt-6 flex flex-wrap gap-2">
+            <span class="rounded-full border border-amber-topbar-border px-3 py-1 text-[10px] text-amber-text-muted">
+              {{ acceptanceLabel }}
+            </span>
             <span class="rounded-full border border-amber-topbar-border px-3 py-1 font-mono text-[10px] text-amber-text-muted">
               {{ runtimeStatusLabel }}
             </span>
@@ -26,6 +29,19 @@
           </div>
 
           <div class="mt-8 grid gap-4 md:grid-cols-2">
+            <article v-if="inventoryCodes.length" class="border border-amber-topbar-border bg-amber-content-bg/55 p-4">
+              <div class="text-[11px] font-semibold text-amber-dark">功能清单编号</div>
+              <ul class="mt-2 flex flex-wrap gap-2 font-mono text-[10px] text-amber-text-muted">
+                <li
+                  v-for="item in inventoryCodes"
+                  :key="item"
+                  class="rounded-full border border-amber-topbar-border px-2 py-1"
+                >
+                  {{ item }}
+                </li>
+              </ul>
+            </article>
+
             <article class="border border-amber-topbar-border bg-amber-content-bg/55 p-4">
               <div class="text-[11px] font-semibold text-amber-dark">模块 owner</div>
               <p class="mt-1 text-[11px] leading-6 text-amber-text-muted">{{ owner }}</p>
@@ -64,6 +80,20 @@
               </ul>
             </article>
 
+            <article v-if="boundaryNotes.length" class="border border-amber-topbar-border bg-amber-content-bg/55 p-4 md:col-span-2">
+              <div class="text-[11px] font-semibold text-amber-dark">边界说明</div>
+              <ul class="mt-1 space-y-1 text-[11px] leading-6 text-amber-text-muted">
+                <li v-for="item in boundaryNotes" :key="item">{{ item }}</li>
+              </ul>
+            </article>
+
+            <article v-if="nextActions.length" class="border border-amber-topbar-border bg-amber-content-bg/55 p-4 md:col-span-2">
+              <div class="text-[11px] font-semibold text-amber-dark">下一步动作</div>
+              <ul class="mt-1 space-y-1 text-[11px] leading-6 text-amber-text-muted">
+                <li v-for="item in nextActions" :key="item">{{ item }}</li>
+              </ul>
+            </article>
+
             <article
               v-for="layer in layerCards"
               :key="layer.title"
@@ -94,7 +124,7 @@
             </div>
             <div>
               <p class="text-[11px] text-amber-text-muted">上线条件</p>
-              <p class="mt-1 text-[14px] font-medium text-amber-dark">契约、权限、测试和地图同步齐全</p>
+              <p class="mt-1 text-[14px] font-medium text-amber-dark">契约、权限、地图和脚手架边界同步齐全</p>
             </div>
           </div>
         </aside>
@@ -120,6 +150,10 @@ const props = withDefaults(defineProps<{
   contracts: string[]
   apis: string[]
   ledgers: string[]
+  inventoryCodes?: string[]
+  acceptanceLabel?: string
+  boundaryNotes?: string[]
+  nextActions?: string[]
   ownerLayers?: ModuleScaffoldOwnerLayers
   permissionCode?: string
   runtimeStatus?: WorkbenchFeatureRuntimeStatus
@@ -132,6 +166,10 @@ const props = withDefaults(defineProps<{
   runtimeStatus: 'building',
   accessState: '待加载门禁',
   storeScopeLabel: '',
+  inventoryCodes: () => [],
+  acceptanceLabel: '脚手架验收完成 / 待真实验收',
+  boundaryNotes: () => [],
+  nextActions: () => [],
   ownerLayers: () => ({
     presentation: [],
     control: [],

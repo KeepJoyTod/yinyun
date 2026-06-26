@@ -131,9 +131,14 @@ export interface CreateCustomerOrderPayload {
   storeId: string;
   skuId: string;
   categoryId?: string;
+  serviceGroupId?: string;
   customerName: string;
   customerPhone: string;
   remark?: string;
+  customFields?: Record<string, string>;
+  entitlementCandidateId?: string;
+  entitlementKind?: string;
+  entitlementUnavailableReason?: string;
   appointmentDate: string;
   timeSlot: string;
 }

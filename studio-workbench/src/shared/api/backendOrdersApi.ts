@@ -13,11 +13,14 @@ import {
   orderStatusValues,
   type YyOrderVo,
 } from './yingyueAdapter'
+import { mapRiskApprovalRow } from './backendRowMappers'
 import type {
+  OrderCopyPayload,
   OrderCreatePayload,
   OrderDto,
   OrderExportQuery,
   OrderListQuery,
+  OrderRefundRequestPayload,
   OrderReschedulePayload,
   OrderStatusPayload,
   ProductDto,
@@ -103,12 +106,31 @@ export const createOrdersApi = (deps: OrdersApiDeps) => {
         submitMode: payload.submitMode || 'SAVE',
         status: payload.status || 'PENDING',
         payStatus: payload.payStatus || 'UNPAID',
+        orderAttributes: payload.orderAttributes,
         workstationNo: payload.studioId ? String(payload.studioId) : '',
         remark: payload.remark || '',
       }
       const row = await apiRequest<YyOrderVo>('/yy/order/staff-booking', { method: 'POST', body: JSON.stringify(body) })
       const order = mapYyOrder(row, deps.getProducts(), deps.resolveOrderPresentation(row))
       deps.setOrders([order, ...deps.getOrders()])
+      return order
+    },
+    async copyOrder(payload: OrderCopyPayload) {
+      const body = {
+        scheduleMode: payload.scheduleMode,
+        arrivalTime: payload.arrivalTime ?? null,
+        slotDate: payload.slotDate ?? '',
+        slotStartTime: payload.slotStartTime ?? '',
+        slotEndTime: payload.slotEndTime ?? '',
+        remark: payload.remark ?? '',
+      }
+      const row = await apiRequest<YyOrderVo>(`/yy/order/${payload.sourceOrderId}/copy`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+      const order = mapYyOrder(row, deps.getProducts(), deps.resolveOrderPresentation(row))
+      deps.setOrders([order, ...deps.getOrders().filter(item => item.id !== order.id)])
+      deps.setLedgerOrders([order, ...deps.getLedgerOrders().filter(item => item.id !== order.id)])
       return order
     },
     async updateOrderStatus(payload: OrderStatusPayload) {
@@ -157,6 +179,16 @@ export const createOrdersApi = (deps: OrdersApiDeps) => {
       deps.setOrders(nextCaches.orders)
       deps.setLedgerOrders(nextCaches.ledgerOrders)
       return next
+    },
+    async requestOrderRefund(payload: OrderRefundRequestPayload) {
+      const row = await apiRequest<Record<string, any>>(`/yy/order/${payload.id}/refund/request`, {
+        method: 'POST',
+        body: JSON.stringify({
+          refundAmountCent: payload.refundAmountCent,
+          reason: payload.reason,
+        }),
+      })
+      return mapRiskApprovalRow(row)
     },
   }
 

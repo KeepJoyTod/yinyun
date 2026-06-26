@@ -1,4 +1,5 @@
 import { definePhaseModuleScaffold } from '../system/phaseModuleRegistry'
+import { collectScaffoldAcceptanceMeta } from '../system/scaffoldAcceptanceMappings'
 
 const memberBaseContracts = [
   'docs/contracts/full-product-closed-loop-contract.md',
@@ -52,6 +53,7 @@ export const memberScaffolds = [
     owner: 'studio-workbench/src/features/member/modules/assets',
     nextPhase: 'Phase 2 继续补充值、退款回滚、权益核销和会员卡写链路。',
     routes: ['/member/accounts'],
+    ...collectScaffoldAcceptanceMeta(['C-023', 'B-110', 'B-111']),
     contracts: memberBaseContracts,
     apis: [
       'memberApi.getMemberOverview()',

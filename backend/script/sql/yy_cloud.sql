@@ -61,6 +61,24 @@ create table if not exists yy_order (
     status            varchar(32)   default 'PENDING'         comment '订单状态',
     workstation_no    varchar(32)   default ''                comment '工位',
     external_order_id varchar(128)  default ''                comment '外部订单号',
+    channel_type      varchar(32)   default ''                comment '渠道类型',
+    total_amount_cent bigint(20)    default 0                 comment '订单总金额（分）',
+    paid_amount_cent  bigint(20)    default 0                 comment '实付金额（分）',
+    pay_status        varchar(32)   default 'UNPAID'          comment '支付状态',
+    paid_time         datetime                               comment '支付时间',
+    refund_status     varchar(32)   default ''                comment '退款状态',
+    refund_amount_cent bigint(20)   default 0                 comment '退款金额（分）',
+    external_product_id varchar(128) default ''               comment '外部商品ID',
+    external_sku_id   varchar(128)  default ''                comment '外部SKU ID',
+    external_poi_id   varchar(128)  default ''                comment '外部门店/POI ID',
+    service_group_id  bigint(20)    default null              comment '服务组ID',
+    inventory_slot_id bigint(20)    default null              comment '本地库存时段ID',
+    slot_date         varchar(16)   default ''                comment '预约日期',
+    slot_start_time   varchar(16)   default ''                comment '预约开始时间',
+    slot_end_time     varchar(16)   default ''                comment '预约结束时间',
+    inventory_status  varchar(32)   default ''                comment '库存状态',
+    conflict_reason   varchar(255)  default ''                comment '库存冲突原因',
+    order_attribute_json longtext                           comment '订单属性快照和值',
     create_dept       bigint(20)    default null              comment '创建部门',
     create_by         bigint(20)    default null              comment '创建者',
     create_time       datetime                               comment '创建时间',
@@ -370,6 +388,7 @@ create table if not exists yy_service_group (
     group_name       varchar(128) not null                   comment '服务组名称',
     capacity         int          default 1                  comment '默认容量',
     duration_minutes int          default 30                 comment '默认时长',
+    service_mode     varchar(32)  default 'HORIZONTAL'       comment '服务模式',
     status           char(1)      default '0'                comment '状态',
     sort             int          default 0                  comment '排序',
     create_dept      bigint(20)   default null               comment '创建部门',
@@ -382,6 +401,34 @@ create table if not exists yy_service_group (
     primary key (id),
     unique key uk_yy_service_group (tenant_id, store_id, group_code)
 ) engine=innodb comment='影约云服务组';
+
+create table if not exists yy_order_attribute_template (
+    id            bigint(20)   not null                      comment '主键',
+    tenant_id     varchar(20)  default '000000'             comment '租户编号',
+    store_id      bigint(20)   not null                      comment '门店ID',
+    field_code    varchar(64)  not null                      comment '字段编码',
+    field_label   varchar(64)  not null                      comment '字段名称',
+    field_type    varchar(32)  not null                      comment '字段类型',
+    required      char(1)      default '0'                   comment '是否必填',
+    options_json  longtext                                  comment '选项JSON',
+    sort          int          default 0                     comment '排序',
+    status        varchar(32)  default 'ACTIVE'              comment '状态',
+    create_dept   bigint(20)   default null                  comment '创建部门',
+    create_by     bigint(20)   default null                  comment '创建者',
+    create_time   datetime                                  comment '创建时间',
+    update_by     bigint(20)   default null                  comment '更新者',
+    update_time   datetime                                  comment '更新时间',
+    del_flag      char(1)      default '0'                   comment '删除标志',
+    remark        varchar(500) default null                  comment '备注',
+    primary key (id),
+    unique key uk_yy_order_attr_tpl (tenant_id, store_id, field_code)
+) engine=innodb comment='影约云订单属性模板';
+
+alter table yy_order
+    add column if not exists order_attribute_json longtext comment '订单属性快照和值';
+
+alter table yy_service_group
+    add column if not exists service_mode varchar(32) default 'HORIZONTAL' comment '服务模式';
 
 create table if not exists yy_schedule_rule (
     id               bigint(20)   not null                   comment '主键',
@@ -403,6 +450,170 @@ create table if not exists yy_schedule_rule (
     primary key (id),
     key idx_yy_schedule_rule (tenant_id, store_id, service_group_id, weekday)
 ) engine=innodb comment='影约云预约排期规则';
+
+create table if not exists yy_schedule_exception_rule (
+    id               bigint(20)   not null,
+    tenant_id        varchar(20)  default '000000',
+    store_id         bigint(20)   not null,
+    service_group_id bigint(20)   default null,
+    start_date       varchar(16)  not null,
+    end_date         varchar(16)  not null,
+    start_time       varchar(16)  not null,
+    end_time         varchar(16)  not null,
+    action_type      varchar(32)  not null,
+    capacity         int          default null,
+    reason           varchar(500) default '',
+    status           varchar(32)  default 'ACTIVE',
+    approval_id      bigint(20)   default null,
+    create_dept      bigint(20)   default null,
+    create_by        bigint(20)   default null,
+    create_time      datetime,
+    update_by        bigint(20)   default null,
+    update_time      datetime,
+    del_flag         char(1)      default '0',
+    remark           varchar(500) default null,
+    primary key (id),
+    key idx_yy_schedule_exception_rule_scope (tenant_id, store_id, service_group_id, start_date, end_date, status)
+) engine=innodb comment='yy schedule exception rule';
+
+create table if not exists yy_risk_approval (
+    id                bigint(20)   not null,
+    tenant_id         varchar(20)  default '000000',
+    store_id          bigint(20)   default null,
+    business_type     varchar(64)  not null,
+    business_id       bigint(20)   default null,
+    business_no       varchar(128) default '',
+    status            varchar(32)  default 'PENDING',
+    title             varchar(128) default '',
+    reason            varchar(500) default '',
+    payload_json      longtext,
+    applicant_user_id bigint(20)   default null,
+    applicant_name    varchar(64)  default '',
+    approver_user_id  bigint(20)   default null,
+    approver_name     varchar(64)  default '',
+    approve_time      datetime,
+    reject_reason     varchar(500) default '',
+    result_summary    varchar(500) default '',
+    create_dept       bigint(20)   default null,
+    create_by         bigint(20)   default null,
+    create_time       datetime,
+    update_by         bigint(20)   default null,
+    update_time       datetime,
+    del_flag          char(1)      default '0',
+    remark            varchar(500) default null,
+    primary key (id),
+    key idx_yy_risk_approval_status (tenant_id, status, business_type, create_time),
+    key idx_yy_risk_approval_business (tenant_id, business_type, business_id)
+) engine=innodb comment='yy risk approval';
+
+create table if not exists yy_entitlement_reservation (
+    id                 bigint(20)   not null,
+    tenant_id          varchar(20)  default '000000',
+    store_id           bigint(20)   default null,
+    customer_id        bigint(20)   not null,
+    order_id           bigint(20)   default null,
+    reservation_no     varchar(64)  not null,
+    reservation_type   varchar(32)  default 'BENEFIT',
+    target_type        varchar(32)  default 'MEMBER_ASSET',
+    target_snapshot    varchar(255) default '',
+    quantity           decimal(12,2) default 1.00,
+    reservation_amount decimal(12,2) default 0.00,
+    status             varchar(32)  default 'RESERVED',
+    idempotency_key    varchar(64)  default '',
+    expire_time        datetime,
+    released_time      datetime,
+    execution_mode     varchar(32)  default 'SCAFFOLD',
+    create_dept        bigint(20)   default null,
+    create_by          bigint(20)   default null,
+    create_time        datetime,
+    update_by          bigint(20)   default null,
+    update_time        datetime,
+    del_flag           char(1)      default '0',
+    remark             varchar(500) default null,
+    primary key (id),
+    unique key uk_yy_entitlement_reservation_no (tenant_id, reservation_no),
+    key idx_yy_entitlement_reservation_scope (tenant_id, customer_id, order_id, status, create_time)
+) engine=innodb comment='yy entitlement reservation scaffold';
+
+create table if not exists yy_composite_payment_order (
+    id                  bigint(20)   not null,
+    tenant_id           varchar(20)  default '000000',
+    store_id            bigint(20)   default null,
+    customer_id         bigint(20)   not null,
+    order_id            bigint(20)   default null,
+    composite_no        varchar(64)  not null,
+    total_amount        decimal(12,2) default 0.00,
+    external_amount     decimal(12,2) default 0.00,
+    stored_value_amount decimal(12,2) default 0.00,
+    cash_amount         decimal(12,2) default 0.00,
+    discount_amount     decimal(12,2) default 0.00,
+    waive_amount        decimal(12,2) default 0.00,
+    status              varchar(32)  default 'DRAFT',
+    settle_status       varchar(32)  default 'PENDING',
+    execution_mode      varchar(32)  default 'SCAFFOLD',
+    create_dept         bigint(20)   default null,
+    create_by           bigint(20)   default null,
+    create_time         datetime,
+    update_by           bigint(20)   default null,
+    update_time         datetime,
+    del_flag            char(1)      default '0',
+    remark              varchar(500) default null,
+    primary key (id),
+    unique key uk_yy_composite_payment_no (tenant_id, composite_no),
+    key idx_yy_composite_payment_scope (tenant_id, customer_id, order_id, status, create_time)
+) engine=innodb comment='yy composite payment scaffold';
+
+create table if not exists yy_stored_value_consume_order (
+    id               bigint(20)   not null,
+    tenant_id        varchar(20)  default '000000',
+    store_id         bigint(20)   default null,
+    customer_id      bigint(20)   not null,
+    order_id         bigint(20)   default null,
+    consume_no       varchar(64)  not null,
+    consume_amount   decimal(12,2) default 0.00,
+    balance_snapshot decimal(12,2) default 0.00,
+    status           varchar(32)  default 'FROZEN',
+    reversal_status  varchar(32)  default 'NONE',
+    execution_mode   varchar(32)  default 'SCAFFOLD',
+    confirmed_time   datetime,
+    create_dept      bigint(20)   default null,
+    create_by        bigint(20)   default null,
+    create_time      datetime,
+    update_by        bigint(20)   default null,
+    update_time      datetime,
+    del_flag         char(1)      default '0',
+    remark           varchar(500) default null,
+    primary key (id),
+    unique key uk_yy_stored_value_consume_no (tenant_id, consume_no),
+    key idx_yy_stored_value_consume_scope (tenant_id, customer_id, order_id, status, create_time)
+) engine=innodb comment='yy stored value consume scaffold';
+
+create table if not exists yy_member_withdraw_order (
+    id                bigint(20)   not null,
+    tenant_id         varchar(20)  default '000000',
+    store_id          bigint(20)   default null,
+    customer_id       bigint(20)   not null,
+    withdraw_no       varchar(64)  not null,
+    withdraw_amount   decimal(12,2) default 0.00,
+    balance_snapshot  decimal(12,2) default 0.00,
+    approval_id       bigint(20)   default null,
+    account_name      varchar(64)  default '',
+    account_no_masked varchar(64)  default '',
+    channel_type      varchar(32)  default 'BANK_TRANSFER',
+    status            varchar(32)  default 'PENDING_APPROVAL',
+    execution_mode    varchar(32)  default 'SCAFFOLD',
+    paid_time         datetime,
+    create_dept       bigint(20)   default null,
+    create_by         bigint(20)   default null,
+    create_time       datetime,
+    update_by         bigint(20)   default null,
+    update_time       datetime,
+    del_flag          char(1)      default '0',
+    remark            varchar(500) default null,
+    primary key (id),
+    unique key uk_yy_member_withdraw_no (tenant_id, withdraw_no),
+    key idx_yy_member_withdraw_scope (tenant_id, customer_id, status, create_time)
+) engine=innodb comment='yy member withdraw scaffold';
 
 create table if not exists yy_employee (
     id            bigint(20)   not null                      comment '主键',
@@ -519,6 +730,39 @@ create table if not exists yy_report_snapshot (
     primary key (id),
     key idx_yy_report_snapshot (tenant_id, store_id, report_date, report_type)
 ) engine=innodb comment='影约云报表快照';
+
+create table if not exists yy_async_task (
+    id             bigint(20)   not null                      comment 'primary key',
+    tenant_id      varchar(20)  default '000000'              comment 'tenant id',
+    store_id       bigint(20)   default null                  comment 'store id',
+    task_no        varchar(64)  not null                      comment 'task number',
+    task_type      varchar(64)  not null                      comment 'task type',
+    task_name      varchar(128) default ''                    comment 'task name',
+    queue_name     varchar(64)  default ''                    comment 'queue name',
+    status         varchar(32)  default 'PENDING'             comment 'task status',
+    run_status     varchar(32)  default ''                    comment 'run status',
+    business_type  varchar(64)  default ''                    comment 'business type',
+    business_id    bigint(20)   default null                  comment 'business id',
+    date_from      varchar(16)  default ''                    comment 'date from',
+    date_to        varchar(16)  default ''                    comment 'date to',
+    download_url   varchar(512) default ''                    comment 'download url',
+    started_time   datetime                                  comment 'started time',
+    finished_time  datetime                                  comment 'finished time',
+    expire_time    datetime                                  comment 'expire time',
+    error_message  varchar(512) default ''                    comment 'error message',
+    audit_note     varchar(512) default ''                    comment 'audit note',
+    remark         varchar(512) default ''                    comment 'remark',
+    create_dept    bigint(20)   default null                  comment 'create dept',
+    create_by      bigint(20)   default null                  comment 'create by',
+    create_time    datetime                                  comment 'create time',
+    update_by      bigint(20)   default null                  comment 'update by',
+    update_time    datetime                                  comment 'update time',
+    del_flag       char(1)      default '0'                   comment 'delete flag',
+    primary key (id),
+    unique key uk_yy_async_task_no (tenant_id, task_no),
+    key idx_yy_async_task_type_status (tenant_id, task_type, status, create_time),
+    key idx_yy_async_task_store_time (tenant_id, store_id, create_time)
+) engine=innodb comment='yingyue async task ledger';
 
 create table if not exists yy_mobile_channel_config (
     id             bigint(20)   not null                     comment '主键',

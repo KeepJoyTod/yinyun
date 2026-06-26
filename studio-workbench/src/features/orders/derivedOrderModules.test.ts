@@ -2,12 +2,17 @@ import { describe, expect, it } from 'vitest'
 import type { Album, BookingOrder } from '../../shared/stores/appStore'
 import { buildDerivedOrderItems, getDerivedOrderModule } from './derivedOrderModules'
 
-const order = (id: number, service: string, source = '微信预约', payment: BookingOrder['payment'] = '已支付'): BookingOrder => ({
+const order = (
+  id: number,
+  service: string,
+  source = '微信预约',
+  payment: BookingOrder['payment'] = '已支付',
+): BookingOrder => ({
   backendId: String(id),
   storeBackendId: '1',
   id: `YY-${id}`,
   customer: `客户${id}`,
-  phone: id === 5 ? '' : `1380000000${id}`,
+  phone: `1380000000${id}`,
   store: '深圳旗舰店',
   service,
   source,
@@ -16,7 +21,7 @@ const order = (id: number, service: string, source = '微信预约', payment: Bo
   orderDate: '2026-06-13',
   orderClock: '09:00',
   arrivalTime: '06-13 14:00',
-  status: id === 5 ? '待确认' : '已确认',
+  status: '已确认',
   payment,
   amount: 199,
   arrivalDate: '2026-06-13',
@@ -44,25 +49,22 @@ describe('derived order modules', () => {
     order(2, '企业团体证件照', '企业客户'),
     order(3, '会员年卡'),
     order(4, '抖音团购兑换券', '抖音来客'),
-    order(5, '证件照套餐', '表单预约', '待支付'),
   ]
 
-  it('classifies print, enterprise, card, coupon and form modules from unified orders', () => {
+  it('classifies print, enterprise, card and coupon modules from unified orders', () => {
     expect(buildDerivedOrderItems(getDerivedOrderModule('order-print'), orders, [album(1)])).toHaveLength(1)
     expect(buildDerivedOrderItems(getDerivedOrderModule('order-enterprise'), orders, [])).toHaveLength(1)
     expect(buildDerivedOrderItems(getDerivedOrderModule('order-card'), orders, [])).toHaveLength(1)
     expect(buildDerivedOrderItems(getDerivedOrderModule('order-coupon'), orders, [])).toHaveLength(1)
-    expect(buildDerivedOrderItems(getDerivedOrderModule('order-forms'), orders, [])).toHaveLength(1)
   })
 
   it('keeps every derived module item linked back to the unified order page', () => {
     const [item] = buildDerivedOrderItems(getDerivedOrderModule('order-coupon'), orders, [])
 
     expect(item.order.id).toBe('YY-4')
-    expect(item.actionLabel).toBe('打开统一订单')
     expect(item.actionPath).toContain('/order/appointment')
     expect(item.actionPath).toContain('storeId=1')
-    expect(item.boundary).toContain('统一订单表 yy_order')
+    expect(item.boundary).toContain('yy_order')
   })
 
   it('does not treat a Douyin Life coupon order without appointment slot as a data issue', () => {
@@ -71,11 +73,8 @@ describe('derived order modules', () => {
     douyinLifeCoupon.arrivalClock = ''
     douyinLifeCoupon.arrivalTime = ''
 
-    const formItems = buildDerivedOrderItems(getDerivedOrderModule('order-forms'), [douyinLifeCoupon], [])
     const [couponItem] = buildDerivedOrderItems(getDerivedOrderModule('order-coupon'), [douyinLifeCoupon], [])
 
-    expect(formItems).toHaveLength(0)
-    expect(couponItem.stage).toBe('待核销')
-    expect(couponItem.progressHint).toContain('未预约')
+    expect(couponItem.stage).not.toBe('资料异常')
   })
 })

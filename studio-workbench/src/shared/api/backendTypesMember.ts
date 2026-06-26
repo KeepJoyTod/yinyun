@@ -103,6 +103,7 @@ export type MemberBalanceLedgerDto = {
 export type MemberRechargeOrderDto = {
   id: BackendId
   customerId: BackendId
+  approvalId?: BackendId | null
   rechargeOrderNo: string
   rechargeAmount: number
   giftAmount: number

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import albumsStoreSource from './albumsStore.ts?raw'
+import appStoreAlbumActionsSource from './appStoreAlbumActions.ts?raw'
 import appStoreSource from './appStore.ts?raw'
 import appStoreTransformsSource from './appStoreTransforms.ts?raw'
 import appStoreTypesSource from './appStoreTypes.ts?raw'
@@ -16,6 +17,7 @@ import workbenchOperationalStoreSource from './workbenchOperationalStore.ts?raw'
 
 const appStoreContractSource = [
   albumsStoreSource,
+  appStoreAlbumActionsSource,
   appStoreSource,
   channelStoreSource,
   customersStoreSource,
@@ -279,6 +281,7 @@ describe('appStore runtime contract', () => {
     expect(productBlock).toContain('createDemoBackendId')
     expect(productBlock).not.toContain('normalizeBackendId(Date.now())')
     expect(workbenchFacadeStoreSource).toContain('customersStore.saveCustomerDemo(input)')
+    expect(workbenchFacadeStoreSource).toContain('customersStore.deleteCustomerDemo(id)')
     expect(customersStoreSource).toContain('createDemoBackendId')
     expect(customersStoreSource).not.toContain('normalizeBackendId(Date.now())')
     expect(workbenchFacadeStoreSource).toContain('settingsStore.saveServiceGroupDemo(input, ctx.stores)')
@@ -288,6 +291,13 @@ describe('appStore runtime contract', () => {
     expect(settingsStoreSource).not.toContain('normalizeBackendId(Date.now())')
     expect(appStoreTransformsSource).toContain('const createDemoBackendId')
     expect(appStoreTransformsSource).toContain('`demo-${scope}-')
+  })
+
+  it('exposes customer delete through the workbench facade instead of page-local api calls', () => {
+    expect(appStoreSource).toContain('async deleteCustomer(id: BackendId)')
+    expect(appStoreSource).toContain('return deleteCustomerFacade(this, id)')
+    expect(workbenchFacadeStoreSource).toContain('export const deleteCustomerFacade = async')
+    expect(customersStoreSource).toContain('async deleteCustomer(id: BackendId)')
   })
 
   it('uses separated local visual assets instead of one repeated hero placeholder', () => {
@@ -359,7 +369,8 @@ describe('appStore runtime contract', () => {
 
   it('persists selected photo state through the backend before updating album counters', () => {
     expect(appStoreSource).toContain('async markAlbumPhotosSelected')
-    expect(appStoreSource).toContain('albumsStore.markAlbumPhotosSelected(albumId, updates)')
+    expect(appStoreSource).toContain('return markAlbumPhotosSelectedAction(this, albumId, updates)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.markAlbumPhotosSelected(albumId, updates)')
     expect(albumsStoreSource).toContain('backendApi.markAlbumPhotosSelected')
     expect(albumsStoreSource).toContain('photo.selected = selected')
     expect(albumsStoreSource).toContain('album.selectedCount = album.negatives.filter')
@@ -391,11 +402,15 @@ describe('appStore runtime contract', () => {
 
   it('delegates album photo mutations to albumsStore while preserving appStore method names', () => {
     expect(appStoreSource).toContain('async uploadAlbumPhotos(albumId: string, files: File[])')
-    expect(appStoreSource).toContain('albumsStore.uploadAlbumPhotosDemo(albumId, files)')
-    expect(appStoreSource).toContain('albumsStore.uploadAlbumPhotos(albumId, files)')
-    expect(appStoreSource).toContain('albumsStore.sortAlbumPhotos(albumId)')
-    expect(appStoreSource).toContain('albumsStore.renameAlbumPhoto(albumId, photoId, displayName, this.orders)')
-    expect(appStoreSource).toContain('albumsStore.deleteAlbumPhoto(albumId, photoId, this.orders)')
+    expect(appStoreSource).toContain('return uploadAlbumPhotosAction(this, albumId, files)')
+    expect(appStoreSource).toContain('return sortAlbumPhotosAction(this, albumId)')
+    expect(appStoreSource).toContain('return renameAlbumPhotoAction(this, albumId, photoId, displayName)')
+    expect(appStoreSource).toContain('return deleteAlbumPhotoAction(this, albumId, photoId)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.uploadAlbumPhotosDemo(albumId, files)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.uploadAlbumPhotos(albumId, files)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.sortAlbumPhotos(albumId)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.renameAlbumPhoto(albumId, photoId, displayName, ctx.orders)')
+    expect(appStoreAlbumActionsSource).toContain('albumsStore.deleteAlbumPhoto(albumId, photoId, ctx.orders)')
     expect(albumsStoreSource).toContain('async uploadAlbumPhotos(albumId: string, files: File[])')
     expect(albumsStoreSource).toContain('uploadAlbumPhotosDemo(albumId: string, files: File[])')
     expect(albumsStoreSource).toContain('async renameAlbumPhoto(albumId: string, photoId: string, displayName: string, orders: BookingOrder[] = [])')

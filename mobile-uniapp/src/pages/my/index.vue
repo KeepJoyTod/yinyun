@@ -3,6 +3,8 @@ import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import UniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
 import { getCustomerOrderSummary, getCustomerProfile } from '@/api/customer';
+import CustomerMemberAssetP1Card from '@/components/customer/CustomerMemberAssetP1Card.vue';
+import { useCustomerExperienceP1 } from '@/composables/useCustomerExperienceP1';
 import {
   clearCustomerToken,
   getCustomerUser,
@@ -35,6 +37,7 @@ const EMPTY_SUMMARY: CustomerOrderSummary = {
 
 const profile = ref<CustomerProfile | null>(null);
 const summary = ref<CustomerOrderSummary>({ ...EMPTY_SUMMARY });
+const { assetSummary, loadAssetSummary } = useCustomerExperienceP1();
 const loading = ref(false);
 const loginLoading = ref(false);
 const actionLoadingKey = ref<string>('');
@@ -53,6 +56,7 @@ const phoneMasked = computed(() => {
 });
 const memberLevel = computed(() => profile.value?.memberLevel || '普通会员');
 const totalOrderLabel = computed(() => `${summary.value.totalOrders || 0}`);
+const scaffoldAcceptanceLabel = 'C-023 会员资料脚手架验收完成 / 待真实验收';
 
 const orderStatusItems = computed(() => [
   {
@@ -167,6 +171,7 @@ async function loadMemberCenter() {
       getCustomerProfile(),
       getCustomerOrderSummary(),
     ]);
+    void loadAssetSummary();
     if (seq !== loadSeq) {
       return;
     }
@@ -272,6 +277,10 @@ function retryLoad() {
   void loadMemberCenter();
 }
 
+function openP1Page(url: string) {
+  uni.navigateTo({ url });
+}
+
 onShow(loadMemberCenter);
 </script>
 
@@ -294,6 +303,7 @@ onShow(loadMemberCenter);
             <text class="member-kicker">{{ loggedIn ? memberLevel : '影约云会员中心' }}</text>
             <text class="member-name">{{ loggedIn ? displayName : '登录后管理预约与底片' }}</text>
             <text class="member-subtitle">{{ loggedIn ? phoneMasked : '订单、选片、下载进度集中在这里查看' }}</text>
+            <text v-if="loggedIn" class="member-scaffold-caption">{{ scaffoldAcceptanceLabel }}</text>
           </view>
         </view>
         <button
@@ -340,6 +350,17 @@ onShow(loadMemberCenter);
           <text class="member-alert-copy">已保留本地登录信息，可稍后刷新订单数量。</text>
         </view>
         <button class="member-alert-action" :disabled="loading" :loading="loading" @click="retryLoad">刷新</button>
+      </view>
+
+      <CustomerMemberAssetP1Card
+        v-if="loggedIn"
+        :asset-summary="assetSummary"
+        @open-page="openP1Page"
+      />
+
+      <view v-if="loggedIn" class="member-note-card">
+        <text class="member-note-title">C-023 边界说明</text>
+        <text class="member-note-copy">当前只展示基础资料、等级、标签、成长值和资产摘要，不开放真实资料修改、成长值升级和权益发放闭环。</text>
       </view>
 
       <view class="member-card member-orders-card">
@@ -515,6 +536,13 @@ onShow(loadMemberCenter);
   color: #64748b;
   font-size: 23rpx;
   line-height: 1.45;
+}
+
+.member-scaffold-caption {
+  margin-top: 10rpx;
+  color: #94a3b8;
+  font-size: 20rpx;
+  line-height: 1.5;
 }
 
 .member-top-action,

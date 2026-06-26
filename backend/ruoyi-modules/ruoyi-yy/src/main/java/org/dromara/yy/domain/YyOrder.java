@@ -167,6 +167,11 @@ public class YyOrder extends TenantEntity {
     private String conflictReason;
 
     /**
+     * 订单属性快照和值
+     */
+    private String orderAttributeJson;
+
+    /**
      * 备注
      */
     private String remark;

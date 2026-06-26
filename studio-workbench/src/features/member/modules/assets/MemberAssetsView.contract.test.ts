@@ -4,8 +4,9 @@ import { getWorkbenchFeature } from '../../../../app/router/featureRegistry'
 import viewSource from './MemberAssetsView.vue?raw'
 import composableSource from './useMemberAssetOverview.ts?raw'
 import rechargeComposableSource from './useMemberRecharge.ts?raw'
+import detailActionsSource from './useMemberDetailActions.ts?raw'
 
-const assetsContractSource = `${viewSource}\n${composableSource}\n${rechargeComposableSource}`
+const assetsContractSource = `${viewSource}\n${composableSource}\n${rechargeComposableSource}\n${detailActionsSource}`
 
 describe('member assets view contract', () => {
   it('mounts a dedicated member assets owner route', () => {
@@ -29,6 +30,32 @@ describe('member assets view contract', () => {
     expect(viewSource).toContain('@click="openRecharge"')
     expect(rechargeComposableSource).toContain('memberRechargeStore.submitManualRecharge')
     expect(rechargeComposableSource).toContain('memberStore.refreshBalanceLedger')
+    expect(rechargeComposableSource).toContain('approvalId')
+    expect(viewSource).toContain('approval #')
+  })
+
+  it('exposes a member detail action bar with cross-owner contracts', () => {
+    expect(viewSource).toContain('编辑会员')
+    expect(viewSource).toContain('删除会员')
+    expect(viewSource).toContain('预约')
+    expect(viewSource).toContain('办卡')
+    expect(viewSource).toContain('发券')
+    expect(viewSource).toContain('查看交易明细')
+    expect(detailActionsSource).toContain("path: '/member/customers'")
+    expect(detailActionsSource).toContain("mode: 'edit'")
+    expect(detailActionsSource).toContain("path: '/member/consumption'")
+    expect(detailActionsSource).toContain("path: '/marketing/coupons'")
+    expect(detailActionsSource).toContain("path: '/order/appointment'")
+    expect(detailActionsSource).toContain("path: '/order/card-batch'")
+  })
+
+  it('guards detail actions by permission and supports customer deletion', () => {
+    expect(detailActionsSource).toContain('yy:customer:edit')
+    expect(detailActionsSource).toContain('yy:customer:remove')
+    expect(detailActionsSource).toContain('yy:order:add')
+    expect(detailActionsSource).toContain('yy:order:list')
+    expect(detailActionsSource).toContain('globalThis.confirm')
+    expect(detailActionsSource).toContain('appStore.deleteCustomer')
   })
 
   it('renders summary cards, recharge orders, and three asset sections instead of the old derived placeholder', () => {
@@ -37,5 +64,10 @@ describe('member assets view contract', () => {
     expect(viewSource).toContain('selectedRechargeOrders')
     expect(viewSource).toContain('MemberConsumerAssetPreview')
     expect(viewSource).not.toContain('buildDerivedMemberItems')
+  })
+
+  it('supports selecting a customer from route query before loading ledgers', () => {
+    expect(composableSource).toContain('route.query.customerId')
+    expect(composableSource).toContain('matchedRouteCustomer')
   })
 })

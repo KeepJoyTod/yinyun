@@ -1,52 +1,100 @@
-# env / secrets
+# Environment files and secrets
 .env
 .env.*
 !.env.example
-!.env.production.example
+!.env.*.example
 !mobile-uniapp/.env.api
 secret.txt
 secrets.txt
+APPSecret.txt
 *.secret
 *.secrets
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
 
-# dependencies
+# Dependency directories and package-manager caches
 node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
 
-# frontend builds
+# Frontend build output and generated files
 dist/
 .next/
 out/
 coverage/
 playwright-report/
 test-results/
-*.tsbuildinfo
+unpackage/
 output/
+*.tsbuildinfo
+vite.svg
 prototype-next/next-env.d.ts
 
-# java builds
+# Java and Maven build output
 target/
 .flattened-pom.xml
+hs_err_pid*
+replay_pid*
+
+# Logs
 logs/
 *.log
-*.log.gz
+*.log.*
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+selenium-debug.log
 
-# IDE / OS
+# IDE and editor files
 .idea/
 .vscode/
+.history/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.springBeans
+nbproject/private/
+.nb-gradle/
+*.swp
+*.swo
+
+# OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# local Windows helper scripts
-*.bat
+# Local temp files and tool caches
+.cache/
+.eslintcache
+.stylelintcache
+.sass-cache/
+.playwright-cli/
+.headroom/
+tmp/
+temp/
+*.tmp
+*.temp
 
-# local archives
+# Local archives and data exports
 *.zip
 *.7z
 *.rar
-
-# local data exports that can contain customer PII
 **/postgres_jianyue_orders_import_*.sql
 **/jianyue-orders-normalized-*.json
-
-# local AI workflow cache
-.headroom/

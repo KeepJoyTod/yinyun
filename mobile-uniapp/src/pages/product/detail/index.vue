@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { createCustomerOrder } from '@/api/customer';
 import { getProductDetail, getStoreSlots } from '@/api/home';
+import CustomerProductBookingEnhancementCard from '@/components/customer/CustomerProductBookingEnhancementCard.vue';
 import { runCustomerOrderPaymentFlow } from '@/pages/customer/orders/customerPaymentFlow';
 import { useCustomerAuth } from '@/composables/useCustomerAuth';
+import { useCustomerExperienceP1 } from '@/composables/useCustomerExperienceP1';
 import type { ProductDetailData, ProductSkuItem, PublicTimeSlot } from '@/types/home';
 import { referenceAssets } from '@/utils/referenceAssets';
 
@@ -21,8 +23,19 @@ const slotsLoading = ref(false);
 const submitting = ref(false);
 const error = ref('');
 const slots = ref<PublicTimeSlot[]>([]);
+const selectedP1ServiceGroupId = ref('');
+const selectedP1EntitlementCandidateId = ref('');
+const p1CustomFieldDraft = ref<Record<string, string>>({});
 
 const { isLoggedIn, customer, requireCustomerLogin } = useCustomerAuth();
+const {
+  loading: p1Loading,
+  serviceGroups: p1ServiceGroups,
+  profileFields: p1ProfileFields,
+  entitlementCandidates: p1EntitlementCandidates,
+  notices: p1Notices,
+  loadBookingOptions,
+} = useCustomerExperienceP1();
 
 const product = computed(() => detail.value?.product);
 const store = computed(() => detail.value?.store);
@@ -30,6 +43,27 @@ const skus = computed(() => detail.value?.skus || []);
 const selectedSku = computed(() => skus.value.find((item) => item.skuId === selectedSkuId.value));
 const availableSlots = computed(() => slots.value.filter((slot) => slot.available));
 const productCover = computed(() => product.value?.coverImage || product.value?.imageUrl || referenceAssets.categoryPortraits[0]);
+const selectedP1EntitlementCandidate = computed(() => (
+  p1EntitlementCandidates.value.find((candidate) => candidate.candidateId === selectedP1EntitlementCandidateId.value)
+));
+const p1ServiceGroupIdForPayload = computed(() => (
+  /^\d+$/.test(selectedP1ServiceGroupId.value) ? selectedP1ServiceGroupId.value : undefined
+));
+const p1CustomFieldPayload = computed(() => {
+  const payload: Record<string, string> = {};
+  p1ProfileFields.value.forEach((field) => {
+    const value = String(p1CustomFieldDraft.value[field.key] || '').trim();
+    if (value) {
+      payload[field.key] = value;
+    }
+  });
+  return Object.keys(payload).length ? payload : undefined;
+});
+const p1RequiredFieldsComplete = computed(() => (
+  p1ProfileFields.value
+    .filter((field) => field.required)
+    .every((field) => String(p1CustomFieldDraft.value[field.key] || '').trim())
+));
 
 const dateOptions = computed(() => {
   const today = new Date();
@@ -47,7 +81,8 @@ const canSubmit = computed(() => Boolean(
     && selectedDate.value
     && selectedSlot.value
     && contactName.value.trim()
-    && /^1\d{10}$/.test(contactPhone.value),
+    && /^1\d{10}$/.test(contactPhone.value)
+    && p1RequiredFieldsComplete.value
 ));
 
 function formatDateValue(date: Date) {
@@ -114,6 +149,7 @@ async function loadDetail(id: string) {
     selectedSkuId.value = data.skus[0]?.skuId || '';
     selectedDate.value = dateOptions.value[0]?.value || '';
     contactPhone.value = customer.value?.phone || '';
+    void loadBookingOptions({ productId: data.product.productId, storeId: data.store?.storeId });
     await loadSlots();
   } catch (err: any) {
     error.value = err?.message || '商品详情加载失败';
@@ -138,6 +174,21 @@ function selectSlot(slot: PublicTimeSlot) {
   selectedSlot.value = slotLabel(slot);
 }
 
+function selectP1ServiceGroup(serviceGroupId: string) {
+  selectedP1ServiceGroupId.value = serviceGroupId;
+}
+
+function selectP1Entitlement(candidateId: string) {
+  selectedP1EntitlementCandidateId.value = candidateId;
+}
+
+function updateP1CustomField(payload: { key: string; value: string }) {
+  p1CustomFieldDraft.value = {
+    ...p1CustomFieldDraft.value,
+    [payload.key]: payload.value,
+  };
+}
+
 async function submitOrder() {
   if (!isLoggedIn.value) {
     requireCustomerLogin(`/pages/product/detail/index?productId=${encodeURIComponent(productId.value)}`);
@@ -153,9 +204,20 @@ async function submitOrder() {
       storeId: store.value.storeId,
       skuId: selectedSku.value.skuId,
       categoryId: product.value?.categoryId,
+      serviceGroupId: p1ServiceGroupIdForPayload.value,
       customerName: contactName.value.trim(),
       customerPhone: contactPhone.value,
       remark: remark.value.trim(),
+      customFields: p1CustomFieldPayload.value,
+      entitlementCandidateId: selectedP1EntitlementCandidate.value?.status === 'available'
+        ? selectedP1EntitlementCandidate.value?.candidateId
+        : undefined,
+      entitlementKind: selectedP1EntitlementCandidate.value?.status === 'available'
+        ? selectedP1EntitlementCandidate.value?.kind
+        : undefined,
+      entitlementUnavailableReason: selectedP1EntitlementCandidate.value?.status === 'available'
+        ? undefined
+        : selectedP1EntitlementCandidate.value?.reason,
       appointmentDate: selectedDate.value,
       timeSlot: selectedSlot.value,
     });
@@ -179,6 +241,28 @@ onLoad((query) => {
   } else {
     error.value = '缺少商品 ID';
   }
+});
+
+watch(p1ServiceGroups, (groups) => {
+  if (!selectedP1ServiceGroupId.value && groups[0]?.serviceGroupId) {
+    selectedP1ServiceGroupId.value = groups[0].serviceGroupId;
+  }
+});
+
+watch(p1EntitlementCandidates, (candidates) => {
+  if (!selectedP1EntitlementCandidateId.value && candidates[0]?.candidateId) {
+    selectedP1EntitlementCandidateId.value = candidates[0].candidateId;
+  }
+});
+
+watch(p1ProfileFields, (fields) => {
+  const next = { ...p1CustomFieldDraft.value };
+  fields.forEach((field) => {
+    if (next[field.key] === undefined) {
+      next[field.key] = '';
+    }
+  });
+  p1CustomFieldDraft.value = next;
 });
 </script>
 
@@ -277,6 +361,20 @@ onLoad((query) => {
             </button>
           </view>
         </view>
+
+        <CustomerProductBookingEnhancementCard
+          :loading="p1Loading"
+          :service-groups="p1ServiceGroups"
+          :profile-fields="p1ProfileFields"
+          :entitlement-candidates="p1EntitlementCandidates"
+          :notices="p1Notices"
+          :selected-service-group-id="selectedP1ServiceGroupId"
+          :selected-entitlement-candidate-id="selectedP1EntitlementCandidateId"
+          :custom-field-draft="p1CustomFieldDraft"
+          @select-service-group="selectP1ServiceGroup"
+          @select-entitlement="selectP1Entitlement"
+          @update-custom-field="updateP1CustomField"
+        />
 
         <view class="surface-card booking-card">
           <view class="booking-section-head">
@@ -395,6 +493,11 @@ onLoad((query) => {
 
 .booking-card {
   padding: 26rpx;
+}
+
+.p1-choice-active {
+  border-color: rgba(37, 99, 235, 0.8);
+  background: rgba(219, 234, 254, 0.75);
 }
 
 .booking-section-head {

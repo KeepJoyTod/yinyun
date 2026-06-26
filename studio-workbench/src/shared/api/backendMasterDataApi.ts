@@ -77,6 +77,7 @@ const serviceGroupToPayload = (payload: ServiceGroupPayload) => ({
   groupName: payload.groupName,
   capacity: payload.capacity,
   durationMinutes: payload.durationMinutes,
+  serviceMode: payload.serviceMode,
   status: payload.status,
   sort: payload.sort,
   remark: payload.remark,
@@ -209,6 +210,10 @@ export const createMasterDataApi = (deps: MasterDataApiDeps) => ({
     })
     deps.setCustomers(deps.getCustomers().map(item => (item.id === updated.id ? updated : item)))
     return updated
+  },
+  async deleteCustomer(id: BackendId) {
+    await apiRequestRaw<RuoyiResponse<void>>(`/yy/customer/${id}`, { method: 'DELETE' })
+    deps.setCustomers(deps.getCustomers().filter(item => !sameId(item.id, id)))
   },
   async listCustomerRecentOrders(customerId: BackendId, limit = 5): Promise<OrderDto[]> {
     await deps.ensureProductsLoaded()

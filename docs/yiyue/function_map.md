@@ -2,6 +2,39 @@
 
 更新时间：2026-06-24
 
+## 2026-06-26 product-function-inventory-84-scaffold-acceptance
+
+### 已完成
+- 产品功能清单第 3 节的 21 项“脚手架”条目，已统一收口到可验收脚手架标准，不再散落在占位页、派生说明和历史注释中。
+- 商品 9 项固定映射到商品 7 子域与 3 个兼容入口；会员/营销 7 项固定映射到既有 owner；平台 5 项固定映射到平台设置 owner。
+- 工作台共享 scaffold 页已统一展示 `inventoryCodes / acceptanceLabel / boundaryNotes / nextActions`；客户端 `我的/卡券` 也补齐相同口径。
+
+### 仍需注意
+- 本次完成定义是“脚手架验收完成”，不是生产闭环 `ready`。
+- 未新增真实支付、退款、库存扣减、权益扣减/回滚、抖音/美团/微信真实授权写链路。
+
+## 2026-06-25 consumer-merchant-p1-scaffold
+
+### 已完成
+- 新增 P1 消费者体验脚手架：商品详情页展示服务组、资料项、卡券/权益候选和不可用原因；卡券页从 Phase 0 占位升级为权益状态页；我的页新增会员资产 P1 入口；新增服务评价脚手架页。
+- 消费者预约增强契约已补到下单链路：`serviceGroupId` 透传到既有订单服务组字段，并已加门店归属/启用状态校验；`customFields` 写入 `yy_order.order_attribute_json`；可用 `entitlement*` 只创建 `yy_entitlement_reservation` scaffold 预占草稿，未做真实权益核销或扣减。
+- 新增商户端消费者运营 P1 聚合 owner，覆盖 `B-011/B-013/B-030/B-033/B-039/B-083/B-088/B-093/B-094/B-109` 的现有 owner、缺失能力、下一步和风险。
+- 新增前后端 P1 契约骨架和只读接口，返回 `scaffold/building/not_connected` 状态，不伪装为生产闭环。
+
+### 仍需注意
+- 本轮状态只代表脚手架 owner 已落地；真实权益核销、支付退款、通知 SDK、评价账本、导出任务和端到端验收仍待后续任务。
+
+## 2026-06-25 product-function-inventory-recheck
+
+### 已完成
+- 复核 `docs/product-function-inventory(产品功能清单).md` 中所有“待实现”条目，按当前仓库实际 owner、接口、路由和读写链路排除已落地的部分实现项。
+- 将 `C-009`、`C-012`、`C-013`、`C-015`、`C-019`、`C-028`、`B-109`、`R-015`、`P-014`、`X-004` 从“待实现”修正为“当前项目部分实现”，避免把已有后台、读侧或只读骨架误算进真待办。
+- 保留真正未开发清单，并按 `P0/P1/P2/P3` 输出组合支付、权益预占、储值消费、提现、复制订单、异步任务中心、订购分析、登录风控、开放 API、美团差评溯源和数据备份恢复的分期计划。
+
+### 仍需注意
+- 这次只是清单复核和规划整理，不新增业务代码，不改变真实链路。
+- 后续若要把任一条从 `partial/building` 升级为 `ready`，仍需补真实接口、权限、审计和 smoke 证据。
+
 ## 2026-06-25 merchant-readiness-scaffold
 
 ### 已完成
@@ -12,6 +45,11 @@
   - `channel-readiness`：`B-026`、`B-027`、`B-045`、`B-046`
   - `governance`：`P-003`、`P-004`、`P-005`、`P-006`
   - `dependency-readiness`：`X-001`、`X-002`、`X-003`、`X-004`、`B-068`、`B-069`、`R-014`、`R-015`
+- 四个 owner 已落为独立路由和独立模块目录：
+  - `/merchant/schedule-governance`
+  - `/merchant/channel-readiness`
+  - `/merchant/governance`
+  - `/merchant/dependency-readiness`
 
 ### 边界
 - 本包只搭 readiness 脚手架，不代表商家模块真实业务已全部生产完成。
@@ -73,11 +111,16 @@
 - 工作台新增 Phase 0 平台设置脚手架：
   - `/platform/brand-info`
   - `/platform/integration`
+  - `/platform/login-risk`
+  - `/platform/open-api`
+  - `/platform/task-center`
   - `/platform/booking-policy`
   - `/platform/print-settings`
   - `/platform/score-settings`
+  - `/platform/meituan-review-trace`
   - `/platform/email-settings`
   - `/platform/notification-center`
+  - `/platform/backup-recovery`
   - `/platform/service-packages`
 - 工作台新增 Phase 0 账号中心脚手架：
   - `/account/profile`
@@ -345,4 +388,157 @@
 ### 仍需继续
 - 真实商品表单、批量写入、历史商品迁移和生产数据验收需单独任务包。
 - 抖音/美团授权、真实商品同步、真实渠道核销和 logid 证据需单独验收。
+
+## 2026-06-25 platform-enterprise-scaffold
+
+### 已完成
+- 平台设置新增 5 个企业级 owner 入口：
+  - `/platform/login-risk`
+  - `/platform/open-api`
+  - `/platform/task-center`
+  - `/platform/backup-recovery`
+  - `/platform/meituan-review-trace`
+- 前端统一复用 `platformSettingsScaffolds + usePlatformSettingsList + backendPlatformApi`，不再落到通用建设页。
+- 后端 `YyPlatformSettingsController/YyPlatformSettingsService` 新增 5 个只读 facade：
+  - `GET /yy/platform-settings/login-risk-policies`
+  - `GET /yy/platform-settings/open-api-apps`
+  - `GET /yy/platform-settings/async-tasks`
+  - `GET /yy/platform-settings/backup-recovery-plans`
+  - `GET /yy/platform-settings/meituan-review-traces`
+
+### 仍需继续
+- 登录风控仍缺设备指纹、异常登录事件、二次校验和告警闭环。
+- 开放 API 仍缺 API key 发放/吊销、签名校验、限流审计和开放文档门户。
+- 任务中心仍缺真实任务账本、下载过期、失败重试和统一审计。
+- 备份恢复仍缺真实备份计划执行、恢复演练证据和告警。
+- 美团差评溯源仍缺评价拉取、差评归因、处理工单和插件授权闭环。
 - 订单、支付、库存、权益只完成 readiness 骨架，未接真实高风险写链路。
+## 2026-06-25 P0 交易安全第一包
+
+### 已落地
+- `/merchant/order-attributes` 已补成真实 owner：门店页“订单属性”跳转到该页后，可按 `storeId=<yy_store.id>` 维护 `TEXT/TEXTAREA/PHONE/DATE/NUMBER/SELECT/CHECKBOX` 模板；店员录单和订单详情共用同一份模板快照。
+- 服务组已补显式 `serviceMode`：`/merchant/service-groups` 创建和编辑时必须选择 `HORIZONTAL` 或 `VERTICAL`，工作台不再按名称/时长猜测模式。
+- `/merchant/schedule-governance` 已从 readiness 壳升级为可操作面板：支持门店、服务组、日期范围、时间段、`CLOSE/REOPEN/CAPACITY_OVERRIDE`、预览和提交；审批回跳后可自动回填查询并重新预览当前结果。
+- `/merchant/governance` 已从 readiness 壳升级为审批列表：支持按状态、类型、门店筛选，并执行通过/驳回；`SLOT_CLOSE_WITH_PAID_ORDER` 会展示作用范围摘要、审批结果摘要，并提供 deeplink 回档期治理页查看已应用结果。
+- 订单详情新增内部退款审批入口：只提交 `ORDER_REFUND` 审批，不触发真实出款。
+- 会员充值创建 `PENDING_APPROVAL` 时返回并展示审批编号；审批通过后才允许复用确认到账逻辑。
+- `feature-scope` 对 `merchant-schedule-governance`、`merchant-governance`、`order-refund`、`member-recharge` 返回真实审批态，不再固定为 `not_applicable`。
+
+### 边界
+- 本包不调用抖音/美团/微信真实退款或渠道写接口。
+- 本包不做提现、组合支付、权益引擎重构和 WarmFlow 接入。
+- `SLOT_CLOSE_WITH_PAID_ORDER` 审批通过后会自动把 `yy_schedule_exception_rule` 从 `PENDING_APPROVAL` 转 `ACTIVE`，并批量更新命中时段库存；驳回则把规则置为 `REJECTED` 且不改库存。
+
+## 2026-06-25 transaction-safety-scaffold
+
+### 已落地
+- `X-003 权益预占`
+  - 已有预占账本、幂等键、过期时间和工作台 owner。
+- `C-016 / X-011 组合支付`
+  - 已有组合支付拆账模型、统一前后端 owner 和草稿状态机。
+- `X-009 储值消费`
+  - 已有储值消费单、余额快照校验、冻结状态机和工作台 owner。
+- `B-069 / X-010 会员提现`
+  - 已有提现申请单、账户脱敏校验、风险审批挂接和工作台 owner。
+
+### 当前边界
+- 本次是交易安全第一批脚手架，不等于真实资金闭环。
+- 未接第三方真实收款、退款、出款。
+- 未补余额真实扣减、超时释放执行器、退款逆向和财务对账。
+
+### 下一阶段建议
+- P0.1：真实支付确认、余额扣减、提现出款状态机。
+- P0.2：退款逆向、预占超时释放、财务对账字段与审计口径。
+- P1：消费者侧明细、异常补偿、监管报表和更细风控规则。
+## 2026-06-25 order-copy-closed-loop
+
+### 已完成
+- 复制订单入口已落在订单详情抽屉和操作摘要面板，`OrderCopyPanel` 独立成叶子组件。
+- `useOrderCopyActions` 负责组装复制参数、判断是否复用档期、提交复制请求并回跳新单详情。
+- 后端已落 `copyOrder` 控制层、服务层和工厂层，真写链路会创建新的 `yy_order` 并按需确认库存。
+
+### 仍需注意
+- 不包含异步任务中心、权益迁移、外部平台订单克隆、支付迁移和退款迁移。
+
+## 2026-06-25 order-card-batch-scaffold
+
+### 已完成
+- `/order/card-batch` 已新增独立 owner，统一承接批量开卡申请、审批状态、金额预估和执行边界说明。
+- 前端不再把批量开卡塞进派生只读的 `售卡订单` 页，而是单独暴露 `order-card-batch` feature，权限收口到 `yy:order:add`。
+- 后端新增 `GET/POST /yy/card-batch-orders`，统一把批量开卡申请投影到 `yy_risk_approval`，`businessType=CARD_BATCH_ORDER_APPLY`。
+
+### 当前边界
+- 当前只落审批脚手架，不生成真实卡项订单，不发放权益，不写 `yy_order` 或会员资产账本。
+- 审批通过只代表允许后续人工执行，不代表系统已经自动批量开卡。
+
+## 2026-06-26 order-analysis-scaffold
+
+### 已完成
+- `R-013 订购分析` 已从“未发现同名 owner”升级成独立工作台 owner：`/report/order-analysis`。
+- 页面不再复用共享派生报表页，而是单独承接订购、支付、退款、渠道四类口径脚手架。
+- 前后端已补 `GET /yy/reportOrderAnalysis/overview`，默认读取本月范围，返回概览、漏斗、渠道拆分和退款拆分。
+
+### 当前边界
+- 只读分析优先读取 `yy_payment_record`，缺失时回退 `yy_order.paidAmountCent/refundAmountCent`。
+- 当前不接导出、不接异步任务中心、不接财务对账、不发起订单/支付/退款写操作。
+- 退款拆分只反映现有账本事实，不代表第三方退款链路已闭环。
+
+## 2026-06-26 order-forms-owner-upgrade
+
+- `B-047 表单管理 / B-102 表单提交跟进` 已从“派生只读”提升为独立 `order-forms` owner。
+- 前端入口：`/order/forms` -> `studio-workbench/src/features/orders/modules/form-submissions/OrderFormSubmissionsOwnerView.vue`
+- 当前闭环覆盖：微表单提交查询、姓名/手机号/跟进状态筛选、跟进状态更新、备注维护、导出、转预约。
+- 数据边界：继续读取 `yy_micro_form_submission`，转预约仍复用订单 owner 的真实写链路，不新造第二套表单账本。
+
+## 2026-06-26 transaction-safety-local-adapter-closed-loop
+
+### 状态更新
+- P0 交易安全 owner 已从“草稿脚手架”推进到本地适配器闭环：组合支付确认/失败、权益预占释放/核销、储值消费确认/逆向、提现审批后标记出款均有前后端动作入口。
+- 组合支付确认会更新 `yy_order.payStatus/paidAmountCent/paidTime`、插入 `yy_payment_record`，并核销订单下 `RESERVED` 权益预占；组合支付失败会释放预占。
+- 储值消费确认会扣减 `yy_member_account.balance_amount` 并插入 `yy_member_balance_ledger`；储值逆向和退款审批通过会回补余额并写逆向流水。
+- 退款审批通过后，除订单/支付退款状态和库存释放外，已联动释放 `yy_entitlement_reservation` 预占并逆向 `yy_stored_value_consume_order`。
+
+### 当前边界
+- 本地适配器闭环不代表真实微信/抖音/美团收款、退款、出款、短信通知已联调。
+- 预占超时释放执行器、真实平台回调验签、财务对账、监管报表和异常补偿仍需后续任务包。
+- 2026-06-26 补充：已新增权益预占超时释放 worker，支持按 `expireTime` 自动批量释放 `RESERVED` 预占，并在工作台 owner 提供手动“释放过期预占”验收入口。
+
+## 2026-06-26 member-assets-acceptance-upgrade
+
+### 已完成
+- `member-accounts` 已升级为会员详情工作台 owner，不再只是只读资产面板。
+- 当前页统一提供：
+  - 编辑会员
+  - 删除会员
+  - 预约
+  - 办卡（受控跳转）
+  - 发券
+  - 查看交易明细
+  - 会员充值
+- `member-consumption` 支持按 `customerId` 预选客户，进入后直接查看订单、积分、成长值、余额四类流水。
+- `marketing-coupons` 支持从会员详情带 `customerId` 进入并预填发券客户。
+
+### 当前边界
+- 办卡仍复用 `/order/card-batch`，该模块状态还是 `building`，所以办卡仅算受控跳转，不算完整业务闭环。
+- 不在会员详情页重复实现发券、办卡写链路；仍复用营销 owner 与订单卡批次 owner。
+## 2026-06-26 report-finance-reconciliation
+
+### 状态更新
+- `R-015 财务对账报表` 已从共享派生收支统计升级为独立 `/report/finance` owner。
+- 前端已落地筛选、订单视角、资金流水视角、差异与待关注、异步导出任务列表。
+- 后端已新增 `GET /yy/reportFinanceReconciliation/overview`、`POST /yy/reportFinanceReconciliation/export`、`GET /yy/reportFinanceReconciliation/export/tasks`。
+
+### 数据边界
+- 不新增第二套财务主账本。
+- 当前统一读取 `yy_order`、`yy_payment_record`、`yy_member_balance_ledger`、`yy_stored_value_consume_order`、`yy_member_withdraw_order`、`yy_composite_payment_order`、`yy_entitlement_reservation`。
+- 当前导出为本地任务骨架，可验收创建、状态、下载地址和过期时间；真实持久化任务队列、对象存储下载、失败重试和跨实例任务中心仍需后续任务包。
+- 不代表真实微信/抖音/美团退款、支付回调、银行或微信提现回单已联调。
+## 2026-06-26 platform-async-task-ledger
+
+### 已完成
+- `R-014` 报表导出任务补齐统一异步任务账本一期：`POST /yy/reportFinanceReconciliation/export` 创建的财务对账导出任务会写入 `yy_async_task`。
+- `P-010` 异步任务中心从纯脚手架升级为可读取真实任务账本：`GET /yy/platform-settings/async-tasks` 优先按 `taskType` 聚合 `yy_async_task`，无记录时保留原脚手架兜底。
+- SQL 初始化脚本已补 `yy_async_task` MySQL/PostgreSQL 表结构、任务编号唯一索引和任务类型/门店查询索引。
+
+### 仍需继续
+- 真实 worker 调度、对象存储文件落盘、下载鉴权、失败重试、过期清理、跨实例领取和任务详情抽屉仍未落地。

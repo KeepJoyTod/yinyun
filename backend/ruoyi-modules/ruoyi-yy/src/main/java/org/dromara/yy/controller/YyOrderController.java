@@ -16,6 +16,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.yy.domain.bo.YyOrderBo;
+import org.dromara.yy.domain.bo.YyOrderCopyBo;
 import org.dromara.yy.domain.bo.YyOrderRescheduleBo;
 import org.dromara.yy.domain.bo.YyOrderTransitionBo;
 import org.dromara.yy.domain.bo.YyStaffBookingCreateBo;
@@ -34,9 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 预约订单控制器。
- */
 @Validated
 @RequiredArgsConstructor
 @RestController
@@ -52,41 +50,41 @@ public class YyOrderController extends BaseController {
     }
 
     @SaCheckPermission("yy:order:export")
-    @Log(title = "预约订单", businessType = BusinessType.EXPORT)
+    @Log(title = "Order export", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(YyOrderBo bo, HttpServletResponse response) {
         List<YyOrderVo> list = yyOrderService.queryList(bo);
-        ExcelUtil.exportExcel(list, "预约订单", YyOrderVo.class, response);
+        ExcelUtil.exportExcel(list, "Orders", YyOrderVo.class, response);
     }
 
     @SaCheckPermission("yy:order:query")
     @GetMapping("/{id}")
-    public R<YyOrderVo> getInfo(@NotNull(message = "主键不能为空") @PathVariable Long id) {
+    public R<YyOrderVo> getInfo(@NotNull(message = "id must not be null") @PathVariable Long id) {
         return R.ok(yyOrderService.queryById(id));
     }
 
     @SaCheckPermission("yy:photoAlbum:add")
-    @Log(title = "订单取片相册占位", businessType = BusinessType.INSERT)
+    @Log(title = "Photo album placeholder", businessType = BusinessType.INSERT)
     @RepeatSubmit
     @PostMapping("/{id}/photo-album-placeholder")
-    public R<YyPhotoAlbumVo> repairPhotoAlbumPlaceholder(@NotNull(message = "主键不能为空") @PathVariable Long id) {
+    public R<YyPhotoAlbumVo> repairPhotoAlbumPlaceholder(@NotNull(message = "id must not be null") @PathVariable Long id) {
         return R.ok(yyOrderService.repairPhotoAlbumPlaceholder(id));
     }
 
     @SaCheckPermission("yy:order:edit")
-    @Log(title = "预约订单状态流转", businessType = BusinessType.UPDATE)
+    @Log(title = "Order transition", businessType = BusinessType.UPDATE)
     @RepeatSubmit
     @PostMapping("/{id}/transition")
-    public R<YyOrderVo> transition(@NotNull(message = "主键不能为空") @PathVariable Long id,
+    public R<YyOrderVo> transition(@NotNull(message = "id must not be null") @PathVariable Long id,
                                    @Validated @RequestBody YyOrderTransitionBo bo) {
         return R.ok(yyOrderService.transitionStatus(id, bo.getExpectedStatus(), bo.getTargetStatus(), bo.getRemark()));
     }
 
     @SaCheckPermission("yy:order:edit")
-    @Log(title = "预约订单改期", businessType = BusinessType.UPDATE)
+    @Log(title = "Order reschedule", businessType = BusinessType.UPDATE)
     @RepeatSubmit
     @PostMapping("/{id}/reschedule")
-    public R<YyOrderVo> reschedule(@NotNull(message = "主键不能为空") @PathVariable Long id,
+    public R<YyOrderVo> reschedule(@NotNull(message = "id must not be null") @PathVariable Long id,
                                    @Validated @RequestBody YyOrderRescheduleBo bo) {
         return R.ok(yyOrderService.reschedule(
             id,
@@ -101,7 +99,7 @@ public class YyOrderController extends BaseController {
     }
 
     @SaCheckPermission("yy:order:add")
-    @Log(title = "店员新增预约", businessType = BusinessType.INSERT)
+    @Log(title = "Order create", businessType = BusinessType.INSERT)
     @RepeatSubmit
     @PostMapping("/staff-booking")
     public R<YyOrderVo> staffBooking(@Validated @RequestBody YyStaffBookingCreateBo bo) {
@@ -109,7 +107,16 @@ public class YyOrderController extends BaseController {
     }
 
     @SaCheckPermission("yy:order:add")
-    @Log(title = "预约订单", businessType = BusinessType.INSERT)
+    @Log(title = "Order copy", businessType = BusinessType.INSERT)
+    @RepeatSubmit
+    @PostMapping("/{id}/copy")
+    public R<YyOrderVo> copy(@NotNull(message = "id must not be null") @PathVariable Long id,
+                             @Validated @RequestBody YyOrderCopyBo bo) {
+        return R.ok(yyOrderService.copyOrder(id, bo));
+    }
+
+    @SaCheckPermission("yy:order:add")
+    @Log(title = "Order create", businessType = BusinessType.INSERT)
     @RepeatSubmit
     @PostMapping
     public R<Void> add(@Validated(AddGroup.class) @RequestBody YyOrderBo bo) {
@@ -117,7 +124,7 @@ public class YyOrderController extends BaseController {
     }
 
     @SaCheckPermission("yy:order:edit")
-    @Log(title = "预约订单", businessType = BusinessType.UPDATE)
+    @Log(title = "Order update", businessType = BusinessType.UPDATE)
     @RepeatSubmit
     @PutMapping
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody YyOrderBo bo) {
@@ -125,9 +132,9 @@ public class YyOrderController extends BaseController {
     }
 
     @SaCheckPermission("yy:order:remove")
-    @Log(title = "预约订单", businessType = BusinessType.DELETE)
+    @Log(title = "Order delete", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空") @PathVariable Long[] ids) {
+    public R<Void> remove(@NotEmpty(message = "ids must not be empty") @PathVariable Long[] ids) {
         return toAjax(yyOrderService.deleteWithValidByIds(List.of(ids), true));
     }
 }

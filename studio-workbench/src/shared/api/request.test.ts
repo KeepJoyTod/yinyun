@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const TOKEN_KEY = 'yingyue_studio_workbench_access_token'
+const STAFF_SESSION_KEY = 'yingyue_studio_workbench_staff_session'
 
 const storage = () => {
   const data = new Map<string, string>()
@@ -22,7 +23,13 @@ describe('studio api request auth', () => {
     vi.unstubAllEnvs()
     vi.stubGlobal('localStorage', storage())
     vi.stubGlobal('window', {
-      location: { origin: 'http://127.0.0.1:5190' },
+      location: {
+        origin: 'http://127.0.0.1:5190',
+        pathname: '/',
+        search: '',
+        hash: '',
+        assign: vi.fn(),
+      },
       localStorage: globalThis.localStorage,
     })
     vi.stubEnv('VITE_API_BASE_URL', 'https://api.evanshine.me')
@@ -178,5 +185,29 @@ describe('studio api request auth', () => {
     expect(result.contentType).toBe('application/vnd.ms-excel')
     expect(result.fileName).toBe('orders.xlsx')
     await expect(result.blob.text()).resolves.toBe('excel-bytes')
+  })
+
+  it('clears staff auth and redirects to login after a 401 without replaying an unauthenticated request', async () => {
+    localStorage.setItem(TOKEN_KEY, 'expired-token')
+    localStorage.setItem(STAFF_SESSION_KEY, '{"username":"store-admin"}')
+    const calls: Array<{ url: string; init?: RequestInit }> = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: RequestInit) => {
+        calls.push({ url, init })
+        return new Response(JSON.stringify({ code: 401, msg: '认证失败' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }),
+    )
+
+    const { apiRequestRaw } = await import('./request')
+
+    await expect(apiRequestRaw('/yy/order/list')).rejects.toThrow('认证已过期，请重新登录')
+    expect(calls).toHaveLength(1)
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+    expect(localStorage.getItem(STAFF_SESSION_KEY)).toBeNull()
+    expect(window.location.assign).toHaveBeenCalledWith('/login?redirect=%2F')
   })
 })

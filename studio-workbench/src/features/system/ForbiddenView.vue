@@ -1,5 +1,5 @@
 <template>
-  <section class="flex min-h-[520px] items-center justify-center">
+  <section data-testid="forbidden-view" class="flex min-h-[520px] items-center justify-center">
     <div class="max-w-[560px] border border-amber-topbar-border bg-amber-content-bg px-10 py-12 text-center">
       <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-accent">Access denied</p>
       <h1 class="mt-4 font-sans text-[30px] font-medium text-amber-dark">当前账号没有访问权限</h1>

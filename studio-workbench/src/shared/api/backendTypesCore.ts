@@ -38,8 +38,35 @@ export type ServiceGroupDto = {
   groupName: string
   capacity: number
   durationMinutes: number
+  serviceMode: 'HORIZONTAL' | 'VERTICAL' | string
   status: string
   sort: number
+  remark: string
+}
+
+export type OrderAttributeFieldType = 'TEXT' | 'TEXTAREA' | 'PHONE' | 'DATE' | 'NUMBER' | 'SELECT' | 'CHECKBOX'
+
+export type OrderAttributeValueDto = {
+  fieldCode: string
+  fieldLabel: string
+  fieldType: OrderAttributeFieldType | string
+  required: boolean
+  options: string[]
+  sort: number
+  value: string | string[] | null
+}
+
+export type OrderAttributeTemplateDto = {
+  id: BackendId
+  storeId: BackendId
+  fieldCode: string
+  fieldLabel: string
+  fieldType: OrderAttributeFieldType | string
+  required: string
+  optionsJson: string
+  options: string[]
+  sort: number
+  status: string
   remark: string
 }
 
@@ -56,6 +83,38 @@ export type BookingInventoryDto = {
   conflictCount: number
   status: string
   remark: string
+}
+
+export type RiskApprovalDto = {
+  id: BackendId
+  tenantId?: string
+  storeId: BackendId | null
+  businessType: 'SLOT_CLOSE_WITH_PAID_ORDER' | 'ORDER_REFUND' | 'MEMBER_RECHARGE_CONFIRM' | string
+  businessId: BackendId | null
+  businessNo: string
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | string
+  title: string
+  reason: string
+  payloadJson: string
+  applicantUserId: BackendId | null
+  applicantName: string
+  approverUserId: BackendId | null
+  approverName: string
+  approveTime: string
+  rejectReason: string
+  resultSummary: string
+  createTime: string
+  updateTime: string
+}
+
+export type ScheduleGovernancePreviewDto = {
+  affectedSlotCount: number
+  paidSlotCount: number
+  conflictSlotCount: number
+  approvalRequired: boolean
+  message: string
+  approval: RiskApprovalDto | null
+  slots: BookingInventoryDto[]
 }
 
 export type EmployeeDto = {
@@ -292,6 +351,8 @@ export type OrderDto = {
   slotEndTime?: string
   inventoryStatus?: string
   conflictReason?: string
+  orderAttributeJson?: string
+  orderAttributes?: OrderAttributeValueDto[]
   remark: string | null
 }
 
@@ -319,340 +380,4 @@ export type AlbumDto = {
   selectedCount: number
   totalCount: number
   photos: AlbumPhotoDto[]
-}
-
-export type ResourceTagDto = {
-  id: BackendId
-  storeId: BackendId | null
-  storeName: string
-  tagName: string
-  resourceCount: number
-  createBy: BackendId | null
-  createTime: string
-}
-
-export type ResourceTagOptionDto = {
-  id: BackendId
-  tagName: string
-}
-
-export type ResourceRowDto = {
-  assetId: BackendId
-  albumId: BackendId | null
-  storeId: BackendId | null
-  storeName: string
-  orderId: BackendId | null
-  productId: BackendId | null
-  productName: string
-  fileName: string
-  fileUrl: string | null
-  thumbnailUrl: string | null
-  assetType: string
-  rating: number
-  visible: boolean
-  fileSizeBytes: number
-  tagList: ResourceTagOptionDto[]
-  customerName: string
-  customerPhoneMasked: string
-  albumName: string
-  uploadedAt: string
-  uploaderId: BackendId | null
-  uploaderName: string
-}
-
-export type ResourceUsageBreakdownDto = {
-  assetType: string
-  assetCount: number
-  totalBytes: number
-}
-
-export type ResourceUsageSummaryDto = {
-  totalQuotaBytes: number
-  usedBytes: number
-  remainingBytes: number
-  usagePercent: number
-  missingSizeCount: number
-  cleanupPlanEnabled: boolean
-  cleanupRetentionDays: number
-  quotaConfigKey: string
-  cleanupPlanConfigKey: string
-  cleanupRetentionConfigKey: string
-  typeBreakdown: ResourceUsageBreakdownDto[]
-}
-
-export type ResourceSizeBackfillResultDto = {
-  attemptedCount: number
-  updatedCount: number
-  skippedCount: number
-  failedCount: number
-  remainingMissingSizeCount: number
-  message: string
-}
-
-export type SelectionLinkDto = {
-  id: BackendId
-  token: string
-  orderId: BackendId | null
-  albumId: BackendId
-  customerName: string
-  customerPhone: string
-  product: string
-  selectedCount: number
-  extraCount: number
-  visits: number
-  expireAt: string
-  status: string
-  publicUrl: string
-}
-
-export type StudioDto = {
-  id: BackendId
-  storeId: BackendId
-  name: string
-  status: string
-}
-
-export type ScheduleItemDto = {
-  bookingId: BackendId
-  orderId: BackendId
-  storeId: BackendId
-  studioId: BackendId
-  studioName: string
-  startAt: string
-  endAt: string
-  bookingStatus: string
-  orderNo: string
-  customerName: string
-  customerPhone: string
-  serviceName: string
-  orderStatus: string
-}
-
-export type OrderStatusStatDto = {
-  status: string
-  label: string
-  count: number
-  amountCents: number
-}
-
-export type TrendStatDto = {
-  day: string
-  bookedCount: number
-  arrivedCount: number
-  amountCents: number
-}
-
-export type TodaySlotDto = {
-  bookingId: BackendId
-  storeId: BackendId
-  storeName: string
-  studioId: BackendId
-  studioName: string
-  startAt: string
-  endAt: string
-  bookingStatus: string
-  orderId: BackendId
-  orderNo: string
-  customerName: string
-  customerPhone?: string
-  serviceName?: string
-  orderStatus: string
-}
-
-export type SelectionStatsDto = {
-  activeCount: number
-  newLast7DaysCount: number
-  completedCount: number
-  completedThisMonthCount: number
-  averageSelectionMinutes: number
-  extraConversionRate: number
-  averageExtraCount: number
-  monthExtraRevenueCents: number
-}
-
-export type WorkbenchBootstrapDto = {
-  identity: {
-    userId: string
-    username?: string
-    nickname?: string
-    employeeId?: string
-    employeeNo?: string
-    employeeName?: string
-    roleType?: string
-    storeId?: string
-  }
-  globalStoreScope: boolean
-  stores: {
-    storeId: string
-    storeCode: string
-    storeName: string
-    status: string
-    roleType?: string
-    primary?: boolean
-  }[]
-  menuPermissions: string[]
-  menuPermissionDetails?: {
-    permission: string
-    label: string
-    path: string
-    group: string
-  }[]
-  rolePermissions: string[]
-  featureStatuses: Record<string, 'ready' | 'building' | 'hidden'>
-  pending: {
-    pendingOrders: number
-    todayArrivals: number
-    inventoryConflicts: number
-    activeSelections: number
-  }
-}
-
-export type RetouchTaskDto = {
-  id: BackendId
-  tenantId: string
-  storeId: BackendId | null
-  storeName: string
-  orderId: BackendId | null
-  orderNo: string
-  albumId: BackendId | null
-  albumName: string
-  providerId: BackendId | null
-  providerName: string
-  taskNo: string
-  status: string
-  acceptanceStatus: string
-  quoteAmountCent: number
-  dueTime: string
-  submittedTime: string
-  completedTime: string
-  sourceStage: string
-  customerName: string
-  serviceName: string
-  blockReason: string
-  remark: string
-  createTime: string
-  updateTime: string
-}
-
-export type RetouchTaskListQuery = {
-  storeId?: BackendId
-  providerId?: BackendId
-  status?: string
-  keyword?: string
-  pageNum?: number
-  pageSize?: number
-}
-
-export type RetouchTaskActionPayload = {
-  id: BackendId
-  providerId?: BackendId | null
-  quoteAmountCent?: number
-  dueTime?: string
-  status?: string
-  acceptanceStatus?: string
-  blockReason?: string
-  remark?: string
-}
-
-export type RetouchProviderDto = {
-  id: BackendId
-  tenantId: string
-  providerCode: string
-  providerName: string
-  contactName: string
-  contactPhone: string
-  supportedStoreIds: string
-  serviceScope: string
-  quoteMode: string
-  settlementMode: string
-  applicationStatus: string
-  status: string
-  ratingScore: number
-  slaHours: number
-  remark: string
-  createTime: string
-  updateTime: string
-}
-
-export type RetouchProviderListQuery = {
-  keyword?: string
-  applicationStatus?: string
-  status?: string
-}
-
-export type RetouchProviderPayload = {
-  id?: BackendId
-  providerCode: string
-  providerName: string
-  contactName?: string
-  contactPhone?: string
-  supportedStoreIds?: string
-  serviceScope?: string
-  quoteMode?: string
-  settlementMode?: string
-  applicationStatus?: string
-  status?: string
-  ratingScore?: number
-  slaHours?: number
-  remark?: string
-}
-
-export type CollaborationPolicyDto = {
-  id?: BackendId
-  tenantId: string
-  policyCode: string
-  reviewFlowEnabled: string
-  productInfoMaskMode: string
-  enabledStoreIds: string
-  fallbackAction: string
-  transferEnabled: string
-  autoDispatchMode: string
-  genderMakeupEnabled: string
-  femaleMakeupRatio: number
-  remark: string
-  createTime: string
-  updateTime: string
-}
-
-export type CollaborationPolicyPayload = {
-  id?: BackendId
-  policyCode?: string
-  reviewFlowEnabled?: string
-  productInfoMaskMode?: string
-  enabledStoreIds?: string
-  fallbackAction?: string
-  transferEnabled?: string
-  autoDispatchMode?: string
-  genderMakeupEnabled?: string
-  femaleMakeupRatio?: number
-  remark?: string
-}
-
-export type ServiceLicenseBindingDto = {
-  id: BackendId
-  tenantId: string
-  licenseKey: string
-  planName: string
-  status: string
-  expireTime: string
-  boundStoreIds: string
-  seatCount: number
-  activatedTime: string
-  renewAction: string
-  remark: string
-  createTime: string
-  updateTime: string
-}
-
-export type ServiceLicenseBindingPayload = {
-  id?: BackendId
-  licenseKey: string
-  planName?: string
-  status?: string
-  expireTime?: string
-  boundStoreIds?: string
-  seatCount?: number
-  activatedTime?: string
-  renewAction?: string
-  remark?: string
 }

@@ -83,6 +83,12 @@ export const saveCustomerFacade = async (ctx: WorkbenchFacadeContext, input: any
   return next
 }
 
+export const deleteCustomerFacade = async (ctx: WorkbenchFacadeContext, id: BackendId) => {
+  if (ctx.demoMode) customersStore.deleteCustomerDemo(id)
+  else await customersStore.deleteCustomer(id)
+  ctx.syncCustomersFromOwner()
+}
+
 export const loadCustomerRecentOrdersFacade = async (
   ctx: WorkbenchFacadeContext,
   customerBackendId: BackendId,

@@ -345,7 +345,7 @@ const openStoreAction = (store: StoreInfo, actionKey: StoreActionKey) => {
     router.push({ path: '/order/appointment', query: { quick: 'all', storeId: store.backendId, astore: store.name, store: store.name, intent: 'walk-in' } })
     return
   }
-  router.push({ path: '/order/forms', query: { storeId: store.backendId, store: store.name } })
+  router.push({ path: '/merchant/order-attributes', query: { storeId: store.backendId, store: store.name } })
 }
 
 const getDouyinMappings = (store: StoreInfo) =>

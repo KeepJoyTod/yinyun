@@ -23,6 +23,12 @@
     @refresh-logs="emit('refresh-logs')"
     @copy-order-id="emit('copy-order-id')"
     @copy="(value, key) => emit('copy', value, key)"
+    @submit-copy-order="emit('submit-copy-order')"
+    @update-copy-schedule-mode="emit('update-copy-schedule-mode', $event)"
+    @update-copy-date="emit('update-copy-date', $event)"
+    @update-copy-time="emit('update-copy-time', $event)"
+    @update-copy-duration-minutes="emit('update-copy-duration-minutes', $event)"
+    @update-copy-remark="emit('update-copy-remark', $event)"
     @update-reschedule-date="emit('update-reschedule-date', $event)"
     @update-reschedule-time="emit('update-reschedule-time', $event)"
     @update-reschedule-duration-minutes="emit('update-reschedule-duration-minutes', $event)"
@@ -31,9 +37,11 @@
     @apply-reschedule-slot="emit('apply-reschedule-slot', $event)"
     @submit-reschedule="emit('submit-reschedule')"
     @update-cancel-reason="emit('update-cancel-reason', $event)"
+    @update-refund-reason="emit('update-refund-reason', $event)"
     @apply-cancel-reason="emit('apply-cancel-reason', $event)"
     @submit-cancel="emit('submit-cancel')"
     @submit-confirm-payment="emit('submit-confirm-payment')"
+    @submit-refund-request="emit('submit-refund-request')"
     @open-album="emit('open-album', $event)"
     @notify-album="emit('notify-album')"
     @confirm-album="emit('confirm-album')"
@@ -104,6 +112,12 @@ const emit = defineEmits<{
   'refresh-logs': []
   'copy-order-id': []
   copy: [value: string, key: string]
+  'submit-copy-order': []
+  'update-copy-schedule-mode': [value: 'REUSE_SLOT' | 'UNDECIDED']
+  'update-copy-date': [value: string]
+  'update-copy-time': [value: string]
+  'update-copy-duration-minutes': [value: number]
+  'update-copy-remark': [value: string]
   'update-reschedule-date': [value: string]
   'update-reschedule-time': [value: string]
   'update-reschedule-duration-minutes': [value: number]
@@ -112,9 +126,11 @@ const emit = defineEmits<{
   'apply-reschedule-slot': [slot: BookingInventorySlot]
   'submit-reschedule': []
   'update-cancel-reason': [value: string]
+  'update-refund-reason': [value: string]
   'apply-cancel-reason': [reason: string]
   'submit-cancel': []
   'submit-confirm-payment': []
+  'submit-refund-request': []
   'open-album': [albumId: string]
   'notify-album': []
   'confirm-album': []

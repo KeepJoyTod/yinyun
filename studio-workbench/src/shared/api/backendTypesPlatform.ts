@@ -41,6 +41,39 @@ export type PlatformIntegrationDto = {
 
 export type PlatformIntegrationStatusDto = PlatformIntegrationDto
 
+export type PlatformLoginRiskPolicyDto = {
+  policyCode: string
+  policyName: string
+  riskDimension: string
+  guardScope: string
+  latestEventTime?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  nextActions?: PlatformActionHintDto[]
+}
+
+export type PlatformOpenApiAppDto = {
+  appCode: string
+  appName: string
+  authMode: string
+  rateLimitLabel: string
+  sandboxBaseUrl?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  nextActions?: PlatformActionHintDto[]
+}
+
+export type PlatformAsyncTaskDto = {
+  taskType: string
+  taskName: string
+  queueName: string
+  latestRunStatus?: string
+  retentionPolicy?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  nextActions?: PlatformActionHintDto[]
+}
+
 export type PlatformBookingPolicyDto = {
   channelType: string
   feeMode: string
@@ -85,6 +118,17 @@ export type PlatformNotificationCenterDto = {
 
 export type PlatformNotificationRuleDto = PlatformNotificationCenterDto
 
+export type PlatformBackupRecoveryDto = {
+  planCode: string
+  planName: string
+  backupScope: string
+  recoveryTarget: string
+  lastDrillTime?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  nextActions?: PlatformActionHintDto[]
+}
+
 export type PlatformServicePackageDto = {
   packageCode: string
   packageName: string
@@ -98,3 +142,14 @@ export type PlatformServicePackageDto = {
 }
 
 export type PlatformServicePackageStatusDto = PlatformServicePackageDto
+
+export type PlatformMeituanReviewTraceDto = {
+  pluginCode: string
+  pluginName: string
+  reviewChannel: string
+  traceStatus: string
+  latestSyncTime?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  nextActions?: PlatformActionHintDto[]
+}

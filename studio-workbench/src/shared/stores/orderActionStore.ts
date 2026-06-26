@@ -1,4 +1,4 @@
-import { backendApi, type ScheduleItemDto, type TodaySlotDto } from '../api/backend'
+import { backendApi, type RiskApprovalDto, type ScheduleItemDto, type TodaySlotDto } from '../api/backend'
 import type { BackendId } from '../api/backendId'
 import {
   addMinutesToClock,
@@ -13,8 +13,9 @@ import {
   toIsoArrival,
   toMDHM,
 } from './appStoreTransforms'
-import type { BookingOrder, BookingOrderStatus, ProductConfig, ServiceGroupInfo, StoreInfo } from './appStoreTypes'
+import type { BookingOrder, BookingOrderStatus, OrderAttributeValue, ProductConfig, ServiceGroupInfo, StoreInfo } from './appStoreTypes'
 import { getOrderOperationalDate } from './orderIssueRules'
+import { toOrderAttributePayload } from '../orderAttributes'
 
 export type StaffOrderCreateInput = {
   name: string
@@ -37,6 +38,7 @@ export type StaffOrderCreateInput = {
   slotEndTime?: string
   payStatus?: string
   status?: string
+  orderAttributes?: OrderAttributeValue[]
   remark?: string
 }
 
@@ -47,10 +49,25 @@ export type StaffOrderRescheduleInput = {
   remark?: string
 }
 
+export type StaffOrderCopyInput = {
+  orderId: string
+  scheduleMode: 'REUSE_SLOT' | 'UNDECIDED'
+  date?: string
+  time?: string
+  durationMinutes?: number
+  remark?: string
+}
+
 export type StaffOrderConfirmPaymentInput = {
   id: BackendId
   amountCent: number
   remark: string
+}
+
+export type StaffOrderRefundRequestInput = {
+  id: BackendId
+  refundAmountCent: number
+  reason: string
 }
 
 type OrderActionContext = {
@@ -159,6 +176,7 @@ export async function createOrderAction(ctx: OrderActionContext, input: StaffOrd
     submitMode: input.submitMode ?? 'SAVE',
     payStatus: input.payStatus ?? 'UNPAID',
     status: input.status ?? 'PENDING',
+    orderAttributes: input.orderAttributes ? toOrderAttributePayload(input.orderAttributes) : undefined,
     remark: input.remark ?? '',
   })
   const order = mapOrder(dto, ctx.stores)
@@ -167,6 +185,73 @@ export async function createOrderAction(ctx: OrderActionContext, input: StaffOrd
     ? [order, ...ctx.orders.filter(o => o.backendId !== order.backendId)]
     : ctx.orders.filter(o => o.backendId !== order.backendId)
   ctx.reportOrders = [order, ...ctx.reportOrders.filter(o => o.backendId !== order.backendId)]
+  await ctx.refreshOrderOperationalScope(order)
+  return order
+}
+
+export async function copyOrderAction(ctx: OrderActionContext, input: StaffOrderCopyInput) {
+  const source = findOrderInCaches(ctx, input.orderId)
+  if (!source) throw new Error('未找到源订单')
+  const scheduleMode = input.scheduleMode === 'UNDECIDED' ? 'UNDECIDED' : 'REUSE_SLOT'
+  const fallbackDate = source.arrivalDate || ''
+  const fallbackTime = source.arrivalClock || ''
+  const arrivalDate = (input.date || fallbackDate).trim()
+  const arrivalClock = normalizeClock((input.time || fallbackTime).trim())
+  const durationMinutes = Math.max(15, Number(input.durationMinutes) || 60)
+  const slotEndTime = scheduleMode === 'REUSE_SLOT'
+    ? normalizeClock(addMinutesToClock(arrivalDate, arrivalClock, durationMinutes))
+    : ''
+
+  if (ctx.demoMode) {
+    const nextBackendId = createDemoBackendId('order')
+    const order: BookingOrder = {
+      ...source,
+      backendId: nextBackendId,
+      id: `YY-DEMO-${nextBackendId.slice(-12).toUpperCase()}`,
+      source: '手工录入',
+      method: '复制订单',
+      channelType: 'LOCAL',
+      orderTime: toMDHM(new Date().toISOString()),
+      orderDate: formatDate(new Date()),
+      orderClock: formatClock(new Date()),
+      status: '待确认',
+      payment: '待支付',
+      refundStatus: '',
+      refundAmountCent: 0,
+      arrivalDate: scheduleMode === 'REUSE_SLOT' ? arrivalDate : '',
+      arrivalClock: scheduleMode === 'REUSE_SLOT' ? arrivalClock : '',
+      arrivalTime: scheduleMode === 'REUSE_SLOT' && arrivalDate && arrivalClock ? `${arrivalDate.slice(5)} ${arrivalClock}` : '',
+      remark: [source.remark, `复制自订单 ${source.id}`, input.remark?.trim() || ''].filter(Boolean).join('\n'),
+      externalProductId: '',
+      externalSkuId: '',
+      externalPoiId: '',
+      inventoryStatus: '',
+      conflictReason: '',
+    }
+    ctx.reportOrders = [order, ...ctx.reportOrders.filter(item => item.backendId !== order.backendId)]
+    ctx.orders = getOrderOperationalDate(order) === todayKey()
+      ? [order, ...ctx.orders.filter(item => item.backendId !== order.backendId)]
+      : ctx.orders.filter(item => item.backendId !== order.backendId)
+    ctx.ledgerOrders = [order, ...ctx.ledgerOrders.filter(item => item.backendId !== order.backendId)]
+    return order
+  }
+
+  const dto = await backendApi.copyOrder({
+    sourceOrderId: source.backendId,
+    scheduleMode,
+    arrivalTime: scheduleMode === 'REUSE_SLOT' ? toBackendDateTime(arrivalDate, arrivalClock) : undefined,
+    slotDate: scheduleMode === 'REUSE_SLOT' ? arrivalDate : undefined,
+    slotStartTime: scheduleMode === 'REUSE_SLOT' ? arrivalClock : undefined,
+    slotEndTime: scheduleMode === 'REUSE_SLOT' ? slotEndTime : undefined,
+    remark: input.remark?.trim() || '',
+  })
+  const order = mapOrder(dto, ctx.stores)
+  const operationalDate = getOrderOperationalDate(order)
+  ctx.orders = operationalDate === todayKey()
+    ? [order, ...ctx.orders.filter(item => item.backendId !== order.backendId)]
+    : ctx.orders.filter(item => item.backendId !== order.backendId)
+  ctx.reportOrders = [order, ...ctx.reportOrders.filter(item => item.backendId !== order.backendId)]
+  ctx.ledgerOrders = [order, ...ctx.ledgerOrders.filter(item => item.backendId !== order.backendId)]
   await ctx.refreshOrderOperationalScope(order)
   return order
 }
@@ -273,6 +358,35 @@ export async function confirmOrderPaymentAction(
   const next = mapOrder(dto, ctx.stores)
   replaceOrderInCaches(ctx, next)
   return next
+}
+
+export async function requestOrderRefundAction(
+  ctx: Pick<OrderActionContext, 'demoMode'>,
+  input: StaffOrderRefundRequestInput,
+): Promise<RiskApprovalDto> {
+  if (ctx.demoMode) {
+    return {
+      id: createDemoBackendId('approval'),
+      storeId: null,
+      businessType: 'ORDER_REFUND',
+      businessId: input.id,
+      businessNo: String(input.id),
+      status: 'PENDING',
+      title: 'Order refund request',
+      reason: input.reason,
+      payloadJson: JSON.stringify({ refundAmountCent: input.refundAmountCent }),
+      applicantUserId: null,
+      applicantName: 'demo',
+      approverUserId: null,
+      approverName: '',
+      approveTime: '',
+      rejectReason: '',
+      resultSummary: '',
+      createTime: new Date().toISOString(),
+      updateTime: '',
+    }
+  }
+  return backendApi.requestOrderRefund(input) as Promise<RiskApprovalDto>
 }
 
 export function syncOrderStatusToDerivedData(

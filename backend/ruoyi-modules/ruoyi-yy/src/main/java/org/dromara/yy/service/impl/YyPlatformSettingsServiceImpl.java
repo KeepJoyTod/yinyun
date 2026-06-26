@@ -1,6 +1,8 @@
 package org.dromara.yy.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.yy.domain.YyAsyncTask;
 import org.dromara.yy.domain.bo.YyChannelAccountBo;
 import org.dromara.yy.domain.bo.YyChannelSyncLogBo;
 import org.dromara.yy.domain.bo.YyNotificationLogBo;
@@ -10,11 +12,17 @@ import org.dromara.yy.domain.vo.YyChannelSyncLogVo;
 import org.dromara.yy.domain.vo.YyNotificationLogVo;
 import org.dromara.yy.domain.vo.YyNotificationTemplateVo;
 import org.dromara.yy.domain.vo.YyPlatformActionHintVo;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
+import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformEvidenceVo;
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
+import org.dromara.yy.domain.vo.YyPlatformLoginRiskPolicyVo;
+import org.dromara.yy.domain.vo.YyPlatformMeituanReviewTraceVo;
 import org.dromara.yy.domain.vo.YyPlatformNotificationRuleVo;
+import org.dromara.yy.domain.vo.YyPlatformOpenApiAppVo;
 import org.dromara.yy.domain.vo.YyPlatformServicePackageStatusVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
+import org.dromara.yy.mapper.YyAsyncTaskMapper;
 import org.dromara.yy.service.IYyChannelAccountService;
 import org.dromara.yy.service.IYyChannelSyncLogService;
 import org.dromara.yy.service.IYyNotificationLogService;
@@ -42,19 +50,22 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
     private final IYyNotificationTemplateService yyNotificationTemplateService;
     private final IYyNotificationLogService yyNotificationLogService;
     private final IYyServiceProductionService yyServiceProductionService;
+    private final YyAsyncTaskMapper yyAsyncTaskMapper;
 
     public YyPlatformSettingsServiceImpl(
         IYyChannelAccountService yyChannelAccountService,
         IYyChannelSyncLogService yyChannelSyncLogService,
         IYyNotificationTemplateService yyNotificationTemplateService,
         IYyNotificationLogService yyNotificationLogService,
-        IYyServiceProductionService yyServiceProductionService
+        IYyServiceProductionService yyServiceProductionService,
+        YyAsyncTaskMapper yyAsyncTaskMapper
     ) {
         this.yyChannelAccountService = yyChannelAccountService;
         this.yyChannelSyncLogService = yyChannelSyncLogService;
         this.yyNotificationTemplateService = yyNotificationTemplateService;
         this.yyNotificationLogService = yyNotificationLogService;
         this.yyServiceProductionService = yyServiceProductionService;
+        this.yyAsyncTaskMapper = yyAsyncTaskMapper;
     }
 
     @Override
@@ -89,6 +100,132 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
             rows.add(row);
         }
         return rows;
+    }
+
+    @Override
+    public List<YyPlatformLoginRiskPolicyVo> listLoginRiskPolicies() {
+        YyPlatformLoginRiskPolicyVo baseline = new YyPlatformLoginRiskPolicyVo();
+        baseline.setPolicyCode("STAFF_LOGIN_RISK");
+        baseline.setPolicyName("Staff login risk baseline");
+        baseline.setRiskDimension("DEVICE/IP/MFA");
+        baseline.setGuardScope("员工工作台登录");
+        baseline.setStatus("scaffold");
+        baseline.getEvidence().add(buildEvidence("staff_session", "/login", "ready", "员工账号密码登录已接线，设备指纹和二次校验未接线", "", null));
+        baseline.getNextActions().add(buildAction("enable_device_fingerprint", "Enable device fingerprint", false, "待接真实设备指纹 SDK"));
+
+        YyPlatformLoginRiskPolicyVo abnormal = new YyPlatformLoginRiskPolicyVo();
+        abnormal.setPolicyCode("ABNORMAL_LOGIN_ALERT");
+        abnormal.setPolicyName("Abnormal IP and geo alert");
+        abnormal.setRiskDimension("IP/GEO/ALERT");
+        abnormal.setGuardScope("门店员工与平台管理员");
+        abnormal.setStatus("scaffold");
+        abnormal.getEvidence().add(buildEvidence("risk_scaffold", "ABNORMAL_LOGIN_ALERT", "scaffold", "缺少异常登录事件账本与告警记录", "", null));
+        abnormal.getNextActions().add(buildAction("bind_second_factor", "Bind second factor", false, "待接短信/邮箱二次校验"));
+        return List.of(baseline, abnormal);
+    }
+
+    @Override
+    public List<YyPlatformOpenApiAppVo> listOpenApiApps() {
+        YyPlatformOpenApiAppVo erp = new YyPlatformOpenApiAppVo();
+        erp.setAppCode("ERP-SANDBOX");
+        erp.setAppName("ERP sandbox app");
+        erp.setAuthMode("API_KEY + SIGNATURE");
+        erp.setRateLimitLabel("60 req/min");
+        erp.setSandboxBaseUrl("https://sandbox.api.evanshine.me/open");
+        erp.setStatus("scaffold");
+        erp.getEvidence().add(buildEvidence("open_api_scaffold", "ERP-SANDBOX", "scaffold", "开放 API 门户、签名校验和限流账本未落地", "", null));
+        erp.getNextActions().add(buildAction("issue_api_key", "Issue API key", false, "待接 API key 发放与吊销"));
+
+        YyPlatformOpenApiAppVo crm = new YyPlatformOpenApiAppVo();
+        crm.setAppCode("CRM-READONLY");
+        crm.setAppName("CRM read-only app");
+        crm.setAuthMode("API_KEY");
+        crm.setRateLimitLabel("30 req/min");
+        crm.setSandboxBaseUrl("https://sandbox.api.evanshine.me/open");
+        crm.setStatus("scaffold");
+        crm.getEvidence().add(buildEvidence("channel_bridge", "CRM-READONLY", "scaffold", "仅存在内部渠道 facade，未暴露企业开放 API", "", null));
+        crm.getNextActions().add(buildAction("publish_openapi_docs", "Publish OpenAPI docs", false, "待补沙箱文档与签名示例"));
+        return List.of(erp, crm);
+    }
+
+    @Override
+    public List<YyPlatformAsyncTaskVo> listAsyncTasks() {
+        List<YyAsyncTask> taskRows = safeList(yyAsyncTaskMapper.selectList(Wrappers.<YyAsyncTask>lambdaQuery()
+            .orderByDesc(YyAsyncTask::getCreateTime)));
+        if (!taskRows.isEmpty()) {
+            return buildAsyncTaskRows(taskRows);
+        }
+
+        YyPlatformAsyncTaskVo exportTask = new YyPlatformAsyncTaskVo();
+        exportTask.setTaskType("EXPORT");
+        exportTask.setTaskName("Order export queue");
+        exportTask.setQueueName("platform-export");
+        exportTask.setLatestRunStatus("NOT_CONNECTED");
+        exportTask.setRetentionPolicy("7 days");
+        exportTask.setStatus("scaffold");
+        exportTask.getEvidence().add(buildEvidence("export_scaffold", "platform-export", "scaffold", "当前导出仍由各 owner 直接处理，未进入统一任务中心", "", null));
+        exportTask.getNextActions().add(buildAction("bind_export_worker", "Bind export worker", false, "待补统一任务账本和下载过期策略"));
+
+        YyPlatformAsyncTaskVo mediaTask = new YyPlatformAsyncTaskVo();
+        mediaTask.setTaskType("MEDIA_PIPELINE");
+        mediaTask.setTaskName("Image process queue");
+        mediaTask.setQueueName("platform-media");
+        mediaTask.setLatestRunStatus("NOT_CONNECTED");
+        mediaTask.setRetentionPolicy("3 days");
+        mediaTask.setStatus("scaffold");
+        mediaTask.getEvidence().add(buildEvidence("photo_pipeline", "platform-media", "scaffold", "图片处理、通知和报表汇总缺少统一 worker 与失败重试", "", null));
+        mediaTask.getNextActions().add(buildAction("bind_retry_policy", "Bind retry policy", false, "待补失败重试和任务审计"));
+        return List.of(exportTask, mediaTask);
+    }
+
+    private List<YyPlatformAsyncTaskVo> buildAsyncTaskRows(List<YyAsyncTask> rows) {
+        Map<String, List<YyAsyncTask>> grouped = new LinkedHashMap<>();
+        for (YyAsyncTask row : rows) {
+            String taskType = StringUtils.defaultIfBlank(row.getTaskType(), "UNKNOWN");
+            grouped.computeIfAbsent(taskType, ignored -> new ArrayList<>()).add(row);
+        }
+        List<YyPlatformAsyncTaskVo> result = new ArrayList<>();
+        for (Map.Entry<String, List<YyAsyncTask>> entry : grouped.entrySet()) {
+            YyAsyncTask latest = entry.getValue().stream()
+                .max(Comparator.comparing(YyAsyncTask::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder())))
+                .orElse(entry.getValue().get(0));
+            YyPlatformAsyncTaskVo vo = new YyPlatformAsyncTaskVo();
+            vo.setTaskType(entry.getKey());
+            vo.setTaskName(StringUtils.defaultIfBlank(latest.getTaskName(), entry.getKey()));
+            vo.setQueueName(StringUtils.defaultIfBlank(latest.getQueueName(), "platform-export"));
+            vo.setLatestRunStatus(StringUtils.defaultIfBlank(latest.getRunStatus(), latest.getStatus()));
+            vo.setRetentionPolicy(resolveRetentionPolicy(latest));
+            vo.setStatus(taskCenterStatus(latest.getStatus()));
+            vo.getEvidence().add(buildEvidence(
+                "yy_async_task",
+                StringUtils.defaultString(latest.getTaskNo()),
+                StringUtils.defaultString(latest.getStatus()),
+                StringUtils.defaultIfBlank(latest.getAuditNote(), latest.getErrorMessage()),
+                "",
+                latest.getUpdateTime() == null ? latest.getCreateTime() : latest.getUpdateTime()
+            ));
+            vo.getNextActions().add(buildAction("open_task_detail", "Open task detail", false, "Task detail drawer is not implemented in this package"));
+            result.add(vo);
+        }
+        return result;
+    }
+
+    private static String resolveRetentionPolicy(YyAsyncTask task) {
+        if (task.getExpireTime() == null) {
+            return "not configured";
+        }
+        return "expires at " + task.getExpireTime();
+    }
+
+    private static String taskCenterStatus(String status) {
+        String normalized = normalizeCode(status);
+        if ("COMPLETED".equals(normalized) || "SUCCESS".equals(normalized)) {
+            return "ready";
+        }
+        if ("FAILED".equals(normalized) || "EXPIRED".equals(normalized) || "CANCELLED".equals(normalized)) {
+            return "retired";
+        }
+        return "scaffold";
     }
 
     @Override
@@ -135,6 +272,28 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
     }
 
     @Override
+    public List<YyPlatformBackupRecoveryVo> listBackupRecoveryPlans() {
+        YyPlatformBackupRecoveryVo primary = new YyPlatformBackupRecoveryVo();
+        primary.setPlanCode("PITR-PRIMARY");
+        primary.setPlanName("Primary DB PITR");
+        primary.setBackupScope("PostgreSQL + object storage");
+        primary.setRecoveryTarget("RPO <= 15m / RTO <= 4h");
+        primary.setStatus("scaffold");
+        primary.getEvidence().add(buildEvidence("deployment_doc", "backup-strategy", "scaffold", "仓库内有备份说明，但未建立恢复演练账本", "", null));
+        primary.getNextActions().add(buildAction("run_recovery_drill", "Run recovery drill", false, "待补恢复演练记录和告警"));
+
+        YyPlatformBackupRecoveryVo objectVersioning = new YyPlatformBackupRecoveryVo();
+        objectVersioning.setPlanCode("OSS-VERSIONING");
+        objectVersioning.setPlanName("Object versioning and lifecycle");
+        objectVersioning.setBackupScope("客片 OSS / 资源文件");
+        objectVersioning.setRecoveryTarget("Version history + lifecycle audit");
+        objectVersioning.setStatus("scaffold");
+        objectVersioning.getEvidence().add(buildEvidence("resource_owner", "oss-versioning", "scaffold", "对象版本化、生命周期和恢复证据未接线", "", null));
+        objectVersioning.getNextActions().add(buildAction("bind_object_versioning", "Bind object versioning", false, "待接对象存储版本化配置"));
+        return List.of(primary, objectVersioning);
+    }
+
+    @Override
     public List<YyPlatformServicePackageStatusVo> listServicePackages(Long storeId) {
         List<YyServiceLicenseBindingVo> licenses = safeList(yyServiceProductionService.queryLicenseBindings(storeId));
         if (licenses.isEmpty()) {
@@ -151,6 +310,28 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
             .sorted(Comparator.comparing(YyServiceLicenseBindingVo::getExpireTime, Comparator.nullsLast(Comparator.naturalOrder())))
             .map(this::mapLicense)
             .toList();
+    }
+
+    @Override
+    public List<YyPlatformMeituanReviewTraceVo> listMeituanReviewTraces() {
+        List<YyChannelAccountVo> accounts = safeList(yyChannelAccountService.queryList(new YyChannelAccountBo()));
+        List<YyChannelSyncLogVo> logs = safeList(yyChannelSyncLogService.queryList(new YyChannelSyncLogBo()));
+        YyChannelAccountVo meituanAccount = latestByChannel(accounts).get("MEITUAN");
+        YyChannelSyncLogVo meituanLog = latestLogByChannel(logs).get("MEITUAN");
+
+        YyPlatformMeituanReviewTraceVo trace = new YyPlatformMeituanReviewTraceVo();
+        trace.setPluginCode("MEITUAN_REVIEW_TRACE");
+        trace.setPluginName("Meituan negative-review trace");
+        trace.setReviewChannel("MEITUAN");
+        trace.setTraceStatus(meituanAccount == null ? "PLUGIN_NOT_OPENED" : "AUTH_READY_BUT_REVIEW_SYNC_MISSING");
+        trace.setLatestSyncTime(meituanLog == null ? null : meituanLog.getCreateTime());
+        trace.setStatus("scaffold");
+        trace.getEvidence().add(buildEvidence("yy_channel_account", "MEITUAN", meituanAccount == null ? "scaffold" : meituanAccount.getStatus(), meituanAccount == null ? "缺少美团插件授权 owner" : "已有美团账号授权骨架", "", meituanAccount == null ? null : meituanAccount.getUpdateTime()));
+        if (meituanLog != null) {
+            trace.getEvidence().add(buildEvidence("yy_channel_sync_log", meituanLog.getApiName(), meituanLog.getSuccess(), meituanLog.getErrorMessage(), meituanLog.getRequestId(), meituanLog.getCreateTime()));
+        }
+        trace.getNextActions().add(buildAction("bind_review_sync", "Bind review sync", false, "待接评价拉取、差评归因和处理工单"));
+        return List.of(trace);
     }
 
     private YyPlatformServicePackageStatusVo mapLicense(YyServiceLicenseBindingVo license) {

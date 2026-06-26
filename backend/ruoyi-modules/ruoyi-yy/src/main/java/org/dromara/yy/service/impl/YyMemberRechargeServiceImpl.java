@@ -3,6 +3,7 @@ package org.dromara.yy.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.exception.ServiceException;
@@ -23,6 +24,7 @@ import org.dromara.yy.mapper.YyMemberAccountMapper;
 import org.dromara.yy.mapper.YyMemberBalanceLedgerMapper;
 import org.dromara.yy.mapper.YyMemberRechargeOrderMapper;
 import org.dromara.yy.service.IYyMemberRechargeService;
+import org.dromara.yy.service.IYyRiskApprovalService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ import java.util.Set;
 @Service
 public class YyMemberRechargeServiceImpl implements IYyMemberRechargeService {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final BigDecimal ZERO = BigDecimal.ZERO;
     private static final String ACCOUNT_STATUS_ACTIVE = "ACTIVE";
     private static final String DEFAULT_MEMBER_LEVEL = "NORMAL";
@@ -57,6 +60,7 @@ public class YyMemberRechargeServiceImpl implements IYyMemberRechargeService {
     private final YyMemberAccountMapper memberAccountMapper;
     private final YyMemberBalanceLedgerMapper memberBalanceLedgerMapper;
     private final YyMemberRechargeOrderMapper memberRechargeOrderMapper;
+    private final IYyRiskApprovalService riskApprovalService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -80,8 +84,12 @@ public class YyMemberRechargeServiceImpl implements IYyMemberRechargeService {
         order.setRemark(StringUtils.trimToEmpty(bo.getRemark()));
         memberRechargeOrderMapper.insert(order);
 
+        Long approvalId = createApprovalIfRequired(order, customerId);
+
         upsertAccountForPending(customer, account, resolvedStoreId);
-        return mapRechargeOrder(order, account == null ? ZERO : defaultMoney(account.getBalanceAmount()));
+        YyMemberRechargeOrderVo vo = mapRechargeOrder(order, account == null ? ZERO : defaultMoney(account.getBalanceAmount()));
+        vo.setApprovalId(approvalId);
+        return vo;
     }
 
     @Override
@@ -237,6 +245,34 @@ public class YyMemberRechargeServiceImpl implements IYyMemberRechargeService {
 
     private BigDecimal creditedAmount(YyMemberRechargeOrder order) {
         return defaultMoney(order.getRechargeAmount()).add(defaultMoney(order.getGiftAmount()));
+    }
+
+    private Long createApprovalIfRequired(YyMemberRechargeOrder order, Long customerId) {
+        if (!StringUtils.equals(order.getStatus(), ORDER_STATUS_PENDING_APPROVAL)) {
+            return null;
+        }
+        return riskApprovalService.createPending(new IYyRiskApprovalService.CreateRiskApprovalCommand(
+            order.getStoreId(),
+            IYyRiskApprovalService.BUSINESS_MEMBER_RECHARGE_CONFIRM,
+            order.getId(),
+            order.getRechargeOrderNo(),
+            "Member recharge requires approval",
+            StringUtils.defaultIfBlank(order.getRemark(), "member recharge requires approval"),
+            toJson(Map.of(
+                "rechargeOrderId", order.getId(),
+                "customerId", customerId,
+                "rechargeAmount", order.getRechargeAmount(),
+                "giftAmount", order.getGiftAmount()
+            ))
+        )).getId();
+    }
+
+    private static String toJson(Object value) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(value);
+        } catch (Exception ignored) {
+            return "{}";
+        }
     }
 
     private int normalizeLimit(int limit) {

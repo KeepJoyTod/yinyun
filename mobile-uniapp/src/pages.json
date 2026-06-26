@@ -41,6 +41,14 @@
       }
     },
     {
+      "path": "pages/reviews/index",
+      "style": {
+        "navigationBarTitleText": "服务评价",
+        "navigationBarBackgroundColor": "#f5f9ff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/customer/orders/index",
       "style": {
         "navigationBarTitleText": "订单",

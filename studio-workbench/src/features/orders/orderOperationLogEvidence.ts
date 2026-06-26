@@ -5,30 +5,24 @@ import type { OrderPhotoDeliveryStage } from './orderPhotoDeliveryOperations'
 import { isCancelledOrder, isCompletedOrder, getNextOrderHint, isRefundedOrder } from './orderStatusOperations'
 import { isDouyinLifeOrder } from '../../shared/stores/orderIssueRules'
 import type { OrderDetailTimelineItem, OrderOperationEvidenceCard, OrderSourceContext } from './orderOperationEvidenceTypes'
-
 export type { OrderDetailTimelineItem, OrderOperationEvidenceCard, OrderSourceContext } from './orderOperationEvidenceTypes'
-
 const toTimelineToneFromStatus = (order: BookingOrder): OrderDetailTimelineItem['tone'] => {
   if (isCancelledOrder(order) || isRefundedOrder(order)) return 'danger'
   if (isCompletedOrder(order)) return 'done'
   return 'pending'
 }
-
 const toTimelineToneFromCancelGuidance = (guidance: { tone: 'danger' | 'warn' | 'neutral' }): OrderDetailTimelineItem['tone'] => {
   if (guidance.tone === 'danger') return 'danger'
   if (guidance.tone === 'warn') return 'warn'
   return 'neutral'
 }
-
 const toTimelineToneFromPhotoStage = (stage: OrderPhotoDeliveryStage): OrderDetailTimelineItem['tone'] => {
   if (stage.key === 'DELIVERED') return 'done'
   if (stage.key === 'NO_ALBUM') return 'neutral'
   return 'pending'
 }
-
 const formatCentAmount = (value: number | undefined) =>
   ((Number(value) || 0) / 100).toFixed(2)
-
 const isRefundChannelSyncLog = (log: ChannelSyncLogInfo) =>
   /refund|退款/i.test([log.apiName, log.requestId, log.errorMessage, log.remark].join('\n'))
 
@@ -54,12 +48,9 @@ const buildOrderRefundTimelineItem = (
     tone: 'danger',
   }
 }
-
 const firstMatch = (value: string, pattern: RegExp) => value.match(pattern)?.[1]?.trim() ?? ''
-
 const compactDetails = (details: Array<string | undefined>) =>
   details.map(value => value?.trim() ?? '').filter(Boolean)
-
 const getOrderChannelType = (order: BookingOrder) =>
   String(order.channelType || order.source || '').trim()
 
@@ -156,12 +147,13 @@ const hasOrderOperationPath = (value: string, backendId: string) => {
   return [
     new RegExp(`/yy/order/${id}/transition\\b`, 'i'),
     new RegExp(`/yy/order/${id}/reschedule\\b`, 'i'),
+    new RegExp(`/yy/order/${id}/copy\\b`, 'i'),
     new RegExp(`/yy/order/${id}/photo-album-placeholder\\b`, 'i'),
   ].some(pattern => pattern.test(value))
 }
 
 const isOrderOperationEndpoint = (value: string) =>
-  /\/yy\/order\/(?:staff-booking|\d+\/(?:transition|reschedule|photo-album-placeholder))/i.test(value)
+  /\/yy\/order\/(?:staff-booking|\d+\/(?:transition|reschedule|copy|photo-album-placeholder))/i.test(value)
   || /\/yy\/photoAlbum\/\d+\/(?:notify|selection\/confirm|deliver)/i.test(value)
 
 const toOperationTimestamp = (value: string) => {
@@ -227,6 +219,7 @@ const formatOrderOperationAction = (log: OperationLogInfo) => {
   const value = `${log.action} ${log.url}`.toLowerCase()
   const payload = getOrderOperationPayload(log)
   const targetStatus = payloadText(payload, 'targetStatus')
+  if (value.includes('/copy')) return '复制订单'
   if (value.includes('/transition') && targetStatus.toUpperCase() === 'CANCELLED') return '取消预约'
   if (value.includes('/transition') && targetStatus.toUpperCase() === 'REFUNDED') return '退单'
   if (value.includes('/reschedule')) return '改期'
@@ -250,6 +243,11 @@ const buildOrderOperationLogHint = (log: OperationLogInfo) => {
 
   const targetStatus = payloadText(payload, 'targetStatus')
   if (targetStatus) parts.push(`目标状态：${toBackendStatusLabel(targetStatus)}`)
+
+  const scheduleMode = payloadText(payload, 'scheduleMode')
+  if (scheduleMode) {
+    parts.push(`复制方式：${scheduleMode === 'UNDECIDED' ? '待定档期' : '复用原时段'}`)
+  }
 
   const slotDate = payloadText(payload, 'slotDate')
   const slotStartTime = payloadText(payload, 'slotStartTime')
@@ -275,6 +273,11 @@ const buildOrderOperationPrimaryDetail = (log: OperationLogInfo) => {
   const slotEndTime = payloadText(payload, 'slotEndTime')
   if (slotDate || slotStartTime) {
     return `目标时段：${[slotDate, [slotStartTime, slotEndTime].filter(Boolean).join('-')].filter(Boolean).join(' ')}`
+  }
+
+  const scheduleMode = payloadText(payload, 'scheduleMode')
+  if (scheduleMode) {
+    return `复制方式：${scheduleMode === 'UNDECIDED' ? '待定档期' : '复用原时段'}`
   }
 
   const albumId = payloadText(payload, 'albumId')

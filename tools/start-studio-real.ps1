@@ -75,6 +75,46 @@ function Assert-Command {
     return $cmd.Source
 }
 
+function Get-FrontendToolchain {
+    $preferredRoot = 'C:\nvm4w\nodejs'
+    $preferredNode = Join-Path $preferredRoot 'node.exe'
+    $preferredNpm = Join-Path $preferredRoot 'npm.cmd'
+
+    if ((Test-Path -LiteralPath $preferredNode) -and (Test-Path -LiteralPath $preferredNpm)) {
+        $nodePath = $preferredNode
+        $npmPath = $preferredNpm
+    } else {
+        $nodePath = Assert-Command node
+        $npmCommand = Assert-Command npm
+        $npmPath = if ($npmCommand.EndsWith('.ps1', [System.StringComparison]::OrdinalIgnoreCase)) {
+            $candidate = [System.IO.Path]::ChangeExtension($npmCommand, '.cmd')
+            if (Test-Path -LiteralPath $candidate) { $candidate } else { $npmCommand }
+        } else {
+            $npmCommand
+        }
+    }
+
+    $nodeVersionText = (& $nodePath -v 2>$null | Select-Object -First 1)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($nodeVersionText)) {
+        throw "Failed to read Node.js version from $nodePath"
+    }
+
+    $nodeVersion = [version]($nodeVersionText.Trim().TrimStart('v'))
+    $supportsVite = (($nodeVersion.Major -eq 20 -and $nodeVersion -ge [version]'20.19.0') -or
+        ($nodeVersion.Major -eq 22 -and $nodeVersion -ge [version]'22.12.0') -or
+        ($nodeVersion.Major -gt 22))
+    if (-not $supportsVite) {
+        throw "Frontend requires Node.js 20.19+ or 22.12+. Resolved Node.js $nodeVersionText from $nodePath"
+    }
+
+    [pscustomobject]@{
+        Root        = Split-Path -Parent $nodePath
+        NodePath    = $nodePath
+        NpmPath     = $npmPath
+        NodeVersion = $nodeVersionText.Trim()
+    }
+}
+
 function Test-DockerReady {
     docker version --format '{{.Server.Version}}' 2>$null | Out-Null
     return $LASTEXITCODE -eq 0
@@ -268,13 +308,14 @@ function Ensure-BackendJar {
 }
 
 function Ensure-FrontendDependencies {
+    $frontendToolchain = Get-FrontendToolchain
     $nodeModules = Join-Path $StudioRoot 'node_modules'
     if (Test-Path -LiteralPath $nodeModules) {
+        Write-Step "Frontend toolchain: Node.js $($frontendToolchain.NodeVersion) via $($frontendToolchain.NodePath)"
         return
     }
-    Assert-Command npm | Out-Null
-    Write-Step 'Frontend dependencies not found; running npm ci...'
-    & npm --prefix $StudioRoot ci
+    Write-Step "Frontend dependencies not found; running npm ci with Node.js $($frontendToolchain.NodeVersion)..."
+    & $frontendToolchain.NpmPath --prefix $StudioRoot ci
     if ($LASTEXITCODE -ne 0) {
         throw 'npm ci failed.'
     }
@@ -344,12 +385,17 @@ function Start-Frontend {
     }
 
     Ensure-FrontendDependencies
-    Assert-Command npm | Out-Null
+    $frontendToolchain = Get-FrontendToolchain
+    Write-Step "Starting frontend with Node.js $($frontendToolchain.NodeVersion) via $($frontendToolchain.NodePath)"
+    if (-not [string]::IsNullOrWhiteSpace($frontendToolchain.Root)) {
+        $pathEntries = @($env:PATH -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        $filteredEntries = @($pathEntries | Where-Object { $_.TrimEnd('\') -ne $frontendToolchain.Root.TrimEnd('\') })
+        $env:PATH = ($frontendToolchain.Root, $filteredEntries -join ';') -join ';'
+    }
 
     Remove-Item -LiteralPath $FrontendOutLog, $FrontendErrLog -ErrorAction SilentlyContinue
-    $command = "npm --prefix `"$StudioRoot`" run dev"
-    $process = Start-Process -FilePath 'cmd.exe' `
-        -ArgumentList @('/c', $command) `
+    $process = Start-Process -FilePath $frontendToolchain.NpmPath `
+        -ArgumentList @('--prefix', $StudioRoot, 'run', 'dev') `
         -WorkingDirectory $RepoRoot `
         -RedirectStandardOutput $FrontendOutLog `
         -RedirectStandardError $FrontendErrLog `

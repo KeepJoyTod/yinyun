@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import modalSource from './StaffBookingModal.vue?raw'
+import stateSource from './useStaffBookingModalState.ts?raw'
 import operationsSource from './staffBookingModalOperations.ts?raw'
 
-const modalContractSource = `${modalSource}\n${operationsSource}`
+const modalOwnerSource = `${modalSource}\n${stateSource}`
+const modalContractSource = `${modalOwnerSource}\n${operationsSource}`
 
 describe('staff booking modal contract', () => {
   it('collects the required staff appointment fields and submits through appStore.createOrder', () => {
@@ -26,8 +28,8 @@ describe('staff booking modal contract', () => {
     expect(modalSource).toContain('订单状态')
     expect(modalSource).toContain('返回')
     expect(modalSource).toContain('保存并接待')
-    expect(modalSource).toContain('appStore.createOrder')
-    expect(modalSource).toContain('buildStaffOrderCreateInput(draft')
+    expect(stateSource).toContain('appStore.createOrder')
+    expect(stateSource).toContain('buildStaffOrderCreateInput(draft')
     expect(operationsSource).toContain('gender: draft.gender')
     expect(operationsSource).toContain('email: draft.email')
     expect(operationsSource).toContain('customerId: draft.customerId')
@@ -61,59 +63,59 @@ describe('staff booking modal contract', () => {
     expect(modalContractSource).toContain('initial?.endTime')
     expect(modalContractSource).toContain('initial?.startTime')
     expect(modalContractSource).toContain('durationMinutes: deriveInitialDurationMinutes(initial, group?.durationMinutes || 30)')
-    expect(modalSource).toContain('const slotEndTime = computed(() => normalizeClock(addMinutesToClock(draft.date, draft.startTime, Number(draft.durationMinutes) || 30)))')
+    expect(stateSource).toContain('const slotEndTime = computed(() => normalizeClock(addMinutesToClock(draft.date, draft.startTime, Number(draft.durationMinutes) || 30)))')
     expect(modalContractSource).not.toContain("props.initial?.endTime || addMinutesToClock")
   })
 
   it('checks slot inventory before saving scheduled bookings and redirects blocked slots to inventory', () => {
     expect(modalSource).toContain('useRouter')
-    expect(modalSource).toContain('await appStore.loadBookingInventory({')
-    expect(modalSource).toContain('findBlockedInventorySlot(inventorySlots')
+    expect(stateSource).toContain('await appStore.loadBookingInventory({')
+    expect(stateSource).toContain('findBlockedInventorySlot(inventorySlots')
     expect(operationsSource).toContain('const blockedSlot = inventorySlots.find(slot =>')
     expect(operationsSource).toContain('slot.confirmedCount >= slot.capacity')
     expect(operationsSource).toContain('slot.conflictCount > 0')
-    expect(modalSource).toContain("path: '/merchant/inventory'")
-    expect(modalSource).toContain("slotStart: draft.startTime")
-    expect(modalSource).toContain('slotEnd: slotEndTime.value')
-    expect(modalSource).toContain("returnTo: 'staffBooking'")
-    expect(modalSource).toContain("errorMessage.value = '当前时段已满或存在冲突，请先去库存页处理后再返回录入。'")
+    expect(stateSource).toContain("path: '/merchant/inventory'")
+    expect(stateSource).toContain("slotStart: draft.startTime")
+    expect(stateSource).toContain('slotEnd: slotEndTime.value')
+    expect(stateSource).toContain("returnTo: 'staffBooking'")
+    expect(stateSource).toContain("errorMessage.value = '当前时段已满或存在冲突，请先去库存页处理后再返回录入。'")
   })
 
   it('loads service groups before resetting the draft when opened from a cold route', () => {
-    expect(modalSource).toContain('ensureStaffBookingResources')
-    expect(modalSource).toContain('if (!appStore.serviceGroups.length) await appStore.loadServiceGroups()')
-    expect(modalSource).toContain('if (!props.open) return')
-    expect(modalSource).toContain('resetDraft()')
-    expect(modalSource).toContain('{ immediate: true }')
+    expect(stateSource).toContain('ensureStaffBookingResources')
+    expect(stateSource).toContain('if (!appStore.serviceGroups.length) await appStore.loadServiceGroups()')
+    expect(stateSource).toContain('if (!props.open) return')
+    expect(stateSource).toContain('resetDraft()')
+    expect(stateSource).toContain('{ immediate: true }')
   })
 
   it('applies initial customer fields immediately before async resources finish loading', () => {
-    const openWatcherStart = modalSource.indexOf('watch(() => props.open')
-    const initialWatcherStart = modalSource.indexOf('watch(() => props.initial')
+    const openWatcherStart = stateSource.indexOf('watch(() => props.open')
+    const initialWatcherStart = stateSource.indexOf('watch(() => props.initial')
     expect(openWatcherStart).toBeGreaterThan(-1)
     expect(initialWatcherStart).toBeGreaterThan(-1)
-    const openWatcher = modalSource.slice(openWatcherStart, initialWatcherStart)
-    const initialWatcher = modalSource.slice(initialWatcherStart, modalSource.indexOf('watch(selectedServiceGroup', initialWatcherStart))
+    const openWatcher = stateSource.slice(openWatcherStart, initialWatcherStart)
+    const initialWatcher = stateSource.slice(initialWatcherStart, stateSource.indexOf('watch(selectedServiceGroup', initialWatcherStart))
     expect(openWatcher.indexOf('resetDraft()')).toBeLessThan(openWatcher.indexOf('await ensureStaffBookingResources()'))
     expect(initialWatcher.indexOf('resetDraft()')).toBeLessThan(initialWatcher.indexOf('await ensureStaffBookingResources()'))
   })
 
   it('keeps an incoming service group selectable even if store scope is still settling', () => {
-    expect(modalSource).toContain('const scoped = appStore.serviceGroups.filter')
-    expect(modalSource).toContain('draft.serviceGroupId')
-    expect(modalSource).toContain('appStore.serviceGroups.find(item => item.backendId === draft.serviceGroupId)')
-    expect(modalSource).toContain('return [selected, ...scoped]')
+    expect(stateSource).toContain('const scoped = appStore.serviceGroups.filter')
+    expect(stateSource).toContain('draft.serviceGroupId')
+    expect(stateSource).toContain('appStore.serviceGroups.find(item => item.backendId === draft.serviceGroupId)')
+    expect(stateSource).toContain('return [selected, ...scoped]')
   })
 
   it('re-applies async micro-form initial values while the modal is already open', () => {
-    expect(modalSource).toContain('watch(() => props.initial')
-    expect(modalSource).toContain('if (!props.open || !initial) return')
-    expect(modalSource).toContain('await ensureStaffBookingResources()')
-    expect(modalSource).toContain('resetDraft()')
+    expect(stateSource).toContain('watch(() => props.initial')
+    expect(stateSource).toContain('if (!props.open || !initial) return')
+    expect(stateSource).toContain('await ensureStaffBookingResources()')
+    expect(stateSource).toContain('resetDraft()')
   })
 
   it('keeps booking validation and inventory math in the operations owner instead of the modal view', () => {
-    expect(modalSource).toContain('validateStaffBookingDraft(draft')
+    expect(stateSource).toContain('validateStaffBookingDraft(draft')
     expect(operationsSource).toContain('export const validateStaffBookingDraft')
     expect(operationsSource).toContain('export const buildStaffBookingDraftDefaults')
     expect(operationsSource).toContain('export const buildStaffOrderCreateInput')

@@ -10,6 +10,7 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.yy.domain.YyOrder;
+import java.util.List;
 import java.util.Date;
 
 /**
@@ -31,13 +32,13 @@ public class YyOrderBo extends BaseEntity {
     @NotNull(message = "主键不能为空", groups = { EditGroup.class })
     private Long id;
 
-    @NotNull(message = "门店ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "门店ID不能为空", groups = { AddGroup.class })
     /**
      * 门店ID
      */
     private Long storeId;
 
-    @NotBlank(message = "订单编号不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "订单编号不能为空", groups = { AddGroup.class })
     /**
      * 订单编号
      */
@@ -199,6 +200,16 @@ public class YyOrderBo extends BaseEntity {
      * 库存冲突原因
      */
     private String conflictReason;
+
+    /**
+     * 订单属性快照和值
+     */
+    private String orderAttributeJson;
+
+    /**
+     * 订单属性结构化值
+     */
+    private List<YyOrderAttributeValueBo> orderAttributes;
 
     /**
      * 渠道外部状态

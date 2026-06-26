@@ -13,6 +13,7 @@ const makeGroup = (overrides: Partial<ServiceGroupInfo> = {}): ServiceGroupInfo 
   name: '证件照快拍组',
   capacity: 6,
   durationMinutes: 30,
+  serviceMode: 'HORIZONTAL',
   status: 'ACTIVE',
   sort: 10,
   remark: '',

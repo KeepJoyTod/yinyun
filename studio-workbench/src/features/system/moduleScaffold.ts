@@ -29,6 +29,10 @@ export type ModuleScaffoldConfig = {
   contracts: string[]
   apis: string[]
   ledgers: string[]
+  inventoryCodes?: string[]
+  acceptanceLabel?: string
+  boundaryNotes?: string[]
+  nextActions?: string[]
   ownerLayers?: ModuleScaffoldOwnerLayers
 }
 
@@ -36,6 +40,10 @@ export type ModuleScaffoldViewModel = ModuleScaffoldConfig & {
   phase: ModuleScaffoldPhase
   ownerStatus: WorkbenchFeatureStatus
   ownerLayers: ModuleScaffoldOwnerLayers
+  inventoryCodes: string[]
+  acceptanceLabel: string
+  boundaryNotes: string[]
+  nextActions: string[]
   permissionCode: string
   runtimeStatus: WorkbenchFeatureRuntimeStatus
   accessState: string
@@ -58,6 +66,8 @@ const emptyOwnerLayers: ModuleScaffoldOwnerLayers = {
   data: [],
 }
 
+const defaultAcceptanceLabel = '脚手架验收完成 / 待真实验收'
+
 const resolveAccessState = (featureKey: string, runtimeStatus: WorkbenchFeatureRuntimeStatus) => {
   const feature = getWorkbenchFeature(featureKey)
   if (!studioAccessStore.initialized) return '待加载门禁'
@@ -77,6 +87,10 @@ export const useModuleScaffold = (config: ModuleScaffoldConfig) => computed<Modu
     phase: config.phase ?? 'Phase 0',
     ownerStatus: config.ownerStatus ?? feature?.status ?? 'building',
     ownerLayers: config.ownerLayers ?? emptyOwnerLayers,
+    inventoryCodes: config.inventoryCodes ?? [],
+    acceptanceLabel: config.acceptanceLabel ?? defaultAcceptanceLabel,
+    boundaryNotes: config.boundaryNotes ?? [],
+    nextActions: config.nextActions ?? [],
     permissionCode: feature?.permission ?? '',
     runtimeStatus,
     accessState: resolveAccessState(config.featureKey, runtimeStatus),

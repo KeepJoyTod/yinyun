@@ -308,10 +308,17 @@ export const merchantContentApi = {
     const row = await getData<Record<string, any>>(`/yy/microFormSubmission/${id}`)
     return mapMicroFormSubmissionRow(row)
   },
-  async exportMicroFormSubmissions(query: { formId?: BackendId }): Promise<BlobResponse> {
+  async exportMicroFormSubmissions(query: MicroFormSubmissionQuery = {}): Promise<BlobResponse> {
+    const params = new URLSearchParams()
+    if (query.formId !== undefined && query.formId !== null && query.formId !== '') params.set('formId', String(query.formId))
+    if (query.formNameSnapshot) params.set('formNameSnapshot', query.formNameSnapshot)
+    if (query.customerName) params.set('customerName', query.customerName)
+    if (query.customerPhone) params.set('customerPhone', query.customerPhone)
+    if (query.followStatus) params.set('followStatus', query.followStatus)
     return apiRequestBlob('/yy/microFormSubmission/export', {
       method: 'POST',
-      body: JSON.stringify({ formId: query.formId }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
     })
   },
   async updateMicroFormSubmissionFollow(payload: MicroFormSubmissionFollowPayload) {

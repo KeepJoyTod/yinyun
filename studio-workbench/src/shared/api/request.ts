@@ -35,6 +35,7 @@ export type BlobResponse = {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const TOKEN_KEY = 'yingyue_studio_workbench_access_token'
+const STAFF_SESSION_KEY = 'yingyue_studio_workbench_staff_session'
 const LEGACY_USERNAME_KEY = 'yingyue_studio_legacy_username'
 const LEGACY_PASSWORD_KEY = 'yingyue_studio_legacy_password'
 const DEFAULT_RUOYI_CLIENT_ID = 'e5cd7e4891bf95d1d19206ce24a7b32e'
@@ -117,6 +118,25 @@ export const clearApiToken = () => {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+const clearWorkbenchAuth = () => {
+  clearApiToken()
+  localStorage.removeItem(STAFF_SESSION_KEY)
+}
+
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return
+  const { pathname, search, hash } = window.location
+  if (pathname === '/login') return
+  const redirect = `${pathname}${search}${hash}`
+  window.location.assign(`/login?redirect=${encodeURIComponent(redirect)}`)
+}
+
+const handleUnauthorized = () => {
+  clearWorkbenchAuth()
+  redirectToLogin()
+  throw new Error('认证已过期，请重新登录')
+}
+
 export const getStoredApiToken = () =>
   localStorage.getItem(TOKEN_KEY) ||
   localStorage.getItem('Admin-Token') ||
@@ -126,7 +146,6 @@ export const apiRequest = async <T>(
   path: string,
   init: RequestInit = {},
   query?: Record<string, string | number | boolean | null | undefined>,
-  retried = false,
 ): Promise<T> => {
   const headers = new Headers(init.headers)
   const isFormData = init.body instanceof FormData
@@ -140,10 +159,7 @@ export const apiRequest = async <T>(
   if (clientId) headers.set('clientid', clientId)
 
   const response = await fetch(buildUrl(path, query), { ...init, headers })
-  if (response.status === 401 && !retried) {
-    clearApiToken()
-    return apiRequest(path, init, query, true)
-  }
+  if (response.status === 401) handleUnauthorized()
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`)
   }
@@ -159,7 +175,6 @@ export const apiRequestRaw = async <T>(
   path: string,
   init: RequestInit = {},
   query?: Record<string, string | number | boolean | null | undefined>,
-  retried = false,
 ): Promise<T> => {
   const headers = new Headers(init.headers)
   const isFormData = init.body instanceof FormData
@@ -173,10 +188,7 @@ export const apiRequestRaw = async <T>(
   if (clientId) headers.set('clientid', clientId)
 
   const response = await fetch(buildUrl(path, query), { ...init, headers })
-  if (response.status === 401 && !retried) {
-    clearApiToken()
-    return apiRequestRaw(path, init, query, true)
-  }
+  if (response.status === 401) handleUnauthorized()
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`)
   }
@@ -200,7 +212,6 @@ export const apiRequestBlob = async (
   path: string,
   init: RequestInit = {},
   query?: Record<string, string | number | boolean | null | undefined>,
-  retried = false,
 ): Promise<BlobResponse> => {
   const headers = new Headers(init.headers)
   const isFormData = init.body instanceof FormData
@@ -214,10 +225,7 @@ export const apiRequestBlob = async (
   if (clientId) headers.set('clientid', clientId)
 
   const response = await fetch(buildUrl(path, query), { ...init, headers })
-  if (response.status === 401 && !retried) {
-    clearApiToken()
-    return apiRequestBlob(path, init, query, true)
-  }
+  if (response.status === 401) handleUnauthorized()
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`)
   }
