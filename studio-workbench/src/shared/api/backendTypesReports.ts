@@ -97,6 +97,8 @@ export type ReportFinanceExportTaskDto = {
   finishedTime: string
   expireTime: string
   downloadUrl: string
+  fileName: string
+  errorMessage: string
   auditNote: string
 }
 

@@ -57,6 +57,7 @@
             type="button"
             :disabled="!action.enabled"
             :title="action.reason"
+            @click="$emit('action', { itemId: item.id, actionKey: action.actionKey })"
           >
             {{ action.label }}
           </button>
@@ -82,6 +83,7 @@ defineProps<{
 
 defineEmits<{
   reload: []
+  action: [{ itemId: string; actionKey: string }]
 }>()
 
 const statusLabel = (status: PlatformScaffoldStatus) => {

@@ -1,4 +1,4 @@
-import { apiRequest, apiRequestRaw } from './request'
+import { apiRequest, apiRequestBlob, apiRequestRaw, type BlobResponse } from './request'
 import { pageQuery } from './backendQueryMappers'
 import { mapReportSnapshotRow } from './backendRowMappers'
 import { extractRuoyiRows, type RuoyiTableResponse } from './yingyueAdapter'
@@ -72,6 +72,9 @@ export const reportsApi = {
     if (demoMode()) return []
     const response = await apiRequest<Record<string, unknown>[]>('/yy/reportFinanceReconciliation/export/tasks', {}, financeQueryParams(query))
     return (response ?? []).map(item => mapReportFinanceExportTask(item))
+  },
+  async downloadReportFinanceExportTask(taskId: string): Promise<BlobResponse> {
+    return apiRequestBlob(`/yy/reportFinanceReconciliation/export/tasks/${encodeURIComponent(taskId)}/download`)
   },
 }
 
@@ -210,6 +213,8 @@ const mapReportFinanceExportTask = (row: Record<string, unknown>): ReportFinance
   finishedTime: text(row.finishedTime),
   expireTime: text(row.expireTime),
   downloadUrl: text(row.downloadUrl),
+  fileName: text(row.fileName),
+  errorMessage: text(row.errorMessage),
   auditNote: text(row.auditNote),
 })
 
@@ -239,5 +244,7 @@ const buildDemoFinanceExportTask = (query: ReportFinanceReconciliationQuery): Re
   finishedTime: new Date().toISOString(),
   expireTime: '',
   downloadUrl: '',
+  fileName: '',
+  errorMessage: '',
   auditNote: 'demo export task',
 })

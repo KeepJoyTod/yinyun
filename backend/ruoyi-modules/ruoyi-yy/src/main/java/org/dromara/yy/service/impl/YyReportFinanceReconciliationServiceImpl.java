@@ -1,10 +1,13 @@
 package org.dromara.yy.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.yy.domain.YyCompositePaymentOrder;
-import org.dromara.yy.domain.YyAsyncTask;
+import org.dromara.yy.domain.YyEmployee;
+import org.dromara.yy.domain.YyEmployeeStore;
 import org.dromara.yy.domain.YyEntitlementReservation;
 import org.dromara.yy.domain.YyMemberBalanceLedger;
 import org.dromara.yy.domain.YyMemberWithdrawOrder;
@@ -12,18 +15,21 @@ import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.YyPaymentRecord;
 import org.dromara.yy.domain.YyStoredValueConsumeOrder;
 import org.dromara.yy.domain.vo.YyReportFinanceDifferenceVo;
+import org.dromara.yy.domain.vo.YyReportFinanceExportPayloadVo;
 import org.dromara.yy.domain.vo.YyReportFinanceExportTaskVo;
 import org.dromara.yy.domain.vo.YyReportFinanceLedgerLineVo;
 import org.dromara.yy.domain.vo.YyReportFinanceOverviewVo;
 import org.dromara.yy.domain.vo.YyReportFinanceReconciliationVo;
 import org.dromara.yy.mapper.YyCompositePaymentOrderMapper;
-import org.dromara.yy.mapper.YyAsyncTaskMapper;
+import org.dromara.yy.mapper.YyEmployeeMapper;
+import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyEntitlementReservationMapper;
 import org.dromara.yy.mapper.YyMemberBalanceLedgerMapper;
 import org.dromara.yy.mapper.YyMemberWithdrawOrderMapper;
 import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPaymentRecordMapper;
 import org.dromara.yy.mapper.YyStoredValueConsumeOrderMapper;
+import org.dromara.yy.service.IYyAsyncTaskService;
 import org.dromara.yy.service.IYyReportFinanceReconciliationService;
 import org.dromara.yy.service.dashboard.YyDashboardDomainSupport;
 import org.springframework.stereotype.Service;
@@ -36,14 +42,14 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanceReconciliationService {
@@ -53,8 +59,6 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
     private static final Set<String> REFUND_STATUSES = Set.of("REFUNDING", "REFUNDED", "FULL_REFUNDED", "PARTIAL_REFUNDED");
     private static final Set<String> CONFIRMED_STATUSES = Set.of("CONFIRMED", "PAID", "SUCCESS", "DONE", "SETTLED");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final Map<String, YyReportFinanceExportTaskVo> EXPORT_TASKS = new ConcurrentHashMap<>();
-    private static final String FINANCE_EXPORT_TASK_TYPE = "REPORT_FINANCE_RECONCILIATION_EXPORT";
 
     private final YyOrderMapper yyOrderMapper;
     private final YyPaymentRecordMapper yyPaymentRecordMapper;
@@ -63,7 +67,9 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
     private final YyMemberWithdrawOrderMapper memberWithdrawOrderMapper;
     private final YyMemberBalanceLedgerMapper memberBalanceLedgerMapper;
     private final YyEntitlementReservationMapper entitlementReservationMapper;
-    private final YyAsyncTaskMapper asyncTaskMapper;
+    private final IYyAsyncTaskService asyncTaskService;
+    private final YyEmployeeMapper employeeMapper;
+    private final YyEmployeeStoreMapper employeeStoreMapper;
 
     public YyReportFinanceReconciliationServiceImpl(
         YyOrderMapper yyOrderMapper,
@@ -73,7 +79,9 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
         YyMemberWithdrawOrderMapper memberWithdrawOrderMapper,
         YyMemberBalanceLedgerMapper memberBalanceLedgerMapper,
         YyEntitlementReservationMapper entitlementReservationMapper,
-        YyAsyncTaskMapper asyncTaskMapper
+        IYyAsyncTaskService asyncTaskService,
+        YyEmployeeMapper employeeMapper,
+        YyEmployeeStoreMapper employeeStoreMapper
     ) {
         this.yyOrderMapper = yyOrderMapper;
         this.yyPaymentRecordMapper = yyPaymentRecordMapper;
@@ -82,13 +90,29 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
         this.memberWithdrawOrderMapper = memberWithdrawOrderMapper;
         this.memberBalanceLedgerMapper = memberBalanceLedgerMapper;
         this.entitlementReservationMapper = entitlementReservationMapper;
-        this.asyncTaskMapper = asyncTaskMapper;
+        this.asyncTaskService = asyncTaskService;
+        this.employeeMapper = employeeMapper;
+        this.employeeStoreMapper = employeeStoreMapper;
     }
 
     @Override
     public YyReportFinanceReconciliationVo queryOverview(Long storeId, String dateFrom, String dateTo) {
         DateRange range = normalizeDateRange(dateFrom, dateTo);
-        FinanceRows rows = loadRows(storeId, range);
+        FinanceRows rows = loadRows(resolveStoreSelection(storeId), range);
+        return buildReconciliation(rows, range.dateFrom(), range.dateTo(), storeId);
+    }
+
+    @Override
+    public YyReportFinanceReconciliationVo queryOverviewForExportTask(YyReportFinanceExportPayloadVo payload) {
+        if (payload == null) {
+            throw new ServiceException("export payload cannot be empty");
+        }
+        DateRange range = normalizeDateRange(payload.getDateFrom(), payload.getDateTo());
+        FinanceRows rows = loadRows(resolvePayloadSelection(payload), range);
+        return buildReconciliation(rows, range.dateFrom(), range.dateTo(), payload.getRequestedStoreId());
+    }
+
+    private YyReportFinanceReconciliationVo buildReconciliation(FinanceRows rows, String dateFrom, String dateTo, Long storeId) {
 
         long orderAmountCent = rows.orders().stream().mapToLong(order -> valueOrZero(order.getTotalAmountCent())).sum();
         long orderPaidCent = rows.orders().stream().mapToLong(order -> paidAmountFromOrder(order)).sum();
@@ -121,131 +145,154 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
         vo.setOrderLedgers(buildOrderLedgers(rows, orderAmountCent, orderPaidCent, refundCent));
         vo.setFundLedgers(buildFundLedgers(rows, paymentPaidCent, storedValueConsumeCent, storedValueReversalCent, withdrawPaidCent, discountCent, waiveCent));
         vo.setDifferences(buildDifferences(diffCent, rows));
-        vo.setExportTasks(listExportTasks(storeId, range.dateFrom(), range.dateTo()));
+        vo.setExportTasks(asyncTaskService.listFinanceExportTasks(storeId, dateFrom, dateTo));
         return vo;
     }
 
     @Override
     public YyReportFinanceExportTaskVo createExportTask(Long storeId, String dateFrom, String dateTo) {
         DateRange range = normalizeDateRange(dateFrom, dateTo);
-        String taskId = "FIN-REC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
-        LocalDateTime now = LocalDateTime.now();
-        YyReportFinanceExportTaskVo task = new YyReportFinanceExportTaskVo();
-        task.setTaskId(taskId);
-        task.setTaskType(FINANCE_EXPORT_TASK_TYPE);
-        task.setStatus("COMPLETED");
-        task.setStoreId(storeId);
-        task.setDateFrom(range.dateFrom());
-        task.setDateTo(range.dateTo());
-        task.setCreatedTime(format(now));
-        task.setFinishedTime(format(now.plusSeconds(3)));
-        task.setExpireTime(format(now.plusDays(7)));
-        task.setDownloadUrl("/yy/reportFinanceReconciliation/export/tasks/" + taskId + "/download");
-        task.setAuditNote("Local export task skeleton: permission checked by yy:report:export; persistent file storage is reserved for production queue integration.");
-        EXPORT_TASKS.put(taskId, task);
-        persistExportTask(task, now, now.plusSeconds(3), now.plusDays(7));
-        return task;
+        StoreSelection selection = resolveStoreSelection(storeId);
+        if (selection.restricted() && selection.scopedStoreIds().isEmpty()) {
+            throw new ServiceException("当前账号没有可导出的门店范围");
+        }
+        YyReportFinanceExportPayloadVo payload = new YyReportFinanceExportPayloadVo();
+        payload.setRequestedStoreId(storeId);
+        payload.setScopedStoreIds(selection.scopedStoreIds().stream().sorted().toList());
+        payload.setDateFrom(range.dateFrom());
+        payload.setDateTo(range.dateTo());
+        payload.setCreatorUserId(LoginHelper.getUserId());
+        return asyncTaskService.enqueueFinanceExportTask(payload);
     }
 
     @Override
     public List<YyReportFinanceExportTaskVo> listExportTasks(Long storeId, String dateFrom, String dateTo) {
         DateRange range = normalizeDateRange(dateFrom, dateTo);
-        List<YyReportFinanceExportTaskVo> persisted = loadPersistedExportTasks(storeId, range);
-        if (!persisted.isEmpty()) {
-            return persisted;
-        }
-        return EXPORT_TASKS.values().stream()
-            .filter(task -> storeId == null || storeId.equals(task.getStoreId()))
-            .filter(task -> StringUtils.isBlank(range.dateFrom()) || range.dateFrom().equals(task.getDateFrom()))
-            .filter(task -> StringUtils.isBlank(range.dateTo()) || range.dateTo().equals(task.getDateTo()))
-            .sorted(Comparator.comparing(YyReportFinanceExportTaskVo::getCreatedTime, Comparator.nullsLast(Comparator.reverseOrder())))
-            .toList();
+        return asyncTaskService.listFinanceExportTasks(storeId, range.dateFrom(), range.dateTo());
     }
 
-    private void persistExportTask(YyReportFinanceExportTaskVo task, LocalDateTime startedAt, LocalDateTime finishedAt, LocalDateTime expireAt) {
-        if (asyncTaskMapper == null) {
-            return;
-        }
-        YyAsyncTask entity = new YyAsyncTask();
-        entity.setStoreId(task.getStoreId());
-        entity.setTaskNo(task.getTaskId());
-        entity.setTaskType(FINANCE_EXPORT_TASK_TYPE);
-        entity.setTaskName("Finance reconciliation export");
-        entity.setQueueName("platform-export");
-        entity.setStatus(task.getStatus());
-        entity.setRunStatus(task.getStatus());
-        entity.setBusinessType("REPORT_FINANCE");
-        entity.setDateFrom(task.getDateFrom());
-        entity.setDateTo(task.getDateTo());
-        entity.setDownloadUrl(task.getDownloadUrl());
-        entity.setStartedTime(toDate(startedAt));
-        entity.setFinishedTime(toDate(finishedAt));
-        entity.setExpireTime(toDate(expireAt));
-        entity.setAuditNote(task.getAuditNote());
-        entity.setRemark("Created from /yy/reportFinanceReconciliation/export");
-        entity.setDelFlag("0");
-        asyncTaskMapper.insert(entity);
-    }
-
-    private List<YyReportFinanceExportTaskVo> loadPersistedExportTasks(Long storeId, DateRange range) {
-        if (asyncTaskMapper == null) {
-            return List.of();
-        }
-        List<YyAsyncTask> rows = nullSafe(asyncTaskMapper.selectList(Wrappers.<YyAsyncTask>lambdaQuery()
-            .eq(YyAsyncTask::getTaskType, FINANCE_EXPORT_TASK_TYPE)
-            .eq(storeId != null, YyAsyncTask::getStoreId, storeId)
-            .eq(StringUtils.isNotBlank(range.dateFrom()), YyAsyncTask::getDateFrom, range.dateFrom())
-            .eq(StringUtils.isNotBlank(range.dateTo()), YyAsyncTask::getDateTo, range.dateTo())
-            .orderByDesc(YyAsyncTask::getCreateTime)));
-        return rows.stream().map(this::mapTask).toList();
-    }
-
-    private YyReportFinanceExportTaskVo mapTask(YyAsyncTask entity) {
-        YyReportFinanceExportTaskVo task = new YyReportFinanceExportTaskVo();
-        task.setTaskId(StringUtils.defaultString(entity.getTaskNo()));
-        task.setTaskType(StringUtils.defaultString(entity.getTaskType()));
-        task.setStatus(StringUtils.defaultString(entity.getStatus()));
-        task.setStoreId(entity.getStoreId());
-        task.setDateFrom(StringUtils.defaultString(entity.getDateFrom()));
-        task.setDateTo(StringUtils.defaultString(entity.getDateTo()));
-        task.setCreatedTime(format(entity.getCreateTime()));
-        task.setFinishedTime(format(entity.getFinishedTime()));
-        task.setExpireTime(format(entity.getExpireTime()));
-        task.setDownloadUrl(StringUtils.defaultString(entity.getDownloadUrl()));
-        task.setAuditNote(StringUtils.defaultString(entity.getAuditNote()));
-        return task;
-    }
-
-    private FinanceRows loadRows(Long storeId, DateRange range) {
+    private FinanceRows loadRows(StoreSelection selection, DateRange range) {
         List<YyOrder> orders = nullSafe(yyOrderMapper.selectList(Wrappers.<YyOrder>lambdaQuery()
-            .eq(storeId != null, YyOrder::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyOrder::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyOrder::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyOrder::getOrderTime, range.start())
             .le(YyOrder::getOrderTime, range.end())));
         List<YyPaymentRecord> payments = nullSafe(yyPaymentRecordMapper.selectList(Wrappers.<YyPaymentRecord>lambdaQuery()
-            .eq(storeId != null, YyPaymentRecord::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyPaymentRecord::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyPaymentRecord::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyPaymentRecord::getPaidTime, range.start())
             .le(YyPaymentRecord::getPaidTime, range.end())));
         List<YyCompositePaymentOrder> compositePayments = nullSafe(compositePaymentOrderMapper.selectList(Wrappers.<YyCompositePaymentOrder>lambdaQuery()
-            .eq(storeId != null, YyCompositePaymentOrder::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyCompositePaymentOrder::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyCompositePaymentOrder::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyCompositePaymentOrder::getCreateTime, range.start())
             .le(YyCompositePaymentOrder::getCreateTime, range.end())));
         List<YyStoredValueConsumeOrder> storedValueConsumes = nullSafe(storedValueConsumeOrderMapper.selectList(Wrappers.<YyStoredValueConsumeOrder>lambdaQuery()
-            .eq(storeId != null, YyStoredValueConsumeOrder::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyStoredValueConsumeOrder::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyStoredValueConsumeOrder::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyStoredValueConsumeOrder::getConfirmedTime, range.start())
             .le(YyStoredValueConsumeOrder::getConfirmedTime, range.end())));
         List<YyMemberWithdrawOrder> withdrawOrders = nullSafe(memberWithdrawOrderMapper.selectList(Wrappers.<YyMemberWithdrawOrder>lambdaQuery()
-            .eq(storeId != null, YyMemberWithdrawOrder::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyMemberWithdrawOrder::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyMemberWithdrawOrder::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyMemberWithdrawOrder::getPaidTime, range.start())
             .le(YyMemberWithdrawOrder::getPaidTime, range.end())));
         List<YyMemberBalanceLedger> balanceLedgers = nullSafe(memberBalanceLedgerMapper.selectList(Wrappers.<YyMemberBalanceLedger>lambdaQuery()
-            .eq(storeId != null, YyMemberBalanceLedger::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyMemberBalanceLedger::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyMemberBalanceLedger::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyMemberBalanceLedger::getHappenedAt, range.start())
             .le(YyMemberBalanceLedger::getHappenedAt, range.end())));
         List<YyEntitlementReservation> entitlementReservations = nullSafe(entitlementReservationMapper.selectList(Wrappers.<YyEntitlementReservation>lambdaQuery()
-            .eq(storeId != null, YyEntitlementReservation::getStoreId, storeId)
+            .eq(selection.useExactStore(), YyEntitlementReservation::getStoreId, selection.requestedStoreId())
+            .in(selection.useScopedStores(), YyEntitlementReservation::getStoreId, selection.scopedStoreIds())
+            .apply(selection.alwaysEmpty(), "1 = 0")
             .ge(YyEntitlementReservation::getCreateTime, range.start())
             .le(YyEntitlementReservation::getCreateTime, range.end())));
         return new FinanceRows(orders, payments, compositePayments, storedValueConsumes, withdrawOrders, balanceLedgers, entitlementReservations);
+    }
+
+    private StoreSelection resolvePayloadSelection(YyReportFinanceExportPayloadVo payload) {
+        Set<Long> scopedStoreIds = sanitizeStoreIds(payload.getScopedStoreIds());
+        Long requestedStoreId = payload.getRequestedStoreId();
+        if (requestedStoreId != null && !scopedStoreIds.isEmpty() && !scopedStoreIds.contains(requestedStoreId)) {
+            throw new ServiceException("export payload store scope is invalid");
+        }
+        if (requestedStoreId != null) {
+            return StoreSelection.exact(requestedStoreId);
+        }
+        if (scopedStoreIds.isEmpty()) {
+            return StoreSelection.unrestricted();
+        }
+        return StoreSelection.scoped(scopedStoreIds);
+    }
+
+    private StoreSelection resolveStoreSelection(Long requestedStoreId) {
+        StoreScope scope = resolveCurrentStoreScope();
+        if (!scope.applicable() || scope.globalScope()) {
+            return requestedStoreId == null ? StoreSelection.unrestricted() : StoreSelection.exact(requestedStoreId);
+        }
+        if (scope.storeIds().isEmpty()) {
+            return StoreSelection.empty();
+        }
+        if (requestedStoreId == null) {
+            return StoreSelection.scoped(scope.storeIds());
+        }
+        if (scope.storeIds().contains(requestedStoreId)) {
+            return StoreSelection.exact(requestedStoreId);
+        }
+        return StoreSelection.empty();
+    }
+
+    private StoreScope resolveCurrentStoreScope() {
+        if (!LoginHelper.isLogin()) {
+            return StoreScope.notApplicable();
+        }
+        if (LoginHelper.isSuperAdmin() || LoginHelper.isTenantAdmin()) {
+            return StoreScope.global();
+        }
+        LoginUser loginUser = LoginHelper.getLoginUser();
+        if (loginUser == null || loginUser.getUserId() == null) {
+            return StoreScope.empty();
+        }
+        YyEmployee employee = employeeMapper.selectOne(Wrappers.lambdaQuery(YyEmployee.class)
+            .eq(YyEmployee::getUserId, loginUser.getUserId())
+            .eq(YyEmployee::getStatus, "0")
+            .last("limit 1"));
+        if (employee == null) {
+            return StoreScope.empty();
+        }
+        LinkedHashSet<Long> storeIds = new LinkedHashSet<>();
+        if (employee.getId() != null) {
+            List<YyEmployeeStore> employeeStores = employeeStoreMapper.selectList(
+                Wrappers.<YyEmployeeStore>lambdaQuery()
+                    .eq(YyEmployeeStore::getEmployeeId, employee.getId())
+                    .eq(YyEmployeeStore::getDelFlag, "0")
+                    .orderByAsc(YyEmployeeStore::getSort)
+                    .orderByAsc(YyEmployeeStore::getId));
+            employeeStores.stream()
+                .map(YyEmployeeStore::getStoreId)
+                .filter(Objects::nonNull)
+                .forEach(storeIds::add);
+        }
+        if (storeIds.isEmpty() && employee.getStoreId() != null) {
+            storeIds.add(employee.getStoreId());
+        }
+        return StoreScope.limited(storeIds);
+    }
+
+    private Set<Long> sanitizeStoreIds(Collection<Long> storeIds) {
+        if (storeIds == null) {
+            return Set.of();
+        }
+        return storeIds.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private YyReportFinanceOverviewVo buildOverview(long orderAmountCent, long paidAmountCent, long refundAmountCent, long storedValueConsumeCent, long storedValueReversalCent, long withdrawPaidCent, long discountAmountCent, long waiveAmountCent, long reconciliationDiffCent, long attentionCount) {
@@ -406,12 +453,102 @@ public class YyReportFinanceReconciliationServiceImpl implements IYyReportFinanc
         return DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()));
     }
 
-    private Date toDate(LocalDateTime value) {
-        return Date.from(value.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
     private <T> List<T> nullSafe(List<T> rows) {
         return rows == null ? List.of() : rows;
+    }
+
+    private static final class StoreSelection {
+        private final Long requestedStoreId;
+        private final Set<Long> scopedStoreIds;
+        private final boolean unrestricted;
+        private final boolean restrictedEmpty;
+
+        private StoreSelection(Long requestedStoreId, Set<Long> scopedStoreIds, boolean unrestricted, boolean restrictedEmpty) {
+            this.requestedStoreId = requestedStoreId;
+            this.scopedStoreIds = scopedStoreIds;
+            this.unrestricted = unrestricted;
+            this.restrictedEmpty = restrictedEmpty;
+        }
+
+        private static StoreSelection unrestricted() {
+            return new StoreSelection(null, Set.of(), true, false);
+        }
+
+        private static StoreSelection exact(Long storeId) {
+            return new StoreSelection(storeId, Set.of(), false, false);
+        }
+
+        private static StoreSelection scoped(Set<Long> storeIds) {
+            return new StoreSelection(null, Set.copyOf(storeIds), false, false);
+        }
+
+        private static StoreSelection empty() {
+            return new StoreSelection(null, Set.of(), false, true);
+        }
+
+        private Long requestedStoreId() {
+            return requestedStoreId;
+        }
+
+        private Set<Long> scopedStoreIds() {
+            return scopedStoreIds;
+        }
+
+        private boolean useExactStore() {
+            return requestedStoreId != null;
+        }
+
+        private boolean useScopedStores() {
+            return requestedStoreId == null && !unrestricted && !restrictedEmpty && !scopedStoreIds.isEmpty();
+        }
+
+        private boolean alwaysEmpty() {
+            return restrictedEmpty;
+        }
+
+        private boolean restricted() {
+            return !unrestricted;
+        }
+    }
+
+    private static final class StoreScope {
+        private final boolean applicable;
+        private final boolean globalScope;
+        private final Set<Long> storeIds;
+
+        private StoreScope(boolean applicable, boolean globalScope, Set<Long> storeIds) {
+            this.applicable = applicable;
+            this.globalScope = globalScope;
+            this.storeIds = storeIds;
+        }
+
+        private static StoreScope notApplicable() {
+            return new StoreScope(false, false, Set.of());
+        }
+
+        private static StoreScope global() {
+            return new StoreScope(true, true, Set.of());
+        }
+
+        private static StoreScope empty() {
+            return new StoreScope(true, false, Set.of());
+        }
+
+        private static StoreScope limited(Collection<Long> storeIds) {
+            return new StoreScope(true, false, Set.copyOf(storeIds));
+        }
+
+        private boolean applicable() {
+            return applicable;
+        }
+
+        private boolean globalScope() {
+            return globalScope;
+        }
+
+        private Set<Long> storeIds() {
+            return storeIds;
+        }
     }
 
     private record DateRange(Date start, Date end, String dateFrom, String dateTo) {

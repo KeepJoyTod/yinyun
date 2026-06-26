@@ -746,9 +746,19 @@ create table if not exists yy_async_task (
     date_from      varchar(16)  default ''                    comment 'date from',
     date_to        varchar(16)  default ''                    comment 'date to',
     download_url   varchar(512) default ''                    comment 'download url',
+    oss_id         bigint(20)   default null                  comment 'oss id',
+    file_name      varchar(255) default ''                    comment 'file name',
+    content_type   varchar(128) default ''                    comment 'content type',
+    file_size_bytes bigint(20)  default 0                     comment 'file size bytes',
+    payload_json   longtext                                   comment 'task payload json',
     started_time   datetime                                  comment 'started time',
     finished_time  datetime                                  comment 'finished time',
     expire_time    datetime                                  comment 'expire time',
+    retry_count    int          default 0                     comment 'retry count',
+    max_retry_count int         default 3                     comment 'max retry count',
+    next_retry_time datetime                                 comment 'next retry time',
+    claimed_by     varchar(128) default ''                    comment 'claimed by',
+    claim_expire_time datetime                               comment 'claim expire time',
     error_message  varchar(512) default ''                    comment 'error message',
     audit_note     varchar(512) default ''                    comment 'audit note',
     remark         varchar(512) default ''                    comment 'remark',
@@ -763,6 +773,18 @@ create table if not exists yy_async_task (
     key idx_yy_async_task_type_status (tenant_id, task_type, status, create_time),
     key idx_yy_async_task_store_time (tenant_id, store_id, create_time)
 ) engine=innodb comment='yingyue async task ledger';
+
+alter table yy_async_task
+    add column if not exists oss_id bigint(20) default null comment 'oss id',
+    add column if not exists file_name varchar(255) default '' comment 'file name',
+    add column if not exists content_type varchar(128) default '' comment 'content type',
+    add column if not exists file_size_bytes bigint(20) default 0 comment 'file size bytes',
+    add column if not exists payload_json longtext comment 'task payload json',
+    add column if not exists retry_count int default 0 comment 'retry count',
+    add column if not exists max_retry_count int default 3 comment 'max retry count',
+    add column if not exists next_retry_time datetime comment 'next retry time',
+    add column if not exists claimed_by varchar(128) default '' comment 'claimed by',
+    add column if not exists claim_expire_time datetime comment 'claim expire time';
 
 create table if not exists yy_mobile_channel_config (
     id             bigint(20)   not null                     comment '主键',

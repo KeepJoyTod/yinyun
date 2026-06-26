@@ -246,6 +246,38 @@
 - `studio-workbench/src/shared/products/albumProductMetadata.ts`
 - `studio-workbench/src/shared/stores/collaborationStore.ts`
 
+## 2026-06-26 finance-export-async-closed-loop
+
+### 表现层
+- `studio-workbench/src/features/reports/ReportFinanceReconciliationView.vue`
+- `studio-workbench/src/features/platform-settings/PlatformTaskCenterView.vue`
+- `studio-workbench/src/features/platform-settings/components/PlatformPhase1StatusPanel.vue`
+
+### 控制逻辑层
+- `studio-workbench/src/features/reports/composables/useReportFinanceReconciliation.ts`
+- `studio-workbench/src/features/reports/reportFinanceReconciliationOperations.ts`
+- `studio-workbench/src/shared/api/backendReportsApi.ts`
+- `studio-workbench/src/shared/api/backendPlatformApi.ts`
+- `studio-workbench/src/shared/api/backendTypesReports.ts`
+- `studio-workbench/src/shared/api/backendTypesPlatform.ts`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyReportFinanceReconciliationController.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/controller/YyPlatformSettingsController.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/IYyAsyncTaskService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/IYyPlatformSettingsService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/IYyReportFinanceReconciliationService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyAsyncTaskServiceImpl.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyPlatformSettingsServiceImpl.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyReportFinanceExportWorkerService.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/service/impl/YyReportFinanceReconciliationServiceImpl.java`
+
+### 持久数据层
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/YyAsyncTask.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/vo/YyPlatformAsyncTaskDetailVo.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/vo/YyPlatformAsyncTaskRunVo.java`
+- `backend/ruoyi-modules/ruoyi-yy/src/main/java/org/dromara/yy/domain/vo/YyReportFinanceExportPayloadVo.java`
+- `backend/script/sql/yy_cloud.sql`
+- `backend/script/sql/postgres/postgres_yy_cloud.sql`
+
 ## 2026-06-25 platform-enterprise-scaffold
 
 ### 表现层

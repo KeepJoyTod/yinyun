@@ -886,9 +886,19 @@ create table if not exists yy_async_task (
     date_from varchar(16) default '',
     date_to varchar(16) default '',
     download_url varchar(512) default '',
+    oss_id bigint default null,
+    file_name varchar(255) default '',
+    content_type varchar(128) default '',
+    file_size_bytes bigint default 0,
+    payload_json text,
     started_time timestamp,
     finished_time timestamp,
     expire_time timestamp,
+    retry_count int default 0,
+    max_retry_count int default 3,
+    next_retry_time timestamp,
+    claimed_by varchar(128) default '',
+    claim_expire_time timestamp,
     error_message varchar(512) default '',
     audit_note varchar(512) default '',
     remark varchar(512) default '',
@@ -909,6 +919,17 @@ create index if not exists idx_yy_async_task_type_status
 
 create index if not exists idx_yy_async_task_store_time
     on yy_async_task (tenant_id, store_id, create_time);
+
+alter table if exists yy_async_task add column if not exists oss_id bigint default null;
+alter table if exists yy_async_task add column if not exists file_name varchar(255) default '';
+alter table if exists yy_async_task add column if not exists content_type varchar(128) default '';
+alter table if exists yy_async_task add column if not exists file_size_bytes bigint default 0;
+alter table if exists yy_async_task add column if not exists payload_json text;
+alter table if exists yy_async_task add column if not exists retry_count int default 0;
+alter table if exists yy_async_task add column if not exists max_retry_count int default 3;
+alter table if exists yy_async_task add column if not exists next_retry_time timestamp;
+alter table if exists yy_async_task add column if not exists claimed_by varchar(128) default '';
+alter table if exists yy_async_task add column if not exists claim_expire_time timestamp;
 
 create table if not exists yy_mobile_channel_config (
     id bigint not null,

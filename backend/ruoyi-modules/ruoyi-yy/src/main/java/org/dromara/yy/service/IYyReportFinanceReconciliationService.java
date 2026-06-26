@@ -1,6 +1,7 @@
 package org.dromara.yy.service;
 
 import org.dromara.yy.domain.vo.YyReportFinanceExportTaskVo;
+import org.dromara.yy.domain.vo.YyReportFinanceExportPayloadVo;
 import org.dromara.yy.domain.vo.YyReportFinanceReconciliationVo;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface IYyReportFinanceReconciliationService {
     YyReportFinanceExportTaskVo createExportTask(Long storeId, String dateFrom, String dateTo);
 
     List<YyReportFinanceExportTaskVo> listExportTasks(Long storeId, String dateFrom, String dateTo);
+
+    YyReportFinanceReconciliationVo queryOverviewForExportTask(YyReportFinanceExportPayloadVo payload);
 }

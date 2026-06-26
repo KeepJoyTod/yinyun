@@ -19,6 +19,7 @@ describe('finance reconciliation report contract', () => {
     expect(reportViewSource).toContain('差异与待关注')
     expect(reportViewSource).toContain('data-testid="report-finance-export"')
     expect(reportViewSource).toContain('data-testid="report-finance-export-tasks"')
+    expect(reportViewSource).toContain('下载文件')
     expect(reportViewSource).toContain('yy_order')
     expect(reportViewSource).toContain('yy_payment_record')
   })

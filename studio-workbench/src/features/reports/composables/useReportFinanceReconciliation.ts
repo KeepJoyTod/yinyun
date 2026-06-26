@@ -48,6 +48,17 @@ const emptyReconciliation = (): ReportFinanceReconciliationDto => ({
   exportTasks: [],
 })
 
+const saveBlob = (blob: Blob, fileName: string) => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
 export const useReportFinanceReconciliation = () => {
   const { dateFrom, dateTo } = currentMonthRange()
   const selectedStoreId = ref(resolveDefaultStoreId())
@@ -55,6 +66,7 @@ export const useReportFinanceReconciliation = () => {
   const dateEnd = ref(dateTo)
   const loading = ref(false)
   const exporting = ref(false)
+  const downloadingTaskId = ref('')
   const error = ref('')
   const exportMessage = ref('')
   const data = ref<ReportFinanceReconciliationDto>(emptyReconciliation())
@@ -113,12 +125,28 @@ export const useReportFinanceReconciliation = () => {
     }
   }
 
+  const downloadTask = async (taskId: string, fallbackName = 'finance-reconciliation.csv') => {
+    if (!taskId) return
+    downloadingTaskId.value = taskId
+    error.value = ''
+    try {
+      const result = await backendApi.downloadReportFinanceExportTask(taskId)
+      saveBlob(result.blob, result.fileName || fallbackName)
+      exportMessage.value = `导出文件已开始下载：${taskId}`
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '财务对账导出下载失败'
+    } finally {
+      downloadingTaskId.value = ''
+    }
+  }
+
   return {
     selectedStoreId,
     dateStart,
     dateEnd,
     loading,
     exporting,
+    downloadingTaskId,
     error,
     exportMessage,
     data,
@@ -126,5 +154,6 @@ export const useReportFinanceReconciliation = () => {
     hasData,
     reload,
     createExportTask,
+    downloadTask,
   }
 }

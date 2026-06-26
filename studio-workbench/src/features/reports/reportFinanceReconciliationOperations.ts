@@ -38,6 +38,8 @@ export type FinanceExportTaskRow = {
   createdTime: string
   expireTime: string
   downloadUrl: string
+  fileName: string
+  errorMessage: string
   auditNote: string
 }
 
@@ -100,5 +102,7 @@ export const buildFinanceExportTaskRows = (items: ReportFinanceExportTaskDto[]):
     createdTime: item.createdTime || '-',
     expireTime: item.expireTime || '-',
     downloadUrl: item.downloadUrl,
+    fileName: item.fileName,
+    errorMessage: item.errorMessage,
     auditNote: item.auditNote,
   }))

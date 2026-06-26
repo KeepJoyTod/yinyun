@@ -6,24 +6,20 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-public class YyReportFinanceExportTaskVo implements Serializable {
+public class YyPlatformAsyncTaskRunVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private String taskId;
 
-    private String taskType;
-
     private String status;
 
-    private Long storeId;
-
-    private String dateFrom;
-
-    private String dateTo;
+    private String runStatus;
 
     private String createdTime;
+
+    private String startedTime;
 
     private String finishedTime;
 
@@ -32,6 +28,8 @@ public class YyReportFinanceExportTaskVo implements Serializable {
     private String downloadUrl;
 
     private String fileName;
+
+    private String contentType;
 
     private String errorMessage;
 

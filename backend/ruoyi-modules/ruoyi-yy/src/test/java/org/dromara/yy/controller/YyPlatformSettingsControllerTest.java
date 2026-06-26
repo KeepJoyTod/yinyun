@@ -1,6 +1,7 @@
 package org.dromara.yy.controller;
 
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskDetailVo;
 import org.dromara.yy.service.IYyPlatformSettingsService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -59,5 +60,17 @@ class YyPlatformSettingsControllerTest {
         controller.meituanReviewTraces();
 
         verify(platformSettingsService).listMeituanReviewTraces();
+    }
+
+    @Test
+    void asyncTaskDetailShouldDelegateToPlatformFacade() {
+        YyPlatformAsyncTaskDetailVo detail = new YyPlatformAsyncTaskDetailVo();
+        detail.setTaskType("REPORT_FINANCE_RECONCILIATION_EXPORT");
+        when(platformSettingsService.getAsyncTaskDetail(eq("REPORT_FINANCE_RECONCILIATION_EXPORT"))).thenReturn(detail);
+
+        YyPlatformSettingsController controller = new YyPlatformSettingsController(platformSettingsService);
+
+        assertEquals("REPORT_FINANCE_RECONCILIATION_EXPORT", controller.asyncTaskDetail("REPORT_FINANCE_RECONCILIATION_EXPORT").getData().getTaskType());
+        verify(platformSettingsService).getAsyncTaskDetail(eq("REPORT_FINANCE_RECONCILIATION_EXPORT"));
     }
 }

@@ -74,6 +74,32 @@ export type PlatformAsyncTaskDto = {
   nextActions?: PlatformActionHintDto[]
 }
 
+export type PlatformAsyncTaskRunDto = {
+  taskId: string
+  status: string
+  runStatus: string
+  createdTime?: string
+  startedTime?: string
+  finishedTime?: string
+  expireTime?: string
+  downloadUrl?: string
+  fileName?: string
+  contentType?: string
+  errorMessage?: string
+  auditNote?: string
+}
+
+export type PlatformAsyncTaskDetailDto = {
+  taskType: string
+  taskName: string
+  queueName: string
+  latestRunStatus?: string
+  retentionPolicy?: string
+  status: PlatformScaffoldStatus
+  evidence?: PlatformEvidenceDto[]
+  runs?: PlatformAsyncTaskRunDto[]
+}
+
 export type PlatformBookingPolicyDto = {
   channelType: string
   feeMode: string

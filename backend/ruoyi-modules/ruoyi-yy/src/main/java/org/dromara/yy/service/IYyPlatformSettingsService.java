@@ -1,5 +1,6 @@
 package org.dromara.yy.service;
 
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskDetailVo;
 import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
 import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
@@ -20,6 +21,8 @@ public interface IYyPlatformSettingsService {
     List<YyPlatformOpenApiAppVo> listOpenApiApps();
 
     List<YyPlatformAsyncTaskVo> listAsyncTasks();
+
+    YyPlatformAsyncTaskDetailVo getAsyncTaskDetail(String taskType);
 
     List<YyPlatformNotificationRuleVo> listNotifications();
 

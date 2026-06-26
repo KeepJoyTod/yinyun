@@ -308,3 +308,9 @@
 
 - `R-014 报表导出任务`：当前项目部分实现/财务对账导出任务账本已接入。`POST /yy/reportFinanceReconciliation/export` 已写入 `yy_async_task`，`GET /yy/reportFinanceReconciliation/export/tasks` 已优先读取持久化任务；通用报表导出、真实文件生成、对象存储下载、下载鉴权、脱敏和过期清理仍待实现。
 - `P-010 异步任务中心`：当前项目部分实现/统一异步任务账本一期已落地。`GET /yy/platform-settings/async-tasks` 已可读取 `yy_async_task` 并聚合展示财务对账导出任务；真实 worker、失败重试、跨实例领取、任务详情抽屉、下载过期清理和审计策略仍待实现。
+
+## 2026-06-26 async-export-closed-loop-part2
+
+- `R-014 报表导出任务`：当前项目部分实现/财务对账异步导出真实闭环已落地。财务对账已接入真实 worker、`yy_async_task` 任务领取、CSV 文件生成、`sys_oss` 上传、下载鉴权、失败重试、跨实例 claim lease 和过期清理；其他报表域的统一导出模板、脱敏规则和多任务类型复用仍待实现。
+- `R-015 财务对账报表`：当前项目部分实现/本地账本对账 + 持久化异步导出已闭环。`/report/finance` 现在可创建真实异步任务、查看真实状态、下载鉴权文件，并在 `/platform/task-center` 查看最近运行明细；真实微信/抖音/美团/银行回单与外部对账口径仍待接入。
+- `P-010 异步任务中心`：当前项目部分实现/财务对账任务中心闭环已落地。`GET /yy/platform-settings/async-tasks` 与 `GET /yy/platform-settings/async-tasks/{taskType}` 已可返回真实任务摘要和运行明细，前端详情抽屉已支持查看错误、过期时间和下载入口；图片处理、通知汇总等其他任务类型仍待接入统一中心。

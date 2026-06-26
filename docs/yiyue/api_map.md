@@ -762,14 +762,21 @@
   - 权限：`yy:report:list`
   - 读取：`yy_order`、`yy_payment_record`、`yy_member_balance_ledger`、`yy_stored_value_consume_order`、`yy_member_withdraw_order`、`yy_composite_payment_order`、`yy_entitlement_reservation`
 - `POST /yy/reportFinanceReconciliation/export`
-  - 作用：创建财务对账异步导出任务骨架。
+  - 作用：创建财务对账真实异步导出任务。
   - 参数：`storeId?`、`dateFrom?`、`dateTo?`
   - 权限：`yy:report:export`
   - 返回：`taskId/status/dateFrom/dateTo/downloadUrl/expireTime/auditNote`
+  - 写入：`yy_async_task`
+  - 约束：创建时固化 `requestedStoreId / scopedStoreIds / dateFrom / dateTo / creatorUserId` 快照，避免 worker 扩大导出范围。
 - `GET /yy/reportFinanceReconciliation/export/tasks`
-  - 作用：查询财务对账导出任务列表，优先读取统一异步任务账本 `yy_async_task`，无持久化记录时回退当前 JVM 内存骨架。
+  - 作用：查询财务对账真实导出任务列表。
   - 权限：`yy:report:list`
-  - 边界：当前已持久化任务元数据，不等于真实 worker、对象存储下载、跨实例失败重试和过期清理已完成。
+  - 边界：仅返回当前用户可访问的门店任务；`storeId=null` 聚合任务仅创建者或租户管理员可见。
+- `GET /yy/reportFinanceReconciliation/export/tasks/{taskId}/download`
+  - 作用：鉴权下载财务对账导出文件。
+  - 权限：`yy:report:export`
+  - 读取：`yy_async_task`、`sys_oss`
+  - 边界：仅 `COMPLETED`、未过期、且 `ossId` 存在的任务允许下载。
 
 ## 2026-06-26 platform-async-task-ledger
 
@@ -778,4 +785,8 @@
   - 权限：`yy:platform:query`
   - 读取：`yy_async_task`
   - 返回：按 `taskType` 聚合后的 `taskType/taskName/queueName/latestRunStatus/retentionPolicy/status/evidence/nextActions`。
-  - 边界：财务对账导出已能进入任务中心；真实 worker、对象存储下载、失败重试、过期清理和任务详情抽屉仍待后续任务包。
+  - 边界：财务对账导出已能进入任务中心并显示真实任务摘要；其他任务类型仍待逐步接入。
+- `GET /yy/platform-settings/async-tasks/{taskType}`
+  - 作用：返回指定任务类型的最近运行明细、错误信息、过期时间和下载入口。
+  - 权限：`yy:platform:query`
+  - 当前已接入：`REPORT_FINANCE_RECONCILIATION_EXPORT`

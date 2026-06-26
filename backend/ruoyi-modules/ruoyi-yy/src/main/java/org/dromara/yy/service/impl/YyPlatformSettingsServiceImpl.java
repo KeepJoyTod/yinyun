@@ -1,8 +1,6 @@
 package org.dromara.yy.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.yy.domain.YyAsyncTask;
 import org.dromara.yy.domain.bo.YyChannelAccountBo;
 import org.dromara.yy.domain.bo.YyChannelSyncLogBo;
 import org.dromara.yy.domain.bo.YyNotificationLogBo;
@@ -12,6 +10,7 @@ import org.dromara.yy.domain.vo.YyChannelSyncLogVo;
 import org.dromara.yy.domain.vo.YyNotificationLogVo;
 import org.dromara.yy.domain.vo.YyNotificationTemplateVo;
 import org.dromara.yy.domain.vo.YyPlatformActionHintVo;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskDetailVo;
 import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
 import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformEvidenceVo;
@@ -22,7 +21,7 @@ import org.dromara.yy.domain.vo.YyPlatformNotificationRuleVo;
 import org.dromara.yy.domain.vo.YyPlatformOpenApiAppVo;
 import org.dromara.yy.domain.vo.YyPlatformServicePackageStatusVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
-import org.dromara.yy.mapper.YyAsyncTaskMapper;
+import org.dromara.yy.service.IYyAsyncTaskService;
 import org.dromara.yy.service.IYyChannelAccountService;
 import org.dromara.yy.service.IYyChannelSyncLogService;
 import org.dromara.yy.service.IYyNotificationLogService;
@@ -50,7 +49,7 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
     private final IYyNotificationTemplateService yyNotificationTemplateService;
     private final IYyNotificationLogService yyNotificationLogService;
     private final IYyServiceProductionService yyServiceProductionService;
-    private final YyAsyncTaskMapper yyAsyncTaskMapper;
+    private final IYyAsyncTaskService yyAsyncTaskService;
 
     public YyPlatformSettingsServiceImpl(
         IYyChannelAccountService yyChannelAccountService,
@@ -58,14 +57,14 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
         IYyNotificationTemplateService yyNotificationTemplateService,
         IYyNotificationLogService yyNotificationLogService,
         IYyServiceProductionService yyServiceProductionService,
-        YyAsyncTaskMapper yyAsyncTaskMapper
+        IYyAsyncTaskService yyAsyncTaskService
     ) {
         this.yyChannelAccountService = yyChannelAccountService;
         this.yyChannelSyncLogService = yyChannelSyncLogService;
         this.yyNotificationTemplateService = yyNotificationTemplateService;
         this.yyNotificationLogService = yyNotificationLogService;
         this.yyServiceProductionService = yyServiceProductionService;
-        this.yyAsyncTaskMapper = yyAsyncTaskMapper;
+        this.yyAsyncTaskService = yyAsyncTaskService;
     }
 
     @Override
@@ -150,82 +149,12 @@ public class YyPlatformSettingsServiceImpl implements IYyPlatformSettingsService
 
     @Override
     public List<YyPlatformAsyncTaskVo> listAsyncTasks() {
-        List<YyAsyncTask> taskRows = safeList(yyAsyncTaskMapper.selectList(Wrappers.<YyAsyncTask>lambdaQuery()
-            .orderByDesc(YyAsyncTask::getCreateTime)));
-        if (!taskRows.isEmpty()) {
-            return buildAsyncTaskRows(taskRows);
-        }
-
-        YyPlatformAsyncTaskVo exportTask = new YyPlatformAsyncTaskVo();
-        exportTask.setTaskType("EXPORT");
-        exportTask.setTaskName("Order export queue");
-        exportTask.setQueueName("platform-export");
-        exportTask.setLatestRunStatus("NOT_CONNECTED");
-        exportTask.setRetentionPolicy("7 days");
-        exportTask.setStatus("scaffold");
-        exportTask.getEvidence().add(buildEvidence("export_scaffold", "platform-export", "scaffold", "当前导出仍由各 owner 直接处理，未进入统一任务中心", "", null));
-        exportTask.getNextActions().add(buildAction("bind_export_worker", "Bind export worker", false, "待补统一任务账本和下载过期策略"));
-
-        YyPlatformAsyncTaskVo mediaTask = new YyPlatformAsyncTaskVo();
-        mediaTask.setTaskType("MEDIA_PIPELINE");
-        mediaTask.setTaskName("Image process queue");
-        mediaTask.setQueueName("platform-media");
-        mediaTask.setLatestRunStatus("NOT_CONNECTED");
-        mediaTask.setRetentionPolicy("3 days");
-        mediaTask.setStatus("scaffold");
-        mediaTask.getEvidence().add(buildEvidence("photo_pipeline", "platform-media", "scaffold", "图片处理、通知和报表汇总缺少统一 worker 与失败重试", "", null));
-        mediaTask.getNextActions().add(buildAction("bind_retry_policy", "Bind retry policy", false, "待补失败重试和任务审计"));
-        return List.of(exportTask, mediaTask);
+        return yyAsyncTaskService.listPlatformTaskSummaries();
     }
 
-    private List<YyPlatformAsyncTaskVo> buildAsyncTaskRows(List<YyAsyncTask> rows) {
-        Map<String, List<YyAsyncTask>> grouped = new LinkedHashMap<>();
-        for (YyAsyncTask row : rows) {
-            String taskType = StringUtils.defaultIfBlank(row.getTaskType(), "UNKNOWN");
-            grouped.computeIfAbsent(taskType, ignored -> new ArrayList<>()).add(row);
-        }
-        List<YyPlatformAsyncTaskVo> result = new ArrayList<>();
-        for (Map.Entry<String, List<YyAsyncTask>> entry : grouped.entrySet()) {
-            YyAsyncTask latest = entry.getValue().stream()
-                .max(Comparator.comparing(YyAsyncTask::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder())))
-                .orElse(entry.getValue().get(0));
-            YyPlatformAsyncTaskVo vo = new YyPlatformAsyncTaskVo();
-            vo.setTaskType(entry.getKey());
-            vo.setTaskName(StringUtils.defaultIfBlank(latest.getTaskName(), entry.getKey()));
-            vo.setQueueName(StringUtils.defaultIfBlank(latest.getQueueName(), "platform-export"));
-            vo.setLatestRunStatus(StringUtils.defaultIfBlank(latest.getRunStatus(), latest.getStatus()));
-            vo.setRetentionPolicy(resolveRetentionPolicy(latest));
-            vo.setStatus(taskCenterStatus(latest.getStatus()));
-            vo.getEvidence().add(buildEvidence(
-                "yy_async_task",
-                StringUtils.defaultString(latest.getTaskNo()),
-                StringUtils.defaultString(latest.getStatus()),
-                StringUtils.defaultIfBlank(latest.getAuditNote(), latest.getErrorMessage()),
-                "",
-                latest.getUpdateTime() == null ? latest.getCreateTime() : latest.getUpdateTime()
-            ));
-            vo.getNextActions().add(buildAction("open_task_detail", "Open task detail", false, "Task detail drawer is not implemented in this package"));
-            result.add(vo);
-        }
-        return result;
-    }
-
-    private static String resolveRetentionPolicy(YyAsyncTask task) {
-        if (task.getExpireTime() == null) {
-            return "not configured";
-        }
-        return "expires at " + task.getExpireTime();
-    }
-
-    private static String taskCenterStatus(String status) {
-        String normalized = normalizeCode(status);
-        if ("COMPLETED".equals(normalized) || "SUCCESS".equals(normalized)) {
-            return "ready";
-        }
-        if ("FAILED".equals(normalized) || "EXPIRED".equals(normalized) || "CANCELLED".equals(normalized)) {
-            return "retired";
-        }
-        return "scaffold";
+    @Override
+    public YyPlatformAsyncTaskDetailVo getAsyncTaskDetail(String taskType) {
+        return yyAsyncTaskService.getPlatformTaskDetail(taskType);
     }
 
     @Override

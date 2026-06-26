@@ -1,23 +1,25 @@
 package org.dromara.yy.service.impl;
 
 import org.dromara.yy.domain.YyCompositePaymentOrder;
-import org.dromara.yy.domain.YyAsyncTask;
 import org.dromara.yy.domain.YyEntitlementReservation;
 import org.dromara.yy.domain.YyMemberBalanceLedger;
 import org.dromara.yy.domain.YyMemberWithdrawOrder;
 import org.dromara.yy.domain.YyOrder;
 import org.dromara.yy.domain.YyPaymentRecord;
 import org.dromara.yy.domain.YyStoredValueConsumeOrder;
+import org.dromara.yy.domain.vo.YyReportFinanceExportPayloadVo;
 import org.dromara.yy.domain.vo.YyReportFinanceExportTaskVo;
 import org.dromara.yy.domain.vo.YyReportFinanceReconciliationVo;
 import org.dromara.yy.mapper.YyCompositePaymentOrderMapper;
-import org.dromara.yy.mapper.YyAsyncTaskMapper;
+import org.dromara.yy.mapper.YyEmployeeMapper;
+import org.dromara.yy.mapper.YyEmployeeStoreMapper;
 import org.dromara.yy.mapper.YyEntitlementReservationMapper;
 import org.dromara.yy.mapper.YyMemberBalanceLedgerMapper;
 import org.dromara.yy.mapper.YyMemberWithdrawOrderMapper;
 import org.dromara.yy.mapper.YyOrderMapper;
 import org.dromara.yy.mapper.YyPaymentRecordMapper;
 import org.dromara.yy.mapper.YyStoredValueConsumeOrderMapper;
+import org.dromara.yy.service.IYyAsyncTaskService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +34,10 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +59,11 @@ class YyReportFinanceReconciliationServiceImplTest {
     @Mock
     private YyEntitlementReservationMapper entitlementReservationMapper;
     @Mock
-    private YyAsyncTaskMapper asyncTaskMapper;
+    private IYyAsyncTaskService asyncTaskService;
+    @Mock
+    private YyEmployeeMapper employeeMapper;
+    @Mock
+    private YyEmployeeStoreMapper employeeStoreMapper;
 
     @InjectMocks
     private YyReportFinanceReconciliationServiceImpl service;
@@ -88,16 +95,30 @@ class YyReportFinanceReconciliationServiceImplTest {
     }
 
     @Test
-    void createExportTaskShouldExposeCompletedAsyncTaskSkeleton() {
+    void createExportTaskShouldEnqueueAsyncTaskPayload() {
+        YyReportFinanceExportTaskVo queued = new YyReportFinanceExportTaskVo();
+        queued.setTaskId("FIN-REC-1");
+        queued.setTaskType("REPORT_FINANCE_RECONCILIATION_EXPORT");
+        queued.setStatus("PENDING");
+        queued.setDateFrom("2026-06-01");
+        queued.setDateTo("2026-06-30");
+        when(asyncTaskService.enqueueFinanceExportTask(any())).thenReturn(queued);
+
         YyReportFinanceExportTaskVo task = service.createExportTask(null, "2026-06-01", "2026-06-30");
 
+        assertNotNull(task);
         assertEquals("REPORT_FINANCE_RECONCILIATION_EXPORT", task.getTaskType());
-        assertEquals("COMPLETED", task.getStatus());
+        assertEquals("PENDING", task.getStatus());
         assertEquals("2026-06-01", task.getDateFrom());
         assertEquals("2026-06-30", task.getDateTo());
-        assertTrue(task.getDownloadUrl().contains(task.getTaskId()));
+        when(asyncTaskService.listFinanceExportTasks(null, "2026-06-01", "2026-06-30")).thenReturn(List.of(queued));
         assertEquals(1, service.listExportTasks(null, "2026-06-01", "2026-06-30").size());
-        verify(asyncTaskMapper).insert(any(YyAsyncTask.class));
+        org.mockito.Mockito.verify(asyncTaskService).enqueueFinanceExportTask(argThat((YyReportFinanceExportPayloadVo payload) ->
+            payload != null
+                && payload.getRequestedStoreId() == null
+                && "2026-06-01".equals(payload.getDateFrom())
+                && "2026-06-30".equals(payload.getDateTo())
+        ));
     }
 
     private static YyOrder order(Long id, String payStatus, Long totalAmountCent, Long paidAmountCent, Long refundAmountCent) {

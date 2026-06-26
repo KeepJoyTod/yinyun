@@ -45,11 +45,31 @@ public class YyAsyncTask extends TenantEntity {
 
     private String downloadUrl;
 
+    private Long ossId;
+
+    private String fileName;
+
+    private String contentType;
+
+    private Long fileSizeBytes;
+
+    private String payloadJson;
+
     private Date startedTime;
 
     private Date finishedTime;
 
     private Date expireTime;
+
+    private Integer retryCount;
+
+    private Integer maxRetryCount;
+
+    private Date nextRetryTime;
+
+    private String claimedBy;
+
+    private Date claimExpireTime;
 
     private String errorMessage;
 

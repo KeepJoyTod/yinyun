@@ -1,6 +1,8 @@
-import { apiRequest } from './request'
+import { apiRequest, apiRequestBlob, type BlobResponse } from './request'
 import type {
   PlatformAsyncTaskDto,
+  PlatformAsyncTaskDetailDto,
+  PlatformAsyncTaskRunDto,
   PlatformBackupRecoveryDto,
   PlatformBookingPolicyDto,
   PlatformBrandInfoDto,
@@ -202,6 +204,32 @@ const mapAsyncTask = (row: Record<string, any>): PlatformAsyncTaskDto => ({
   nextActions: mapActions(row.nextActions),
 })
 
+const mapAsyncTaskRun = (row: Record<string, any>): PlatformAsyncTaskRunDto => ({
+  taskId: text(row.taskId),
+  status: text(row.status),
+  runStatus: text(row.runStatus),
+  createdTime: text(row.createdTime),
+  startedTime: text(row.startedTime),
+  finishedTime: text(row.finishedTime),
+  expireTime: text(row.expireTime),
+  downloadUrl: text(row.downloadUrl),
+  fileName: text(row.fileName),
+  contentType: text(row.contentType),
+  errorMessage: text(row.errorMessage),
+  auditNote: text(row.auditNote),
+})
+
+const mapAsyncTaskDetail = (row: Record<string, any>): PlatformAsyncTaskDetailDto => ({
+  taskType: text(row.taskType),
+  taskName: text(row.taskName || row.taskType),
+  queueName: text(row.queueName),
+  latestRunStatus: text(row.latestRunStatus),
+  retentionPolicy: text(row.retentionPolicy),
+  status: normalizeStatus(row.status),
+  evidence: mapEvidence(row.evidence),
+  runs: Array.isArray(row.runs) ? row.runs.map(item => mapAsyncTaskRun(item as Record<string, any>)) : [],
+})
+
 const mapBackupRecovery = (row: Record<string, any>): PlatformBackupRecoveryDto => ({
   planCode: text(row.planCode),
   planName: text(row.planName || row.planCode),
@@ -273,6 +301,24 @@ export const platformApi = {
       async () => (await apiRequest<Record<string, any>[]>('/yy/platform-settings/async-tasks')).map(mapAsyncTask),
       fallbackAsyncTasks.map(item => ({ ...item })),
     )
+  },
+  async getPlatformAsyncTaskDetail(taskType: string): Promise<PlatformAsyncTaskDetailDto> {
+    return readOrFallback(
+      async () => mapAsyncTaskDetail(await apiRequest<Record<string, any>>(`/yy/platform-settings/async-tasks/${encodeURIComponent(taskType)}`)),
+      {
+        taskType,
+        taskName: taskType,
+        queueName: 'platform-export',
+        latestRunStatus: 'NOT_CONNECTED',
+        retentionPolicy: 'not configured',
+        status: 'scaffold',
+        evidence: [],
+        runs: [],
+      },
+    )
+  },
+  async downloadPlatformAsyncTaskByUrl(downloadUrl: string): Promise<BlobResponse> {
+    return apiRequestBlob(downloadUrl)
   },
   async listPlatformBookingPolicies(): Promise<PlatformBookingPolicyDto[]> {
     return [

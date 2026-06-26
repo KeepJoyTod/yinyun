@@ -1,9 +1,9 @@
 package org.dromara.yy.service.impl;
 
-import org.dromara.yy.domain.YyAsyncTask;
 import org.dromara.yy.domain.vo.YyChannelAccountVo;
 import org.dromara.yy.domain.vo.YyChannelSyncLogVo;
 import org.dromara.yy.domain.vo.YyNotificationTemplateVo;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskDetailVo;
 import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
 import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
@@ -13,7 +13,7 @@ import org.dromara.yy.domain.vo.YyPlatformNotificationRuleVo;
 import org.dromara.yy.domain.vo.YyPlatformOpenApiAppVo;
 import org.dromara.yy.domain.vo.YyPlatformServicePackageStatusVo;
 import org.dromara.yy.domain.vo.YyServiceLicenseBindingVo;
-import org.dromara.yy.mapper.YyAsyncTaskMapper;
+import org.dromara.yy.service.IYyAsyncTaskService;
 import org.dromara.yy.service.IYyChannelAccountService;
 import org.dromara.yy.service.IYyChannelSyncLogService;
 import org.dromara.yy.service.IYyNotificationLogService;
@@ -54,7 +54,7 @@ class YyPlatformSettingsServiceImplTest {
     @Mock
     private IYyServiceProductionService yyServiceProductionService;
     @Mock
-    private YyAsyncTaskMapper yyAsyncTaskMapper;
+    private IYyAsyncTaskService yyAsyncTaskService;
 
     @InjectMocks
     private YyPlatformSettingsServiceImpl service;
@@ -114,35 +114,28 @@ class YyPlatformSettingsServiceImplTest {
 
     @Test
     void listAsyncTasksShouldExposeTaskCenterScaffold() {
-        when(yyAsyncTaskMapper.selectList(any())).thenReturn(List.of());
-
-        List<YyPlatformAsyncTaskVo> result = service.listAsyncTasks();
-
-        assertEquals("EXPORT", result.get(0).getTaskType());
-        assertEquals("platform-export", result.get(0).getQueueName());
-        assertEquals("scaffold", result.get(0).getStatus());
-    }
-
-    @Test
-    void listAsyncTasksShouldReadPersistedAsyncTaskLedger() {
-        YyAsyncTask task = new YyAsyncTask();
-        task.setTaskNo("FIN-REC-1");
+        YyPlatformAsyncTaskVo task = new YyPlatformAsyncTaskVo();
         task.setTaskType("REPORT_FINANCE_RECONCILIATION_EXPORT");
-        task.setTaskName("Finance reconciliation export");
         task.setQueueName("platform-export");
-        task.setStatus("COMPLETED");
-        task.setRunStatus("COMPLETED");
-        task.setAuditNote("created from finance report");
-        task.setCreateTime(new Date());
-        when(yyAsyncTaskMapper.selectList(any())).thenReturn(List.of(task));
+        task.setStatus("scaffold");
+        when(yyAsyncTaskService.listPlatformTaskSummaries()).thenReturn(List.of(task));
 
         List<YyPlatformAsyncTaskVo> result = service.listAsyncTasks();
 
         assertEquals("REPORT_FINANCE_RECONCILIATION_EXPORT", result.get(0).getTaskType());
         assertEquals("platform-export", result.get(0).getQueueName());
-        assertEquals("COMPLETED", result.get(0).getLatestRunStatus());
-        assertEquals("ready", result.get(0).getStatus());
-        assertEquals("yy_async_task", result.get(0).getEvidence().get(0).getSourceType());
+        assertEquals("scaffold", result.get(0).getStatus());
+    }
+
+    @Test
+    void getAsyncTaskDetailShouldDelegateToAsyncTaskOwner() {
+        YyPlatformAsyncTaskDetailVo detail = new YyPlatformAsyncTaskDetailVo();
+        detail.setTaskType("REPORT_FINANCE_RECONCILIATION_EXPORT");
+        when(yyAsyncTaskService.getPlatformTaskDetail(eq("REPORT_FINANCE_RECONCILIATION_EXPORT"))).thenReturn(detail);
+
+        YyPlatformAsyncTaskDetailVo result = service.getAsyncTaskDetail("REPORT_FINANCE_RECONCILIATION_EXPORT");
+
+        assertEquals("REPORT_FINANCE_RECONCILIATION_EXPORT", result.getTaskType());
     }
 
     @Test

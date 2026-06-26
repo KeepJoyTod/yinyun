@@ -22,7 +22,7 @@
           重新加载
         </button>
         <button data-testid="report-finance-export" class="yy-action h-9 border border-amber-topbar-border bg-white px-4 text-[11px] text-amber-dark hover:border-amber-dark" type="button" :disabled="exporting" @click="createExportTask">
-          {{ exporting ? '创建中' : '异步导出' }}
+          {{ exporting ? '创建中...' : '异步导出' }}
         </button>
       </div>
 
@@ -48,7 +48,7 @@
     </section>
 
     <section v-if="loading" data-testid="report-finance-loading" class="yy-console-card border border-amber-topbar-border bg-amber-content-bg p-6 text-[11px] text-amber-text-muted">
-      财务对账加载中，正在读取 yy_order、yy_payment_record、储值、提现、组合支付和权益预占账本。
+      财务对账加载中，正在读取 `yy_order`、`yy_payment_record`、储值、提现、组合支付和权益预占账本。
     </section>
 
     <section v-else-if="hasData" data-testid="report-finance-content" class="grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_1fr]">
@@ -83,7 +83,7 @@
         <article class="yy-console-card border border-amber-topbar-border bg-amber-content-bg">
           <div class="border-b border-amber-topbar-border px-5 py-4">
             <div class="text-[12px] font-semibold text-amber-dark">导出任务</div>
-            <p class="mt-1 text-[10.5px] text-amber-text-muted">异步导出任务状态、下载地址和过期时间。</p>
+            <p class="mt-1 text-[10.5px] text-amber-text-muted">异步导出任务状态、下载鉴权和过期时间。</p>
           </div>
           <div data-testid="report-finance-export-tasks" class="space-y-3 p-5">
             <div v-if="!exportTaskRows.length" class="text-[10.5px] text-amber-text-muted">暂无导出任务。</div>
@@ -99,7 +99,18 @@
                 <span>创建：{{ task.createdTime }}</span>
                 <span>过期：{{ task.expireTime }}</span>
               </div>
-              <div class="mt-3 break-all text-[10px] text-amber-text-muted">{{ task.downloadUrl || task.auditNote }}</div>
+              <div class="mt-3 text-[10px] text-amber-text-muted">{{ task.downloadUrl || task.auditNote }}</div>
+              <div v-if="task.errorMessage" class="mt-2 text-[10px] text-[var(--color-status-danger)]">{{ task.errorMessage }}</div>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button
+                  class="yy-action border border-amber-topbar-border px-3 py-1.5 text-[10px] text-amber-dark disabled:opacity-50"
+                  type="button"
+                  :disabled="task.status !== 'COMPLETED' || downloadingTaskId === task.id"
+                  @click="downloadTask(task.id, task.fileName || `${task.id}.csv`)"
+                >
+                  {{ downloadingTaskId === task.id ? '下载中...' : '下载文件' }}
+                </button>
+              </div>
             </div>
           </div>
         </article>
@@ -188,6 +199,7 @@ const {
   dateEnd,
   loading,
   exporting,
+  downloadingTaskId,
   error,
   exportMessage,
   data,
@@ -195,6 +207,7 @@ const {
   hasData,
   reload,
   createExportTask,
+  downloadTask,
 } = useReportFinanceReconciliation()
 
 const summaryCards = computed(() => buildFinanceSummaryCards(data.value.overview))

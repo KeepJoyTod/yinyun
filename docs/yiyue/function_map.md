@@ -538,6 +538,17 @@
 ### 已完成
 - `R-014` 报表导出任务补齐统一异步任务账本一期：`POST /yy/reportFinanceReconciliation/export` 创建的财务对账导出任务会写入 `yy_async_task`。
 - `P-010` 异步任务中心从纯脚手架升级为可读取真实任务账本：`GET /yy/platform-settings/async-tasks` 优先按 `taskType` 聚合 `yy_async_task`，无记录时保留原脚手架兜底。
+
+## 2026-06-26 finance-export-async-closed-loop
+
+### 已完成
+- `R-015 财务对账报表` 已从“任务账本一期”推进到真实异步导出闭环：创建任务后会进入 `yy_async_task`，由定时 worker 领取并生成 CSV，再上传 `sys_oss`。
+- 导出任务已补齐失败重试、跨实例任务领取 lease、下载鉴权、过期清理和平台任务中心详情抽屉。
+- `/platform/task-center` 已支持查看 `REPORT_FINANCE_RECONCILIATION_EXPORT` 最近运行、错误信息、过期时间和下载入口。
+
+### 仍需继续
+- 当前只闭环了财务对账导出；首页导出、工单导出、资源导出等其他任务类型尚未接入统一 worker。
+- 财务对账仍然只对本地账本做核对，不包含微信/抖音/美团/银行真实回单对账。
 - SQL 初始化脚本已补 `yy_async_task` MySQL/PostgreSQL 表结构、任务编号唯一索引和任务类型/门店查询索引。
 
 ### 仍需继续

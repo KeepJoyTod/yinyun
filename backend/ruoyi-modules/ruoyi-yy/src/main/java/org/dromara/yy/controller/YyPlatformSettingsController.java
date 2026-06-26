@@ -3,6 +3,7 @@ package org.dromara.yy.controller;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
+import org.dromara.yy.domain.vo.YyPlatformAsyncTaskDetailVo;
 import org.dromara.yy.domain.vo.YyPlatformAsyncTaskVo;
 import org.dromara.yy.domain.vo.YyPlatformBackupRecoveryVo;
 import org.dromara.yy.domain.vo.YyPlatformIntegrationStatusVo;
@@ -14,6 +15,7 @@ import org.dromara.yy.domain.vo.YyPlatformServicePackageStatusVo;
 import org.dromara.yy.service.IYyPlatformSettingsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +52,12 @@ public class YyPlatformSettingsController {
     @GetMapping("/async-tasks")
     public R<List<YyPlatformAsyncTaskVo>> asyncTasks() {
         return R.ok(yyPlatformSettingsService.listAsyncTasks());
+    }
+
+    @SaCheckPermission("yy:dashboard:list")
+    @GetMapping("/async-tasks/{taskType}")
+    public R<YyPlatformAsyncTaskDetailVo> asyncTaskDetail(@PathVariable String taskType) {
+        return R.ok(yyPlatformSettingsService.getAsyncTaskDetail(taskType));
     }
 
     @SaCheckPermission("yy:notification:list")
